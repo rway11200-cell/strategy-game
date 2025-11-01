@@ -9,7 +9,17 @@ interface CreadorUnidadesProps {
   camino: PointData[];
 }
 
-// Clase creadora de unidesdes, es capaz de crear ordas
+/**
+ * Clase creadora de unidades, capaz de crear hordas.
+ *
+ * @description Genera instancias de unidades y controla su aparición secuencial.
+ * @param {CreadorUnidadesProps} props - Propiedades del creador.
+ * @param {Container} props.contenedor - Contenedor donde se agregan las unidades.
+ * @param {PointData[]} props.camino - Camino que seguirán las unidades.
+ * @param {typeof Unidad} props.unidad - Tipo de unidad a instanciar.
+ * @param {number} props.cantidad - Número total de unidades.
+ * @param {number} props.retrasoAparicionMS - Retraso entre apariciones (ms).
+ */
 export class CreadorUnidades {
   private unidades: Unidad[];
   private contenedor: Container;
@@ -27,7 +37,7 @@ export class CreadorUnidades {
       this.contenedor.addChild(nuevaUnidad);
     }
   }
-  public generarGrupoUnidades() {
+  public generarGrupoUnidades(): Unidad[] {
     let index = 1;
     this.unidades.forEach((unidad) => {
       setTimeout(() => {
@@ -35,6 +45,7 @@ export class CreadorUnidades {
       }, index * this.retrasoAparicionMS);
       index++;
     });
+    return this.unidades;
   }
 
   public update(_time: Ticker) {

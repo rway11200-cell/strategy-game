@@ -13,12 +13,6 @@ import "@pixi/sound";
 
 // Create a new creation engine instance
 
-
-
-import { Application, Sprite, Assets} from 'pixi.js';
-
-
-
 const engine = new CreationEngine();
 
 initDevtools({ app: engine });
