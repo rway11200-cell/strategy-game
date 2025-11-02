@@ -2,17 +2,19 @@ import { FancyButton } from "@pixi/ui";
 import { animate } from "motion";
 import type { AnimationPlaybackControls } from "motion/react";
 import type { PointData, Ticker } from "pixi.js";
-import { Container } from "pixi.js";
+import { Color, Container, Sprite, Texture } from "pixi.js";
 
 import { engine } from "../../getEngine";
 import { PausePopup } from "../../popups/PausePopup";
 import { SettingsPopup } from "../../popups/SettingsPopup";
 
 import { herramientaDesarrolloPintarPuntos } from "../../utils/herramietasDesarrollo";
+import { MoverUnTickHaciaTarget } from "../../utils/movimiento";
 import { CreadorUnidades } from "./CreadorUnidades";
 import { BaseTorre } from "./unidades/baseTorre";
 import { Enemigo } from "./unidades/enemigo";
 import { Torre } from "./unidades/Torre";
+import { Unidad } from "./unidades/unidad";
 
 interface ManejadorDeTorre {
   ubicacion: PointData;
@@ -30,6 +32,8 @@ export class MainScreen extends Container {
 
   private creadorEnemigos: CreadorUnidades;
   private paused = false;
+  public proyectil: Sprite | undefined;
+  public unidades!: Unidad[];
 
   constructor() {
     super();
@@ -38,11 +42,11 @@ export class MainScreen extends Container {
     this.addChild(this.mainContainer);
 
     const manejadorDeTorres: ManejadorDeTorre[] = [
-      { ubicacion: { x: -400, y: -200 }, construido: false },
-      { ubicacion: { x: -300, y: -400 }, construido: false },
-      { ubicacion: { x: -100, y: -200 }, construido: false },
-      { ubicacion: { x: -300, y: -100 }, construido: false },
-      { ubicacion: { x: -200, y: -400 }, construido: false },
+      { ubicacion: { x: 1, y: -100 }, construido: false },
+      { ubicacion: { x: 100, y: 50 }, construido: false },
+      { ubicacion: { x: -100, y: 50 }, construido: false },
+      { ubicacion: { x: -200, y: -100 }, construido: false },
+      { ubicacion: { x: 200, y: -100 }, construido: false },
     ];
 
     manejadorDeTorres.forEach((manejador) => {
@@ -59,6 +63,16 @@ export class MainScreen extends Container {
 
         this.mainContainer.addChild(new Torre("Torre1.json", manejador.ubicacion));
         manejador.construido = true;
+        engine().audio.sfx.play("main/sounds/sfx-hover.wav", { volume: 0.6 });
+
+        this.proyectil = new Sprite({
+          texture: Texture.WHITE,
+          position: { x: 1, y: -100 },
+          tint: new Color("yellow"),
+          width: 20,
+          height: 20,
+        });
+        this.mainContainer.addChild(this.proyectil);
       };
 
       this.mainContainer.addChild(newSprite);
@@ -83,7 +97,7 @@ export class MainScreen extends Container {
     });
 
     setTimeout(() => {
-      this.creadorEnemigos.generarGrupoUnidades();
+      this.unidades = this.creadorEnemigos.generarGrupoUnidades();
     }, 3000);
 
     const buttonAnimations = {
@@ -124,6 +138,13 @@ export class MainScreen extends Container {
   public update(_time: Ticker) {
     if (this.paused) return;
     this.creadorEnemigos.update(_time);
+    const unidad1: Unidad | undefined = this.unidades ? this.unidades[9] : undefined;
+    if (this.proyectil && unidad1) {
+      const llegoADestino = MoverUnTickHaciaTarget(1, this.proyectil, unidad1.position, _time, 10);
+      if (llegoADestino) {
+        this.proyectil = undefined;
+      }
+    }
   }
 
   /** Pause gameplay - automatically fired when a popup is presented */

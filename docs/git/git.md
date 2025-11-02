@@ -132,6 +132,14 @@ git checkout nombre-de-la-rama
 
 ---
 
+### 🔄 Cambiar de rama a una rama remota
+
+```bash
+git checkout -t origin/nombre-de-la-rama
+```
+
+---
+
 ### 🧹 Ver todas las ramas
 
 ```bash
