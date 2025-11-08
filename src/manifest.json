@@ -1,0 +1,360 @@
+{
+  "bundles": [
+    {
+      "name": "default",
+      "assets": []
+    },
+    {
+      "name": "main",
+      "assets": [
+        {
+          "alias": [
+            "main/logo-white.svg",
+            "logo-white.svg"
+          ],
+          "src": [
+            "main/logo-white.svg"
+          ],
+          "data": {
+            "tags": {
+              "m": true
+            }
+          }
+        },
+        {
+          "alias": [
+            "main/sounds/bgm-main.mp3",
+            "bgm-main.mp3"
+          ],
+          "src": [
+            "main/sounds/bgm-main.ogg",
+            "main/sounds/bgm-main.mp3"
+          ],
+          "data": {
+            "tags": {
+              "m": true
+            }
+          }
+        },
+        {
+          "alias": [
+            "main/sounds/sfx-hover.wav",
+            "sfx-hover.wav"
+          ],
+          "src": [
+            "main/sounds/sfx-hover.ogg",
+            "main/sounds/sfx-hover.mp3"
+          ],
+          "data": {
+            "tags": {
+              "m": true
+            }
+          }
+        },
+        {
+          "alias": [
+            "main/sounds/sfx-press.wav",
+            "sfx-press.wav"
+          ],
+          "src": [
+            "main/sounds/sfx-press.ogg",
+            "main/sounds/sfx-press.mp3"
+          ],
+          "data": {
+            "tags": {
+              "m": true
+            }
+          }
+        },
+        {
+          "alias": [
+            "main/towers/Tower 02.png",
+            "Tower 02.png"
+          ],
+          "src": [
+            "main/towers/Tower 02@0.5x.webp",
+            "main/towers/Tower 02@0.5x.png",
+            "main/towers/Tower 02.webp",
+            "main/towers/Tower 02.png"
+          ],
+          "data": {
+            "tags": {
+              "m": true
+            }
+          }
+        },
+        {
+          "alias": [
+            "main/towers/Tower 03.png",
+            "Tower 03.png"
+          ],
+          "src": [
+            "main/towers/Tower 03@0.5x.webp",
+            "main/towers/Tower 03@0.5x.png",
+            "main/towers/Tower 03.webp",
+            "main/towers/Tower 03.png"
+          ],
+          "data": {
+            "tags": {
+              "m": true
+            }
+          }
+        },
+        {
+          "alias": [
+            "main/ui",
+            "ui"
+          ],
+          "src": [
+            "main/ui@0.5x.webp.json",
+            "main/ui@0.5x.png.json",
+            "main/ui.webp.json",
+            "main/ui.png.json"
+          ],
+          "data": {
+            "tags": {
+              "m": true,
+              "tps": true
+            }
+          }
+        },
+        {
+          "alias": [
+            "main/unidades/enemigos/goblin/goblin scout - silhouette all animations-death 1.json",
+            "goblin scout - silhouette all animations-death 1.json"
+          ],
+          "src": [
+            "main/unidades/enemigos/goblin/goblin scout - silhouette all animations-death 1.json"
+          ],
+          "data": {
+            "tags": {
+              "m": true
+            }
+          }
+        },
+        {
+          "alias": [
+            "main/unidades/enemigos/goblin/goblin scout - silhouette all animations-death 1.png",
+            "goblin scout - silhouette all animations-death 1.png"
+          ],
+          "src": [
+            "main/unidades/enemigos/goblin/goblin scout - silhouette all animations-death 1@0.5x.webp",
+            "main/unidades/enemigos/goblin/goblin scout - silhouette all animations-death 1@0.5x.png",
+            "main/unidades/enemigos/goblin/goblin scout - silhouette all animations-death 1.webp",
+            "main/unidades/enemigos/goblin/goblin scout - silhouette all animations-death 1.png"
+          ],
+          "data": {
+            "tags": {
+              "m": true
+            }
+          }
+        },
+        {
+          "alias": [
+            "main/unidades/enemigos/goblin/goblin scout - silhouette all animations-hit.json",
+            "goblin scout - silhouette all animations-hit.json"
+          ],
+          "src": [
+            "main/unidades/enemigos/goblin/goblin scout - silhouette all animations-hit.json"
+          ],
+          "data": {
+            "tags": {
+              "m": true
+            }
+          }
+        },
+        {
+          "alias": [
+            "main/unidades/enemigos/goblin/goblin scout - silhouette all animations-hit.png",
+            "goblin scout - silhouette all animations-hit.png"
+          ],
+          "src": [
+            "main/unidades/enemigos/goblin/goblin scout - silhouette all animations-hit@0.5x.webp",
+            "main/unidades/enemigos/goblin/goblin scout - silhouette all animations-hit@0.5x.png",
+            "main/unidades/enemigos/goblin/goblin scout - silhouette all animations-hit.webp",
+            "main/unidades/enemigos/goblin/goblin scout - silhouette all animations-hit.png"
+          ],
+          "data": {
+            "tags": {
+              "m": true
+            }
+          }
+        },
+        {
+          "alias": [
+            "main/unidades/enemigos/goblin/goblin scout - silhouette all animations-idle.json",
+            "goblin scout - silhouette all animations-idle.json"
+          ],
+          "src": [
+            "main/unidades/enemigos/goblin/goblin scout - silhouette all animations-idle.json"
+          ],
+          "data": {
+            "tags": {
+              "m": true
+            }
+          }
+        },
+        {
+          "alias": [
+            "main/unidades/enemigos/goblin/goblin scout - silhouette all animations-idle.png",
+            "goblin scout - silhouette all animations-idle.png"
+          ],
+          "src": [
+            "main/unidades/enemigos/goblin/goblin scout - silhouette all animations-idle@0.5x.webp",
+            "main/unidades/enemigos/goblin/goblin scout - silhouette all animations-idle@0.5x.png",
+            "main/unidades/enemigos/goblin/goblin scout - silhouette all animations-idle.webp",
+            "main/unidades/enemigos/goblin/goblin scout - silhouette all animations-idle.png"
+          ],
+          "data": {
+            "tags": {
+              "m": true
+            }
+          }
+        },
+        {
+          "alias": [
+            "main/unidades/enemigos/goblin/goblin scout - silhouette all animations-run.json",
+            "goblin scout - silhouette all animations-run.json"
+          ],
+          "src": [
+            "main/unidades/enemigos/goblin/goblin scout - silhouette all animations-run.json"
+          ],
+          "data": {
+            "tags": {
+              "m": true
+            }
+          }
+        },
+        {
+          "alias": [
+            "main/unidades/enemigos/goblin/goblin scout - silhouette all animations-run.png",
+            "goblin scout - silhouette all animations-run.png"
+          ],
+          "src": [
+            "main/unidades/enemigos/goblin/goblin scout - silhouette all animations-run@0.5x.webp",
+            "main/unidades/enemigos/goblin/goblin scout - silhouette all animations-run@0.5x.png",
+            "main/unidades/enemigos/goblin/goblin scout - silhouette all animations-run.webp",
+            "main/unidades/enemigos/goblin/goblin scout - silhouette all animations-run.png"
+          ],
+          "data": {
+            "tags": {
+              "m": true
+            }
+          }
+        },
+        {
+          "alias": [
+            "main/unidades/enemigos/goblin/goblin scout - silhouette all animations-walk.json",
+            "goblin scout - silhouette all animations-walk.json"
+          ],
+          "src": [
+            "main/unidades/enemigos/goblin/goblin scout - silhouette all animations-walk.json"
+          ],
+          "data": {
+            "tags": {
+              "m": true
+            }
+          }
+        },
+        {
+          "alias": [
+            "main/unidades/enemigos/goblin/goblin scout - silhouette all animations-walk.png",
+            "goblin scout - silhouette all animations-walk.png"
+          ],
+          "src": [
+            "main/unidades/enemigos/goblin/goblin scout - silhouette all animations-walk@0.5x.webp",
+            "main/unidades/enemigos/goblin/goblin scout - silhouette all animations-walk@0.5x.png",
+            "main/unidades/enemigos/goblin/goblin scout - silhouette all animations-walk.webp",
+            "main/unidades/enemigos/goblin/goblin scout - silhouette all animations-walk.png"
+          ],
+          "data": {
+            "tags": {
+              "m": true
+            }
+          }
+        },
+        {
+          "alias": [
+            "main/unidades/torres/Torre1.json",
+            "Torre1.json"
+          ],
+          "src": [
+            "main/unidades/torres/Torre1.json"
+          ],
+          "data": {
+            "tags": {
+              "m": true
+            }
+          }
+        },
+        {
+          "alias": [
+            "main/unidades/torres/Torre1.png",
+            "Torre1.png"
+          ],
+          "src": [
+            "main/unidades/torres/Torre1@0.5x.webp",
+            "main/unidades/torres/Torre1@0.5x.png",
+            "main/unidades/torres/Torre1.webp",
+            "main/unidades/torres/Torre1.png"
+          ],
+          "data": {
+            "tags": {
+              "m": true
+            }
+          }
+        },
+        {
+          "alias": [
+            "main/unidades/torres/suelo-torre.json",
+            "suelo-torre.json"
+          ],
+          "src": [
+            "main/unidades/torres/suelo-torre.json"
+          ],
+          "data": {
+            "tags": {
+              "m": true
+            }
+          }
+        },
+        {
+          "alias": [
+            "main/unidades/torres/suelo-torre.png",
+            "suelo-torre.png"
+          ],
+          "src": [
+            "main/unidades/torres/suelo-torre@0.5x.webp",
+            "main/unidades/torres/suelo-torre@0.5x.png",
+            "main/unidades/torres/suelo-torre.webp",
+            "main/unidades/torres/suelo-torre.png"
+          ],
+          "data": {
+            "tags": {
+              "m": true
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "preload",
+      "assets": [
+        {
+          "alias": [
+            "preload/logo.svg",
+            "logo.svg"
+          ],
+          "src": [
+            "preload/logo.svg"
+          ],
+          "data": {
+            "tags": {
+              "m": true
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

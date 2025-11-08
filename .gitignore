@@ -24,6 +24,6 @@ dist-ssr
 *.sln
 *.sw?
 
-public/assets
-.assetpack
-src/manifest.json
+#public/assets
+#.assetpack
+#src/manifest.json

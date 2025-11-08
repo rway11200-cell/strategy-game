@@ -1,0 +1,1854 @@
+{
+    "assets": {
+        "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets": {
+            "isFolder": true,
+            "metaData": {},
+            "inheritedMetaData": {},
+            "transformData": {},
+            "stats": {
+                "date": 1761192333836,
+                "duration": 0.9744170000194572,
+                "success": true
+            }
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}": {
+            "isFolder": true,
+            "parent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets",
+            "metaData": {
+                "m": true
+            },
+            "inheritedMetaData": {},
+            "transformData": {},
+            "stats": {
+                "date": 1761192333837,
+                "duration": 0.3954999999841675,
+                "success": true
+            }
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/logo-white.svg": {
+            "isFolder": false,
+            "parent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {},
+            "stats": {
+                "date": 1760889959969,
+                "duration": 7.766916999999921,
+                "success": true
+            },
+            "hash": "Wq9lMw"
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/public/assets/main/logo-white.svg": {
+            "isFolder": false,
+            "transformParent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/logo-white.svg",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/sounds": {
+            "isFolder": true,
+            "parent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {},
+            "stats": {
+                "date": 1761172767204,
+                "duration": 3.3093340000000353,
+                "success": true
+            }
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/sounds/bgm-main.mp3": {
+            "isFolder": false,
+            "parent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/sounds",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {},
+            "stats": {
+                "date": 1761172767204,
+                "duration": 595.8594579999999,
+                "success": true
+            },
+            "hash": "cPUMxw"
+        },
+        ".assetpack/audio/main{m}/sounds/bgm-main.mp3": {
+            "isFolder": false,
+            "transformParent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/sounds/bgm-main.mp3",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/public/assets/main/sounds/bgm-main.mp3": {
+            "isFolder": false,
+            "transformParent": ".assetpack/audio/main{m}/sounds/bgm-main.mp3",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        ".assetpack/audio/main{m}/sounds/bgm-main.ogg": {
+            "isFolder": false,
+            "transformParent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/sounds/bgm-main.mp3",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/public/assets/main/sounds/bgm-main.ogg": {
+            "isFolder": false,
+            "transformParent": ".assetpack/audio/main{m}/sounds/bgm-main.ogg",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/sounds/sfx-hover.wav": {
+            "isFolder": false,
+            "parent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/sounds",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {},
+            "stats": {
+                "date": 1760889959973,
+                "duration": 85.17683300000022,
+                "success": true
+            },
+            "hash": "P9yd"
+        },
+        ".assetpack/audio/main{m}/sounds/sfx-hover.mp3": {
+            "isFolder": false,
+            "transformParent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/sounds/sfx-hover.wav",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/public/assets/main/sounds/sfx-hover.mp3": {
+            "isFolder": false,
+            "transformParent": ".assetpack/audio/main{m}/sounds/sfx-hover.mp3",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        ".assetpack/audio/main{m}/sounds/sfx-hover.ogg": {
+            "isFolder": false,
+            "transformParent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/sounds/sfx-hover.wav",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/public/assets/main/sounds/sfx-hover.ogg": {
+            "isFolder": false,
+            "transformParent": ".assetpack/audio/main{m}/sounds/sfx-hover.ogg",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/sounds/sfx-press.wav": {
+            "isFolder": false,
+            "parent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/sounds",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {},
+            "stats": {
+                "date": 1760889959973,
+                "duration": 77.82312499999989,
+                "success": true
+            },
+            "hash": "59LMfg"
+        },
+        ".assetpack/audio/main{m}/sounds/sfx-press.mp3": {
+            "isFolder": false,
+            "transformParent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/sounds/sfx-press.wav",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/public/assets/main/sounds/sfx-press.mp3": {
+            "isFolder": false,
+            "transformParent": ".assetpack/audio/main{m}/sounds/sfx-press.mp3",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        ".assetpack/audio/main{m}/sounds/sfx-press.ogg": {
+            "isFolder": false,
+            "transformParent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/sounds/sfx-press.wav",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/public/assets/main/sounds/sfx-press.ogg": {
+            "isFolder": false,
+            "transformParent": ".assetpack/audio/main{m}/sounds/sfx-press.ogg",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/towers": {
+            "isFolder": true,
+            "parent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {},
+            "stats": {
+                "date": 1761184181347,
+                "duration": 0.06791700003668666,
+                "success": true
+            }
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/towers/Tower 02.png": {
+            "isFolder": false,
+            "parent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/towers",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {},
+            "stats": {
+                "date": 1761172767207,
+                "duration": 37.66037499999993,
+                "success": true
+            },
+            "hash": "ItOF1A"
+        },
+        ".assetpack/mipmap/main{m}/towers/Tower 02.png": {
+            "isFolder": false,
+            "transformParent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/towers/Tower 02.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        ".assetpack/compress/main{m}/towers/Tower 02.png": {
+            "isFolder": false,
+            "transformParent": ".assetpack/mipmap/main{m}/towers/Tower 02.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/public/assets/main/towers/Tower 02.png": {
+            "isFolder": false,
+            "transformParent": ".assetpack/compress/main{m}/towers/Tower 02.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        ".assetpack/compress/main{m}/towers/Tower 02.webp": {
+            "isFolder": false,
+            "transformParent": ".assetpack/mipmap/main{m}/towers/Tower 02.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/public/assets/main/towers/Tower 02.webp": {
+            "isFolder": false,
+            "transformParent": ".assetpack/compress/main{m}/towers/Tower 02.webp",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        ".assetpack/mipmap/main{m}/towers/Tower 02@0.5x.png": {
+            "isFolder": false,
+            "transformParent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/towers/Tower 02.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        ".assetpack/compress/main{m}/towers/Tower 02@0.5x.png": {
+            "isFolder": false,
+            "transformParent": ".assetpack/mipmap/main{m}/towers/Tower 02@0.5x.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/public/assets/main/towers/Tower 02@0.5x.png": {
+            "isFolder": false,
+            "transformParent": ".assetpack/compress/main{m}/towers/Tower 02@0.5x.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        ".assetpack/compress/main{m}/towers/Tower 02@0.5x.webp": {
+            "isFolder": false,
+            "transformParent": ".assetpack/mipmap/main{m}/towers/Tower 02@0.5x.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/public/assets/main/towers/Tower 02@0.5x.webp": {
+            "isFolder": false,
+            "transformParent": ".assetpack/compress/main{m}/towers/Tower 02@0.5x.webp",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/towers/Tower 03.png": {
+            "isFolder": false,
+            "parent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/towers",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {},
+            "stats": {
+                "date": 1761172767210,
+                "duration": 36.12625000000003,
+                "success": true
+            },
+            "hash": "Rx6ihw"
+        },
+        ".assetpack/mipmap/main{m}/towers/Tower 03.png": {
+            "isFolder": false,
+            "transformParent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/towers/Tower 03.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        ".assetpack/compress/main{m}/towers/Tower 03.png": {
+            "isFolder": false,
+            "transformParent": ".assetpack/mipmap/main{m}/towers/Tower 03.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/public/assets/main/towers/Tower 03.png": {
+            "isFolder": false,
+            "transformParent": ".assetpack/compress/main{m}/towers/Tower 03.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        ".assetpack/compress/main{m}/towers/Tower 03.webp": {
+            "isFolder": false,
+            "transformParent": ".assetpack/mipmap/main{m}/towers/Tower 03.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/public/assets/main/towers/Tower 03.webp": {
+            "isFolder": false,
+            "transformParent": ".assetpack/compress/main{m}/towers/Tower 03.webp",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        ".assetpack/mipmap/main{m}/towers/Tower 03@0.5x.png": {
+            "isFolder": false,
+            "transformParent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/towers/Tower 03.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        ".assetpack/compress/main{m}/towers/Tower 03@0.5x.png": {
+            "isFolder": false,
+            "transformParent": ".assetpack/mipmap/main{m}/towers/Tower 03@0.5x.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/public/assets/main/towers/Tower 03@0.5x.png": {
+            "isFolder": false,
+            "transformParent": ".assetpack/compress/main{m}/towers/Tower 03@0.5x.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        ".assetpack/compress/main{m}/towers/Tower 03@0.5x.webp": {
+            "isFolder": false,
+            "transformParent": ".assetpack/mipmap/main{m}/towers/Tower 03@0.5x.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/public/assets/main/towers/Tower 03@0.5x.webp": {
+            "isFolder": false,
+            "transformParent": ".assetpack/compress/main{m}/towers/Tower 03@0.5x.webp",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/ui{tps}": {
+            "isFolder": true,
+            "parent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}",
+            "metaData": {
+                "tps": true
+            },
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {},
+            "stats": {
+                "date": 1761182359613,
+                "duration": 83.05233299999963,
+                "success": true
+            }
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/ui{tps}/button.png": {
+            "isFolder": false,
+            "parent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/ui{tps}",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true,
+                "tps": true
+            },
+            "transformData": {},
+            "hash": "33gC"
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/ui{tps}/icon-pause.png": {
+            "isFolder": false,
+            "parent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/ui{tps}",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true,
+                "tps": true
+            },
+            "transformData": {},
+            "hash": "6xk80g"
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/ui{tps}/icon-settings.png": {
+            "isFolder": false,
+            "parent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/ui{tps}",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true,
+                "tps": true
+            },
+            "transformData": {},
+            "hash": "xq0X7Q"
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/ui{tps}/rounded-rectangle.png": {
+            "isFolder": false,
+            "parent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/ui{tps}",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true,
+                "tps": true
+            },
+            "transformData": {},
+            "hash": "fUycdg"
+        },
+        ".assetpack/texture-packer/main{m}/ui.png": {
+            "isFolder": false,
+            "transformParent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/ui{tps}",
+            "metaData": {
+                "mIgnore": true,
+                "nomip": true
+            },
+            "inheritedMetaData": {
+                "m": true,
+                "tps": true
+            },
+            "transformData": {}
+        },
+        ".assetpack/compress/main{m}/ui.png": {
+            "isFolder": false,
+            "transformParent": ".assetpack/texture-packer/main{m}/ui.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true,
+                "tps": true,
+                "mIgnore": true,
+                "nomip": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/public/assets/main/ui.png": {
+            "isFolder": false,
+            "transformParent": ".assetpack/compress/main{m}/ui.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true,
+                "tps": true,
+                "mIgnore": true,
+                "nomip": true
+            },
+            "transformData": {}
+        },
+        ".assetpack/compress/main{m}/ui.webp": {
+            "isFolder": false,
+            "transformParent": ".assetpack/texture-packer/main{m}/ui.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true,
+                "tps": true,
+                "mIgnore": true,
+                "nomip": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/public/assets/main/ui.webp": {
+            "isFolder": false,
+            "transformParent": ".assetpack/compress/main{m}/ui.webp",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true,
+                "tps": true,
+                "mIgnore": true,
+                "nomip": true
+            },
+            "transformData": {}
+        },
+        ".assetpack/texture-packer/main{m}/ui.json": {
+            "isFolder": false,
+            "transformParent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/ui{tps}",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true,
+                "tps": true
+            },
+            "transformData": {
+                "page": 0
+            }
+        },
+        ".assetpack/texture-packer-compress/main{m}/ui.png.json": {
+            "isFolder": false,
+            "transformParent": ".assetpack/texture-packer/main{m}/ui.json",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true,
+                "tps": true
+            },
+            "transformData": {
+                "page": 0
+            }
+        },
+        ".assetpack/json/main{m}/ui.png.json": {
+            "isFolder": false,
+            "transformParent": ".assetpack/texture-packer-compress/main{m}/ui.png.json",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true,
+                "tps": true
+            },
+            "transformData": {
+                "page": 0
+            }
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/public/assets/main/ui.png.json": {
+            "isFolder": false,
+            "transformParent": ".assetpack/json/main{m}/ui.png.json",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true,
+                "tps": true
+            },
+            "transformData": {
+                "page": 0
+            }
+        },
+        ".assetpack/texture-packer-compress/main{m}/ui.webp.json": {
+            "isFolder": false,
+            "transformParent": ".assetpack/texture-packer/main{m}/ui.json",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true,
+                "tps": true
+            },
+            "transformData": {
+                "page": 0
+            }
+        },
+        ".assetpack/json/main{m}/ui.webp.json": {
+            "isFolder": false,
+            "transformParent": ".assetpack/texture-packer-compress/main{m}/ui.webp.json",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true,
+                "tps": true
+            },
+            "transformData": {
+                "page": 0
+            }
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/public/assets/main/ui.webp.json": {
+            "isFolder": false,
+            "transformParent": ".assetpack/json/main{m}/ui.webp.json",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true,
+                "tps": true
+            },
+            "transformData": {
+                "page": 0
+            }
+        },
+        ".assetpack/texture-packer/main{m}/ui@0.5x.png": {
+            "isFolder": false,
+            "transformParent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/ui{tps}",
+            "metaData": {
+                "mIgnore": true,
+                "nomip": true
+            },
+            "inheritedMetaData": {
+                "m": true,
+                "tps": true
+            },
+            "transformData": {}
+        },
+        ".assetpack/compress/main{m}/ui@0.5x.png": {
+            "isFolder": false,
+            "transformParent": ".assetpack/texture-packer/main{m}/ui@0.5x.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true,
+                "tps": true,
+                "mIgnore": true,
+                "nomip": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/public/assets/main/ui@0.5x.png": {
+            "isFolder": false,
+            "transformParent": ".assetpack/compress/main{m}/ui@0.5x.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true,
+                "tps": true,
+                "mIgnore": true,
+                "nomip": true
+            },
+            "transformData": {}
+        },
+        ".assetpack/compress/main{m}/ui@0.5x.webp": {
+            "isFolder": false,
+            "transformParent": ".assetpack/texture-packer/main{m}/ui@0.5x.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true,
+                "tps": true,
+                "mIgnore": true,
+                "nomip": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/public/assets/main/ui@0.5x.webp": {
+            "isFolder": false,
+            "transformParent": ".assetpack/compress/main{m}/ui@0.5x.webp",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true,
+                "tps": true,
+                "mIgnore": true,
+                "nomip": true
+            },
+            "transformData": {}
+        },
+        ".assetpack/texture-packer/main{m}/ui@0.5x.json": {
+            "isFolder": false,
+            "transformParent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/ui{tps}",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true,
+                "tps": true
+            },
+            "transformData": {
+                "page": 0
+            }
+        },
+        ".assetpack/texture-packer-compress/main{m}/ui@0.5x.png.json": {
+            "isFolder": false,
+            "transformParent": ".assetpack/texture-packer/main{m}/ui@0.5x.json",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true,
+                "tps": true
+            },
+            "transformData": {
+                "page": 0
+            }
+        },
+        ".assetpack/json/main{m}/ui@0.5x.png.json": {
+            "isFolder": false,
+            "transformParent": ".assetpack/texture-packer-compress/main{m}/ui@0.5x.png.json",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true,
+                "tps": true
+            },
+            "transformData": {
+                "page": 0
+            }
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/public/assets/main/ui@0.5x.png.json": {
+            "isFolder": false,
+            "transformParent": ".assetpack/json/main{m}/ui@0.5x.png.json",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true,
+                "tps": true
+            },
+            "transformData": {
+                "page": 0
+            }
+        },
+        ".assetpack/texture-packer-compress/main{m}/ui@0.5x.webp.json": {
+            "isFolder": false,
+            "transformParent": ".assetpack/texture-packer/main{m}/ui@0.5x.json",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true,
+                "tps": true
+            },
+            "transformData": {
+                "page": 0
+            }
+        },
+        ".assetpack/json/main{m}/ui@0.5x.webp.json": {
+            "isFolder": false,
+            "transformParent": ".assetpack/texture-packer-compress/main{m}/ui@0.5x.webp.json",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true,
+                "tps": true
+            },
+            "transformData": {
+                "page": 0
+            }
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/public/assets/main/ui@0.5x.webp.json": {
+            "isFolder": false,
+            "transformParent": ".assetpack/json/main{m}/ui@0.5x.webp.json",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true,
+                "tps": true
+            },
+            "transformData": {
+                "page": 0
+            }
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades": {
+            "isFolder": true,
+            "parent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {},
+            "stats": {
+                "date": 1761192333837,
+                "duration": 0.3396659999853,
+                "success": true
+            }
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades/enemigos": {
+            "isFolder": true,
+            "parent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {},
+            "stats": {
+                "date": 1760973995448,
+                "duration": 1.6097500000000764,
+                "success": true
+            }
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades/enemigos/goblin": {
+            "isFolder": true,
+            "parent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades/enemigos",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {},
+            "stats": {
+                "date": 1760973995448,
+                "duration": 1.5186249999997017,
+                "success": true
+            }
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-death 1.json": {
+            "isFolder": false,
+            "parent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades/enemigos/goblin",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {},
+            "stats": {
+                "date": 1760914706133,
+                "duration": 17.380042000091635,
+                "success": true
+            },
+            "hash": "WS27XQ"
+        },
+        ".assetpack/json/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-death 1.json": {
+            "isFolder": false,
+            "transformParent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-death 1.json",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/public/assets/main/unidades/enemigos/goblin/goblin scout - silhouette all animations-death 1.json": {
+            "isFolder": false,
+            "transformParent": ".assetpack/json/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-death 1.json",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-death 1.png": {
+            "isFolder": false,
+            "parent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades/enemigos/goblin",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {},
+            "stats": {
+                "date": 1760914706138,
+                "duration": 35.91112499998417,
+                "success": true
+            },
+            "hash": "1YrG_Q"
+        },
+        ".assetpack/mipmap/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-death 1.png": {
+            "isFolder": false,
+            "transformParent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-death 1.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        ".assetpack/compress/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-death 1.png": {
+            "isFolder": false,
+            "transformParent": ".assetpack/mipmap/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-death 1.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/public/assets/main/unidades/enemigos/goblin/goblin scout - silhouette all animations-death 1.png": {
+            "isFolder": false,
+            "transformParent": ".assetpack/compress/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-death 1.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        ".assetpack/compress/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-death 1.webp": {
+            "isFolder": false,
+            "transformParent": ".assetpack/mipmap/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-death 1.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/public/assets/main/unidades/enemigos/goblin/goblin scout - silhouette all animations-death 1.webp": {
+            "isFolder": false,
+            "transformParent": ".assetpack/compress/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-death 1.webp",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        ".assetpack/mipmap/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-death 1@0.5x.png": {
+            "isFolder": false,
+            "transformParent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-death 1.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        ".assetpack/compress/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-death 1@0.5x.png": {
+            "isFolder": false,
+            "transformParent": ".assetpack/mipmap/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-death 1@0.5x.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/public/assets/main/unidades/enemigos/goblin/goblin scout - silhouette all animations-death 1@0.5x.png": {
+            "isFolder": false,
+            "transformParent": ".assetpack/compress/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-death 1@0.5x.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        ".assetpack/compress/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-death 1@0.5x.webp": {
+            "isFolder": false,
+            "transformParent": ".assetpack/mipmap/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-death 1@0.5x.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/public/assets/main/unidades/enemigos/goblin/goblin scout - silhouette all animations-death 1@0.5x.webp": {
+            "isFolder": false,
+            "transformParent": ".assetpack/compress/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-death 1@0.5x.webp",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-hit.json": {
+            "isFolder": false,
+            "parent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades/enemigos/goblin",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {},
+            "stats": {
+                "date": 1760914706143,
+                "duration": 8.014708000002429,
+                "success": true
+            },
+            "hash": "8gabHw"
+        },
+        ".assetpack/json/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-hit.json": {
+            "isFolder": false,
+            "transformParent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-hit.json",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/public/assets/main/unidades/enemigos/goblin/goblin scout - silhouette all animations-hit.json": {
+            "isFolder": false,
+            "transformParent": ".assetpack/json/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-hit.json",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-hit.png": {
+            "isFolder": false,
+            "parent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades/enemigos/goblin",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {},
+            "stats": {
+                "date": 1760914706144,
+                "duration": 28.16558300005272,
+                "success": true
+            },
+            "hash": "F2Rn0A"
+        },
+        ".assetpack/mipmap/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-hit.png": {
+            "isFolder": false,
+            "transformParent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-hit.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        ".assetpack/compress/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-hit.png": {
+            "isFolder": false,
+            "transformParent": ".assetpack/mipmap/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-hit.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/public/assets/main/unidades/enemigos/goblin/goblin scout - silhouette all animations-hit.png": {
+            "isFolder": false,
+            "transformParent": ".assetpack/compress/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-hit.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        ".assetpack/compress/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-hit.webp": {
+            "isFolder": false,
+            "transformParent": ".assetpack/mipmap/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-hit.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/public/assets/main/unidades/enemigos/goblin/goblin scout - silhouette all animations-hit.webp": {
+            "isFolder": false,
+            "transformParent": ".assetpack/compress/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-hit.webp",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        ".assetpack/mipmap/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-hit@0.5x.png": {
+            "isFolder": false,
+            "transformParent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-hit.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        ".assetpack/compress/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-hit@0.5x.png": {
+            "isFolder": false,
+            "transformParent": ".assetpack/mipmap/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-hit@0.5x.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/public/assets/main/unidades/enemigos/goblin/goblin scout - silhouette all animations-hit@0.5x.png": {
+            "isFolder": false,
+            "transformParent": ".assetpack/compress/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-hit@0.5x.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        ".assetpack/compress/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-hit@0.5x.webp": {
+            "isFolder": false,
+            "transformParent": ".assetpack/mipmap/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-hit@0.5x.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/public/assets/main/unidades/enemigos/goblin/goblin scout - silhouette all animations-hit@0.5x.webp": {
+            "isFolder": false,
+            "transformParent": ".assetpack/compress/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-hit@0.5x.webp",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-idle.json": {
+            "isFolder": false,
+            "parent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades/enemigos/goblin",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {},
+            "stats": {
+                "date": 1760914706145,
+                "duration": 5.87258299998939,
+                "success": true
+            },
+            "hash": "SMuCZg"
+        },
+        ".assetpack/json/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-idle.json": {
+            "isFolder": false,
+            "transformParent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-idle.json",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/public/assets/main/unidades/enemigos/goblin/goblin scout - silhouette all animations-idle.json": {
+            "isFolder": false,
+            "transformParent": ".assetpack/json/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-idle.json",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-idle.png": {
+            "isFolder": false,
+            "parent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades/enemigos/goblin",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {},
+            "stats": {
+                "date": 1760914706151,
+                "duration": 29.3422080000164,
+                "success": true
+            },
+            "hash": "kNVkag"
+        },
+        ".assetpack/mipmap/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-idle.png": {
+            "isFolder": false,
+            "transformParent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-idle.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        ".assetpack/compress/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-idle.png": {
+            "isFolder": false,
+            "transformParent": ".assetpack/mipmap/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-idle.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/public/assets/main/unidades/enemigos/goblin/goblin scout - silhouette all animations-idle.png": {
+            "isFolder": false,
+            "transformParent": ".assetpack/compress/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-idle.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        ".assetpack/compress/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-idle.webp": {
+            "isFolder": false,
+            "transformParent": ".assetpack/mipmap/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-idle.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/public/assets/main/unidades/enemigos/goblin/goblin scout - silhouette all animations-idle.webp": {
+            "isFolder": false,
+            "transformParent": ".assetpack/compress/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-idle.webp",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        ".assetpack/mipmap/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-idle@0.5x.png": {
+            "isFolder": false,
+            "transformParent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-idle.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        ".assetpack/compress/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-idle@0.5x.png": {
+            "isFolder": false,
+            "transformParent": ".assetpack/mipmap/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-idle@0.5x.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/public/assets/main/unidades/enemigos/goblin/goblin scout - silhouette all animations-idle@0.5x.png": {
+            "isFolder": false,
+            "transformParent": ".assetpack/compress/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-idle@0.5x.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        ".assetpack/compress/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-idle@0.5x.webp": {
+            "isFolder": false,
+            "transformParent": ".assetpack/mipmap/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-idle@0.5x.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/public/assets/main/unidades/enemigos/goblin/goblin scout - silhouette all animations-idle@0.5x.webp": {
+            "isFolder": false,
+            "transformParent": ".assetpack/compress/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-idle@0.5x.webp",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-run.json": {
+            "isFolder": false,
+            "parent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades/enemigos/goblin",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {},
+            "stats": {
+                "date": 1760973995450,
+                "duration": 12.786540999999943,
+                "success": true
+            },
+            "hash": "rWRmZw"
+        },
+        ".assetpack/json/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-run.json": {
+            "isFolder": false,
+            "transformParent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-run.json",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/public/assets/main/unidades/enemigos/goblin/goblin scout - silhouette all animations-run.json": {
+            "isFolder": false,
+            "transformParent": ".assetpack/json/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-run.json",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-run.png": {
+            "isFolder": false,
+            "parent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades/enemigos/goblin",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {},
+            "stats": {
+                "date": 1760914706153,
+                "duration": 36.8114999999525,
+                "success": true
+            },
+            "hash": "YWd-Pg"
+        },
+        ".assetpack/mipmap/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-run.png": {
+            "isFolder": false,
+            "transformParent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-run.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        ".assetpack/compress/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-run.png": {
+            "isFolder": false,
+            "transformParent": ".assetpack/mipmap/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-run.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/public/assets/main/unidades/enemigos/goblin/goblin scout - silhouette all animations-run.png": {
+            "isFolder": false,
+            "transformParent": ".assetpack/compress/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-run.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        ".assetpack/compress/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-run.webp": {
+            "isFolder": false,
+            "transformParent": ".assetpack/mipmap/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-run.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/public/assets/main/unidades/enemigos/goblin/goblin scout - silhouette all animations-run.webp": {
+            "isFolder": false,
+            "transformParent": ".assetpack/compress/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-run.webp",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        ".assetpack/mipmap/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-run@0.5x.png": {
+            "isFolder": false,
+            "transformParent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-run.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        ".assetpack/compress/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-run@0.5x.png": {
+            "isFolder": false,
+            "transformParent": ".assetpack/mipmap/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-run@0.5x.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/public/assets/main/unidades/enemigos/goblin/goblin scout - silhouette all animations-run@0.5x.png": {
+            "isFolder": false,
+            "transformParent": ".assetpack/compress/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-run@0.5x.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        ".assetpack/compress/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-run@0.5x.webp": {
+            "isFolder": false,
+            "transformParent": ".assetpack/mipmap/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-run@0.5x.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/public/assets/main/unidades/enemigos/goblin/goblin scout - silhouette all animations-run@0.5x.webp": {
+            "isFolder": false,
+            "transformParent": ".assetpack/compress/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-run@0.5x.webp",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-walk.json": {
+            "isFolder": false,
+            "parent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades/enemigos/goblin",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {},
+            "stats": {
+                "date": 1760914706155,
+                "duration": 1.3454170000040904,
+                "success": true
+            },
+            "hash": "t68y5w"
+        },
+        ".assetpack/json/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-walk.json": {
+            "isFolder": false,
+            "transformParent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-walk.json",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/public/assets/main/unidades/enemigos/goblin/goblin scout - silhouette all animations-walk.json": {
+            "isFolder": false,
+            "transformParent": ".assetpack/json/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-walk.json",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-walk.png": {
+            "isFolder": false,
+            "parent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades/enemigos/goblin",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {},
+            "stats": {
+                "date": 1760914706156,
+                "duration": 36.34937499999069,
+                "success": true
+            },
+            "hash": "HYzPEg"
+        },
+        ".assetpack/mipmap/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-walk.png": {
+            "isFolder": false,
+            "transformParent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-walk.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        ".assetpack/compress/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-walk.png": {
+            "isFolder": false,
+            "transformParent": ".assetpack/mipmap/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-walk.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/public/assets/main/unidades/enemigos/goblin/goblin scout - silhouette all animations-walk.png": {
+            "isFolder": false,
+            "transformParent": ".assetpack/compress/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-walk.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        ".assetpack/compress/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-walk.webp": {
+            "isFolder": false,
+            "transformParent": ".assetpack/mipmap/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-walk.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/public/assets/main/unidades/enemigos/goblin/goblin scout - silhouette all animations-walk.webp": {
+            "isFolder": false,
+            "transformParent": ".assetpack/compress/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-walk.webp",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        ".assetpack/mipmap/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-walk@0.5x.png": {
+            "isFolder": false,
+            "transformParent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-walk.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        ".assetpack/compress/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-walk@0.5x.png": {
+            "isFolder": false,
+            "transformParent": ".assetpack/mipmap/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-walk@0.5x.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/public/assets/main/unidades/enemigos/goblin/goblin scout - silhouette all animations-walk@0.5x.png": {
+            "isFolder": false,
+            "transformParent": ".assetpack/compress/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-walk@0.5x.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        ".assetpack/compress/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-walk@0.5x.webp": {
+            "isFolder": false,
+            "transformParent": ".assetpack/mipmap/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-walk@0.5x.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/public/assets/main/unidades/enemigos/goblin/goblin scout - silhouette all animations-walk@0.5x.webp": {
+            "isFolder": false,
+            "transformParent": ".assetpack/compress/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-walk@0.5x.webp",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades/torres": {
+            "isFolder": true,
+            "parent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {},
+            "stats": {
+                "date": 1761192333837,
+                "duration": 0.13329099997645244,
+                "success": true
+            }
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades/torres/Torre1.json": {
+            "isFolder": false,
+            "parent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades/torres",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {},
+            "stats": {
+                "date": 1761184181348,
+                "duration": 1.9525840000715107,
+                "success": true
+            },
+            "hash": "OTITMw"
+        },
+        ".assetpack/json/main{m}/unidades/torres/Torre1.json": {
+            "isFolder": false,
+            "transformParent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades/torres/Torre1.json",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/public/assets/main/unidades/torres/Torre1.json": {
+            "isFolder": false,
+            "transformParent": ".assetpack/json/main{m}/unidades/torres/Torre1.json",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades/torres/Torre1.png": {
+            "isFolder": false,
+            "parent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades/torres",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {},
+            "stats": {
+                "date": 1761184181349,
+                "duration": 16.042582999914885,
+                "success": true
+            },
+            "hash": "nRsPxQ"
+        },
+        ".assetpack/mipmap/main{m}/unidades/torres/Torre1.png": {
+            "isFolder": false,
+            "transformParent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades/torres/Torre1.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        ".assetpack/compress/main{m}/unidades/torres/Torre1.png": {
+            "isFolder": false,
+            "transformParent": ".assetpack/mipmap/main{m}/unidades/torres/Torre1.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/public/assets/main/unidades/torres/Torre1.png": {
+            "isFolder": false,
+            "transformParent": ".assetpack/compress/main{m}/unidades/torres/Torre1.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        ".assetpack/compress/main{m}/unidades/torres/Torre1.webp": {
+            "isFolder": false,
+            "transformParent": ".assetpack/mipmap/main{m}/unidades/torres/Torre1.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/public/assets/main/unidades/torres/Torre1.webp": {
+            "isFolder": false,
+            "transformParent": ".assetpack/compress/main{m}/unidades/torres/Torre1.webp",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        ".assetpack/mipmap/main{m}/unidades/torres/Torre1@0.5x.png": {
+            "isFolder": false,
+            "transformParent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades/torres/Torre1.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        ".assetpack/compress/main{m}/unidades/torres/Torre1@0.5x.png": {
+            "isFolder": false,
+            "transformParent": ".assetpack/mipmap/main{m}/unidades/torres/Torre1@0.5x.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/public/assets/main/unidades/torres/Torre1@0.5x.png": {
+            "isFolder": false,
+            "transformParent": ".assetpack/compress/main{m}/unidades/torres/Torre1@0.5x.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        ".assetpack/compress/main{m}/unidades/torres/Torre1@0.5x.webp": {
+            "isFolder": false,
+            "transformParent": ".assetpack/mipmap/main{m}/unidades/torres/Torre1@0.5x.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/public/assets/main/unidades/torres/Torre1@0.5x.webp": {
+            "isFolder": false,
+            "transformParent": ".assetpack/compress/main{m}/unidades/torres/Torre1@0.5x.webp",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades/torres/suelo-torre.json": {
+            "isFolder": false,
+            "parent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades/torres",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {},
+            "stats": {
+                "date": 1761173003742,
+                "duration": 1.5071659999957774,
+                "success": true
+            },
+            "hash": "bRJfHw"
+        },
+        ".assetpack/json/main{m}/unidades/torres/suelo-torre.json": {
+            "isFolder": false,
+            "transformParent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades/torres/suelo-torre.json",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/public/assets/main/unidades/torres/suelo-torre.json": {
+            "isFolder": false,
+            "transformParent": ".assetpack/json/main{m}/unidades/torres/suelo-torre.json",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades/torres/suelo-torre.png": {
+            "isFolder": false,
+            "parent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades/torres",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {},
+            "stats": {
+                "date": 1761171857573,
+                "duration": 13.811249999999973,
+                "success": true
+            },
+            "hash": "IIDVBQ"
+        },
+        ".assetpack/mipmap/main{m}/unidades/torres/suelo-torre.png": {
+            "isFolder": false,
+            "transformParent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades/torres/suelo-torre.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        ".assetpack/compress/main{m}/unidades/torres/suelo-torre.png": {
+            "isFolder": false,
+            "transformParent": ".assetpack/mipmap/main{m}/unidades/torres/suelo-torre.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/public/assets/main/unidades/torres/suelo-torre.png": {
+            "isFolder": false,
+            "transformParent": ".assetpack/compress/main{m}/unidades/torres/suelo-torre.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        ".assetpack/compress/main{m}/unidades/torres/suelo-torre.webp": {
+            "isFolder": false,
+            "transformParent": ".assetpack/mipmap/main{m}/unidades/torres/suelo-torre.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/public/assets/main/unidades/torres/suelo-torre.webp": {
+            "isFolder": false,
+            "transformParent": ".assetpack/compress/main{m}/unidades/torres/suelo-torre.webp",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        ".assetpack/mipmap/main{m}/unidades/torres/suelo-torre@0.5x.png": {
+            "isFolder": false,
+            "transformParent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades/torres/suelo-torre.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        ".assetpack/compress/main{m}/unidades/torres/suelo-torre@0.5x.png": {
+            "isFolder": false,
+            "transformParent": ".assetpack/mipmap/main{m}/unidades/torres/suelo-torre@0.5x.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/public/assets/main/unidades/torres/suelo-torre@0.5x.png": {
+            "isFolder": false,
+            "transformParent": ".assetpack/compress/main{m}/unidades/torres/suelo-torre@0.5x.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        ".assetpack/compress/main{m}/unidades/torres/suelo-torre@0.5x.webp": {
+            "isFolder": false,
+            "transformParent": ".assetpack/mipmap/main{m}/unidades/torres/suelo-torre@0.5x.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/public/assets/main/unidades/torres/suelo-torre@0.5x.webp": {
+            "isFolder": false,
+            "transformParent": ".assetpack/compress/main{m}/unidades/torres/suelo-torre@0.5x.webp",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/preload{m}": {
+            "isFolder": true,
+            "parent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets",
+            "metaData": {
+                "m": true
+            },
+            "inheritedMetaData": {},
+            "transformData": {},
+            "stats": {
+                "date": 1761172767211,
+                "duration": 0.04854099999988648,
+                "success": true
+            }
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/preload{m}/logo.svg": {
+            "isFolder": false,
+            "parent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/preload{m}",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {},
+            "stats": {
+                "date": 1760889959977,
+                "duration": 1.6628749999999854,
+                "success": true
+            },
+            "hash": "LmftHw"
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/public/assets/preload/logo.svg": {
+            "isFolder": false,
+            "transformParent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/preload{m}/logo.svg",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        }
+    }
+}
