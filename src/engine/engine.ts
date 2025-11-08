@@ -3,7 +3,7 @@ import type { ApplicationOptions, DestroyOptions, RendererDestroyOptions } from 
 import { Application, Assets, extensions, ResizePlugin } from "pixi.js";
 import "pixi.js/app";
 
-import manifest from "../manifest.json";
+import manifest from "./../manifest.json";
 
 import { CreationAudioPlugin } from "./audio/AudioPlugin";
 import { CreationNavigationPlugin } from "./navigation/NavigationPlugin";
