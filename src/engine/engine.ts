@@ -3,7 +3,6 @@ import type { ApplicationOptions, DestroyOptions, RendererDestroyOptions } from 
 import { Application, Assets, extensions, ResizePlugin } from "pixi.js";
 import "pixi.js/app";
 
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 import manifest from "../manifest.json";
 
 import { CreationAudioPlugin } from "./audio/AudioPlugin";
