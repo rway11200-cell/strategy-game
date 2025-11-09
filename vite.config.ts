@@ -1,8 +1,6 @@
 import { defineConfig } from "vite";
-
 import { assetpackPlugin } from "./scripts/assetpack-vite-plugin";
 
-// https://vite.dev/config/
 export default defineConfig({
   plugins: [assetpackPlugin()],
   server: {
@@ -12,7 +10,10 @@ export default defineConfig({
   preview: {
     port: 4173,
     host: true,
-    allowedHosts: ["*"],
+    allowedHosts: [
+      "tower-defence-pixi-production.up.railway.app", // tu dominio real
+      "localhost", // útil si haces pruebas locales
+    ],
   },
   define: {
     APP_VERSION: JSON.stringify(process.env.npm_package_version),
