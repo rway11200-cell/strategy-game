@@ -9,6 +9,11 @@ export default defineConfig({
     port: 8080,
     open: false,
   },
+  preview: {
+    port: 4173,
+    host: true,
+    allowedHosts: ["*"],
+  },
   define: {
     APP_VERSION: JSON.stringify(process.env.npm_package_version),
   },
