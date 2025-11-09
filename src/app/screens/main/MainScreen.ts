@@ -1,8 +1,7 @@
 import { FancyButton } from "@pixi/ui";
 import { animate } from "motion";
 import type { AnimationPlaybackControls } from "motion/react";
-import type { PointData, Ticker } from "pixi.js";
-import { Color, Container, Sprite, Texture } from "pixi.js";
+import { Color, Container, Graphics, PointData, Sprite, Texture, Ticker } from "pixi.js";
 
 import { engine } from "../../getEngine";
 import { PausePopup } from "../../popups/PausePopup";
@@ -40,6 +39,34 @@ export class MainScreen extends Container {
 
     this.mainContainer = new Container();
     this.addChild(this.mainContainer);
+
+    const graphics = new Graphics();
+    graphics.circle(0, 0, 30);
+    graphics.stroke({ width: 4, color: "purple" });
+    graphics.fill("purple");
+
+    this.mainContainer.addChild(graphics);
+
+    const star = new Graphics();
+    star.star(0, 0, 5, 15);
+    star.fill("white");
+    const containerStar = new Container();
+    containerStar.position.set(60, 0);
+    containerStar.addChild(star);
+
+    this.mainContainer.addChild(containerStar);
+
+    const ticker = new Ticker();
+    ticker.add(() => {
+      if (graphics.containsPoint(containerStar.position)) {
+        star.visible = true;
+      } else {
+        star.visible = false;
+      }
+      console.log(star._position);
+      star.moveTo(60, 0);
+    });
+    ticker.start();
 
     const manejadorDeTorres: ManejadorDeTorre[] = [
       { ubicacion: { x: 1, y: -100 }, construido: false },
