@@ -4,13 +4,14 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "start": "npm run dev",
+    "start": "vite preview --host 0.0.0.0 --port ${PORT:-4173}",
     "build": "tsc && vite build",
     "lint": "eslint .",
     "dev": "vite",
     "clear-assets": "rm -rf .assetpack public/assets",
     "test": "vitest run --reporter=verbose",
-    "test:watch": "vitest --reporter=verbose"
+    "test:watch": "vitest --reporter=verbose",
+    "preview": "vite preview"
   },
   "dependencies": {
     "@esotericsoftware/spine-pixi-v8": "^4.2.74",
