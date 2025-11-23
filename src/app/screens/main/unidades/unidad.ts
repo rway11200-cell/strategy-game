@@ -4,19 +4,24 @@ import { SeguidorDeCaminos } from "../../../utils/SeguidorDeCaminos";
 import { getFrame } from "../../../utils/sprite";
 
 export interface UnidadProps {
-  camino: PointData[];
+  camino?: PointData[];
   framesJson?: string;
 }
 
 // Logica comun de una unidad, deberia ser capaz de moverse, atacar, morir, estar quieto, etc
 export class Unidad extends Container {
   public animateSrinte: AnimatedSprite;
-  private seguidorDeCaminos: SeguidorDeCaminos;
+  private seguidorDeCaminos?: SeguidorDeCaminos;
   private movimiento: Movimiento;
   velocidad: number = 1;
   vida: number = 1000;
-  constructor({ camino, framesJson }: UnidadProps) {
-    super(); // esto llama al constructor de Container
+  constructor(opciones?: UnidadProps) {
+    super();
+
+    if (!opciones) {
+      throw new Error(`Como vas a crear una undiad sin animacion ni camino,`);
+    }
+    const { camino, framesJson } = opciones;
 
     this.movimiento = new Movimiento(this.velocidad);
 
@@ -29,37 +34,65 @@ export class Unidad extends Container {
     this.animateSrinte.anchor.set(0.5);
     this.animateSrinte.visible = false;
     this.addChild(this.animateSrinte);
+    if (camino && camino.length > 0) {
+      this.seguidorDeCaminos = new SeguidorDeCaminos({
+        puntos: camino,
+        variacion: 10,
+      });
 
-    this.seguidorDeCaminos = new SeguidorDeCaminos({
-      puntos: camino,
-      variacion: 10,
-    });
-
-    const objetivo = this.seguidorDeCaminos.objetivo;
-    if (objetivo) {
-      this.position = objetivo;
+      const objetivo = this.seguidorDeCaminos.objetivo;
+      if (objetivo) {
+        this.position = objetivo;
+      }
     }
   }
   seguirRuta(puntos: PointData[], loop = false) {
+    if (!this.seguidorDeCaminos) {
+      throw new Error("No puedes seguir una ruta si no exite ni la ruta");
+    }
+
     this.seguidorDeCaminos.setRuta(puntos, loop);
   }
 
   caminarA(target: PointData) {
+    if (!this.seguidorDeCaminos) {
+      throw new Error("No puedes caminar a un punto si no exite ni la ruta");
+    }
+
     this.seguidorDeCaminos.setRuta([target], false);
   }
 
   public update(_time: Ticker) {
     if (!this.animateSrinte.visible) return;
 
-    const objetivo = this.seguidorDeCaminos.objetivo;
-    if (!objetivo) return;
+    if (this.seguidorDeCaminos) {
+      this;
+      const objetivo = this.seguidorDeCaminos.objetivo;
+      if (!objetivo) return;
 
-    const llego = this.movimiento.caminar(this, objetivo, _time, 0.5);
-    if (llego) this.seguidorDeCaminos.avanzar();
+      const llegoAlObjetivoActual = this.movimiento.caminar(this, objetivo, _time, 0.5);
+      if (llegoAlObjetivoActual) {
+        this.seguidorDeCaminos.avanzarAlSiguienteObjetivo();
+      }
+    }
   }
 
   public generate() {
+    if (this.seguidorDeCaminos) {
+      this.seguidorDeCaminos.reset();
+      this.position = this.seguidorDeCaminos.obtenerOrigen();
+    }
+
     this.animateSrinte.visible = true;
     this.animateSrinte.play();
+  }
+
+  public destruye() {
+    this.animateSrinte.visible = false;
+    this.animateSrinte.stop();
+
+    setTimeout(() => {
+      this.generate();
+    }, 5000);
   }
 }

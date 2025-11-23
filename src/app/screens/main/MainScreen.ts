@@ -1,7 +1,8 @@
 import { FancyButton } from "@pixi/ui";
 import { animate } from "motion";
 import type { AnimationPlaybackControls } from "motion/react";
-import { Color, Container, Graphics, PointData, Sprite, Texture, Ticker } from "pixi.js";
+import type { PointData, Ticker } from "pixi.js";
+import { Color, Container, Graphics, Rectangle, Sprite, Texture } from "pixi.js";
 
 import { engine } from "../../getEngine";
 import { PausePopup } from "../../popups/PausePopup";
@@ -9,6 +10,7 @@ import { SettingsPopup } from "../../popups/SettingsPopup";
 
 import { herramientaDesarrolloPintarPuntos } from "../../utils/herramietasDesarrollo";
 import { MoverUnTickHaciaTarget } from "../../utils/movimiento";
+import { Proyectil } from "../../utils/Proyectil";
 import { CreadorUnidades } from "./CreadorUnidades";
 import { BaseTorre } from "./unidades/baseTorre";
 import { Enemigo } from "./unidades/enemigo";
@@ -31,11 +33,13 @@ export class MainScreen extends Container {
 
   private creadorEnemigos: CreadorUnidades;
   private paused = false;
-  public proyectil: Sprite | undefined;
+  public proyectiles: Proyectil[];
   public unidades!: Unidad[];
 
   constructor() {
     super();
+
+    this.proyectiles = [];
 
     this.mainContainer = new Container();
     this.addChild(this.mainContainer);
@@ -74,10 +78,15 @@ export class MainScreen extends Container {
       { ubicacion: { x: -100, y: 50 }, construido: false },
       { ubicacion: { x: -200, y: -100 }, construido: false },
       { ubicacion: { x: 200, y: -100 }, construido: false },
+      { ubicacion: { x: 1, y: -100 }, construido: false },
+      { ubicacion: { x: 100, y: 50 }, construido: false },
+      { ubicacion: { x: -100, y: 50 }, construido: false },
+      { ubicacion: { x: -200, y: -100 }, construido: false },
+      { ubicacion: { x: 200, y: -100 }, construido: false },
     ];
 
     manejadorDeTorres.forEach((manejador) => {
-      const newSprite = new BaseTorre({});
+      const newSprite = new BaseTorre();
       newSprite.position = manejador.ubicacion;
       newSprite.eventMode = "static";
       newSprite.generate();
@@ -90,6 +99,11 @@ export class MainScreen extends Container {
 
         this.mainContainer.addChild(new Torre("Torre1.json", manejador.ubicacion));
         manejador.construido = true;
+        engine().audio.sfx.play("main/sounds/sfx-hover.wav", { volume: 0.6 });
+
+        const proyectil = new Proyectil({ origen: newSprite.position });
+        this.proyectiles.push(proyectil);
+        this.mainContainer.addChild(proyectil.sprite);
         engine().audio.sfx.play("main/sounds/sfx-hover.wav", { volume: 0.6 });
 
         this.proyectil = new Sprite({
@@ -125,7 +139,42 @@ export class MainScreen extends Container {
 
     setTimeout(() => {
       this.unidades = this.creadorEnemigos.generarGrupoUnidades();
+      this.unidades = this.creadorEnemigos.generarGrupoUnidades();
     }, 3000);
+
+    // Area de colision
+    let colisionX = camino[4].x;
+    let colisionY = camino[4].y;
+    let colisionSize = 40;
+
+    const rect = new Rectangle(
+      colisionX - colisionSize / 2,
+      colisionY - colisionSize / 2,
+      colisionSize,
+      colisionSize,
+    );
+
+    herramientaDesarrolloPintarPuntos(
+      this.mainContainer,
+      [{ x: colisionX, y: colisionY }],
+      "green",
+      colisionSize,
+    );
+
+    const ticker = new Ticker();
+
+    ticker.add(() => {
+      if (!this.unidades) return;
+
+      this.unidades.forEach((unidad) => {
+        const estaColisionando = rect.contains(unidad.x, unidad.y);
+        if (estaColisionando) {
+          unidad.destruye();
+        }
+      });
+    });
+    // Start the ticker
+    ticker.start();
 
     const buttonAnimations = {
       hover: {
@@ -152,6 +201,7 @@ export class MainScreen extends Container {
     this.settingsButton = new FancyButton({
       defaultView: "icon-settings.png",
       anchor: 0.5,
+
       animations: buttonAnimations,
     });
     this.settingsButton.onPress.connect(() => engine().navigation.presentPopup(SettingsPopup));
@@ -166,12 +216,20 @@ export class MainScreen extends Container {
     if (this.paused) return;
     this.creadorEnemigos.update(_time);
     const unidad1: Unidad | undefined = this.unidades ? this.unidades[9] : undefined;
-    if (this.proyectil && unidad1) {
-      const llegoADestino = MoverUnTickHaciaTarget(1, this.proyectil, unidad1.position, _time, 10);
-      if (llegoADestino) {
-        this.proyectil = undefined;
+    this.proyectiles.forEach((proyectil) => {
+      if (unidad1) {
+        const llegoADestino = MoverUnTickHaciaTarget(
+          1,
+          proyectil.sprite,
+          unidad1.position,
+          _time,
+          10,
+        );
+        if (llegoADestino) {
+          proyectil.destruye();
+        }
       }
-    }
+    });
   }
 
   /** Pause gameplay - automatically fired when a popup is presented */

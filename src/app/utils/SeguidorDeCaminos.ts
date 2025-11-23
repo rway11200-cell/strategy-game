@@ -19,7 +19,7 @@ export class SeguidorDeCaminos {
     this.setRuta(puntos, loop);
   }
 
-  setRuta(puntos: PointData[], loop = false) {
+  setRuta(puntos: PointData[], bucle = false) {
     // Aplica variacion en los puntos
     this.puntos = puntos.map((punto): PointData => {
       return {
@@ -29,7 +29,7 @@ export class SeguidorDeCaminos {
     });
 
     this.i = 0;
-    this.loop = loop;
+    this.loop = bucle;
   }
 
   get objetivo(): PointData | undefined {
@@ -37,7 +37,7 @@ export class SeguidorDeCaminos {
     return objetivo;
   }
 
-  avanzar() {
+  avanzarAlSiguienteObjetivo() {
     if (!this.puntos.length) return;
     this.i++;
     if (this.i >= this.puntos.length) {
@@ -51,5 +51,9 @@ export class SeguidorDeCaminos {
 
   reset() {
     this.i = 0;
+  }
+
+  obtenerOrigen(): PointData {
+    return this.puntos[0];
   }
 }

@@ -1,4 +1,4 @@
-import { Color, Container, PointData, Sprite, Texture } from "pixi.js";
+import { Color, Container, Graphics, PointData } from "pixi.js";
 
 export function herramientaDesarrolloPintarPuntos(
   container: Container,
@@ -8,13 +8,9 @@ export function herramientaDesarrolloPintarPuntos(
 ) {
   puntos.forEach((punto) => {
     container.addChild(
-      new Sprite({
-        texture: Texture.WHITE,
-        position: punto,
-        tint: new Color(color),
-        width: tamañoPX,
-        height: tamañoPX,
-      }),
+      new Graphics()
+        .rect(punto.x - tamañoPX / 2, punto.y - tamañoPX / 2, tamañoPX, tamañoPX)
+        .stroke({ color: new Color(color) }),
     );
   });
 }
