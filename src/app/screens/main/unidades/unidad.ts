@@ -13,6 +13,7 @@ export interface OpcionesDisparo {
   cadenciaDisparo: number;
   objetivos: Unidad[];
   creadorProyectiles: CreadorUnidades<Proyectil>;
+  daño: number;
 }
 
 export interface OpcionesSeguidorDeObjetivos {
@@ -26,6 +27,7 @@ export interface UnidadProps {
   framesJson?: string;
   posicion?: PointData;
   opcionesDisparo?: OpcionesDisparo;
+  vida?: number;
 }
 
 function esArrayDeContainers(objetivos: PointData[] | Container[]): objetivos is Container[] {
@@ -50,6 +52,7 @@ export class Unidad extends Container {
 
   private vida: number = 1000;
   public activo: boolean = false;
+
   constructor(contenedorPrincipal: Container, opciones?: UnidadProps) {
     super();
 
@@ -60,10 +63,14 @@ export class Unidad extends Container {
       throw new Error("No puedes crear una unidad sin opciones");
     }
 
-    const { framesJson, opcionesDisparo, opcionesSeguidorDeObjetivos, posicion } = opciones;
+    const { framesJson, opcionesDisparo, opcionesSeguidorDeObjetivos, posicion, vida } = opciones;
 
     this.opcionesDisparo = opcionesDisparo;
     this.opcionesSeguidorDeObjetivos = opcionesSeguidorDeObjetivos;
+
+    if (vida) {
+      this.vida = vida;
+    }
 
     if (posicion) {
       this.position = posicion;
@@ -187,6 +194,7 @@ export class Unidad extends Container {
     });
     nuevoProyectil.seguidorDeObjetivos.onDestino = () => {
       nuevoProyectil.destruye();
+      this.objetivoADisparar?.dañar(this.opcionesDisparo?.daño);
     };
 
     nuevoProyectil.generate();
@@ -217,6 +225,16 @@ export class Unidad extends Container {
     this.animateSrinte.stop();
   }
 
+  public dañar(daño?: number) {
+    if (!daño) {
+      return;
+    }
+
+    this.vida = this.vida - daño;
+    if (this.vida <= 0) {
+      this.destruye();
+    }
+  }
   public getID(complemento?: string): string {
     return `${this.constructor.name.toString()}-${this.uid}-${complemento}`;
   }

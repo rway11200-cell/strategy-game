@@ -76,22 +76,27 @@ export class MainScreen extends Container {
       cantidadReservaInicial: 10,
       fabrica: () => {
         return new Enemigo(this.mainContainer, {
-          opcionesSeguidorDeObjetivos: { objetivos: camino, variacion: 10, velocidad: 1 },
+          opcionesSeguidorDeObjetivos: { objetivos: camino, variacion: 10, velocidad: 0.5 },
+          vida: 100,
         });
       },
     });
 
-    this.creadorEnemigos.generarGrupoUnidadesActivas(1, 200);
+    this.creadorEnemigos.generarGrupoUnidadesActivas(30, 800);
 
     this.creadorTorres = new CreadorUnidades<Torre>({
       contenedor: this.mainContainer,
       cantidadReservaInicial: 10,
       fabrica: () => {
-        return new Torre(
-          this.mainContainer,
-          this.creadorEnemigos.obtenerUnidades(),
-          this.creadorProyectiles,
-        );
+        return new Torre(this.mainContainer, {
+          opcionesDisparo: {
+            rango: 150,
+            daño: 20,
+            cadenciaDisparo: 0.5,
+            creadorProyectiles: this.creadorProyectiles,
+            objetivos: this.creadorEnemigos.obtenerUnidades(),
+          },
+        });
       },
     });
 

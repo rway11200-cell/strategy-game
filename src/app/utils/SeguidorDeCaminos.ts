@@ -16,7 +16,6 @@ type ObjetivoProvider = () => PointData;
 
 // Componente que busca el siguiente camino a seguir
 export class SeguidorDeObjetivos {
-  private objetivosOriginales: PointData[] = [];
   private objetivos: ObjetivoProvider[] = [];
   private i = 0;
   private loop = false;
@@ -26,7 +25,6 @@ export class SeguidorDeObjetivos {
   constructor() {}
 
   setRutaDesdePuntos({ puntos, variacion = 0, loop = false }: SeguidorDeObjetuvosDesdePuntosProp) {
-    this.objetivosOriginales = puntos;
     this.variacion = variacion;
     this.objetivos = puntos.map((punto): ObjetivoProvider => {
       const puntoConVariacion: PointData = {
@@ -41,7 +39,6 @@ export class SeguidorDeObjetivos {
   }
 
   setRutaDesdeContainer({ containers, loop = false }: SeguidorDeObjetuvosDesdeContainerProp) {
-    this.objetivosOriginales = containers;
     this.objetivos = containers.map((container): ObjetivoProvider => {
       return () => {
         return {
