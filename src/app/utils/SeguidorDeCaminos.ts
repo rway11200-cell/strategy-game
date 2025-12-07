@@ -1,52 +1,76 @@
-import { PointData } from "pixi.js";
+import { Container, PointData } from "pixi.js";
 import { randomFloat } from "../../engine/utils/random";
 
-interface SeguidorDeCaminosProp {
+interface SeguidorDeObjetuvosDesdePuntosProp {
   puntos: PointData[];
   variacion: number;
   loop?: boolean;
 }
 
+interface SeguidorDeObjetuvosDesdeContainerProp {
+  containers: Container[];
+  loop?: boolean;
+}
+
+type ObjetivoProvider = () => PointData;
+
 // Componente que busca el siguiente camino a seguir
-export class SeguidorDeCaminos {
-  private puntos: PointData[] = [];
+export class SeguidorDeObjetivos {
+  private objetivosOriginales: PointData[] = [];
+  private objetivos: ObjetivoProvider[] = [];
   private i = 0;
   private loop = false;
-  private variacion: number;
+  public variacion: number = 0;
+  public onDestino?: () => void;
 
-  constructor({ puntos, variacion, loop }: SeguidorDeCaminosProp) {
+  constructor() {}
+
+  setRutaDesdePuntos({ puntos, variacion = 0, loop = false }: SeguidorDeObjetuvosDesdePuntosProp) {
+    this.objetivosOriginales = puntos;
     this.variacion = variacion;
-    this.setRuta(puntos, loop);
+    this.objetivos = puntos.map((punto): ObjetivoProvider => {
+      const puntoConVariacion: PointData = {
+        x: punto.x + randomFloat(-variacion, variacion),
+        y: punto.y + randomFloat(-variacion, variacion),
+      };
+
+      return () => puntoConVariacion;
+    });
+    this.i = 0;
+    this.loop = loop;
   }
 
-  setRuta(puntos: PointData[], bucle = false) {
-    // Aplica variacion en los puntos
-    this.puntos = puntos.map((punto): PointData => {
-      return {
-        x: punto.x + randomFloat(-this.variacion, this.variacion),
-        y: punto.y + randomFloat(-this.variacion, this.variacion),
+  setRutaDesdeContainer({ containers, loop = false }: SeguidorDeObjetuvosDesdeContainerProp) {
+    this.objetivosOriginales = containers;
+    this.objetivos = containers.map((container): ObjetivoProvider => {
+      return () => {
+        return {
+          x: container.position.x,
+          y: container.position.y,
+        };
       };
     });
-
     this.i = 0;
-    this.loop = bucle;
+    this.loop = loop;
   }
 
   get objetivo(): PointData | undefined {
-    const objetivo = this.puntos[this.i];
-    return objetivo;
+    const result = this.objetivos[this.i];
+    if (!result) return;
+    return result();
   }
 
   avanzarAlSiguienteObjetivo() {
-    if (!this.puntos.length) return;
+    if (!this.objetivos.length) return;
     this.i++;
-    if (this.i >= this.puntos.length) {
-      this.i = this.loop ? 0 : this.puntos.length - 1;
+    if (this.i >= this.objetivos.length) {
+      this.i = this.loop ? 0 : this.objetivos.length - 1;
+      this.onDestino?.();
     }
   }
 
   get terminado(): boolean {
-    return !this.loop && this.puntos.length > 0 && this.i === this.puntos.length - 1;
+    return !this.loop && this.objetivos.length > 0 && this.i === this.objetivos.length - 1;
   }
 
   reset() {
@@ -54,6 +78,11 @@ export class SeguidorDeCaminos {
   }
 
   obtenerOrigen(): PointData {
-    return this.puntos[0];
+    const origen = this.objetivo;
+    if (!origen) {
+      console.warn("SeguidorDeObjetivos.obtenerOrigen: no hay objetivos definidos");
+      return { x: 0, y: 0 };
+    }
+    return origen;
   }
 }

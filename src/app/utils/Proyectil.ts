@@ -1,27 +1,11 @@
-import { Color, PointData, Sprite, Texture } from "pixi.js";
+import { Container } from "pixi.js";
+import { Unidad, UnidadProps } from "../screens/main/unidades/unidad";
 
-interface opcionesProyectil {
-  origen: PointData;
-}
-
-export class Proyectil {
-  public sprite: Sprite;
-  private origen: PointData;
-  constructor(opciones: opcionesProyectil) {
-    const { origen } = opciones;
-
-    this.origen = origen;
-    this.sprite = new Sprite({
-      texture: Texture.WHITE,
-      position: this.origen,
-      tint: new Color("yellow"),
-      width: 20,
-      height: 20,
-    });
-  }
-
-  public destruye() {
-    this.sprite.visible = false;
-    this.sprite.position = this.origen;
+export class Proyectil extends Unidad {
+  constructor(contenedorPrincipal: Container, opciones: UnidadProps) {
+    opciones.framesJson = "Torre1.json";
+    super(contenedorPrincipal, opciones);
+    this.scale.set(0.1, 0.1);
+    this.zIndex = 20;
   }
 }

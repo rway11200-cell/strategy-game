@@ -1,17 +1,25 @@
-import { AnimatedSprite, Container, PointData } from "pixi.js";
-import { getFrame } from "../../../utils/sprite";
+import { Container } from "pixi.js";
+import { Proyectil } from "../../../utils/Proyectil";
+import { CreadorUnidades } from "../CreadorUnidades";
+import { Unidad, UnidadProps } from "./unidad";
 
-export class Torre extends Container {
-  public Asprite: AnimatedSprite;
-
-  constructor(framesJson: string, ubicacion: PointData) {
-    super();
-    this.Asprite = new AnimatedSprite(getFrame(framesJson));
-    this.Asprite.position = ubicacion;
-    this.Asprite.animationSpeed = 10 / 100;
-    this.Asprite.anchor.set(0.5, 1);
-    this.Asprite.visible = true;
-    this.Asprite.play();
-    this.addChild(this.Asprite);
+export class Torre extends Unidad {
+  constructor(
+    contenedorPrincipal: Container,
+    objetivos: Unidad[],
+    creadorProyectiles: CreadorUnidades<Proyectil>,
+  ) {
+    const opciones: UnidadProps = {
+      framesJson: "Torre1.json",
+      opcionesDisparo: {
+        rango: 150,
+        cadenciaDisparo: 1,
+        objetivos,
+        creadorProyectiles,
+      },
+    };
+    super(contenedorPrincipal, opciones);
+    this.animateSrinte.anchor = { x: 0.5, y: 1 };
+    this.zIndex = 10;
   }
 }

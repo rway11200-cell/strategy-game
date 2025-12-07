@@ -1,12 +1,10 @@
-import { Container, PointData, Ticker } from "pixi.js";
-import { Unidad, UnidadProps } from "./unidades/unidad";
+import { Container, Ticker } from "pixi.js";
+import { Unidad } from "./unidades/unidad";
 
-interface CreadorUnidadesProps {
+interface CreadorUnidadesProps<T extends Unidad> {
   contenedor: Container;
-  cantidad: number;
-  retrasoAparicionMS: number;
-  unidad: new (opciones: UnidadProps) => Unidad;
-  camino: PointData[];
+  cantidadReservaInicial: number;
+  fabrica: () => T;
 }
 
 /**
@@ -15,40 +13,73 @@ interface CreadorUnidadesProps {
  * @description Genera instancias de unidades y controla su aparición secuencial.
  * @param {CreadorUnidadesProps} props - Propiedades del creador.
  * @param {Container} props.contenedor - Contenedor donde se agregan las unidades.
- * @param {PointData[]} props.camino - Camino que seguirán las unidades.
- * @param {typeof Unidad} props.unidad - Tipo de unidad a instanciar.
- * @param {number} props.cantidad - Número total de unidades.
- * @param {number} props.retrasoAparicionMS - Retraso entre apariciones (ms).
+ * @param {func ()=> T} props.fabrica - Creador de la unidad
+ * @param {number} props.cantidadReservaInicial - Número total de unidades iniciales.
  */
-export class CreadorUnidades {
-  private unidades: Unidad[];
+export class CreadorUnidades<T extends Unidad> {
+  private unidades: T[];
   private contenedor: Container;
-  private retrasoAparicionMS: number;
+  fabrica: () => T;
 
-  constructor({ contenedor, camino, unidad, cantidad, retrasoAparicionMS }: CreadorUnidadesProps) {
-    this.retrasoAparicionMS = retrasoAparicionMS;
+  constructor({ contenedor, fabrica, cantidadReservaInicial }: CreadorUnidadesProps<T>) {
     this.contenedor = contenedor;
+    this.fabrica = fabrica;
 
     // Crea las unidades invisibles las ingresa al contendor y ademas las conserva en una variable interna
     this.unidades = [];
-    for (let i = 0; i < cantidad; i++) {
-      const nuevaUnidad = new unidad({ camino });
+    for (let i = 0; i < cantidadReservaInicial; i++) {
+      const nuevaUnidad = this.crearYRegistrarUnidad();
       this.unidades.push(nuevaUnidad);
       this.contenedor.addChild(nuevaUnidad);
     }
   }
-  public generarGrupoUnidades(): Unidad[] {
-    let index = 1;
-    this.unidades.forEach((unidad) => {
-      setTimeout(() => {
-        unidad.generate();
-      }, index * this.retrasoAparicionMS);
-      index++;
-    });
+
+  private crearYRegistrarUnidad(): T {
+    const unidad = this.fabrica();
+    unidad.activo = false;
+    unidad.visible = false;
+
+    this.contenedor.addChild(unidad);
+    return unidad;
+  }
+
+  // Obtiene unidad libre/desactivada, si no crea una y la añade al pull
+  public obtener(activada: boolean = false): T {
+    const libre = this.unidades.find((i) => !i.activo);
+    if (libre) {
+      if (activada) libre.generate();
+      return libre;
+    }
+
+    const nuevo = this.crearYRegistrarUnidad();
+    this.unidades.push(nuevo);
+    if (activada) nuevo.generate();
+    return nuevo;
+  }
+
+  // Obtiene todas las unidades esten activas o no
+  public obtenerUnidades(activada: boolean = false): T[] {
+    if (activada) {
+      return this.unidades.filter((unidad) => unidad.activo);
+    }
+
     return this.unidades;
   }
 
+  public generarGrupoUnidadesActivas(cantidad: number, retrasoAparicionMS: number) {
+    for (let i = 0; i < cantidad; i++) {
+      setTimeout(() => {
+        const unidad = this.obtener();
+        unidad.generate();
+      }, i * retrasoAparicionMS);
+    }
+  }
+
   public update(_time: Ticker) {
-    this.unidades.forEach((unidad) => unidad.update(_time));
+    this.unidades.forEach((unidad) => {
+      if (unidad.activo) {
+        unidad.update(_time);
+      }
+    });
   }
 }

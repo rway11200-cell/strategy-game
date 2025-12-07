@@ -1,26 +1,39 @@
 import { FancyButton } from "@pixi/ui";
 import { animate } from "motion";
 import type { AnimationPlaybackControls } from "motion/react";
-import type { PointData, Ticker } from "pixi.js";
-import { Color, Container, Graphics, Rectangle, Sprite, Texture } from "pixi.js";
+import { Container, PointData, Ticker } from "pixi.js";
 
 import { engine } from "../../getEngine";
 import { PausePopup } from "../../popups/PausePopup";
 import { SettingsPopup } from "../../popups/SettingsPopup";
 
 import { herramientaDesarrolloPintarPuntos } from "../../utils/herramietasDesarrollo";
-import { MoverUnTickHaciaTarget } from "../../utils/movimiento";
 import { Proyectil } from "../../utils/Proyectil";
 import { CreadorUnidades } from "./CreadorUnidades";
 import { BaseTorre } from "./unidades/baseTorre";
 import { Enemigo } from "./unidades/enemigo";
 import { Torre } from "./unidades/Torre";
-import { Unidad } from "./unidades/unidad";
 
 interface ManejadorDeTorre {
   ubicacion: PointData;
   construido: boolean;
 }
+
+//TODO: el camino seguramente será por nivel esto deberia ser el primer elemento de un array de "Nivel" o algo asi
+const camino = [
+  { x: -300, y: 200 },
+  { x: -200, y: 100 },
+  { x: -100, y: -100 },
+  { x: 200, y: 0 },
+];
+
+const manejadorDeTorres: ManejadorDeTorre[] = [
+  { ubicacion: { x: 1, y: -100 }, construido: false },
+  { ubicacion: { x: 100, y: 50 }, construido: false },
+  { ubicacion: { x: -100, y: 50 }, construido: false },
+  { ubicacion: { x: -200, y: -100 }, construido: false },
+  { ubicacion: { x: 200, y: -100 }, construido: false },
+];
 
 /** The screen that holds the app */
 export class MainScreen extends Container {
@@ -31,150 +44,78 @@ export class MainScreen extends Container {
   private pauseButton: FancyButton;
   private settingsButton: FancyButton;
 
-  private creadorEnemigos: CreadorUnidades;
+  private creadorEnemigos: CreadorUnidades<Enemigo>;
+  private creadorTorres: CreadorUnidades<Torre>;
+  private creadorProyectiles: CreadorUnidades<Proyectil>;
+
   private paused = false;
-  public proyectiles: Proyectil[];
-  public unidades!: Unidad[];
 
   constructor() {
     super();
 
-    this.proyectiles = [];
-
     this.mainContainer = new Container();
     this.addChild(this.mainContainer);
 
-    const graphics = new Graphics();
-    graphics.circle(0, 0, 30);
-    graphics.stroke({ width: 4, color: "purple" });
-    graphics.fill("purple");
+    herramientaDesarrolloPintarPuntos(this.mainContainer, camino, "red", 15);
 
-    this.mainContainer.addChild(graphics);
-
-    const star = new Graphics();
-    star.star(0, 0, 5, 15);
-    star.fill("white");
-    const containerStar = new Container();
-    containerStar.position.set(60, 0);
-    containerStar.addChild(star);
-
-    this.mainContainer.addChild(containerStar);
-
-    const ticker = new Ticker();
-    ticker.add(() => {
-      if (graphics.containsPoint(containerStar.position)) {
-        star.visible = true;
-      } else {
-        star.visible = false;
-      }
-      console.log(star._position);
-      star.moveTo(60, 0);
+    this.creadorProyectiles = new CreadorUnidades<Proyectil>({
+      contenedor: this.mainContainer,
+      cantidadReservaInicial: 10,
+      fabrica: () => {
+        return new Proyectil(this.mainContainer, {
+          opcionesSeguidorDeObjetivos: {
+            forzarActivarSeguidorCamino: true,
+            velocidad: 2,
+          },
+        });
+      },
     });
-    ticker.start();
 
-    const manejadorDeTorres: ManejadorDeTorre[] = [
-      { ubicacion: { x: 1, y: -100 }, construido: false },
-      { ubicacion: { x: 100, y: 50 }, construido: false },
-      { ubicacion: { x: -100, y: 50 }, construido: false },
-      { ubicacion: { x: -200, y: -100 }, construido: false },
-      { ubicacion: { x: 200, y: -100 }, construido: false },
-      { ubicacion: { x: 1, y: -100 }, construido: false },
-      { ubicacion: { x: 100, y: 50 }, construido: false },
-      { ubicacion: { x: -100, y: 50 }, construido: false },
-      { ubicacion: { x: -200, y: -100 }, construido: false },
-      { ubicacion: { x: 200, y: -100 }, construido: false },
-    ];
+    this.creadorEnemigos = new CreadorUnidades<Enemigo>({
+      contenedor: this.mainContainer,
+      cantidadReservaInicial: 10,
+      fabrica: () => {
+        return new Enemigo(this.mainContainer, {
+          opcionesSeguidorDeObjetivos: { objetivos: camino, variacion: 10, velocidad: 1 },
+        });
+      },
+    });
+
+    this.creadorEnemigos.generarGrupoUnidadesActivas(1, 200);
+
+    this.creadorTorres = new CreadorUnidades<Torre>({
+      contenedor: this.mainContainer,
+      cantidadReservaInicial: 10,
+      fabrica: () => {
+        return new Torre(
+          this.mainContainer,
+          this.creadorEnemigos.obtenerUnidades(),
+          this.creadorProyectiles,
+        );
+      },
+    });
 
     manejadorDeTorres.forEach((manejador) => {
-      const newSprite = new BaseTorre();
-      newSprite.position = manejador.ubicacion;
-      newSprite.eventMode = "static";
-      newSprite.generate();
+      const baseTorre = new BaseTorre(this.mainContainer);
+      baseTorre.position = manejador.ubicacion;
+      baseTorre.generate();
 
-      newSprite.onclick = () => {
+      baseTorre.onclick = () => {
         if (manejador.construido === true) {
           console.log("aqui ya hay una torre");
           return;
         }
 
-        this.mainContainer.addChild(new Torre("Torre1.json", manejador.ubicacion));
+        const torre = this.creadorTorres.obtener(true);
+        torre.position = manejador.ubicacion;
+        torre.generate();
+
         manejador.construido = true;
         engine().audio.sfx.play("main/sounds/sfx-hover.wav", { volume: 0.6 });
-
-        const proyectil = new Proyectil({ origen: newSprite.position });
-        this.proyectiles.push(proyectil);
-        this.mainContainer.addChild(proyectil.sprite);
-        engine().audio.sfx.play("main/sounds/sfx-hover.wav", { volume: 0.6 });
-
-        this.proyectil = new Sprite({
-          texture: Texture.WHITE,
-          position: { x: 1, y: -100 },
-          tint: new Color("yellow"),
-          width: 20,
-          height: 20,
-        });
-        this.mainContainer.addChild(this.proyectil);
       };
 
-      this.mainContainer.addChild(newSprite);
+      this.mainContainer.addChild(baseTorre);
     });
-
-    //TODO: el camino seguramente será por nivel esto deberia ser el primer elemento de un array de "Nivel" o algo asi
-    const camino = [
-      { x: -600, y: 300 },
-      { x: -300, y: 200 },
-      { x: -200, y: 100 },
-      { x: -100, y: -100 },
-      { x: 200, y: 0 },
-    ];
-    herramientaDesarrolloPintarPuntos(this.mainContainer, camino, "red", 15);
-
-    this.creadorEnemigos = new CreadorUnidades({
-      contenedor: this.mainContainer,
-      cantidad: 10,
-      retrasoAparicionMS: 200,
-      unidad: Enemigo,
-      camino,
-    });
-
-    setTimeout(() => {
-      this.unidades = this.creadorEnemigos.generarGrupoUnidades();
-      this.unidades = this.creadorEnemigos.generarGrupoUnidades();
-    }, 3000);
-
-    // Area de colision
-    let colisionX = camino[4].x;
-    let colisionY = camino[4].y;
-    let colisionSize = 40;
-
-    const rect = new Rectangle(
-      colisionX - colisionSize / 2,
-      colisionY - colisionSize / 2,
-      colisionSize,
-      colisionSize,
-    );
-
-    herramientaDesarrolloPintarPuntos(
-      this.mainContainer,
-      [{ x: colisionX, y: colisionY }],
-      "green",
-      colisionSize,
-    );
-
-    const ticker = new Ticker();
-
-    ticker.add(() => {
-      if (!this.unidades) return;
-
-      this.unidades.forEach((unidad) => {
-        const estaColisionando = rect.contains(unidad.x, unidad.y);
-        if (estaColisionando) {
-          unidad.destruye();
-        }
-      });
-    });
-    // Start the ticker
-    ticker.start();
 
     const buttonAnimations = {
       hover: {
@@ -213,23 +154,13 @@ export class MainScreen extends Container {
 
   /** Update the screen */
   public update(_time: Ticker) {
+    // si el juego esta en pausa no actualiza nada
     if (this.paused) return;
+
+    // actualiza todas las unidades hechas por un Creador de Unidades
     this.creadorEnemigos.update(_time);
-    const unidad1: Unidad | undefined = this.unidades ? this.unidades[9] : undefined;
-    this.proyectiles.forEach((proyectil) => {
-      if (unidad1) {
-        const llegoADestino = MoverUnTickHaciaTarget(
-          1,
-          proyectil.sprite,
-          unidad1.position,
-          _time,
-          10,
-        );
-        if (llegoADestino) {
-          proyectil.destruye();
-        }
-      }
-    });
+    this.creadorTorres.update(_time);
+    this.creadorProyectiles.update(_time);
   }
 
   /** Pause gameplay - automatically fired when a popup is presented */
