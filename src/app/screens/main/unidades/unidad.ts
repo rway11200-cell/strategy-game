@@ -51,6 +51,8 @@ export class Unidad extends Container {
   public animateSrinte: AnimatedSprite;
 
   private vida: number = 1000;
+  private vidaActual: number = this.vida;
+  private graficaVida: Graphics;
   public activo: boolean = false;
 
   constructor(contenedorPrincipal: Container, opciones?: UnidadProps) {
@@ -68,10 +70,6 @@ export class Unidad extends Container {
     this.opcionesDisparo = opcionesDisparo;
     this.opcionesSeguidorDeObjetivos = opcionesSeguidorDeObjetivos;
 
-    if (vida) {
-      this.vida = vida;
-    }
-
     if (posicion) {
       this.position = posicion;
     }
@@ -88,6 +86,22 @@ export class Unidad extends Container {
     this.animateSrinte.anchor.set(0.5);
     this.animateSrinte.visible = false;
     this.addChild(this.animateSrinte);
+
+    this.graficaVida = new Graphics();
+    if (vida) {
+      this.vida = vida;
+      this.vidaActual = vida;
+      const altoVida = 2;
+      const ajusteAlto = 20;
+      const anchoVida = 30;
+
+      this.graficaVida
+        .rect(0, -this.animateSrinte.height / 2 + ajusteAlto, anchoVida, altoVida)
+        .fill("green");
+      this.graficaVida.position.x = -(anchoVida / 2);
+      this.graficaVida.visible = false;
+      this.addChild(this.graficaVida);
+    }
 
     this.inicializarSeguidorDeObjetivos();
     this.inicializarRangoDisparo();
@@ -137,7 +151,15 @@ export class Unidad extends Container {
     if (!this.activo || !this.animateSrinte.visible) return;
 
     this.actualizarMovimiento(_time);
+    this.actulizarVida(_time);
     this.actualizarDisparo(_time);
+  }
+  private actulizarVida(_time: Ticker) {
+    if (!this.vida) return;
+
+    const porcentajeVidaActual = (this.vidaActual * 100) / this.vida;
+    this.graficaVida.visible = porcentajeVidaActual < 100;
+    this.graficaVida.scale.x = porcentajeVidaActual / 100;
   }
 
   private actualizarMovimiento(_time: Ticker) {
@@ -183,7 +205,6 @@ export class Unidad extends Container {
 
     if (tiempoDesdeUltimoDisparo < cadenciaDisparoEnMiliSegundos) return;
 
-    debugLogChanged(this.getID("debug"), this.objetivoADisparar);
     this.tiempoUltimoDisparo = _time.lastTime;
 
     const nuevoProyectil = opcionesDisparo.creadorProyectiles.obtener();
@@ -195,9 +216,15 @@ export class Unidad extends Container {
     nuevoProyectil.seguidorDeObjetivos.onDestino = () => {
       nuevoProyectil.destruye();
       this.objetivoADisparar?.dañar(this.opcionesDisparo?.daño);
+      if (this.objetivoADisparar?.estaMuerto()) {
+        this.objetivoADisparar = undefined;
+      }
     };
-
     nuevoProyectil.generate();
+  }
+
+  public estaMuerto(): boolean {
+    return !this.activo;
   }
 
   public generate() {
@@ -215,6 +242,10 @@ export class Unidad extends Container {
     if (this.rangoGraph) {
       this.rangoGraph.visible = true;
     }
+
+    if (this.vida) {
+      this.vidaActual = this.vida;
+    }
   }
 
   public destruye() {
@@ -223,6 +254,8 @@ export class Unidad extends Container {
 
     this.animateSrinte.visible = false;
     this.animateSrinte.stop();
+
+    this.removerseComoObjetivoDeLosProyectiles();
   }
 
   public dañar(daño?: number) {
@@ -230,11 +263,18 @@ export class Unidad extends Container {
       return;
     }
 
-    this.vida = this.vida - daño;
-    if (this.vida <= 0) {
+    this.vidaActual = this.vidaActual - daño;
+    if (this.vidaActual <= 0) {
       this.destruye();
     }
   }
+
+  public removerseComoObjetivoDeLosProyectiles() {
+    // TODO: por hacer, creo que por este bug (el que los proyectiles sigan al
+    // objetuvo al renacer como nuevo) hace falta una pequeña reestructuracion
+    // Necesitamos avisarle a los proyectiles que lo tienen como objetuvo o que lo eliminen como objetivo o que dejen un punto de reemplzado ahi para que el proyectil lo siga
+  }
+
   public getID(complemento?: string): string {
     return `${this.constructor.name.toString()}-${this.uid}-${complemento}`;
   }
