@@ -15,7 +15,7 @@ interface DebugLogOptions {
  */
 const lastValues = new Map<string, string>();
 
-export function debugLogChanged(key: string, value: unknown, options: DebugLogOptions = {}) {
+export function debugLogChanged(key: string, value: unknown = "", options: DebugLogOptions = {}) {
   const { prefix = "[DEBUG]", stringify, enabled = true } = options;
 
   if (!enabled) return;

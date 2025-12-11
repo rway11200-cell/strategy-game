@@ -1,12 +1,12 @@
 import { AnimatedSprite, Container, Graphics, ObservablePoint, PointData, Ticker } from "pixi.js";
-import { getDistance } from "../../../../engine/utils/maths";
-import { debugLogChanged } from "../../../utils/debugLog";
-import { herramientaDesarrolloPintarPuntos } from "../../../utils/herramietasDesarrollo";
-import { Movimiento } from "../../../utils/movimiento";
-import { Proyectil } from "../../../utils/Proyectil";
-import { SeguidorDeObjetivos } from "../../../utils/SeguidorDeCaminos";
-import { getFrame } from "../../../utils/sprite";
+import { getDistance } from "../../../engine/utils/maths";
+import { debugLogChanged } from "../../utils/debugLog";
+import { herramientaDesarrolloPintarPuntos } from "../../utils/herramietasDesarrollo";
+import { getFrame } from "../../utils/sprite";
 import { CreadorUnidades } from "../CreadorUnidades";
+import { Movimiento } from "../Movimiento";
+import { SeguidorDeObjetivos } from "../SeguidorDeCaminos";
+import { Proyectil } from "./Proyectil";
 
 export interface OpcionesDisparo {
   rango: number;
@@ -30,19 +30,19 @@ export interface UnidadProps {
   vida?: number;
 }
 
-function esArrayDeContainers(objetivos: PointData[] | Container[]): objetivos is Container[] {
-  return objetivos.length > 0 && objetivos[0] instanceof Container;
+function esArrayDeUnidades(objetivos: PointData[] | Unidad[]): objetivos is Unidad[] {
+  return objetivos.length > 0 && objetivos[0] instanceof Unidad;
 }
 
 // Logica comun de una unidad, deberia ser capaz de moverse, atacar, morir, estar quieto, etc
 export class Unidad extends Container {
   private contenedorPrincipal: Container;
   private opcionesSeguidorDeObjetivos?: OpcionesSeguidorDeObjetivos;
-  private seguidorDeObjetivos?: SeguidorDeObjetivos;
+  public seguidorDeObjetivos?: SeguidorDeObjetivos;
 
   private opcionesDisparo?: OpcionesDisparo;
   private tiempoUltimoDisparo: number = 0;
-  private objetivoADisparar?: Unidad;
+  public objetivoADisparar?: Unidad;
 
   private rangoGraph?: Graphics;
 
@@ -54,6 +54,7 @@ export class Unidad extends Container {
   private vidaActual: number = this.vida;
   private graficaVida: Graphics;
   public activo: boolean = false;
+  public onDestruye?: (unidad: Unidad) => void;
 
   constructor(contenedorPrincipal: Container, opciones?: UnidadProps) {
     super();
@@ -125,9 +126,9 @@ export class Unidad extends Container {
     if (objetivos && objetivos.length > 0) {
       this.seguidorDeObjetivos = new SeguidorDeObjetivos();
 
-      if (esArrayDeContainers(objetivos)) {
-        this.seguidorDeObjetivos.setRutaDesdeContainer({
-          containers: objetivos,
+      if (esArrayDeUnidades(objetivos)) {
+        this.seguidorDeObjetivos.setRutaDesdeUnidades({
+          unidades: objetivos,
           loop: false,
         });
       } else {
@@ -210,8 +211,8 @@ export class Unidad extends Container {
     const nuevoProyectil = opcionesDisparo.creadorProyectiles.obtener();
     if (!nuevoProyectil.seguidorDeObjetivos) return;
 
-    nuevoProyectil.seguidorDeObjetivos.setRutaDesdeContainer({
-      containers: [this, this.objetivoADisparar],
+    nuevoProyectil.seguidorDeObjetivos.setRutaDesdeUnidades({
+      unidades: [this, this.objetivoADisparar],
     });
     nuevoProyectil.seguidorDeObjetivos.onDestino = () => {
       nuevoProyectil.destruye();
@@ -255,7 +256,7 @@ export class Unidad extends Container {
     this.animateSrinte.visible = false;
     this.animateSrinte.stop();
 
-    this.removerseComoObjetivoDeLosProyectiles();
+    this.onDestruye?.(this);
   }
 
   public dañar(daño?: number) {
@@ -267,12 +268,6 @@ export class Unidad extends Container {
     if (this.vidaActual <= 0) {
       this.destruye();
     }
-  }
-
-  public removerseComoObjetivoDeLosProyectiles() {
-    // TODO: por hacer, creo que por este bug (el que los proyectiles sigan al
-    // objetuvo al renacer como nuevo) hace falta una pequeña reestructuracion
-    // Necesitamos avisarle a los proyectiles que lo tienen como objetuvo o que lo eliminen como objetivo o que dejen un punto de reemplzado ahi para que el proyectil lo siga
   }
 
   public getID(complemento?: string): string {

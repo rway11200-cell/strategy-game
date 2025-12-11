@@ -1,39 +1,12 @@
 import { FancyButton } from "@pixi/ui";
 import { animate } from "motion";
 import type { AnimationPlaybackControls } from "motion/react";
-import { Container, PointData, Ticker } from "pixi.js";
+import { Container, Ticker } from "pixi.js";
 
+import { AdministradorJuego } from "../../core/AdministradorJuego";
 import { engine } from "../../getEngine";
 import { PausePopup } from "../../popups/PausePopup";
 import { SettingsPopup } from "../../popups/SettingsPopup";
-
-import { herramientaDesarrolloPintarPuntos } from "../../utils/herramietasDesarrollo";
-import { Proyectil } from "../../utils/Proyectil";
-import { CreadorUnidades } from "./CreadorUnidades";
-import { BaseTorre } from "./unidades/baseTorre";
-import { Enemigo } from "./unidades/enemigo";
-import { Torre } from "./unidades/Torre";
-
-interface ManejadorDeTorre {
-  ubicacion: PointData;
-  construido: boolean;
-}
-
-//TODO: el camino seguramente será por nivel esto deberia ser el primer elemento de un array de "Nivel" o algo asi
-const camino = [
-  { x: -300, y: 200 },
-  { x: -200, y: 100 },
-  { x: -100, y: -100 },
-  { x: 200, y: 0 },
-];
-
-const manejadorDeTorres: ManejadorDeTorre[] = [
-  { ubicacion: { x: 1, y: -100 }, construido: false },
-  { ubicacion: { x: 100, y: 50 }, construido: false },
-  { ubicacion: { x: -100, y: 50 }, construido: false },
-  { ubicacion: { x: -200, y: -100 }, construido: false },
-  { ubicacion: { x: 200, y: -100 }, construido: false },
-];
 
 /** The screen that holds the app */
 export class MainScreen extends Container {
@@ -44,9 +17,7 @@ export class MainScreen extends Container {
   private pauseButton: FancyButton;
   private settingsButton: FancyButton;
 
-  private creadorEnemigos: CreadorUnidades<Enemigo>;
-  private creadorTorres: CreadorUnidades<Torre>;
-  private creadorProyectiles: CreadorUnidades<Proyectil>;
+  private administradorJuego: AdministradorJuego;
 
   private paused = false;
 
@@ -56,71 +27,7 @@ export class MainScreen extends Container {
     this.mainContainer = new Container();
     this.addChild(this.mainContainer);
 
-    herramientaDesarrolloPintarPuntos(this.mainContainer, camino, "red", 15);
-
-    this.creadorProyectiles = new CreadorUnidades<Proyectil>({
-      contenedor: this.mainContainer,
-      cantidadReservaInicial: 10,
-      fabrica: () => {
-        return new Proyectil(this.mainContainer, {
-          opcionesSeguidorDeObjetivos: {
-            forzarActivarSeguidorCamino: true,
-            velocidad: 2,
-          },
-        });
-      },
-    });
-
-    this.creadorEnemigos = new CreadorUnidades<Enemigo>({
-      contenedor: this.mainContainer,
-      cantidadReservaInicial: 10,
-      fabrica: () => {
-        return new Enemigo(this.mainContainer, {
-          opcionesSeguidorDeObjetivos: { objetivos: camino, variacion: 10, velocidad: 0.5 },
-          vida: 100,
-        });
-      },
-    });
-
-    this.creadorEnemigos.generarGrupoUnidadesActivas(30, 800);
-
-    this.creadorTorres = new CreadorUnidades<Torre>({
-      contenedor: this.mainContainer,
-      cantidadReservaInicial: 10,
-      fabrica: () => {
-        return new Torre(this.mainContainer, {
-          opcionesDisparo: {
-            rango: 150,
-            daño: 20,
-            cadenciaDisparo: 0.5,
-            creadorProyectiles: this.creadorProyectiles,
-            objetivos: this.creadorEnemigos.obtenerUnidades(),
-          },
-        });
-      },
-    });
-
-    manejadorDeTorres.forEach((manejador) => {
-      const baseTorre = new BaseTorre(this.mainContainer);
-      baseTorre.position = manejador.ubicacion;
-      baseTorre.generate();
-
-      baseTorre.onclick = () => {
-        if (manejador.construido === true) {
-          console.log("aqui ya hay una torre");
-          return;
-        }
-
-        const torre = this.creadorTorres.obtener(true);
-        torre.position = manejador.ubicacion;
-        torre.generate();
-
-        manejador.construido = true;
-        engine().audio.sfx.play("main/sounds/sfx-hover.wav", { volume: 0.6 });
-      };
-
-      this.mainContainer.addChild(baseTorre);
-    });
+    this.administradorJuego = new AdministradorJuego(this.mainContainer);
 
     const buttonAnimations = {
       hover: {
@@ -163,9 +70,7 @@ export class MainScreen extends Container {
     if (this.paused) return;
 
     // actualiza todas las unidades hechas por un Creador de Unidades
-    this.creadorEnemigos.update(_time);
-    this.creadorTorres.update(_time);
-    this.creadorProyectiles.update(_time);
+    this.administradorJuego.update(_time);
   }
 
   /** Pause gameplay - automatically fired when a popup is presented */

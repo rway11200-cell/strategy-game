@@ -1,5 +1,5 @@
 import { Container, Ticker } from "pixi.js";
-import { Unidad } from "./unidades/unidad";
+import { Unidad } from "./unidades/Unidad";
 
 interface CreadorUnidadesProps<T extends Unidad> {
   contenedor: Container;

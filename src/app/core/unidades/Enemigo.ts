@@ -1,5 +1,5 @@
 import { Container } from "pixi.js";
-import { Unidad, UnidadProps } from "./unidad";
+import { Unidad, UnidadProps } from "./Unidad";
 
 export class Enemigo extends Unidad {
   constructor(contenedorPrincipal: Container, opciones?: UnidadProps) {

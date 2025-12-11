@@ -1,5 +1,5 @@
 import { Container } from "pixi.js";
-import { Unidad, UnidadProps } from "../screens/main/unidades/unidad";
+import { Unidad, UnidadProps } from "./Unidad";
 
 export class Proyectil extends Unidad {
   constructor(contenedorPrincipal: Container, opciones: UnidadProps) {
