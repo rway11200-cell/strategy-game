@@ -1,6 +1,6 @@
 import { PointData } from "pixi.js";
 import { randomFloat } from "../../engine/utils/random";
-import { Unidad } from "../screens/main/unidades/unidad";
+import { Unidad } from "./unidades/Unidad";
 
 interface SeguidorDeObjetuvosDesdePuntosProp {
   puntos: PointData[];
