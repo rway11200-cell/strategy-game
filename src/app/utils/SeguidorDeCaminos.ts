@@ -1,5 +1,6 @@
-import { Container, PointData } from "pixi.js";
+import { PointData } from "pixi.js";
 import { randomFloat } from "../../engine/utils/random";
+import { Unidad } from "../screens/main/unidades/unidad";
 
 interface SeguidorDeObjetuvosDesdePuntosProp {
   puntos: PointData[];
@@ -8,7 +9,7 @@ interface SeguidorDeObjetuvosDesdePuntosProp {
 }
 
 interface SeguidorDeObjetuvosDesdeContainerProp {
-  containers: Container[];
+  unidades: Unidad[];
   loop?: boolean;
 }
 
@@ -17,6 +18,7 @@ type ObjetivoProvider = () => PointData;
 // Componente que busca el siguiente camino a seguir
 export class SeguidorDeObjetivos {
   private objetivos: ObjetivoProvider[] = [];
+  private unidades?: Unidad[];
   private i = 0;
   private loop = false;
   public variacion: number = 0;
@@ -38,12 +40,17 @@ export class SeguidorDeObjetivos {
     this.loop = loop;
   }
 
-  setRutaDesdeContainer({ containers, loop = false }: SeguidorDeObjetuvosDesdeContainerProp) {
-    this.objetivos = containers.map((container): ObjetivoProvider => {
+  setRutaDesdeUnidades({ unidades, loop = false }: SeguidorDeObjetuvosDesdeContainerProp) {
+    if (!unidades) {
+      throw new Error("setRutaDesdeUnidades con unidades vacias");
+    }
+
+    this.unidades = unidades;
+    this.objetivos = unidades.map((unidad): ObjetivoProvider => {
       return () => {
         return {
-          x: container.position.x,
-          y: container.position.y,
+          x: unidad.position.x,
+          y: unidad.position.y,
         };
       };
     });
@@ -74,12 +81,29 @@ export class SeguidorDeObjetivos {
     this.i = 0;
   }
 
-  obtenerOrigen(): PointData {
-    const origen = this.objetivo;
-    if (!origen) {
+  public obtenerOrigen(): PointData {
+    if (!this.objetivos || this.objetivos.length === 0) {
       console.warn("SeguidorDeObjetivos.obtenerOrigen: no hay objetivos definidos");
       return { x: 0, y: 0 };
     }
-    return origen;
+    const result = this.objetivos[0];
+    return result();
+  }
+
+  public obtenerFinal(): PointData {
+    if (!this.objetivos || this.objetivos.length === 0) {
+      console.warn("SeguidorDeObjetivos.obtenerFinal: no hay objetivos definidos");
+      return { x: 0, y: 0 };
+    }
+    const result = this.objetivos[this.objetivos.length - 1];
+    return result();
+  }
+
+  public obtenerUnidadFinal(): Unidad | undefined {
+    if (!this.unidades || this.unidades.length === 0) {
+      console.warn("SeguidorDeObjetivos.obtenerUnidadFinal: no hay unidades definidos");
+      return;
+    }
+    return this.unidades[this.unidades.length - 1];
   }
 }

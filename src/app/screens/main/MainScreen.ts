@@ -13,6 +13,7 @@ import { CreadorUnidades } from "./CreadorUnidades";
 import { BaseTorre } from "./unidades/baseTorre";
 import { Enemigo } from "./unidades/enemigo";
 import { Torre } from "./unidades/Torre";
+import { Unidad } from "./unidades/unidad";
 
 interface ManejadorDeTorre {
   ubicacion: PointData;
@@ -65,7 +66,7 @@ export class MainScreen extends Container {
         return new Proyectil(this.mainContainer, {
           opcionesSeguidorDeObjetivos: {
             forzarActivarSeguidorCamino: true,
-            velocidad: 2,
+            velocidad: 0.7,
           },
         });
       },
@@ -75,10 +76,14 @@ export class MainScreen extends Container {
       contenedor: this.mainContainer,
       cantidadReservaInicial: 10,
       fabrica: () => {
-        return new Enemigo(this.mainContainer, {
-          opcionesSeguidorDeObjetivos: { objetivos: camino, variacion: 10, velocidad: 0.5 },
+        const nuevoEnemigo = new Enemigo(this.mainContainer, {
+          opcionesSeguidorDeObjetivos: { objetivos: camino, variacion: 10, velocidad: 0.3 },
           vida: 100,
         });
+        nuevoEnemigo.onDestruye = () => {
+          this.removerseComoObjetivoDeLosProyectiles(nuevoEnemigo);
+        };
+        return nuevoEnemigo;
       },
     });
 
@@ -153,6 +158,16 @@ export class MainScreen extends Container {
     this.settingsButton.onPress.connect(() => engine().navigation.presentPopup(SettingsPopup));
     this.addChild(this.settingsButton);
   }
+
+  private removerseComoObjetivoDeLosProyectiles = (unidad: Unidad) => {
+    const proyectilesActivados = this.creadorProyectiles.obtenerUnidades();
+    proyectilesActivados.forEach((proyectil) => {
+      if (proyectil.seguidorDeObjetivos?.obtenerUnidadFinal() === unidad) {
+        // TODO quizas deberia llegar al ultim lugar donde estaba el objetivo
+        proyectil.destruye();
+      }
+    });
+  };
 
   /** Prepare the screen just before showing */
   public prepare() {}
