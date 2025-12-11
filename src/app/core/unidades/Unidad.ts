@@ -1,12 +1,12 @@
 import { AnimatedSprite, Container, Graphics, ObservablePoint, PointData, Ticker } from "pixi.js";
-import { getDistance } from "../../../../engine/utils/maths";
-import { debugLogChanged } from "../../../utils/debugLog";
-import { herramientaDesarrolloPintarPuntos } from "../../../utils/herramietasDesarrollo";
-import { Movimiento } from "../../../utils/movimiento";
-import { Proyectil } from "../../../utils/Proyectil";
-import { SeguidorDeObjetivos } from "../../../utils/SeguidorDeCaminos";
-import { getFrame } from "../../../utils/sprite";
+import { getDistance } from "../../../engine/utils/maths";
+import { debugLogChanged } from "../../utils/debugLog";
+import { herramientaDesarrolloPintarPuntos } from "../../utils/herramietasDesarrollo";
+import { getFrame } from "../../utils/sprite";
 import { CreadorUnidades } from "../CreadorUnidades";
+import { Movimiento } from "../Movimiento";
+import { SeguidorDeObjetivos } from "../SeguidorDeCaminos";
+import { Proyectil } from "./Proyectil";
 
 export interface OpcionesDisparo {
   rango: number;

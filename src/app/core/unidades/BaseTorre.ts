@@ -1,5 +1,5 @@
 import { Container } from "pixi.js";
-import { Unidad } from "./unidad";
+import { Unidad } from "./Unidad";
 
 export class BaseTorre extends Unidad {
   constructor(contenedorPrincipal: Container) {
