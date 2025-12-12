@@ -18,7 +18,7 @@ Descubrir como funciona un componente o funcionalidades
 - [] Mostrar mensaje que perdio la partida
 - [] Mostrar mensaje que ganó la partida
 - [] Cargar escenarios desde un archivo json o similar
-- [] Crear animacion de morir de los enemigos
+- [x] Crear animacion de morir de los enemigos
 - [] Crear animacion de caminar en otra direccion (si aplica), por ejemplo para la izquierda
 - [] Crear sprite de proyectiles y su anilacion dependeinto de la direccion
 - [] Crear trayectoria especiales de proyectiles, por ejemplo fechas (hacen una curva) y con esto podriamos crear proyectiles que caigan en un punto con area de efecto (solo si aplica)

@@ -1,8 +1,7 @@
 import { AnimatedSprite, Container, Graphics, ObservablePoint, PointData, Ticker } from "pixi.js";
 import { getDistance } from "../../../engine/utils/maths";
-import { debugLogChanged } from "../../utils/debugLog";
 import { herramientaDesarrolloPintarPuntos } from "../../utils/herramietasDesarrollo";
-import { getFrame } from "../../utils/sprite";
+import { getFramesAseprite } from "../../utils/sprite";
 import { CreadorUnidades } from "../CreadorUnidades";
 import { Movimiento } from "../Movimiento";
 import { SeguidorDeObjetivos } from "../SeguidorDeCaminos";
@@ -22,9 +21,14 @@ export interface OpcionesSeguidorDeObjetivos {
   velocidad: number;
   forzarActivarSeguidorCamino?: boolean;
 }
+export interface FramesJson {
+  idle: string;
+  run?: string;
+  dead?: string;
+}
 export interface UnidadProps {
   opcionesSeguidorDeObjetivos?: OpcionesSeguidorDeObjetivos;
-  framesJson?: string;
+  framesJson?: FramesJson;
   posicion?: PointData;
   opcionesDisparo?: OpcionesDisparo;
   vida?: number;
@@ -36,6 +40,10 @@ function esArrayDeUnidades(objetivos: PointData[] | Unidad[]): objetivos is Unid
 
 // Logica comun de una unidad, deberia ser capaz de moverse, atacar, morir, estar quieto, etc
 export class Unidad extends Container {
+  public activo: boolean = false;
+  public puedeSerObjetivoProyectil = false;
+  private ultimaAnimacion: string = "idle";
+
   private contenedorPrincipal: Container;
   private opcionesSeguidorDeObjetivos?: OpcionesSeguidorDeObjetivos;
   public seguidorDeObjetivos?: SeguidorDeObjetivos;
@@ -49,11 +57,11 @@ export class Unidad extends Container {
   private movimiento: Movimiento;
 
   public animateSrinte: AnimatedSprite;
+  private framesJson: FramesJson;
 
   private vida: number = 1000;
   private vidaActual: number = this.vida;
   private graficaVida: Graphics;
-  public activo: boolean = false;
   public onDestruye?: (unidad: Unidad) => void;
 
   constructor(contenedorPrincipal: Container, opciones?: UnidadProps) {
@@ -81,8 +89,9 @@ export class Unidad extends Container {
     if (!framesJson) {
       throw new Error(`framesJson viene vacio.`);
     }
+    this.framesJson = framesJson;
 
-    this.animateSrinte = new AnimatedSprite(getFrame(framesJson));
+    this.animateSrinte = new AnimatedSprite(getFramesAseprite(this.framesJson.idle).textures);
     this.animateSrinte.animationSpeed = 10 / 60;
     this.animateSrinte.anchor.set(0.5);
     this.animateSrinte.visible = false;
@@ -167,14 +176,63 @@ export class Unidad extends Container {
     if (!this.seguidorDeObjetivos) return;
 
     const objetivo = this.seguidorDeObjetivos.objetivo;
-    if (!objetivo) return;
+    if (!objetivo) {
+      this.setAnimatimationIdle();
+      return;
+    }
 
-    const llegoAlObjetivoActual = this.movimiento.caminar(this, objetivo, _time, 0.5);
-    if (llegoAlObjetivoActual) {
-      this.seguidorDeObjetivos.avanzarAlSiguienteObjetivo();
+    if (this.movimiento.puedeCaminar()) {
+      this.setAnimatimationRun();
+      const llegoAlObjetivoActual = this.movimiento.caminar(this, objetivo, _time, 0.5);
+      if (llegoAlObjetivoActual) {
+        this.seguidorDeObjetivos.avanzarAlSiguienteObjetivo();
+      }
     }
   }
 
+  private setAnimatimationIdle() {
+    const animacion = "idle";
+    if (this.ultimaAnimacion === animacion) return;
+    this.ultimaAnimacion = animacion;
+
+    this.animateSrinte.loop = true;
+    this.animateSrinte.textures = getFramesAseprite(this.framesJson.idle).textures;
+    this.animateSrinte.play();
+  }
+  private setAnimatimationRun() {
+    const animacion = "run";
+    if (this.ultimaAnimacion === animacion) return;
+    this.ultimaAnimacion = animacion;
+
+    this.animateSrinte.loop = true;
+    this.animateSrinte.textures = getFramesAseprite(
+      this.framesJson.run || this.framesJson.idle,
+    ).textures;
+    this.animateSrinte.play();
+  }
+
+  private setAnimatimationDead(accionAlMorir: () => void) {
+    const animacion = "dead";
+
+    if (this.ultimaAnimacion === animacion) return;
+    this.ultimaAnimacion = animacion;
+
+    if (!this.framesJson.dead) {
+      accionAlMorir();
+      return;
+    }
+
+    this.animateSrinte.stop();
+
+    const frames = getFramesAseprite(this.framesJson.dead || this.framesJson.idle);
+    this.animateSrinte.loop = false;
+    this.animateSrinte.textures = frames.textures;
+    this.animateSrinte.play();
+
+    setTimeout(() => {
+      accionAlMorir();
+    }, frames.totalMs);
+  }
   private actualizarDisparo(_time: Ticker) {
     const opcionesDisparo = this.opcionesDisparo;
     if (!opcionesDisparo?.rango) return;
@@ -186,17 +244,6 @@ export class Unidad extends Container {
         opcionesDisparo.rango,
       );
       this.objetivoADisparar = objetivo;
-
-      debugLogChanged(
-        this.getID("objetivo"),
-        this.objetivoADisparar ? this.objetivoADisparar.uid : null,
-        { prefix: "[TARGET]", enabled: false },
-      );
-    } else {
-      debugLogChanged(this.getID("con-rango-pero-sin-objetivos"), this, {
-        prefix: "[DEBUG]",
-        enabled: false,
-      });
     }
 
     if (!this.objetivoADisparar) return;
@@ -231,6 +278,8 @@ export class Unidad extends Container {
   public generate() {
     this.visible = true;
     this.activo = true;
+    this.puedeSerObjetivoProyectil = true;
+    this.movimiento.activo = true;
 
     this.animateSrinte.visible = true;
     this.animateSrinte.play();
@@ -250,13 +299,17 @@ export class Unidad extends Container {
   }
 
   public destruye() {
-    this.visible = false;
-    this.activo = false;
-
-    this.animateSrinte.visible = false;
-    this.animateSrinte.stop();
-
+    this.puedeSerObjetivoProyectil = false;
+    this.movimiento.activo = false;
     this.onDestruye?.(this);
+
+    this.setAnimatimationDead(() => {
+      this.visible = false;
+      this.activo = false;
+
+      this.animateSrinte.visible = false;
+      this.animateSrinte.stop();
+    });
   }
 
   public dañar(daño?: number) {
@@ -284,7 +337,7 @@ function obtenerObjetivoCercano(
   let distanciaObjetivoCercano = 1000000000000;
 
   objetivos.forEach((objetivo) => {
-    if (objetivo.activo) {
+    if (objetivo.activo && objetivo.puedeSerObjetivoProyectil) {
       const distanciaActual = getDistance(position.x, position.y, objetivo.x, objetivo.y);
       if (distanciaActual < distanciaObjetivoCercano && distanciaActual <= rango) {
         distanciaObjetivoCercano = distanciaActual;

@@ -1,62 +1,72 @@
 import { AnimatedSpriteFrames, Assets, Spritesheet, Texture } from "pixi.js";
 
-type FrameRow = { filename: string };
+interface AsepriteFrame {
+  filename: string;
+  duration?: number;
+}
+interface AsepriteJSON {
+  frames: AsepriteFrame[] | Record<string, { duration?: number }>;
+}
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const cache: { [key: string]: any } = [];
+const cache: Record<
+  string,
+  { textures: AnimatedSpriteFrames; totalMs: number; frameMs: number[] }
+> = {};
 
 /**
- * Verifica si un valor tiene formato de array tipo Aseprite
- * (Ejemplo: [{ filename: "run #0.aseprite" }, ...])
+ * Obtiene texturas ordenadas desde un spritesheet Aseprite o Pixi,
+ * soportando ambos formatos de `sheet.data.frames` (array u objeto).
  */
-const esArrayAseprite = (x: unknown): x is FrameRow[] => {
-  return Array.isArray(x) && (x.length === 0 || typeof x[0]?.filename === "string");
-};
-
-/**
- * Obtiene una secuencia ordenada de texturas desde un Spritesheet cargado con PIXI.Assets
- *
- * - Soporta JSON de Aseprite (array) y formato estándar de Pixi (objeto)
- * - Ordena los frames por el número final en el nombre del archivo
- * - Retorna un arreglo listo para AnimatedSprite
- */
-export const getFrame = (
+export function getFramesAseprite(
   assetId: string,
-  patronNombreFrames: RegExp = /(\d+)\.(aseprite|png)$/,
-): AnimatedSpriteFrames => {
-  const resultCac = cache[assetId];
-  if (resultCac) {
-    return resultCac;
-  }
+  patronNombreFrames: RegExp = /(\d+)\.(png|aseprite)$/,
+) {
+  const cached = cache[assetId];
+  if (cached) return cached;
 
-  const sheet = Assets.get<Spritesheet>(assetId);
-
-  if (!sheet) {
-    throw new Error(`Spritesheet "${assetId}" no encontrado o no cargado.`);
-  }
+  // Tipamos sheet.data como AsepriteJSON para poder leer frames
+  const sheet = Assets.get<Spritesheet & { data: AsepriteJSON }>(assetId);
+  if (!sheet) throw new Error(`Spritesheet "${assetId}" no encontrado.`);
 
   const raw = sheet.data.frames;
 
-  const frames: FrameRow[] = esArrayAseprite(raw)
-    ? raw
-    : Object.keys(raw as Record<string, unknown>).map((name) => ({ filename: name }));
+  // Normalizar a array de AsepriteFrame[]
+  let rawFramesArray: AsepriteFrame[] = [];
 
-  const parsed = frames
-    .map((f, i) => {
+  if (Array.isArray(raw)) {
+    // caso ideal: ya es array (export directo de Aseprite)
+    rawFramesArray = raw as AsepriteFrame[];
+  } else if (raw && typeof raw === "object") {
+    // caso Pixi: frames es un objeto con keys -> convertir a array
+    rawFramesArray = Object.keys(raw).map((name) => {
+      const entry = (raw as Record<string, any>)[name];
+      return {
+        filename: name,
+        duration: entry?.duration ?? 0,
+      } as AsepriteFrame;
+    });
+  } else {
+    throw new Error("Formato de sheet.data.frames no soportado.");
+  }
+
+  // ahora sí podemos mapear, extraer id, ordenar...
+  const parsed = rawFramesArray
+    .map((f, index) => {
       const match = f.filename.match(patronNombreFrames);
-      const id = match ? Number(match[1]) : -1; // -1 = frame no válido
-      return { name: f.filename, index: String(i), id };
+      const id = match ? Number(match[1]) : -1;
+      return { name: f.filename, index, id, duration: f.duration ?? 0 };
     })
-    .filter((f) => f.id !== -1); // ignoramos los que no cumplan el patrón
+    .filter((f) => f.id !== -1)
+    .sort((a, b) => a.id - b.id);
 
   const textures = parsed
-    .sort((a, b) => a.id - b.id)
-    .map((f) => {
-      return sheet.textures[f.index] ?? sheet.textures[f.name];
-    })
+    .map((p) => sheet.textures[String(p.index)] ?? sheet.textures[p.name])
     .filter((t): t is Texture => t !== undefined);
 
-  // guardar en caché
-  cache[assetId] = textures;
-  return textures;
-};
+  const frameMs = parsed.map((f) => f.duration);
+  const totalMs = frameMs.reduce((s, v) => s + v, 0);
+
+  const result = { textures, totalMs, frameMs, assetId };
+  cache[assetId] = result;
+  return result;
+}
