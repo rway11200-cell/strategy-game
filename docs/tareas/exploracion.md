@@ -10,9 +10,9 @@ Descubrir como funciona un componente o funcionalidades
 - [x] Limitar la cantidad de torres
 - [] Mostrar mensajes al usurio mediante la UI
 - [] Mostrar mensaje limite de torres
-- [] Crear moneda del juego que se vea en la UI
+- [x] Crear moneda del juego que se vea en la UI
 - [] Ganar monedas al destruir enemigos que se vea un +100 +10, son ejemplos
-- [] Que las torres cuenten dinero y no se puedan colocar si no tenemos el dinero
+- [x] Que las torres cuesten dinero y no se puedan colocar si no tenemos el dinero
 - [] Indicar costo de torre
 - [] Crear mas tipos de torres con otras estadisticas
 - [] Mostrar mensaje que perdio la partida

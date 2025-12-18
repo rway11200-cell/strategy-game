@@ -36,7 +36,7 @@ export class AdministradorJuego {
   private creadorProyectiles: CreadorUnidades<Proyectil>;
   private contenedorJuegoPrincipal: Container;
 
-  private monedasJugador = 1000;
+  public monedas: number = 100;
   private monedasUI: MonedasUI;
 
   constructor(mainContainerScreen: Container, monedasUI: MonedasUI) {
@@ -63,11 +63,12 @@ export class AdministradorJuego {
       cantidadReservaInicial: 10,
       fabrica: () => {
         const nuevoEnemigo = new Enemigo(this.contenedorJuegoPrincipal, {
-          opcionesSeguidorDeObjetivos: { objetivos: camino, variacion: 10, velocidad: 0.3 },
+          opcionesSeguidorDeObjetivos: { objetivos: camino, variacion: 40, velocidad: 0.3 },
           vida: 100,
         });
         nuevoEnemigo.onDestruye = () => {
           this.removerseComoObjetivoDeLosProyectiles(nuevoEnemigo);
+          this.monedas += 50;
         };
         return nuevoEnemigo;
       },
@@ -101,12 +102,19 @@ export class AdministradorJuego {
           console.log("aqui ya hay una torre");
           return;
         }
+        if (this.monedas < 100) {
+          console.log("no tienes suficientes monedas");
+          return;
+        }
 
         const torre = this.creadorTorres.obtener(true);
         torre.position = manejador.ubicacion;
         torre.generate();
 
         manejador.construido = true;
+        if (manejador.construido === true) {
+          this.monedas -= 100;
+        }
         engine().audio.sfx.play("main/sounds/sfx-hover.wav", { volume: 0.6 });
       };
 
@@ -130,6 +138,6 @@ export class AdministradorJuego {
     this.creadorTorres.update(_time);
     this.creadorProyectiles.update(_time);
 
-    this.monedasUI.asignarMonedas(this.monedasJugador);
+    this.monedasUI.asignarMonedas(this.monedas);
   }
 }
