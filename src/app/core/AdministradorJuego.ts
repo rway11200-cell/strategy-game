@@ -97,7 +97,7 @@ export class AdministradorJuego {
       baseTorre.position = manejador.ubicacion;
       baseTorre.generate();
 
-      baseTorre.onclick = () => {
+      baseTorre.on("pointerdown", () => {
         if (manejador.construido === true) {
           console.log("aqui ya hay una torre");
           return;
@@ -116,7 +116,7 @@ export class AdministradorJuego {
           this.monedas -= 100;
         }
         engine().audio.sfx.play("main/sounds/sfx-hover.wav", { volume: 0.6 });
-      };
+      });
 
       this.contenedorJuegoPrincipal.addChild(baseTorre);
     });
