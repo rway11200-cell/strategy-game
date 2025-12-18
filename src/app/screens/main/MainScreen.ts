@@ -7,6 +7,7 @@ import { AdministradorJuego } from "../../core/AdministradorJuego";
 import { engine } from "../../getEngine";
 import { PausePopup } from "../../popups/PausePopup";
 import { SettingsPopup } from "../../popups/SettingsPopup";
+import { MonedasUI } from "../../ui/game/MonedasUI";
 
 /** The screen that holds the app */
 export class MainScreen extends Container {
@@ -16,6 +17,7 @@ export class MainScreen extends Container {
   public mainContainer: Container;
   private pauseButton: FancyButton;
   private settingsButton: FancyButton;
+  private contenedorMonedas: MonedasUI;
 
   private administradorJuego: AdministradorJuego;
 
@@ -27,7 +29,10 @@ export class MainScreen extends Container {
     this.mainContainer = new Container();
     this.addChild(this.mainContainer);
 
-    this.administradorJuego = new AdministradorJuego(this.mainContainer);
+    this.contenedorMonedas = new MonedasUI();
+    this.addChild(this.contenedorMonedas);
+
+    this.administradorJuego = new AdministradorJuego(this.mainContainer, this.contenedorMonedas);
 
     const buttonAnimations = {
       hover: {
@@ -99,6 +104,8 @@ export class MainScreen extends Container {
     this.pauseButton.y = 30;
     this.settingsButton.x = width - 30;
     this.settingsButton.y = 30;
+    this.contenedorMonedas.x = width - this.contenedorMonedas.width - 50;
+    this.contenedorMonedas.y = 60;
   }
 
   /** Show screen with animations */

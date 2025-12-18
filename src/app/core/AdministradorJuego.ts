@@ -1,5 +1,6 @@
 import { Container, PointData, Ticker } from "pixi.js";
 import { engine } from "../getEngine";
+import { MonedasUI } from "../ui/game/MonedasUI";
 import { herramientaDesarrolloPintarPuntos } from "../utils/herramietasDesarrollo";
 import { CreadorUnidades } from "./CreadorUnidades";
 import { BaseTorre } from "./unidades/BaseTorre";
@@ -35,8 +36,12 @@ export class AdministradorJuego {
   private creadorProyectiles: CreadorUnidades<Proyectil>;
   private contenedorJuegoPrincipal: Container;
 
-  constructor(mainContainerScreen: Container) {
+  private monedasJugador = 1000;
+  private monedasUI: MonedasUI;
+
+  constructor(mainContainerScreen: Container, monedasUI: MonedasUI) {
     this.contenedorJuegoPrincipal = mainContainerScreen;
+    this.monedasUI = monedasUI;
 
     herramientaDesarrolloPintarPuntos(this.contenedorJuegoPrincipal, camino, "red", 15);
 
@@ -124,5 +129,7 @@ export class AdministradorJuego {
     this.creadorEnemigos.update(_time);
     this.creadorTorres.update(_time);
     this.creadorProyectiles.update(_time);
+
+    this.monedasUI.asignarMonedas(this.monedasJugador);
   }
 }
