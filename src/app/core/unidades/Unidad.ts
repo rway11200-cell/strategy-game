@@ -143,7 +143,7 @@ export class Unidad extends Container {
       } else {
         this.seguidorDeObjetivos.setRutaDesdePuntos({
           puntos: objetivos,
-          variacion: this.seguidorDeObjetivos?.variacion || 0,
+          variacion: this.opcionesSeguidorDeObjetivos?.variacion || 0,
           loop: false,
         });
       }
