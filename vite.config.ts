@@ -7,6 +7,9 @@ export default defineConfig({
     port: 8080,
     open: false,
   },
+  build: {
+    sourcemap: true,
+  },
   preview: {
     port: 4173,
     host: true,
