@@ -3,10 +3,14 @@ import { animate } from "motion";
 import type { AnimationPlaybackControls } from "motion/react";
 import { Container, Ticker } from "pixi.js";
 
-import { AdministradorJuego } from "../../core/AdministradorJuego";
 import { engine } from "../../getEngine";
 import { PausePopup } from "../../popups/PausePopup";
 import { SettingsPopup } from "../../popups/SettingsPopup";
+
+import { EditableMaps } from "../../../core/maps/EditableMaps";
+import { PauseResumeOption } from "../../../engine/navigation/navigation";
+import { AdministradorJuego } from "../../core/AdministradorJuego";
+import { CargadorJsonNivel } from "../../core/niveles/cargador/CargadorJsonNivel";
 import { MonedasUI } from "../../ui/game/MonedasUI";
 import { NotificacionesUI } from "../../ui/game/NotificacionesUI";
 
@@ -20,9 +24,12 @@ export class MainScreen extends Container {
   private settingsButton: FancyButton;
   private contenedorMonedas: MonedasUI;
 
-  private administradorJuego: AdministradorJuego;
+  private administradorJuego!: AdministradorJuego;
+  private editMapButton: FancyButton;
 
   private paused = false;
+
+  public editableMaps: EditableMaps;
 
   private notificaciones: NotificacionesUI;
 
@@ -32,16 +39,12 @@ export class MainScreen extends Container {
     this.mainContainer = new Container();
     this.addChild(this.mainContainer);
 
+    this.editableMaps = new EditableMaps(this);
+
     this.contenedorMonedas = new MonedasUI();
     this.addChild(this.contenedorMonedas);
 
     this.notificaciones = new NotificacionesUI(this.mainContainer);
-
-    this.administradorJuego = new AdministradorJuego(
-      this.mainContainer,
-      this.contenedorMonedas,
-      this.notificaciones,
-    );
 
     const buttonAnimations = {
       hover: {
@@ -73,29 +76,57 @@ export class MainScreen extends Container {
     });
     this.settingsButton.onPress.connect(() => engine().navigation.presentPopup(SettingsPopup));
     this.addChild(this.settingsButton);
+
+    this.editMapButton = new FancyButton({
+      defaultView: "icon-pause.png",
+      anchor: 0.5,
+      animations: buttonAnimations,
+    });
+    this.editMapButton.onPress.connect(() => {
+      const isEditing = this.editableMaps.toggleEdit();
+      this.editMapButton.defaultView = isEditing ? "icon-settings.png" : "icon-pause.png";
+    });
+    this.addChild(this.editMapButton);
   }
 
   /** Prepare the screen just before showing */
-  public prepare() {}
+  public async prepare() {
+    const loader = new CargadorJsonNivel();
+    const level = await loader.load("/levels/level_01.json");
+
+    this.administradorJuego = new AdministradorJuego(
+      level,
+      this.mainContainer,
+      this.contenedorMonedas,
+      this.notificaciones,
+    );
+  }
 
   /** Update the screen */
   public update(_time: Ticker) {
     // si el juego esta en pausa no actualiza nada
     if (this.paused) return;
 
+    // si no hay administrador de juego mietras carga no hace nada tamposo
+    if (!this.administradorJuego) return;
+
     // actualiza todas las unidades hechas por un Creador de Unidades
     this.administradorJuego.update(_time);
   }
 
   /** Pause gameplay - automatically fired when a popup is presented */
-  public async pause() {
-    this.mainContainer.interactiveChildren = false;
+  public async pause({ ignoreInteractiveChildren = false }: PauseResumeOption = {}) {
+    if (!ignoreInteractiveChildren) {
+      this.mainContainer.interactiveChildren = false;
+    }
     this.paused = true;
   }
 
   /** Resume gameplay */
-  public async resume() {
-    this.mainContainer.interactiveChildren = true;
+  public async resume({ ignoreInteractiveChildren = false }: PauseResumeOption = {}) {
+    if (!ignoreInteractiveChildren) {
+      this.mainContainer.interactiveChildren = true;
+    }
     this.paused = false;
   }
 
@@ -115,6 +146,8 @@ export class MainScreen extends Container {
     this.settingsButton.y = 30;
     this.contenedorMonedas.x = width - this.contenedorMonedas.width - 50;
     this.contenedorMonedas.y = 60;
+    this.editMapButton.x = width - 30;
+    this.editMapButton.y = 90;
 
     this.notificaciones.resize(centerX, centerY);
   }

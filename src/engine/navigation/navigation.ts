@@ -3,16 +3,21 @@ import { Assets, BigPool, Container } from "pixi.js";
 
 import type { CreationEngine } from "../engine";
 
+export type PauseResumeOption = {
+  ignoreInteractiveChildren?: boolean;
+};
+
 /** Interface for app screens */
-interface AppScreen extends Container {
+export interface AppScreen extends Container {
+  mainContainer?: Container;
   /** Show the screen */
   show?(): Promise<void>;
   /** Hide the screen */
   hide?(): Promise<void>;
   /** Pause the screen */
-  pause?(): Promise<void>;
+  pause?(option?: PauseResumeOption): Promise<void>;
   /** Resume the screen */
-  resume?(): Promise<void>;
+  resume?(option?: PauseResumeOption): Promise<void>;
   /** Prepare screen, before showing */
   prepare?(): void;
   /** Reset screen, after hidden */

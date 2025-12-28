@@ -1,46 +1,28 @@
-import { Container, PointData, Ticker } from "pixi.js";
-import { engine } from "../getEngine";
+import { Container, Ticker } from "pixi.js";
 import { MonedasUI } from "../ui/game/MonedasUI";
 import { NotificacionesUI } from "../ui/game/NotificacionesUI";
 import { herramientaDesarrolloPintarPuntos } from "../utils/herramietasDesarrollo";
 import { CreadorUnidades } from "./CreadorUnidades";
+import { ContextoNivel } from "./niveles/cargador/ContextoNivel";
+import { ConvertidorJsonANivel } from "./niveles/cargador/ConvertidorJsonANivel";
+import { ManejadorEventosNivel } from "./niveles/cargador/ManejadorEventosNivel";
+import { LevelJSON } from "./niveles/cargador/SchemaNivel";
 import { BaseTorre } from "./unidades/BaseTorre";
 import { Enemigo } from "./unidades/Enemigo";
 import { Proyectil } from "./unidades/Proyectil";
 import { Torre } from "./unidades/Torre";
 import { Unidad } from "./unidades/Unidad";
 
-interface ManejadorDeTorre {
-  ubicacion: PointData;
-  construido: boolean;
-}
-
-//TODO: el camino seguramente será por nivel esto deberia ser el primer elemento de un array de "Nivel" o algo asi
-const camino = [
-  { x: -300, y: 200 },
-  { x: -200, y: 100 },
-  { x: -100, y: -100 },
-  { x: 200, y: 0 },
-];
-
-const manejadorDeTorres: ManejadorDeTorre[] = [
-  { ubicacion: { x: 1, y: -100 }, construido: false },
-  { ubicacion: { x: 100, y: 50 }, construido: false },
-  { ubicacion: { x: -100, y: 50 }, construido: false },
-  { ubicacion: { x: -200, y: -100 }, construido: false },
-  { ubicacion: { x: 200, y: -100 }, construido: false },
-];
-
 export class AdministradorJuego {
-  private creadorEnemigos: CreadorUnidades<Enemigo>;
-  private creadorTorres: CreadorUnidades<Torre>;
-  private creadorProyectiles: CreadorUnidades<Proyectil>;
   private contenedorJuegoPrincipal: Container;
+  private manejadorEventos: ManejadorEventosNivel;
 
-  public monedas: number = 100;
+  private contextoJuego: ContextoNivel;
+
   private monedasUI: MonedasUI;
 
   constructor(
+    levelJSON: LevelJSON,
     mainContainerScreen: Container,
     monedasUI: MonedasUI,
     notificaciones: NotificacionesUI,
@@ -48,87 +30,78 @@ export class AdministradorJuego {
     this.contenedorJuegoPrincipal = mainContainerScreen;
     this.monedasUI = monedasUI;
 
-    herramientaDesarrolloPintarPuntos(this.contenedorJuegoPrincipal, camino, "red", 15);
+    const estrucuturaNivel = new ConvertidorJsonANivel(levelJSON);
 
-    this.creadorProyectiles = new CreadorUnidades<Proyectil>({
+    this.contextoJuego = this.creacionContextoJuego(estrucuturaNivel, notificaciones);
+
+    this.contextoJuego.paths.forEach((pathDef) => {
+      herramientaDesarrolloPintarPuntos(this.contenedorJuegoPrincipal, pathDef.points, "red", 15);
+    });
+
+    this.manejadorEventos = new ManejadorEventosNivel(estrucuturaNivel);
+  }
+
+  private creacionContextoJuego(
+    estrucutraNivel: ConvertidorJsonANivel,
+    notificaciones: NotificacionesUI,
+  ): ContextoNivel {
+    const creadorProyectiles = new CreadorUnidades<Proyectil>({
       contenedor: this.contenedorJuegoPrincipal,
       cantidadReservaInicial: 10,
       fabrica: () => {
-        return new Proyectil(this.contenedorJuegoPrincipal, {
-          opcionesSeguidorDeObjetivos: {
-            forzarActivarSeguidorCamino: true,
-            velocidad: 2,
-          },
-        });
+        return new Proyectil(this.contenedorJuegoPrincipal);
       },
     });
 
-    this.creadorEnemigos = new CreadorUnidades<Enemigo>({
-      contenedor: this.contenedorJuegoPrincipal,
-      cantidadReservaInicial: 10,
-      fabrica: () => {
-        const nuevoEnemigo = new Enemigo(this.contenedorJuegoPrincipal, {
-          opcionesSeguidorDeObjetivos: { objetivos: camino, variacion: 40, velocidad: 0.3 },
-          vida: 100,
-        });
-        nuevoEnemigo.onDestruye = () => {
-          this.removerseComoObjetivoDeLosProyectiles(nuevoEnemigo);
-          this.monedas += 50;
-        };
-        return nuevoEnemigo;
+    return {
+      paths: estrucutraNivel.getCaminos(),
+      entities: estrucutraNivel.getEntidades(),
+      monedas: 100,
+      mostrarMensaje: (mensaje) => {
+        notificaciones.notifica(mensaje);
       },
-    });
-
-    this.creadorEnemigos.generarGrupoUnidadesActivas(30, 800);
-
-    this.creadorTorres = new CreadorUnidades<Torre>({
-      contenedor: this.contenedorJuegoPrincipal,
-      cantidadReservaInicial: 10,
-      fabrica: () => {
-        return new Torre(this.contenedorJuegoPrincipal, {
-          opcionesDisparo: {
-            rango: 150,
-            daño: 20,
-            cadenciaDisparo: 0.5,
-            creadorProyectiles: this.creadorProyectiles,
-            objetivos: this.creadorEnemigos.obtenerUnidades(),
-          },
-        });
-      },
-    });
-
-    manejadorDeTorres.forEach((manejador) => {
-      const baseTorre = new BaseTorre(this.contenedorJuegoPrincipal);
-      baseTorre.position = manejador.ubicacion;
-      baseTorre.generate();
-
-      baseTorre.on("pointerdown", () => {
-        if (manejador.construido === true) {
-          notificaciones.notifica("Aqui ya hay una torre");
-          return;
-        }
-        if (this.monedas < 100) {
-          notificaciones.notifica("No tienes suficientes monedas");
-          return;
-        }
-
-        const torre = this.creadorTorres.obtener(true);
-        torre.position = manejador.ubicacion;
-        torre.generate();
-
-        manejador.construido = true;
-        if (manejador.construido === true) {
-          this.monedas -= 100;
-        }
-        engine().audio.sfx.play("main/sounds/sfx-hover.wav", { volume: 0.6 });
-      });
-
-      this.contenedorJuegoPrincipal.addChild(baseTorre);
-    });
+      creadorProyectiles: creadorProyectiles,
+      creadorEnemigos: new CreadorUnidades<Enemigo>({
+        contenedor: this.contenedorJuegoPrincipal,
+        cantidadReservaInicial: 10,
+        fabrica: () => {
+          const nuevoEnemigo = new Enemigo(this.contenedorJuegoPrincipal, {
+            opcionesSeguidorDeObjetivos: { variacion: 30, velocidad: 0.6 },
+            vida: 100,
+          });
+          nuevoEnemigo.onDestruye = () => {
+            this.removerseComoObjetivoDeLosProyectiles(nuevoEnemigo);
+            this.contextoJuego.monedas += 50;
+          };
+          return nuevoEnemigo;
+        },
+      }),
+      creadorTorres: new CreadorUnidades<Torre>({
+        contenedor: this.contenedorJuegoPrincipal,
+        cantidadReservaInicial: 10,
+        fabrica: () => {
+          return new Torre(this.contenedorJuegoPrincipal, {
+            opcionesDisparo: {
+              rango: 150,
+              daño: 20,
+              cadenciaDisparo: 0.5,
+              creadorProyectiles: creadorProyectiles,
+            },
+          });
+        },
+      }),
+      creadorBaseTorres: new CreadorUnidades<BaseTorre>({
+        contenedor: this.contenedorJuegoPrincipal,
+        cantidadReservaInicial: 10,
+        fabrica: () => {
+          return new BaseTorre(this.contenedorJuegoPrincipal);
+        },
+      }),
+    };
   }
 
   private removerseComoObjetivoDeLosProyectiles = (unidad: Unidad) => {
-    const proyectilesActivados = this.creadorProyectiles.obtenerUnidades();
+    const proyectilesActivados = this.contextoJuego.creadorProyectiles.obtenerUnidades();
     proyectilesActivados.forEach((proyectil) => {
       if (proyectil.seguidorDeObjetivos?.obtenerUnidadFinal() === unidad) {
         // TODO quizas deberia llegar al ultim lugar donde estaba el objetivo
@@ -139,10 +112,13 @@ export class AdministradorJuego {
 
   public update(_time: Ticker) {
     // actualiza todas las unidades hechas por cada Creador de Unidades
-    this.creadorEnemigos.update(_time);
-    this.creadorTorres.update(_time);
-    this.creadorProyectiles.update(_time);
 
-    this.monedasUI.asignarMonedas(this.monedas);
+    this.manejadorEventos.update(_time, this.contextoJuego);
+
+    this.monedasUI.asignarMonedas(this.contextoJuego.monedas);
+
+    this.contextoJuego.creadorEnemigos.update(_time);
+    this.contextoJuego.creadorTorres.update(_time);
+    this.contextoJuego.creadorProyectiles.update(_time);
   }
 }

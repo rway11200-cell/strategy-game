@@ -10,7 +10,7 @@ import { Proyectil } from "./Proyectil";
 export interface OpcionesDisparo {
   rango: number;
   cadenciaDisparo: number;
-  objetivos: Unidad[];
+  objetivos?: Unidad[];
   creadorProyectiles: CreadorUnidades<Proyectil>;
   daño: number;
 }
@@ -18,7 +18,7 @@ export interface OpcionesDisparo {
 export interface OpcionesSeguidorDeObjetivos {
   objetivos?: PointData[] | Container[];
   variacion?: number;
-  velocidad: number;
+  velocidad?: number;
   forzarActivarSeguidorCamino?: boolean;
 }
 export interface FramesJson {
@@ -27,10 +27,10 @@ export interface FramesJson {
   dead?: string;
 }
 export interface UnidadProps {
-  opcionesSeguidorDeObjetivos?: OpcionesSeguidorDeObjetivos;
   framesJson?: FramesJson;
   posicion?: PointData;
   opcionesDisparo?: OpcionesDisparo;
+  opcionesSeguidorDeObjetivos?: OpcionesSeguidorDeObjetivos;
   vida?: number;
 }
 
@@ -54,7 +54,7 @@ export class Unidad extends Container {
 
   private rangoGraph?: Graphics;
 
-  private movimiento: Movimiento;
+  private movimiento?: Movimiento;
 
   public animateSrinte: AnimatedSprite;
   private framesJson: FramesJson;
@@ -76,15 +76,9 @@ export class Unidad extends Container {
 
     const { framesJson, opcionesDisparo, opcionesSeguidorDeObjetivos, posicion, vida } = opciones;
 
-    this.opcionesDisparo = opcionesDisparo;
-    this.opcionesSeguidorDeObjetivos = opcionesSeguidorDeObjetivos;
-
     if (posicion) {
       this.position = posicion;
     }
-
-    const velocidad = this.opcionesSeguidorDeObjetivos?.velocidad ?? 1;
-    this.movimiento = new Movimiento(velocidad);
 
     if (!framesJson) {
       throw new Error(`framesJson viene vacio.`);
@@ -112,12 +106,23 @@ export class Unidad extends Container {
       this.graficaVida.visible = false;
       this.addChild(this.graficaVida);
     }
-
-    this.inicializarSeguidorDeObjetivos();
-    this.inicializarRangoDisparo();
+    if (opcionesSeguidorDeObjetivos)
+      this.inicializarSeguidorDeObjetivos(opcionesSeguidorDeObjetivos);
+    if (opcionesDisparo) this.inicializarRangoDisparo(opcionesDisparo);
   }
 
-  private inicializarRangoDisparo() {
+  public fijarObjetivosDeDisparo(objetivos: Unidad[]) {
+    if (!this.opcionesDisparo) {
+      console.log("inicializarRangoDisparo primero");
+      return;
+    }
+
+    this.opcionesDisparo.objetivos = objetivos;
+  }
+
+  public inicializarRangoDisparo(opcionesDisparo: OpcionesDisparo) {
+    this.opcionesDisparo = { ...this.opcionesDisparo, ...opcionesDisparo };
+
     if (this.opcionesDisparo?.rango) {
       this.rangoGraph = herramientaDesarrolloPintarPuntos(
         this,
@@ -130,7 +135,14 @@ export class Unidad extends Container {
     }
   }
 
-  private inicializarSeguidorDeObjetivos() {
+  public inicializarSeguidorDeObjetivos(opcionesSeguidorDeObjetivos: OpcionesSeguidorDeObjetivos) {
+    this.opcionesSeguidorDeObjetivos = {
+      ...this.opcionesSeguidorDeObjetivos,
+      ...opcionesSeguidorDeObjetivos,
+    };
+
+    this.movimiento = new Movimiento(this.opcionesSeguidorDeObjetivos?.velocidad ?? 1);
+
     const objetivos = this.opcionesSeguidorDeObjetivos?.objetivos;
     if (objetivos && objetivos.length > 0) {
       this.seguidorDeObjetivos = new SeguidorDeObjetivos();
@@ -181,7 +193,7 @@ export class Unidad extends Container {
       return;
     }
 
-    if (this.movimiento.puedeCaminar()) {
+    if (this.movimiento?.puedeCaminar()) {
       this.setAnimatimationRun();
       const llegoAlObjetivoActual = this.movimiento.caminar(this, objetivo, _time, 0.5);
       if (llegoAlObjetivoActual) {
@@ -238,10 +250,11 @@ export class Unidad extends Container {
     if (!opcionesDisparo?.rango) return;
 
     if (opcionesDisparo.objetivos && opcionesDisparo.objetivos.length > 0) {
-      const objetivo = obtenerObjetivoCercano(
+      const objetivo = obtenerObjetivoActualOElMasCercano(
         this.position,
         opcionesDisparo.objetivos,
         opcionesDisparo.rango,
+        this.objetivoADisparar,
       );
       this.objetivoADisparar = objetivo;
     }
@@ -279,7 +292,7 @@ export class Unidad extends Container {
     this.visible = true;
     this.activo = true;
     this.puedeSerObjetivoProyectil = true;
-    this.movimiento.activo = true;
+    if (this.movimiento) this.movimiento.activo = true;
 
     this.animateSrinte.visible = true;
     this.animateSrinte.play();
@@ -300,7 +313,7 @@ export class Unidad extends Container {
 
   public destruye() {
     this.puedeSerObjetivoProyectil = false;
-    this.movimiento.activo = false;
+    if (this.movimiento) this.movimiento.activo = false;
     this.onDestruye?.(this);
 
     this.setAnimatimationDead(() => {
@@ -328,22 +341,39 @@ export class Unidad extends Container {
   }
 }
 
-function obtenerObjetivoCercano(
+function obtenerObjetivoActualOElMasCercano(
   position: ObservablePoint,
   objetivos: Unidad[],
   rango: number,
+  objetivoActual: Unidad | undefined,
 ): Unidad | undefined {
   let objetivoCercano: Unidad | undefined;
   let distanciaObjetivoCercano = 1000000000000;
 
-  objetivos.forEach((objetivo) => {
-    if (objetivo.activo && objetivo.puedeSerObjetivoProyectil) {
-      const distanciaActual = getDistance(position.x, position.y, objetivo.x, objetivo.y);
-      if (distanciaActual < distanciaObjetivoCercano && distanciaActual <= rango) {
-        distanciaObjetivoCercano = distanciaActual;
-        objetivoCercano = objetivo;
-      }
+  if (objetivoActual && objetivoActual.puedeSerObjetivoProyectil) {
+    const distnaciaAlObjetivoActual = getDistance(
+      position.x,
+      position.y,
+      objetivoActual.x,
+      objetivoActual.y,
+    );
+    if (distnaciaAlObjetivoActual <= rango) {
+      return objetivoActual;
     }
-  });
+  }
+
+  objetivos
+    .filter((o) => {
+      return o.puedeSerObjetivoProyectil;
+    })
+    .forEach((objetivo) => {
+      if (objetivo.activo && objetivo.puedeSerObjetivoProyectil) {
+        const distanciaActual = getDistance(position.x, position.y, objetivo.x, objetivo.y);
+        if (distanciaActual < distanciaObjetivoCercano && distanciaActual <= rango) {
+          distanciaObjetivoCercano = distanciaActual;
+          objetivoCercano = objetivo;
+        }
+      }
+    });
   return objetivoCercano;
 }

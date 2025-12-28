@@ -66,15 +66,10 @@ export class CreadorUnidades<T extends Unidad> {
     return this.unidades;
   }
 
-  public generarGrupoUnidadesActivas(cantidad: number, retrasoAparicionMS: number) {
-    for (let i = 0; i < cantidad; i++) {
-      setTimeout(() => {
-        const unidad = this.obtener();
-        unidad.generate();
-      }, i * retrasoAparicionMS);
-    }
+  public aplicaATodasLasUnidades(actionAAplicar: (t: T) => void) {
+    const unidades = this.obtenerUnidades();
+    unidades.forEach((unidad) => actionAAplicar(unidad));
   }
-
   public update(_time: Ticker) {
     this.unidades.forEach((unidad) => {
       if (unidad.activo) {
