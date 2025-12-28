@@ -1,6 +1,7 @@
 import { Container, PointData, Ticker } from "pixi.js";
 import { engine } from "../getEngine";
 import { MonedasUI } from "../ui/game/MonedasUI";
+import { NotificacionesUI } from "../ui/game/NotificacionesUI";
 import { herramientaDesarrolloPintarPuntos } from "../utils/herramietasDesarrollo";
 import { CreadorUnidades } from "./CreadorUnidades";
 import { BaseTorre } from "./unidades/BaseTorre";
@@ -39,7 +40,11 @@ export class AdministradorJuego {
   public monedas: number = 100;
   private monedasUI: MonedasUI;
 
-  constructor(mainContainerScreen: Container, monedasUI: MonedasUI) {
+  constructor(
+    mainContainerScreen: Container,
+    monedasUI: MonedasUI,
+    notificaciones: NotificacionesUI,
+  ) {
     this.contenedorJuegoPrincipal = mainContainerScreen;
     this.monedasUI = monedasUI;
 
@@ -99,11 +104,11 @@ export class AdministradorJuego {
 
       baseTorre.on("pointerdown", () => {
         if (manejador.construido === true) {
-          console.log("aqui ya hay una torre");
+          notificaciones.notifica("Aqui ya hay una torre");
           return;
         }
         if (this.monedas < 100) {
-          console.log("no tienes suficientes monedas");
+          notificaciones.notifica("No tienes suficientes monedas");
           return;
         }
 
