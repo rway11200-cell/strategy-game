@@ -9,6 +9,20 @@
       "assets": [
         {
           "alias": [
+            "main/levels/level_01.json",
+            "level_01.json"
+          ],
+          "src": [
+            "main/levels/level_01.json"
+          ],
+          "data": {
+            "tags": {
+              "m": true
+            }
+          }
+        },
+        {
+          "alias": [
             "main/logo-white.svg",
             "logo-white.svg"
           ],

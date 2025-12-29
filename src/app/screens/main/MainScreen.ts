@@ -10,7 +10,6 @@ import { SettingsPopup } from "../../popups/SettingsPopup";
 import { EditableMaps } from "../../../core/maps/EditableMaps";
 import { PauseResumeOption } from "../../../engine/navigation/navigation";
 import { AdministradorJuego } from "../../core/AdministradorJuego";
-import { CargadorJsonNivel } from "../../core/niveles/cargador/CargadorJsonNivel";
 import { MonedasUI } from "../../ui/game/MonedasUI";
 import { NotificacionesUI } from "../../ui/game/NotificacionesUI";
 
@@ -45,6 +44,12 @@ export class MainScreen extends Container {
     this.addChild(this.contenedorMonedas);
 
     this.notificaciones = new NotificacionesUI(this.mainContainer);
+
+    this.administradorJuego = new AdministradorJuego(
+      this.mainContainer,
+      this.contenedorMonedas,
+      this.notificaciones,
+    );
 
     const buttonAnimations = {
       hover: {
@@ -90,17 +95,7 @@ export class MainScreen extends Container {
   }
 
   /** Prepare the screen just before showing */
-  public async prepare() {
-    const loader = new CargadorJsonNivel();
-    const level = await loader.load("/levels/level_01.json");
-
-    this.administradorJuego = new AdministradorJuego(
-      level,
-      this.mainContainer,
-      this.contenedorMonedas,
-      this.notificaciones,
-    );
-  }
+  public async prepare() {}
 
   /** Update the screen */
   public update(_time: Ticker) {

@@ -6,8 +6,8 @@
             "inheritedMetaData": {},
             "transformData": {},
             "stats": {
-                "date": 1761192333836,
-                "duration": 0.9744170000194572,
+                "date": 1766967082700,
+                "duration": 6.1816660000001775,
                 "success": true
             }
         },
@@ -20,10 +20,57 @@
             "inheritedMetaData": {},
             "transformData": {},
             "stats": {
-                "date": 1761192333837,
-                "duration": 0.3954999999841675,
+                "date": 1766967082700,
+                "duration": 7.625042000000121,
                 "success": true
             }
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/levels": {
+            "isFolder": true,
+            "parent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {},
+            "stats": {
+                "date": 1766967082700,
+                "duration": 7.5997500000000855,
+                "success": true
+            }
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/levels/level_01.json": {
+            "isFolder": false,
+            "parent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/levels",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {},
+            "stats": {
+                "date": 1766967082701,
+                "duration": 7.321459000000004,
+                "success": true
+            },
+            "hash": "PwL31Q"
+        },
+        ".assetpack/json/main{m}/levels/level_01.json": {
+            "isFolder": false,
+            "transformParent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/levels/level_01.json",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/public/assets/main/levels/level_01.json": {
+            "isFolder": false,
+            "transformParent": ".assetpack/json/main{m}/levels/level_01.json",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
         },
         "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/logo-white.svg": {
             "isFolder": false,

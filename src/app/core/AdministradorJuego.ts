@@ -1,4 +1,4 @@
-import { Container, Ticker } from "pixi.js";
+import { Assets, Container, Ticker } from "pixi.js";
 import { MonedasUI } from "../ui/game/MonedasUI";
 import { NotificacionesUI } from "../ui/game/NotificacionesUI";
 import { herramientaDesarrolloPintarPuntos } from "../utils/herramietasDesarrollo";
@@ -22,7 +22,6 @@ export class AdministradorJuego {
   private monedasUI: MonedasUI;
 
   constructor(
-    levelJSON: LevelJSON,
     mainContainerScreen: Container,
     monedasUI: MonedasUI,
     notificaciones: NotificacionesUI,
@@ -30,7 +29,8 @@ export class AdministradorJuego {
     this.contenedorJuegoPrincipal = mainContainerScreen;
     this.monedasUI = monedasUI;
 
-    const estrucuturaNivel = new ConvertidorJsonANivel(levelJSON);
+    const jsonLevel = Assets.get<LevelJSON>("level_01.json");
+    const estrucuturaNivel = new ConvertidorJsonANivel(jsonLevel);
 
     this.contextoJuego = this.creacionContextoJuego(estrucuturaNivel, notificaciones);
 
