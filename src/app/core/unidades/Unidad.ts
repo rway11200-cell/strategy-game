@@ -3,7 +3,7 @@ import { getDistance } from "../../../engine/utils/maths";
 import { herramientaDesarrolloPintarPuntos } from "../../utils/herramietasDesarrollo";
 import { getFramesAseprite } from "../../utils/sprite";
 import { CreadorUnidades } from "../CreadorUnidades";
-import { Movimiento } from "../Movimiento";
+import { DireccionDelMovimiento, Movimiento } from "../Movimiento";
 import { SeguidorDeObjetivos } from "../SeguidorDeCaminos";
 import { Proyectil } from "./Proyectil";
 
@@ -176,6 +176,7 @@ export class Unidad extends Container {
     this.actulizarVida(_time);
     this.actualizarDisparo(_time);
   }
+
   private actulizarVida(_time: Ticker) {
     if (!this.vida) return;
 
@@ -194,9 +195,10 @@ export class Unidad extends Container {
     }
 
     if (this.movimiento?.puedeCaminar()) {
-      this.setAnimatimationRun();
-      const llegoAlObjetivoActual = this.movimiento.caminar(this, objetivo, _time, 0.5);
-      if (llegoAlObjetivoActual) {
+      const { llegoObjetivo, direccion } = this.movimiento.caminar(this, objetivo, _time, 0.5);
+      this.setAnimatimationRun(direccion);
+
+      if (llegoObjetivo) {
         this.seguidorDeObjetivos.avanzarAlSiguienteObjetivo();
       }
     }
@@ -211,8 +213,10 @@ export class Unidad extends Container {
     this.animateSrinte.textures = getFramesAseprite(this.framesJson.idle).textures;
     this.animateSrinte.play();
   }
-  private setAnimatimationRun() {
+  private setAnimatimationRun(direccion: DireccionDelMovimiento | undefined) {
     const animacion = "run";
+
+    this.cambiarSentidoAplicacion(direccion);
     if (this.ultimaAnimacion === animacion) return;
     this.ultimaAnimacion = animacion;
 
@@ -221,6 +225,19 @@ export class Unidad extends Container {
       this.framesJson.run || this.framesJson.idle,
     ).textures;
     this.animateSrinte.play();
+  }
+
+  private cambiarSentidoAplicacion(direccion: DireccionDelMovimiento | undefined) {
+    if (!direccion) return;
+
+    let nuevoScale: number = 1;
+    if (direccion == "izquierda") {
+      nuevoScale = -1;
+    }
+
+    if (this.animateSrinte.scale.x === nuevoScale) return;
+
+    this.animateSrinte.scale.x = nuevoScale;
   }
 
   private setAnimatimationDead(accionAlMorir: () => void) {
