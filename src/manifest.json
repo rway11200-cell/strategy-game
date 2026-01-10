@@ -134,6 +134,192 @@
         },
         {
           "alias": [
+            "main/unidades/enemigos/esqueleto/esqueleton-dead/esqueleton-dead.json",
+            "esqueleton-dead.json"
+          ],
+          "src": [
+            "main/unidades/enemigos/esqueleto/esqueleton-dead/esqueleton-dead.json"
+          ],
+          "data": {
+            "tags": {
+              "m": true
+            }
+          }
+        },
+        {
+          "alias": [
+            "main/unidades/enemigos/esqueleto/esqueleton-dead/esqueleton-dead.png",
+            "esqueleton-dead.png"
+          ],
+          "src": [
+            "main/unidades/enemigos/esqueleto/esqueleton-dead/esqueleton-dead@0.5x.webp",
+            "main/unidades/enemigos/esqueleto/esqueleton-dead/esqueleton-dead@0.5x.png",
+            "main/unidades/enemigos/esqueleto/esqueleton-dead/esqueleton-dead.webp",
+            "main/unidades/enemigos/esqueleto/esqueleton-dead/esqueleton-dead.png"
+          ],
+          "data": {
+            "tags": {
+              "m": true
+            }
+          }
+        },
+        {
+          "alias": [
+            "main/unidades/enemigos/esqueleto/esqueleton-idle/esqueleton-idle.json",
+            "esqueleton-idle.json"
+          ],
+          "src": [
+            "main/unidades/enemigos/esqueleto/esqueleton-idle/esqueleton-idle.json"
+          ],
+          "data": {
+            "tags": {
+              "m": true
+            }
+          }
+        },
+        {
+          "alias": [
+            "main/unidades/enemigos/esqueleto/esqueleton-idle/esqueleton-idle.png",
+            "esqueleton-idle.png"
+          ],
+          "src": [
+            "main/unidades/enemigos/esqueleto/esqueleton-idle/esqueleton-idle@0.5x.webp",
+            "main/unidades/enemigos/esqueleto/esqueleton-idle/esqueleton-idle@0.5x.png",
+            "main/unidades/enemigos/esqueleto/esqueleton-idle/esqueleton-idle.webp",
+            "main/unidades/enemigos/esqueleto/esqueleton-idle/esqueleton-idle.png"
+          ],
+          "data": {
+            "tags": {
+              "m": true
+            }
+          }
+        },
+        {
+          "alias": [
+            "main/unidades/enemigos/esqueleto/esqueleton-run/esqueleton-run.json",
+            "esqueleton-run.json"
+          ],
+          "src": [
+            "main/unidades/enemigos/esqueleto/esqueleton-run/esqueleton-run.json"
+          ],
+          "data": {
+            "tags": {
+              "m": true
+            }
+          }
+        },
+        {
+          "alias": [
+            "main/unidades/enemigos/esqueleto/esqueleton-run/esqueleton-run.png",
+            "esqueleton-run.png"
+          ],
+          "src": [
+            "main/unidades/enemigos/esqueleto/esqueleton-run/esqueleton-run@0.5x.webp",
+            "main/unidades/enemigos/esqueleto/esqueleton-run/esqueleton-run@0.5x.png",
+            "main/unidades/enemigos/esqueleto/esqueleton-run/esqueleton-run.webp",
+            "main/unidades/enemigos/esqueleto/esqueleton-run/esqueleton-run.png"
+          ],
+          "data": {
+            "tags": {
+              "m": true
+            }
+          }
+        },
+        {
+          "alias": [
+            "main/unidades/enemigos/fantasma/fantasma-dead.json",
+            "fantasma-dead.json"
+          ],
+          "src": [
+            "main/unidades/enemigos/fantasma/fantasma-dead.json"
+          ],
+          "data": {
+            "tags": {
+              "m": true
+            }
+          }
+        },
+        {
+          "alias": [
+            "main/unidades/enemigos/fantasma/fantasma-dead.png",
+            "fantasma-dead.png"
+          ],
+          "src": [
+            "main/unidades/enemigos/fantasma/fantasma-dead@0.5x.webp",
+            "main/unidades/enemigos/fantasma/fantasma-dead@0.5x.png",
+            "main/unidades/enemigos/fantasma/fantasma-dead.webp",
+            "main/unidades/enemigos/fantasma/fantasma-dead.png"
+          ],
+          "data": {
+            "tags": {
+              "m": true
+            }
+          }
+        },
+        {
+          "alias": [
+            "main/unidades/enemigos/fantasma/fantasma-idle.json",
+            "fantasma-idle.json"
+          ],
+          "src": [
+            "main/unidades/enemigos/fantasma/fantasma-idle.json"
+          ],
+          "data": {
+            "tags": {
+              "m": true
+            }
+          }
+        },
+        {
+          "alias": [
+            "main/unidades/enemigos/fantasma/fantasma-idle.png",
+            "fantasma-idle.png"
+          ],
+          "src": [
+            "main/unidades/enemigos/fantasma/fantasma-idle@0.5x.webp",
+            "main/unidades/enemigos/fantasma/fantasma-idle@0.5x.png",
+            "main/unidades/enemigos/fantasma/fantasma-idle.webp",
+            "main/unidades/enemigos/fantasma/fantasma-idle.png"
+          ],
+          "data": {
+            "tags": {
+              "m": true
+            }
+          }
+        },
+        {
+          "alias": [
+            "main/unidades/enemigos/fantasma/fantasma-run.json",
+            "fantasma-run.json"
+          ],
+          "src": [
+            "main/unidades/enemigos/fantasma/fantasma-run.json"
+          ],
+          "data": {
+            "tags": {
+              "m": true
+            }
+          }
+        },
+        {
+          "alias": [
+            "main/unidades/enemigos/fantasma/fantasma-run.png",
+            "fantasma-run.png"
+          ],
+          "src": [
+            "main/unidades/enemigos/fantasma/fantasma-run@0.5x.webp",
+            "main/unidades/enemigos/fantasma/fantasma-run@0.5x.png",
+            "main/unidades/enemigos/fantasma/fantasma-run.webp",
+            "main/unidades/enemigos/fantasma/fantasma-run.png"
+          ],
+          "data": {
+            "tags": {
+              "m": true
+            }
+          }
+        },
+        {
+          "alias": [
             "main/unidades/enemigos/goblin/goblin scout - silhouette all animations-death 1.json",
             "goblin scout - silhouette all animations-death 1.json"
           ],

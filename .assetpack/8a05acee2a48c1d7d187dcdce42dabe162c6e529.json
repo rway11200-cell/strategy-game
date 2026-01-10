@@ -6,8 +6,8 @@
             "inheritedMetaData": {},
             "transformData": {},
             "stats": {
-                "date": 1766967082700,
-                "duration": 6.1816660000001775,
+                "date": 1768077149174,
+                "duration": 1.4312090000003082,
                 "success": true
             }
         },
@@ -20,8 +20,8 @@
             "inheritedMetaData": {},
             "transformData": {},
             "stats": {
-                "date": 1766967082700,
-                "duration": 7.625042000000121,
+                "date": 1768077149175,
+                "duration": 3.090791000000081,
                 "success": true
             }
         },
@@ -34,8 +34,8 @@
             },
             "transformData": {},
             "stats": {
-                "date": 1766967082700,
-                "duration": 7.5997500000000855,
+                "date": 1767734301682,
+                "duration": 14.937417000008281,
                 "success": true
             }
         },
@@ -48,11 +48,11 @@
             },
             "transformData": {},
             "stats": {
-                "date": 1766967082701,
-                "duration": 7.321459000000004,
+                "date": 1767734301682,
+                "duration": 14.889542000018992,
                 "success": true
             },
-            "hash": "PwL31Q"
+            "hash": "u3i0bw"
         },
         ".assetpack/json/main{m}/levels/level_01.json": {
             "isFolder": false,
@@ -846,8 +846,8 @@
             },
             "transformData": {},
             "stats": {
-                "date": 1761192333837,
-                "duration": 0.3396659999853,
+                "date": 1768077149175,
+                "duration": 3.0467499999999745,
                 "success": true
             }
         },
@@ -860,10 +860,908 @@
             },
             "transformData": {},
             "stats": {
-                "date": 1760973995448,
-                "duration": 1.6097500000000764,
+                "date": 1768077149175,
+                "duration": 2.564875000000029,
                 "success": true
             }
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades/enemigos/esqueleto": {
+            "isFolder": true,
+            "parent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades/enemigos",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {},
+            "stats": {
+                "date": 1768077149175,
+                "duration": 2.4618749999999636,
+                "success": true
+            }
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades/enemigos/esqueleto/esqueleton-dead": {
+            "isFolder": true,
+            "parent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades/enemigos/esqueleto",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {},
+            "stats": {
+                "date": 1768077149178,
+                "duration": 18.377584000000297,
+                "success": true
+            }
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades/enemigos/esqueleto/esqueleton-dead/esqueleton-dead.json": {
+            "isFolder": false,
+            "parent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades/enemigos/esqueleto/esqueleton-dead",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {},
+            "stats": {
+                "date": 1768077149178,
+                "duration": 19.557416999999987,
+                "success": true
+            },
+            "hash": "118MBA"
+        },
+        ".assetpack/json/main{m}/unidades/enemigos/esqueleto/esqueleton-dead/esqueleton-dead.json": {
+            "isFolder": false,
+            "transformParent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades/enemigos/esqueleto/esqueleton-dead/esqueleton-dead.json",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/public/assets/main/unidades/enemigos/esqueleto/esqueleton-dead/esqueleton-dead.json": {
+            "isFolder": false,
+            "transformParent": ".assetpack/json/main{m}/unidades/enemigos/esqueleto/esqueleton-dead/esqueleton-dead.json",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades/enemigos/esqueleto/esqueleton-dead/esqueleton-dead.png": {
+            "isFolder": false,
+            "parent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades/enemigos/esqueleto/esqueleton-dead",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {},
+            "stats": {
+                "date": 1768077149186,
+                "duration": 41.29545800000005,
+                "success": true
+            },
+            "hash": "2roFzw"
+        },
+        ".assetpack/mipmap/main{m}/unidades/enemigos/esqueleto/esqueleton-dead/esqueleton-dead.png": {
+            "isFolder": false,
+            "transformParent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades/enemigos/esqueleto/esqueleton-dead/esqueleton-dead.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        ".assetpack/compress/main{m}/unidades/enemigos/esqueleto/esqueleton-dead/esqueleton-dead.png": {
+            "isFolder": false,
+            "transformParent": ".assetpack/mipmap/main{m}/unidades/enemigos/esqueleto/esqueleton-dead/esqueleton-dead.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/public/assets/main/unidades/enemigos/esqueleto/esqueleton-dead/esqueleton-dead.png": {
+            "isFolder": false,
+            "transformParent": ".assetpack/compress/main{m}/unidades/enemigos/esqueleto/esqueleton-dead/esqueleton-dead.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        ".assetpack/compress/main{m}/unidades/enemigos/esqueleto/esqueleton-dead/esqueleton-dead.webp": {
+            "isFolder": false,
+            "transformParent": ".assetpack/mipmap/main{m}/unidades/enemigos/esqueleto/esqueleton-dead/esqueleton-dead.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/public/assets/main/unidades/enemigos/esqueleto/esqueleton-dead/esqueleton-dead.webp": {
+            "isFolder": false,
+            "transformParent": ".assetpack/compress/main{m}/unidades/enemigos/esqueleto/esqueleton-dead/esqueleton-dead.webp",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        ".assetpack/mipmap/main{m}/unidades/enemigos/esqueleto/esqueleton-dead/esqueleton-dead@0.5x.png": {
+            "isFolder": false,
+            "transformParent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades/enemigos/esqueleto/esqueleton-dead/esqueleton-dead.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        ".assetpack/compress/main{m}/unidades/enemigos/esqueleto/esqueleton-dead/esqueleton-dead@0.5x.png": {
+            "isFolder": false,
+            "transformParent": ".assetpack/mipmap/main{m}/unidades/enemigos/esqueleto/esqueleton-dead/esqueleton-dead@0.5x.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/public/assets/main/unidades/enemigos/esqueleto/esqueleton-dead/esqueleton-dead@0.5x.png": {
+            "isFolder": false,
+            "transformParent": ".assetpack/compress/main{m}/unidades/enemigos/esqueleto/esqueleton-dead/esqueleton-dead@0.5x.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        ".assetpack/compress/main{m}/unidades/enemigos/esqueleto/esqueleton-dead/esqueleton-dead@0.5x.webp": {
+            "isFolder": false,
+            "transformParent": ".assetpack/mipmap/main{m}/unidades/enemigos/esqueleto/esqueleton-dead/esqueleton-dead@0.5x.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/public/assets/main/unidades/enemigos/esqueleto/esqueleton-dead/esqueleton-dead@0.5x.webp": {
+            "isFolder": false,
+            "transformParent": ".assetpack/compress/main{m}/unidades/enemigos/esqueleto/esqueleton-dead/esqueleton-dead@0.5x.webp",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades/enemigos/esqueleto/esqueleton-idle": {
+            "isFolder": true,
+            "parent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades/enemigos/esqueleto",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {},
+            "stats": {
+                "date": 1768077149189,
+                "duration": 7.193583999999646,
+                "success": true
+            }
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades/enemigos/esqueleto/esqueleton-idle/esqueleton-idle.json": {
+            "isFolder": false,
+            "parent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades/enemigos/esqueleto/esqueleton-idle",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {},
+            "stats": {
+                "date": 1768077149189,
+                "duration": 8.331791000000067,
+                "success": true
+            },
+            "hash": "Yp6B"
+        },
+        ".assetpack/json/main{m}/unidades/enemigos/esqueleto/esqueleton-idle/esqueleton-idle.json": {
+            "isFolder": false,
+            "transformParent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades/enemigos/esqueleto/esqueleton-idle/esqueleton-idle.json",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/public/assets/main/unidades/enemigos/esqueleto/esqueleton-idle/esqueleton-idle.json": {
+            "isFolder": false,
+            "transformParent": ".assetpack/json/main{m}/unidades/enemigos/esqueleto/esqueleton-idle/esqueleton-idle.json",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades/enemigos/esqueleto/esqueleton-idle/esqueleton-idle.png": {
+            "isFolder": false,
+            "parent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades/enemigos/esqueleto/esqueleton-idle",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {},
+            "stats": {
+                "date": 1768077149196,
+                "duration": 24.524875000000065,
+                "success": true
+            },
+            "hash": "_qWc3w"
+        },
+        ".assetpack/mipmap/main{m}/unidades/enemigos/esqueleto/esqueleton-idle/esqueleton-idle.png": {
+            "isFolder": false,
+            "transformParent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades/enemigos/esqueleto/esqueleton-idle/esqueleton-idle.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        ".assetpack/compress/main{m}/unidades/enemigos/esqueleto/esqueleton-idle/esqueleton-idle.png": {
+            "isFolder": false,
+            "transformParent": ".assetpack/mipmap/main{m}/unidades/enemigos/esqueleto/esqueleton-idle/esqueleton-idle.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/public/assets/main/unidades/enemigos/esqueleto/esqueleton-idle/esqueleton-idle.png": {
+            "isFolder": false,
+            "transformParent": ".assetpack/compress/main{m}/unidades/enemigos/esqueleto/esqueleton-idle/esqueleton-idle.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        ".assetpack/compress/main{m}/unidades/enemigos/esqueleto/esqueleton-idle/esqueleton-idle.webp": {
+            "isFolder": false,
+            "transformParent": ".assetpack/mipmap/main{m}/unidades/enemigos/esqueleto/esqueleton-idle/esqueleton-idle.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/public/assets/main/unidades/enemigos/esqueleto/esqueleton-idle/esqueleton-idle.webp": {
+            "isFolder": false,
+            "transformParent": ".assetpack/compress/main{m}/unidades/enemigos/esqueleto/esqueleton-idle/esqueleton-idle.webp",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        ".assetpack/mipmap/main{m}/unidades/enemigos/esqueleto/esqueleton-idle/esqueleton-idle@0.5x.png": {
+            "isFolder": false,
+            "transformParent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades/enemigos/esqueleto/esqueleton-idle/esqueleton-idle.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        ".assetpack/compress/main{m}/unidades/enemigos/esqueleto/esqueleton-idle/esqueleton-idle@0.5x.png": {
+            "isFolder": false,
+            "transformParent": ".assetpack/mipmap/main{m}/unidades/enemigos/esqueleto/esqueleton-idle/esqueleton-idle@0.5x.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/public/assets/main/unidades/enemigos/esqueleto/esqueleton-idle/esqueleton-idle@0.5x.png": {
+            "isFolder": false,
+            "transformParent": ".assetpack/compress/main{m}/unidades/enemigos/esqueleto/esqueleton-idle/esqueleton-idle@0.5x.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        ".assetpack/compress/main{m}/unidades/enemigos/esqueleto/esqueleton-idle/esqueleton-idle@0.5x.webp": {
+            "isFolder": false,
+            "transformParent": ".assetpack/mipmap/main{m}/unidades/enemigos/esqueleto/esqueleton-idle/esqueleton-idle@0.5x.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/public/assets/main/unidades/enemigos/esqueleto/esqueleton-idle/esqueleton-idle@0.5x.webp": {
+            "isFolder": false,
+            "transformParent": ".assetpack/compress/main{m}/unidades/enemigos/esqueleto/esqueleton-idle/esqueleton-idle@0.5x.webp",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades/enemigos/esqueleto/esqueleton-run": {
+            "isFolder": true,
+            "parent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades/enemigos/esqueleto",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {},
+            "stats": {
+                "date": 1768077149197,
+                "duration": 3.7691249999998035,
+                "success": true
+            }
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades/enemigos/esqueleto/esqueleton-run/esqueleton-run.json": {
+            "isFolder": false,
+            "parent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades/enemigos/esqueleto/esqueleton-run",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {},
+            "stats": {
+                "date": 1768077149198,
+                "duration": 3.499790999999732,
+                "success": true
+            },
+            "hash": "u_-UZA"
+        },
+        ".assetpack/json/main{m}/unidades/enemigos/esqueleto/esqueleton-run/esqueleton-run.json": {
+            "isFolder": false,
+            "transformParent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades/enemigos/esqueleto/esqueleton-run/esqueleton-run.json",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/public/assets/main/unidades/enemigos/esqueleto/esqueleton-run/esqueleton-run.json": {
+            "isFolder": false,
+            "transformParent": ".assetpack/json/main{m}/unidades/enemigos/esqueleto/esqueleton-run/esqueleton-run.json",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades/enemigos/esqueleto/esqueleton-run/esqueleton-run.png": {
+            "isFolder": false,
+            "parent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades/enemigos/esqueleto/esqueleton-run",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {},
+            "stats": {
+                "date": 1768077149200,
+                "duration": 38.26604099999986,
+                "success": true
+            },
+            "hash": "Tlyi"
+        },
+        ".assetpack/mipmap/main{m}/unidades/enemigos/esqueleto/esqueleton-run/esqueleton-run.png": {
+            "isFolder": false,
+            "transformParent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades/enemigos/esqueleto/esqueleton-run/esqueleton-run.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        ".assetpack/compress/main{m}/unidades/enemigos/esqueleto/esqueleton-run/esqueleton-run.png": {
+            "isFolder": false,
+            "transformParent": ".assetpack/mipmap/main{m}/unidades/enemigos/esqueleto/esqueleton-run/esqueleton-run.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/public/assets/main/unidades/enemigos/esqueleto/esqueleton-run/esqueleton-run.png": {
+            "isFolder": false,
+            "transformParent": ".assetpack/compress/main{m}/unidades/enemigos/esqueleto/esqueleton-run/esqueleton-run.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        ".assetpack/compress/main{m}/unidades/enemigos/esqueleto/esqueleton-run/esqueleton-run.webp": {
+            "isFolder": false,
+            "transformParent": ".assetpack/mipmap/main{m}/unidades/enemigos/esqueleto/esqueleton-run/esqueleton-run.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/public/assets/main/unidades/enemigos/esqueleto/esqueleton-run/esqueleton-run.webp": {
+            "isFolder": false,
+            "transformParent": ".assetpack/compress/main{m}/unidades/enemigos/esqueleto/esqueleton-run/esqueleton-run.webp",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        ".assetpack/mipmap/main{m}/unidades/enemigos/esqueleto/esqueleton-run/esqueleton-run@0.5x.png": {
+            "isFolder": false,
+            "transformParent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades/enemigos/esqueleto/esqueleton-run/esqueleton-run.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        ".assetpack/compress/main{m}/unidades/enemigos/esqueleto/esqueleton-run/esqueleton-run@0.5x.png": {
+            "isFolder": false,
+            "transformParent": ".assetpack/mipmap/main{m}/unidades/enemigos/esqueleto/esqueleton-run/esqueleton-run@0.5x.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/public/assets/main/unidades/enemigos/esqueleto/esqueleton-run/esqueleton-run@0.5x.png": {
+            "isFolder": false,
+            "transformParent": ".assetpack/compress/main{m}/unidades/enemigos/esqueleto/esqueleton-run/esqueleton-run@0.5x.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        ".assetpack/compress/main{m}/unidades/enemigos/esqueleto/esqueleton-run/esqueleton-run@0.5x.webp": {
+            "isFolder": false,
+            "transformParent": ".assetpack/mipmap/main{m}/unidades/enemigos/esqueleto/esqueleton-run/esqueleton-run@0.5x.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/public/assets/main/unidades/enemigos/esqueleto/esqueleton-run/esqueleton-run@0.5x.webp": {
+            "isFolder": false,
+            "transformParent": ".assetpack/compress/main{m}/unidades/enemigos/esqueleto/esqueleton-run/esqueleton-run@0.5x.webp",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades/enemigos/fantasma": {
+            "isFolder": true,
+            "parent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades/enemigos",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {},
+            "stats": {
+                "date": 1768076918394,
+                "duration": 2.5727080000006026,
+                "success": true
+            }
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades/enemigos/fantasma/fantasma-dead.json": {
+            "isFolder": false,
+            "parent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades/enemigos/fantasma",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {},
+            "stats": {
+                "date": 1768076918396,
+                "duration": 4.836083000000144,
+                "success": true
+            },
+            "hash": "WCe8ag"
+        },
+        ".assetpack/json/main{m}/unidades/enemigos/fantasma/fantasma-dead.json": {
+            "isFolder": false,
+            "transformParent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades/enemigos/fantasma/fantasma-dead.json",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/public/assets/main/unidades/enemigos/fantasma/fantasma-dead.json": {
+            "isFolder": false,
+            "transformParent": ".assetpack/json/main{m}/unidades/enemigos/fantasma/fantasma-dead.json",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades/enemigos/fantasma/fantasma-dead.png": {
+            "isFolder": false,
+            "parent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades/enemigos/fantasma",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {},
+            "stats": {
+                "date": 1768075878956,
+                "duration": 14.797541000181809,
+                "success": true
+            },
+            "hash": "46W6FA"
+        },
+        ".assetpack/mipmap/main{m}/unidades/enemigos/fantasma/fantasma-dead.png": {
+            "isFolder": false,
+            "transformParent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades/enemigos/fantasma/fantasma-dead.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        ".assetpack/compress/main{m}/unidades/enemigos/fantasma/fantasma-dead.png": {
+            "isFolder": false,
+            "transformParent": ".assetpack/mipmap/main{m}/unidades/enemigos/fantasma/fantasma-dead.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/public/assets/main/unidades/enemigos/fantasma/fantasma-dead.png": {
+            "isFolder": false,
+            "transformParent": ".assetpack/compress/main{m}/unidades/enemigos/fantasma/fantasma-dead.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        ".assetpack/compress/main{m}/unidades/enemigos/fantasma/fantasma-dead.webp": {
+            "isFolder": false,
+            "transformParent": ".assetpack/mipmap/main{m}/unidades/enemigos/fantasma/fantasma-dead.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/public/assets/main/unidades/enemigos/fantasma/fantasma-dead.webp": {
+            "isFolder": false,
+            "transformParent": ".assetpack/compress/main{m}/unidades/enemigos/fantasma/fantasma-dead.webp",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        ".assetpack/mipmap/main{m}/unidades/enemigos/fantasma/fantasma-dead@0.5x.png": {
+            "isFolder": false,
+            "transformParent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades/enemigos/fantasma/fantasma-dead.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        ".assetpack/compress/main{m}/unidades/enemigos/fantasma/fantasma-dead@0.5x.png": {
+            "isFolder": false,
+            "transformParent": ".assetpack/mipmap/main{m}/unidades/enemigos/fantasma/fantasma-dead@0.5x.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/public/assets/main/unidades/enemigos/fantasma/fantasma-dead@0.5x.png": {
+            "isFolder": false,
+            "transformParent": ".assetpack/compress/main{m}/unidades/enemigos/fantasma/fantasma-dead@0.5x.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        ".assetpack/compress/main{m}/unidades/enemigos/fantasma/fantasma-dead@0.5x.webp": {
+            "isFolder": false,
+            "transformParent": ".assetpack/mipmap/main{m}/unidades/enemigos/fantasma/fantasma-dead@0.5x.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/public/assets/main/unidades/enemigos/fantasma/fantasma-dead@0.5x.webp": {
+            "isFolder": false,
+            "transformParent": ".assetpack/compress/main{m}/unidades/enemigos/fantasma/fantasma-dead@0.5x.webp",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades/enemigos/fantasma/fantasma-idle.json": {
+            "isFolder": false,
+            "parent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades/enemigos/fantasma",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {},
+            "stats": {
+                "date": 1768074855389,
+                "duration": 8.27945799997542,
+                "success": true
+            },
+            "hash": "fqu0HA"
+        },
+        ".assetpack/json/main{m}/unidades/enemigos/fantasma/fantasma-idle.json": {
+            "isFolder": false,
+            "transformParent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades/enemigos/fantasma/fantasma-idle.json",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/public/assets/main/unidades/enemigos/fantasma/fantasma-idle.json": {
+            "isFolder": false,
+            "transformParent": ".assetpack/json/main{m}/unidades/enemigos/fantasma/fantasma-idle.json",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades/enemigos/fantasma/fantasma-idle.png": {
+            "isFolder": false,
+            "parent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades/enemigos/fantasma",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {},
+            "stats": {
+                "date": 1768074855392,
+                "duration": 31.58591600001091,
+                "success": true
+            },
+            "hash": "x-FK6Q"
+        },
+        ".assetpack/mipmap/main{m}/unidades/enemigos/fantasma/fantasma-idle.png": {
+            "isFolder": false,
+            "transformParent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades/enemigos/fantasma/fantasma-idle.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        ".assetpack/compress/main{m}/unidades/enemigos/fantasma/fantasma-idle.png": {
+            "isFolder": false,
+            "transformParent": ".assetpack/mipmap/main{m}/unidades/enemigos/fantasma/fantasma-idle.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/public/assets/main/unidades/enemigos/fantasma/fantasma-idle.png": {
+            "isFolder": false,
+            "transformParent": ".assetpack/compress/main{m}/unidades/enemigos/fantasma/fantasma-idle.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        ".assetpack/compress/main{m}/unidades/enemigos/fantasma/fantasma-idle.webp": {
+            "isFolder": false,
+            "transformParent": ".assetpack/mipmap/main{m}/unidades/enemigos/fantasma/fantasma-idle.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/public/assets/main/unidades/enemigos/fantasma/fantasma-idle.webp": {
+            "isFolder": false,
+            "transformParent": ".assetpack/compress/main{m}/unidades/enemigos/fantasma/fantasma-idle.webp",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        ".assetpack/mipmap/main{m}/unidades/enemigos/fantasma/fantasma-idle@0.5x.png": {
+            "isFolder": false,
+            "transformParent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades/enemigos/fantasma/fantasma-idle.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        ".assetpack/compress/main{m}/unidades/enemigos/fantasma/fantasma-idle@0.5x.png": {
+            "isFolder": false,
+            "transformParent": ".assetpack/mipmap/main{m}/unidades/enemigos/fantasma/fantasma-idle@0.5x.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/public/assets/main/unidades/enemigos/fantasma/fantasma-idle@0.5x.png": {
+            "isFolder": false,
+            "transformParent": ".assetpack/compress/main{m}/unidades/enemigos/fantasma/fantasma-idle@0.5x.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        ".assetpack/compress/main{m}/unidades/enemigos/fantasma/fantasma-idle@0.5x.webp": {
+            "isFolder": false,
+            "transformParent": ".assetpack/mipmap/main{m}/unidades/enemigos/fantasma/fantasma-idle@0.5x.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/public/assets/main/unidades/enemigos/fantasma/fantasma-idle@0.5x.webp": {
+            "isFolder": false,
+            "transformParent": ".assetpack/compress/main{m}/unidades/enemigos/fantasma/fantasma-idle@0.5x.webp",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades/enemigos/fantasma/fantasma-run.json": {
+            "isFolder": false,
+            "parent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades/enemigos/fantasma",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {},
+            "stats": {
+                "date": 1768075871913,
+                "duration": 2.7145420000888407,
+                "success": true
+            },
+            "hash": "YwAQEw"
+        },
+        ".assetpack/json/main{m}/unidades/enemigos/fantasma/fantasma-run.json": {
+            "isFolder": false,
+            "transformParent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades/enemigos/fantasma/fantasma-run.json",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/public/assets/main/unidades/enemigos/fantasma/fantasma-run.json": {
+            "isFolder": false,
+            "transformParent": ".assetpack/json/main{m}/unidades/enemigos/fantasma/fantasma-run.json",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades/enemigos/fantasma/fantasma-run.png": {
+            "isFolder": false,
+            "parent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades/enemigos/fantasma",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {},
+            "stats": {
+                "date": 1768075871915,
+                "duration": 13.385791999986395,
+                "success": true
+            },
+            "hash": "KIBY1g"
+        },
+        ".assetpack/mipmap/main{m}/unidades/enemigos/fantasma/fantasma-run.png": {
+            "isFolder": false,
+            "transformParent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades/enemigos/fantasma/fantasma-run.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        ".assetpack/compress/main{m}/unidades/enemigos/fantasma/fantasma-run.png": {
+            "isFolder": false,
+            "transformParent": ".assetpack/mipmap/main{m}/unidades/enemigos/fantasma/fantasma-run.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/public/assets/main/unidades/enemigos/fantasma/fantasma-run.png": {
+            "isFolder": false,
+            "transformParent": ".assetpack/compress/main{m}/unidades/enemigos/fantasma/fantasma-run.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        ".assetpack/compress/main{m}/unidades/enemigos/fantasma/fantasma-run.webp": {
+            "isFolder": false,
+            "transformParent": ".assetpack/mipmap/main{m}/unidades/enemigos/fantasma/fantasma-run.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/public/assets/main/unidades/enemigos/fantasma/fantasma-run.webp": {
+            "isFolder": false,
+            "transformParent": ".assetpack/compress/main{m}/unidades/enemigos/fantasma/fantasma-run.webp",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        ".assetpack/mipmap/main{m}/unidades/enemigos/fantasma/fantasma-run@0.5x.png": {
+            "isFolder": false,
+            "transformParent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades/enemigos/fantasma/fantasma-run.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        ".assetpack/compress/main{m}/unidades/enemigos/fantasma/fantasma-run@0.5x.png": {
+            "isFolder": false,
+            "transformParent": ".assetpack/mipmap/main{m}/unidades/enemigos/fantasma/fantasma-run@0.5x.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/public/assets/main/unidades/enemigos/fantasma/fantasma-run@0.5x.png": {
+            "isFolder": false,
+            "transformParent": ".assetpack/compress/main{m}/unidades/enemigos/fantasma/fantasma-run@0.5x.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        ".assetpack/compress/main{m}/unidades/enemigos/fantasma/fantasma-run@0.5x.webp": {
+            "isFolder": false,
+            "transformParent": ".assetpack/mipmap/main{m}/unidades/enemigos/fantasma/fantasma-run@0.5x.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/public/assets/main/unidades/enemigos/fantasma/fantasma-run@0.5x.webp": {
+            "isFolder": false,
+            "transformParent": ".assetpack/compress/main{m}/unidades/enemigos/fantasma/fantasma-run@0.5x.webp",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
         },
         "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/unidades/enemigos/goblin": {
             "isFolder": true,
