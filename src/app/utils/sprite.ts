@@ -42,7 +42,7 @@ export function getFramesAseprite(
       const entry = (raw as Record<string, any>)[name];
       return {
         filename: name,
-        duration: entry?.duration ?? 0,
+        duration: entry?.duration ?? 100,
       } as AsepriteFrame;
     });
   } else {
