@@ -6,7 +6,7 @@ export class Torre extends Unidad {
     opciones.framesJson = { idle: "Torre1.json" };
 
     super(contenedorPrincipal, opciones);
-    this.animateSrinte.anchor = { x: 0.5, y: 1 };
+    if (this.animateSrinte) this.animateSrinte.anchor = { x: 0.5, y: 1 };
     this.zIndex = 10;
   }
 }
