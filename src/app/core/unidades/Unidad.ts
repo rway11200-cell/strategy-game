@@ -1,5 +1,6 @@
 import { AnimatedSprite, Container, Graphics, ObservablePoint, PointData, Ticker } from "pixi.js";
 import { getDistance } from "../../../engine/utils/maths";
+import { debugLogChanged } from "../../utils/debugLog";
 import { herramientaDesarrolloPintarPuntos } from "../../utils/herramietasDesarrollo";
 import { getFramesAseprite } from "../../utils/sprite";
 import { CreadorUnidades } from "../CreadorUnidades";
@@ -56,12 +57,13 @@ export class Unidad extends Container {
 
   private movimiento?: Movimiento;
 
-  public animateSrinte: AnimatedSprite;
-  private framesJson: FramesJson;
+  public animateSrinte?: AnimatedSprite;
+  private framesJson?: FramesJson;
 
-  private vida: number = 1000;
-  private vidaActual: number = this.vida;
-  private graficaVida: Graphics;
+  private vida?: number;
+  private velocidad: number = 1;
+  private vidaActual?: number = this.vida;
+  private graficaVida?: Graphics;
   public onDestruye?: (unidad: Unidad) => void;
 
   constructor(contenedorPrincipal: Container, opciones?: UnidadProps) {
@@ -71,44 +73,58 @@ export class Unidad extends Container {
     this.contenedorPrincipal.addChild(this);
 
     if (!opciones) {
-      throw new Error("No puedes crear una unidad sin opciones");
+      return;
     }
 
-    const { framesJson, opcionesDisparo, opcionesSeguidorDeObjetivos, posicion, vida } = opciones;
-
+    const { framesJson, vida, opcionesDisparo, opcionesSeguidorDeObjetivos, posicion } = opciones;
     if (posicion) {
       this.position = posicion;
     }
 
-    if (!framesJson) {
-      throw new Error(`framesJson viene vacio.`);
+    if (framesJson) {
+      this.inicializarAnimacion(framesJson);
     }
-    this.framesJson = framesJson;
 
+    if (vida) {
+      this.inicializarBarraVida(vida);
+    }
+
+    if (opcionesSeguidorDeObjetivos) {
+      this.inicializarSeguidorDeObjetivos(opcionesSeguidorDeObjetivos);
+    }
+
+    if (opcionesDisparo) {
+      this.inicializarRangoDisparo(opcionesDisparo);
+    }
+  }
+
+  public inicializarAnimacion(framesJson: FramesJson) {
+    this.framesJson = framesJson;
     this.animateSrinte = new AnimatedSprite(getFramesAseprite(this.framesJson.idle).textures);
     this.animateSrinte.animationSpeed = 10 / 60;
     this.animateSrinte.anchor.set(0.5);
     this.animateSrinte.visible = false;
     this.addChild(this.animateSrinte);
+  }
+
+  public inicializarBarraVida(vida: number) {
+    if (!this.animateSrinte) {
+      debugLogChanged(this.getID("inicializarBarraVida sin this.animateSrinte"));
+    }
+
+    const posicionYVida = (this.animateSrinte && this.animateSrinte.height) ?? 100;
 
     this.graficaVida = new Graphics();
-    if (vida) {
-      this.vida = vida;
-      this.vidaActual = vida;
-      const altoVida = 2;
-      const ajusteAlto = 20;
-      const anchoVida = 30;
+    this.vida = vida;
+    this.vidaActual = vida;
+    const altoVida = 2;
+    const ajusteAlto = 20;
+    const anchoVida = 30;
 
-      this.graficaVida
-        .rect(0, -this.animateSrinte.height / 2 + ajusteAlto, anchoVida, altoVida)
-        .fill("green");
-      this.graficaVida.position.x = -(anchoVida / 2);
-      this.graficaVida.visible = false;
-      this.addChild(this.graficaVida);
-    }
-    if (opcionesSeguidorDeObjetivos)
-      this.inicializarSeguidorDeObjetivos(opcionesSeguidorDeObjetivos);
-    if (opcionesDisparo) this.inicializarRangoDisparo(opcionesDisparo);
+    this.graficaVida.rect(0, -posicionYVida / 2 + ajusteAlto, anchoVida, altoVida).fill("green");
+    this.graficaVida.position.x = -(anchoVida / 2);
+    this.graficaVida.visible = false;
+    this.addChild(this.graficaVida);
   }
 
   public fijarObjetivosDeDisparo(objetivos: Unidad[]) {
@@ -135,13 +151,20 @@ export class Unidad extends Container {
     }
   }
 
+  public inicializarVelocidad(velocidad: number) {
+    this.velocidad = velocidad;
+  }
+
   public inicializarSeguidorDeObjetivos(opcionesSeguidorDeObjetivos: OpcionesSeguidorDeObjetivos) {
     this.opcionesSeguidorDeObjetivos = {
       ...this.opcionesSeguidorDeObjetivos,
       ...opcionesSeguidorDeObjetivos,
     };
 
-    this.movimiento = new Movimiento(this.opcionesSeguidorDeObjetivos?.velocidad ?? 1);
+    if (opcionesSeguidorDeObjetivos.velocidad)
+      this.velocidad = opcionesSeguidorDeObjetivos.velocidad;
+
+    this.movimiento = new Movimiento(this.velocidad ?? 1);
 
     const objetivos = this.opcionesSeguidorDeObjetivos?.objetivos;
     if (objetivos && objetivos.length > 0) {
@@ -170,18 +193,18 @@ export class Unidad extends Container {
   }
 
   public update(_time: Ticker) {
-    if (!this.activo || !this.animateSrinte.visible) return;
+    if (!this.activo || !this.animateSrinte || !this.animateSrinte.visible) return;
 
     this.actualizarMovimiento(_time);
-    this.actulizarVida(_time);
+    this.actualizarVida();
     this.actualizarDisparo(_time);
   }
 
-  private actulizarVida(_time: Ticker) {
-    if (!this.vida) return;
+  private actualizarVida() {
+    if (!this.vida || !this.vidaActual || !this.graficaVida) return;
 
     const porcentajeVidaActual = (this.vidaActual * 100) / this.vida;
-    this.graficaVida.visible = porcentajeVidaActual < 100;
+    this.graficaVida.visible = porcentajeVidaActual < 100 && porcentajeVidaActual > 0;
     this.graficaVida.scale.x = porcentajeVidaActual / 100;
   }
 
@@ -209,6 +232,7 @@ export class Unidad extends Container {
     if (this.ultimaAnimacion === animacion) return;
     this.ultimaAnimacion = animacion;
 
+    if (!this.animateSrinte || !this.framesJson) return;
     this.animateSrinte.loop = true;
     this.animateSrinte.textures = getFramesAseprite(this.framesJson.idle).textures;
     this.animateSrinte.play();
@@ -220,6 +244,7 @@ export class Unidad extends Container {
     if (this.ultimaAnimacion === animacion) return;
     this.ultimaAnimacion = animacion;
 
+    if (!this.animateSrinte || !this.framesJson) return;
     this.animateSrinte.loop = true;
     this.animateSrinte.textures = getFramesAseprite(
       this.framesJson.run || this.framesJson.idle,
@@ -228,7 +253,7 @@ export class Unidad extends Container {
   }
 
   private cambiarSentidoAplicacion(direccion: DireccionDelMovimiento | undefined) {
-    if (!direccion) return;
+    if (!this.animateSrinte || !direccion) return;
 
     let nuevoScale: number = 1;
     if (direccion == "izquierda") {
@@ -245,6 +270,8 @@ export class Unidad extends Container {
 
     if (this.ultimaAnimacion === animacion) return;
     this.ultimaAnimacion = animacion;
+
+    if (!this.animateSrinte || !this.framesJson) return;
 
     if (!this.framesJson.dead) {
       accionAlMorir();
@@ -311,6 +338,11 @@ export class Unidad extends Container {
     this.puedeSerObjetivoProyectil = true;
     if (this.movimiento) this.movimiento.activo = true;
 
+    if (!this.animateSrinte) {
+      debugLogChanged(this.getID("this.animateSrinte no iniciado"));
+      return;
+    }
+
     this.animateSrinte.visible = true;
     this.animateSrinte.play();
 
@@ -325,6 +357,7 @@ export class Unidad extends Container {
 
     if (this.vida) {
       this.vidaActual = this.vida;
+      this.actualizarVida();
     }
   }
 
@@ -337,13 +370,17 @@ export class Unidad extends Container {
       this.visible = false;
       this.activo = false;
 
+      if (!this.animateSrinte) {
+        debugLogChanged(this.getID("this.animateSrinte no iniciado"));
+        return;
+      }
       this.animateSrinte.visible = false;
       this.animateSrinte.stop();
     });
   }
 
   public dañar(daño?: number) {
-    if (!daño) {
+    if (!daño || !this.vidaActual) {
       return;
     }
 

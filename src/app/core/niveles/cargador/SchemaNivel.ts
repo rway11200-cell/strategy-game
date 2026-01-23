@@ -37,9 +37,14 @@ export type EntityDef = {
   props?: Record<string, any>;
 };
 
+export type WaveEnemyDef = {
+  id: string;
+  count: number;
+};
+
 export type LevelEvent =
   | { type: "wait"; seconds: number }
-  | { type: "spawn"; enemy: string; count: number; interval?: number; path?: string }
+  | { type: "wave"; path?: string; interval?: number; enemies: WaveEnemyDef[] }
   | { type: "waitUntilClear" }
   | { type: "parallel"; events: LevelEvent[] }
   | { type: "notification"; text: string }

@@ -7,7 +7,7 @@ export class Proyectil extends Unidad {
       framesJson: { idle: "Torre1.json" },
       opcionesSeguidorDeObjetivos: {
         forzarActivarSeguidorCamino: true,
-        velocidad: 2,
+        velocidad: 3,
       },
     };
     super(contenedorPrincipal, opciones);

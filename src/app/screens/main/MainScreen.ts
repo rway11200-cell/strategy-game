@@ -1,7 +1,7 @@
 import { FancyButton } from "@pixi/ui";
 import { animate } from "motion";
 import type { AnimationPlaybackControls } from "motion/react";
-import { Container, Ticker } from "pixi.js";
+import { Assets, Container, Rectangle, Sprite, Ticker } from "pixi.js";
 
 import { engine } from "../../getEngine";
 import { PausePopup } from "../../popups/PausePopup";
@@ -13,15 +13,25 @@ import { AdministradorJuego } from "../../core/AdministradorJuego";
 import { MonedasUI } from "../../ui/game/MonedasUI";
 import { NotificacionesUI } from "../../ui/game/NotificacionesUI";
 
+export const MAP_WIDTH = 1600;
+export const MAP_HEIGHT = 1080;
+
 /** The screen that holds the app */
 export class MainScreen extends Container {
   /** Assets bundles required by this screen */
   public static assetBundles = ["main"];
 
-  public mainContainer: Container;
+  private mainContainer: Container;
+  public worldContainer: Container;
+  private cameraContainer: Container;
+  private backgroundSprite: Sprite;
   private pauseButton: FancyButton;
   private settingsButton: FancyButton;
   private contenedorMonedas: MonedasUI;
+  private cameraX = 0;
+  private cameraY = 0;
+  private viewportWidth = 0;
+  private viewportHeight = 0;
 
   private administradorJuego!: AdministradorJuego;
   private editMapButton: FancyButton;
@@ -32,11 +42,62 @@ export class MainScreen extends Container {
 
   private notificaciones: NotificacionesUI;
 
+  private isDragging = false;
+  private dragStartX = 0;
+  private dragStartY = 0;
+
+  private cameraStartX = 0;
+  private cameraStartY = 0;
+
   constructor() {
     super();
 
+    this.cameraContainer = new Container();
+    this.cameraContainer.eventMode = "static";
+    this.addChildAt(this.cameraContainer, 0);
+
     this.mainContainer = new Container();
     this.addChild(this.mainContainer);
+
+    this.worldContainer = new Container();
+    this.cameraContainer.addChild(this.worldContainer);
+
+    const asignarBackgroud = (imagenBackgroud: string) => {
+      const texture = Assets.get(imagenBackgroud);
+      this.backgroundSprite = new Sprite(texture);
+      this.backgroundSprite.eventMode = "none";
+      this.worldContainer.addChild(this.backgroundSprite);
+    };
+
+    this.cameraContainer.hitArea = new Rectangle(0, 0, MAP_WIDTH, MAP_HEIGHT);
+
+    this.cameraContainer.on("pointerdown", (e) => {
+      this.isDragging = true;
+
+      this.dragStartX = e.global.x;
+      this.dragStartY = e.global.y;
+
+      this.cameraStartX = this.cameraX;
+      this.cameraStartY = this.cameraY;
+    });
+
+    this.cameraContainer.on("pointermove", (e) => {
+      if (!this.isDragging) return;
+
+      const dx = e.global.x - this.dragStartX;
+      const dy = e.global.y - this.dragStartY;
+
+      // movimiento inverso (clave)
+      this.setCamera(this.cameraStartX - dx, this.cameraStartY - dy);
+    });
+
+    const stopDrag = () => {
+      this.isDragging = false;
+    };
+
+    this.cameraContainer.on("pointerup", stopDrag);
+    this.cameraContainer.on("pointerupoutside", stopDrag);
+    this.cameraContainer.on("pointercancel", stopDrag);
 
     this.editableMaps = new EditableMaps(this);
 
@@ -46,9 +107,10 @@ export class MainScreen extends Container {
     this.notificaciones = new NotificacionesUI(this.mainContainer);
 
     this.administradorJuego = new AdministradorJuego(
-      this.mainContainer,
+      this.worldContainer,
       this.contenedorMonedas,
       this.notificaciones,
+      asignarBackgroud,
     );
 
     const buttonAnimations = {
@@ -133,8 +195,18 @@ export class MainScreen extends Container {
     const centerX = width * 0.5;
     const centerY = height * 0.5;
 
+    this.viewportWidth = width;
+    this.viewportHeight = height;
+
     this.mainContainer.x = centerX;
     this.mainContainer.y = centerY;
+
+    // centrar cámara inicialmente
+    const startX = (MAP_WIDTH - width) * 0.5;
+    const startY = (MAP_HEIGHT - height) * 0.5;
+
+    this.setCamera(startX, startY);
+
     this.pauseButton.x = 30;
     this.pauseButton.y = 30;
     this.settingsButton.x = width - 30;
@@ -164,6 +236,15 @@ export class MainScreen extends Container {
     }
 
     await finalPromise;
+  }
+
+  private setCamera(x: number, y: number) {
+    this.cameraX = Math.max(0, Math.min(x, MAP_WIDTH - this.viewportWidth));
+
+    this.cameraY = Math.max(0, Math.min(y, MAP_HEIGHT - this.viewportHeight));
+
+    this.cameraContainer.x = -this.cameraX;
+    this.cameraContainer.y = -this.cameraY;
   }
 
   /** Hide screen with animations */

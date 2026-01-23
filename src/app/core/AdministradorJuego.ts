@@ -25,12 +25,15 @@ export class AdministradorJuego {
     mainContainerScreen: Container,
     monedasUI: MonedasUI,
     notificaciones: NotificacionesUI,
+    asignarBackgroud: (imagenBackgroud: string) => void,
   ) {
     this.contenedorJuegoPrincipal = mainContainerScreen;
     this.monedasUI = monedasUI;
 
     const jsonLevel = Assets.get<LevelJSON>("level_01.json");
     const estrucuturaNivel = new ConvertidorJsonANivel(jsonLevel);
+
+    asignarBackgroud(estrucuturaNivel.getBackgroud());
 
     this.contextoJuego = this.creacionContextoJuego(estrucuturaNivel, notificaciones);
 
@@ -56,7 +59,7 @@ export class AdministradorJuego {
     return {
       paths: estrucutraNivel.getCaminos(),
       entities: estrucutraNivel.getEntidades(),
-      monedas: 100,
+      monedas: estrucutraNivel.getMonedas(),
       mostrarMensaje: (mensaje) => {
         notificaciones.notifica(mensaje);
       },
@@ -65,13 +68,10 @@ export class AdministradorJuego {
         contenedor: this.contenedorJuegoPrincipal,
         cantidadReservaInicial: 10,
         fabrica: () => {
-          const nuevoEnemigo = new Enemigo(this.contenedorJuegoPrincipal, {
-            opcionesSeguidorDeObjetivos: { variacion: 30, velocidad: 0.6 },
-            vida: 100,
-          });
+          const nuevoEnemigo = new Enemigo(this.contenedorJuegoPrincipal);
           nuevoEnemigo.onDestruye = () => {
             this.removerseComoObjetivoDeLosProyectiles(nuevoEnemigo);
-            this.contextoJuego.monedas += 50;
+            this.contextoJuego.monedas += nuevoEnemigo.getRecompensaAlMorir();
           };
           return nuevoEnemigo;
         },

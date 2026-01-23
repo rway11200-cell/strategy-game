@@ -32,11 +32,11 @@ export class EditableMaps {
   }
 
   private makeChildrenEditable() {
-    if (!this.host.mainContainer) {
+    if (!this.host.worldContainer) {
       return;
     }
 
-    this.host.mainContainer.children.forEach((child) => {
+    this.host.worldContainer.children.forEach((child) => {
       const state = this.editMap.get(child);
       if (state) return;
 
@@ -150,7 +150,7 @@ export class EditableMaps {
   }
 
   private undoChildrenEditable() {
-    this.host.mainContainer?.children.forEach((child) => {
+    this.host.worldContainer?.children.forEach((child) => {
       const handlers = this.editMap.get(child);
       if (!handlers) return;
 

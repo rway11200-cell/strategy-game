@@ -6,8 +6,8 @@
             "inheritedMetaData": {},
             "transformData": {},
             "stats": {
-                "date": 1768077149174,
-                "duration": 1.4312090000003082,
+                "date": 1769126867600,
+                "duration": 3.1669579995796084,
                 "success": true
             }
         },
@@ -20,10 +20,153 @@
             "inheritedMetaData": {},
             "transformData": {},
             "stats": {
-                "date": 1768077149175,
-                "duration": 3.090791000000081,
+                "date": 1769126867600,
+                "duration": 3.1408329997211695,
                 "success": true
             }
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/background": {
+            "isFolder": true,
+            "parent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {},
+            "stats": {
+                "date": 1768316336811,
+                "duration": 6.071333000436425,
+                "success": true
+            }
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/background/fondo_test_1.webp": {
+            "isFolder": false,
+            "parent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/background",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {},
+            "stats": {
+                "date": 1768252561978,
+                "duration": 9.336749999999938,
+                "success": true
+            },
+            "hash": "3Ke3ow"
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/public/assets/main/background/fondo_test_1.webp": {
+            "isFolder": false,
+            "transformParent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/background/fondo_test_1.webp",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/background/fondo_test_2.png": {
+            "isFolder": false,
+            "parent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/background",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {},
+            "stats": {
+                "date": 1768316336811,
+                "duration": 263.15354199986905,
+                "success": true
+            },
+            "hash": "yqwtMg"
+        },
+        ".assetpack/mipmap/main{m}/background/fondo_test_2.png": {
+            "isFolder": false,
+            "transformParent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/background/fondo_test_2.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        ".assetpack/compress/main{m}/background/fondo_test_2.png": {
+            "isFolder": false,
+            "transformParent": ".assetpack/mipmap/main{m}/background/fondo_test_2.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/public/assets/main/background/fondo_test_2.png": {
+            "isFolder": false,
+            "transformParent": ".assetpack/compress/main{m}/background/fondo_test_2.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        ".assetpack/compress/main{m}/background/fondo_test_2.webp": {
+            "isFolder": false,
+            "transformParent": ".assetpack/mipmap/main{m}/background/fondo_test_2.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/public/assets/main/background/fondo_test_2.webp": {
+            "isFolder": false,
+            "transformParent": ".assetpack/compress/main{m}/background/fondo_test_2.webp",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        ".assetpack/mipmap/main{m}/background/fondo_test_2@0.5x.png": {
+            "isFolder": false,
+            "transformParent": "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/background/fondo_test_2.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        ".assetpack/compress/main{m}/background/fondo_test_2@0.5x.png": {
+            "isFolder": false,
+            "transformParent": ".assetpack/mipmap/main{m}/background/fondo_test_2@0.5x.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/public/assets/main/background/fondo_test_2@0.5x.png": {
+            "isFolder": false,
+            "transformParent": ".assetpack/compress/main{m}/background/fondo_test_2@0.5x.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        ".assetpack/compress/main{m}/background/fondo_test_2@0.5x.webp": {
+            "isFolder": false,
+            "transformParent": ".assetpack/mipmap/main{m}/background/fondo_test_2@0.5x.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/s0c0kww/go/src/github.com/pixi-project/public/assets/main/background/fondo_test_2@0.5x.webp": {
+            "isFolder": false,
+            "transformParent": ".assetpack/compress/main{m}/background/fondo_test_2@0.5x.webp",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
         },
         "/Users/s0c0kww/go/src/github.com/pixi-project/raw-assets/main{m}/levels": {
             "isFolder": true,
@@ -34,8 +177,8 @@
             },
             "transformData": {},
             "stats": {
-                "date": 1767734301682,
-                "duration": 14.937417000008281,
+                "date": 1769126867600,
+                "duration": 3.1323750000447035,
                 "success": true
             }
         },
@@ -48,11 +191,11 @@
             },
             "transformData": {},
             "stats": {
-                "date": 1767734301682,
-                "duration": 14.889542000018992,
+                "date": 1769126867600,
+                "duration": 3.1292090006172657,
                 "success": true
             },
-            "hash": "u3i0bw"
+            "hash": "5VB7QQ"
         },
         ".assetpack/json/main{m}/levels/level_01.json": {
             "isFolder": false,

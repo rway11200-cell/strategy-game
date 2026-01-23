@@ -9,7 +9,7 @@ export type PauseResumeOption = {
 
 /** Interface for app screens */
 export interface AppScreen extends Container {
-  mainContainer?: Container;
+  worldContainer?: Container;
   /** Show the screen */
   show?(): Promise<void>;
   /** Hide the screen */

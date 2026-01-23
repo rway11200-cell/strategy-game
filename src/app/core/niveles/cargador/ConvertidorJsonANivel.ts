@@ -1,6 +1,8 @@
+import { TipoEnemigo } from "../../unidades/Enemigo";
 import { EsperarAction } from "../acciones/EsperarAction";
-import { GenerarEnemigosAccion } from "../acciones/GenerarEnemigosAccion";
+import { EnemigosProps, GenerarEnemigosAccion } from "../acciones/GenerarEnemigosAccion";
 import { GenerarEntidadesAccion } from "../acciones/GenerarEntidadesAccion";
+import { NotificacionAccion } from "../acciones/NotificacionAction";
 import { AccionNivel } from "./ManejadorEventosNivel";
 import { EntityDef, LevelEvent, LevelJSON, PathDef } from "./SchemaNivel";
 
@@ -17,11 +19,37 @@ export class ConvertidorJsonANivel {
         case "spawn_entities":
           return new GenerarEntidadesAccion();
 
-        case "spawn":
+        case "notification":
+          return new NotificacionAccion(evento.text);
+
+        case "wave":
           return new GenerarEnemigosAccion(
-            evento.count,
-            evento.interval ?? 300,
             evento.path ?? "default",
+            evento.interval ?? 300,
+            evento.enemies.map((e): EnemigosProps => {
+              switch (e.id) {
+                case "Goblin":
+                  return {
+                    tipo: TipoEnemigo.Globlin,
+                    cantidad: e.count,
+                  };
+                case "Esqueleto":
+                  return {
+                    tipo: TipoEnemigo.Esqueleto,
+                    cantidad: e.count,
+                  };
+                case "Fantasma":
+                  return {
+                    tipo: TipoEnemigo.Fantasma,
+                    cantidad: e.count,
+                  };
+              }
+
+              return {
+                tipo: TipoEnemigo.Globlin,
+                cantidad: 10,
+              };
+            }),
           );
 
         default:
@@ -38,6 +66,14 @@ export class ConvertidorJsonANivel {
   }
   public getAcciones(): AccionNivel[] {
     return this.parseActions();
+  }
+
+  public getMonedas(): number {
+    return this.levelJson.initialState.coins;
+  }
+
+  public getBackgroud(): string {
+    return this.levelJson.background?.texture || "default.png";
   }
 
   private defaultTimeLine(): LevelEvent {

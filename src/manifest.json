@@ -8,13 +8,8 @@
       "name": "main",
       "assets": [
         {
-          "alias": [
-            "main/levels/level_01.json",
-            "level_01.json"
-          ],
-          "src": [
-            "main/levels/level_01.json"
-          ],
+          "alias": ["main/background/fondo_test_1.webp", "fondo_test_1.webp"],
+          "src": ["main/background/fondo_test_1.webp"],
           "data": {
             "tags": {
               "m": true
@@ -22,13 +17,8 @@
           }
         },
         {
-          "alias": [
-            "main/logo-white.svg",
-            "logo-white.svg"
-          ],
-          "src": [
-            "main/logo-white.svg"
-          ],
+          "alias": ["main/levels/level_01.json", "level_01.json"],
+          "src": ["main/levels/level_01.json"],
           "data": {
             "tags": {
               "m": true
@@ -36,14 +26,8 @@
           }
         },
         {
-          "alias": [
-            "main/sounds/bgm-main.mp3",
-            "bgm-main.mp3"
-          ],
-          "src": [
-            "main/sounds/bgm-main.ogg",
-            "main/sounds/bgm-main.mp3"
-          ],
+          "alias": ["main/logo-white.svg", "logo-white.svg"],
+          "src": ["main/logo-white.svg"],
           "data": {
             "tags": {
               "m": true
@@ -51,14 +35,8 @@
           }
         },
         {
-          "alias": [
-            "main/sounds/sfx-hover.wav",
-            "sfx-hover.wav"
-          ],
-          "src": [
-            "main/sounds/sfx-hover.ogg",
-            "main/sounds/sfx-hover.mp3"
-          ],
+          "alias": ["main/sounds/bgm-main.mp3", "bgm-main.mp3"],
+          "src": ["main/sounds/bgm-main.ogg", "main/sounds/bgm-main.mp3"],
           "data": {
             "tags": {
               "m": true
@@ -66,14 +44,8 @@
           }
         },
         {
-          "alias": [
-            "main/sounds/sfx-press.wav",
-            "sfx-press.wav"
-          ],
-          "src": [
-            "main/sounds/sfx-press.ogg",
-            "main/sounds/sfx-press.mp3"
-          ],
+          "alias": ["main/sounds/sfx-hover.wav", "sfx-hover.wav"],
+          "src": ["main/sounds/sfx-hover.ogg", "main/sounds/sfx-hover.mp3"],
           "data": {
             "tags": {
               "m": true
@@ -81,10 +53,16 @@
           }
         },
         {
-          "alias": [
-            "main/towers/Tower 02.png",
-            "Tower 02.png"
-          ],
+          "alias": ["main/sounds/sfx-press.wav", "sfx-press.wav"],
+          "src": ["main/sounds/sfx-press.ogg", "main/sounds/sfx-press.mp3"],
+          "data": {
+            "tags": {
+              "m": true
+            }
+          }
+        },
+        {
+          "alias": ["main/towers/Tower 02.png", "Tower 02.png"],
           "src": [
             "main/towers/Tower 02@0.5x.webp",
             "main/towers/Tower 02@0.5x.png",
@@ -98,10 +76,7 @@
           }
         },
         {
-          "alias": [
-            "main/towers/Tower 03.png",
-            "Tower 03.png"
-          ],
+          "alias": ["main/towers/Tower 03.png", "Tower 03.png"],
           "src": [
             "main/towers/Tower 03@0.5x.webp",
             "main/towers/Tower 03@0.5x.png",
@@ -115,10 +90,7 @@
           }
         },
         {
-          "alias": [
-            "main/ui",
-            "ui"
-          ],
+          "alias": ["main/ui", "ui"],
           "src": [
             "main/ui@0.5x.webp.json",
             "main/ui@0.5x.png.json",
@@ -137,9 +109,7 @@
             "main/unidades/enemigos/esqueleto/esqueleton-dead/esqueleton-dead.json",
             "esqueleton-dead.json"
           ],
-          "src": [
-            "main/unidades/enemigos/esqueleto/esqueleton-dead/esqueleton-dead.json"
-          ],
+          "src": ["main/unidades/enemigos/esqueleto/esqueleton-dead/esqueleton-dead.json"],
           "data": {
             "tags": {
               "m": true
@@ -168,9 +138,7 @@
             "main/unidades/enemigos/esqueleto/esqueleton-idle/esqueleton-idle.json",
             "esqueleton-idle.json"
           ],
-          "src": [
-            "main/unidades/enemigos/esqueleto/esqueleton-idle/esqueleton-idle.json"
-          ],
+          "src": ["main/unidades/enemigos/esqueleto/esqueleton-idle/esqueleton-idle.json"],
           "data": {
             "tags": {
               "m": true
@@ -199,9 +167,7 @@
             "main/unidades/enemigos/esqueleto/esqueleton-run/esqueleton-run.json",
             "esqueleton-run.json"
           ],
-          "src": [
-            "main/unidades/enemigos/esqueleto/esqueleton-run/esqueleton-run.json"
-          ],
+          "src": ["main/unidades/enemigos/esqueleto/esqueleton-run/esqueleton-run.json"],
           "data": {
             "tags": {
               "m": true
@@ -226,13 +192,8 @@
           }
         },
         {
-          "alias": [
-            "main/unidades/enemigos/fantasma/fantasma-dead.json",
-            "fantasma-dead.json"
-          ],
-          "src": [
-            "main/unidades/enemigos/fantasma/fantasma-dead.json"
-          ],
+          "alias": ["main/unidades/enemigos/fantasma/fantasma-dead.json", "fantasma-dead.json"],
+          "src": ["main/unidades/enemigos/fantasma/fantasma-dead.json"],
           "data": {
             "tags": {
               "m": true
@@ -240,10 +201,7 @@
           }
         },
         {
-          "alias": [
-            "main/unidades/enemigos/fantasma/fantasma-dead.png",
-            "fantasma-dead.png"
-          ],
+          "alias": ["main/unidades/enemigos/fantasma/fantasma-dead.png", "fantasma-dead.png"],
           "src": [
             "main/unidades/enemigos/fantasma/fantasma-dead@0.5x.webp",
             "main/unidades/enemigos/fantasma/fantasma-dead@0.5x.png",
@@ -257,13 +215,8 @@
           }
         },
         {
-          "alias": [
-            "main/unidades/enemigos/fantasma/fantasma-idle.json",
-            "fantasma-idle.json"
-          ],
-          "src": [
-            "main/unidades/enemigos/fantasma/fantasma-idle.json"
-          ],
+          "alias": ["main/unidades/enemigos/fantasma/fantasma-idle.json", "fantasma-idle.json"],
+          "src": ["main/unidades/enemigos/fantasma/fantasma-idle.json"],
           "data": {
             "tags": {
               "m": true
@@ -271,10 +224,7 @@
           }
         },
         {
-          "alias": [
-            "main/unidades/enemigos/fantasma/fantasma-idle.png",
-            "fantasma-idle.png"
-          ],
+          "alias": ["main/unidades/enemigos/fantasma/fantasma-idle.png", "fantasma-idle.png"],
           "src": [
             "main/unidades/enemigos/fantasma/fantasma-idle@0.5x.webp",
             "main/unidades/enemigos/fantasma/fantasma-idle@0.5x.png",
@@ -288,13 +238,8 @@
           }
         },
         {
-          "alias": [
-            "main/unidades/enemigos/fantasma/fantasma-run.json",
-            "fantasma-run.json"
-          ],
-          "src": [
-            "main/unidades/enemigos/fantasma/fantasma-run.json"
-          ],
+          "alias": ["main/unidades/enemigos/fantasma/fantasma-run.json", "fantasma-run.json"],
+          "src": ["main/unidades/enemigos/fantasma/fantasma-run.json"],
           "data": {
             "tags": {
               "m": true
@@ -302,10 +247,7 @@
           }
         },
         {
-          "alias": [
-            "main/unidades/enemigos/fantasma/fantasma-run.png",
-            "fantasma-run.png"
-          ],
+          "alias": ["main/unidades/enemigos/fantasma/fantasma-run.png", "fantasma-run.png"],
           "src": [
             "main/unidades/enemigos/fantasma/fantasma-run@0.5x.webp",
             "main/unidades/enemigos/fantasma/fantasma-run@0.5x.png",
@@ -474,13 +416,8 @@
           }
         },
         {
-          "alias": [
-            "main/unidades/torres/Torre1.json",
-            "Torre1.json"
-          ],
-          "src": [
-            "main/unidades/torres/Torre1.json"
-          ],
+          "alias": ["main/unidades/torres/Torre1.json", "Torre1.json"],
+          "src": ["main/unidades/torres/Torre1.json"],
           "data": {
             "tags": {
               "m": true
@@ -488,10 +425,7 @@
           }
         },
         {
-          "alias": [
-            "main/unidades/torres/Torre1.png",
-            "Torre1.png"
-          ],
+          "alias": ["main/unidades/torres/Torre1.png", "Torre1.png"],
           "src": [
             "main/unidades/torres/Torre1@0.5x.webp",
             "main/unidades/torres/Torre1@0.5x.png",
@@ -505,13 +439,8 @@
           }
         },
         {
-          "alias": [
-            "main/unidades/torres/suelo-torre.json",
-            "suelo-torre.json"
-          ],
-          "src": [
-            "main/unidades/torres/suelo-torre.json"
-          ],
+          "alias": ["main/unidades/torres/suelo-torre.json", "suelo-torre.json"],
+          "src": ["main/unidades/torres/suelo-torre.json"],
           "data": {
             "tags": {
               "m": true
@@ -519,10 +448,7 @@
           }
         },
         {
-          "alias": [
-            "main/unidades/torres/suelo-torre.png",
-            "suelo-torre.png"
-          ],
+          "alias": ["main/unidades/torres/suelo-torre.png", "suelo-torre.png"],
           "src": [
             "main/unidades/torres/suelo-torre@0.5x.webp",
             "main/unidades/torres/suelo-torre@0.5x.png",
@@ -541,13 +467,8 @@
       "name": "preload",
       "assets": [
         {
-          "alias": [
-            "preload/logo.svg",
-            "logo.svg"
-          ],
-          "src": [
-            "preload/logo.svg"
-          ],
+          "alias": ["preload/logo.svg", "logo.svg"],
+          "src": ["preload/logo.svg"],
           "data": {
             "tags": {
               "m": true
