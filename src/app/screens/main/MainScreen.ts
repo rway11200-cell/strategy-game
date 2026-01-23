@@ -24,7 +24,7 @@ export class MainScreen extends Container {
   private mainContainer: Container;
   public worldContainer: Container;
   private cameraContainer: Container;
-  private backgroundSprite: Sprite;
+  private backgroundSprite?: Sprite;
   private pauseButton: FancyButton;
   private settingsButton: FancyButton;
   private contenedorMonedas: MonedasUI;
