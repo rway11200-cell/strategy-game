@@ -50,4 +50,26 @@ export class GridState {
     if (cell.type === "blocked") return false;
     return true;
   }
+
+  /**
+   * Marks a cell as occupied by an entity.
+   * Fires the onChange callback if set.
+   */
+  occupyCell(coord: CellCoord, occupantId: string): void {
+    const cell = this.getCell(coord);
+    if (!cell) return;
+    if (cell.occupied) return;
+    this.setCell(coord, { ...cell, occupied: true, occupantId });
+  }
+
+  /**
+   * Releases a previously occupied cell.
+   * Fires the onChange callback if set.
+   */
+  liberateCell(coord: CellCoord): void {
+    const cell = this.getCell(coord);
+    if (!cell) return;
+    if (!cell.occupied) return;
+    this.setCell(coord, { ...cell, occupied: false, occupantId: undefined });
+  }
 }

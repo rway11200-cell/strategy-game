@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { CellType, createDefaultGridConfig, GridConfig } from "../../src/grid/GridConfig";
+import { type CellType, createDefaultGridConfig } from "../../src/grid/GridConfig";
 
 describe("GridConfig", () => {
   describe("createDefaultGridConfig", () => {
