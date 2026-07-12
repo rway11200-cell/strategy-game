@@ -1,84 +1,84 @@
 import { describe, expect, it } from "vitest";
 
-describe("🧯 Manejo de errores — try/catch/finally, throw, errores custom (AAA)", () => {
-  it("try/catch: captura un error lanzado con throw", () => {
-    // Organizar
-    const dividir = (a: number, b: number) => {
-      if (b === 0) throw new Error("División por cero");
+describe("Error handling — try/catch/finally, throw, custom errors (AAA)", () => {
+  it("try/catch: catches an error thrown with throw", () => {
+    // Arrange
+    const divide = (a: number, b: number) => {
+      if (b === 0) throw new Error("Division by zero");
       return a / b;
     };
 
-    // Acción
-    const exito = dividir(10, 2);
-    let mensajeError = "";
+    // Action
+    const success = divide(10, 2);
+    let errorMessage = "";
     try {
-      dividir(10, 0);
+      divide(10, 0);
     } catch (e) {
-      mensajeError = (e as Error).message;
+      errorMessage = (e as Error).message;
     }
 
-    // Esperado
-    expect(exito).toBe(5);
-    expect(mensajeError).toBe("División por cero");
+    // Assert
+    expect(success).toBe(5);
+    expect(errorMessage).toBe("Division by zero");
   });
 
-  it("finally: siempre se ejecuta", () => {
-    // Organizar
-    const pasos: string[] = [];
+  it("finally: always executes", () => {
+    // Arrange
+    const steps: string[] = [];
 
-    // Acción
+    // Action
     try {
-      pasos.push("try");
-      throw new Error("Fallo");
+      steps.push("try");
+      throw new Error("Fail");
     } catch {
-      pasos.push("catch");
+      steps.push("catch");
     } finally {
-      pasos.push("finally");
+      steps.push("finally");
     }
 
-    // Esperado
-    expect(pasos).toEqual(["try", "catch", "finally"]);
+    // Assert
+    expect(steps).toEqual(["try", "catch", "finally"]);
   });
 
-  it("errores custom con clases y instanceof", () => {
-    // Organizar
-    class ValidacionError extends Error {
+  it("custom errors with classes and instanceof", () => {
+    // Arrange
+    class ValidationError extends Error {
       constructor(msg: string) {
         super(msg);
-        this.name = "ValidacionError";
+        this.name = "ValidationError";
       }
     }
 
-    const validarEdad = (edad: number) => {
-      if (edad < 0) throw new ValidacionError("Edad inválida");
+    const validateAge = (age: number) => {
+      if (age < 0) throw new ValidationError("Invalid age");
       return true;
     };
 
-    // Acción
-    let tipoCapturado = "";
+    // Action
+    let caughtType = "";
     try {
-      validarEdad(-1);
+      validateAge(-1);
     } catch (e) {
-      if (e instanceof ValidacionError) tipoCapturado = "ValidacionError";
+      if (e instanceof ValidationError) caughtType = "ValidationError";
     }
 
-    // Esperado
-    expect(tipoCapturado).toBe("ValidacionError");
+    // Assert
+    expect(caughtType).toBe("ValidationError");
   });
 
-  it("promesas: rechazo y manejo con catch/await", async () => {
-    // Organizar
-    const fallarAsync = () => Promise.reject(new Error("Falla async"));
+  it("promises: rejection and handling with catch/await", async () => {
+    // Arrange
+    const failAsync = () => Promise.reject(new Error("Async fail"));
 
-    // Acción
-    let mensaje = "";
+    // Action
+    let message = "";
     try {
-      await fallarAsync();
+      await failAsync();
     } catch (e) {
-      mensaje = (e as Error).message;
+      message = (e as Error).message;
     }
 
-    // Esperado
-    expect(mensaje).toBe("Falla async");
+    // Assert
+    expect(message).toBe("Async fail");
   });
 });

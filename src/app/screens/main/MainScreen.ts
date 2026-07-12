@@ -9,16 +9,14 @@ import { SettingsPopup } from "../../popups/SettingsPopup";
 
 import { EditableMaps } from "../../../core/maps/EditableMaps";
 import { PauseResumeOption } from "../../../engine/navigation/navigation";
-import { AdministradorJuego } from "../../core/AdministradorJuego";
-import { MonedasUI } from "../../ui/game/MonedasUI";
-import { NotificacionesUI } from "../../ui/game/NotificacionesUI";
+import { GameManager } from "../../core/GameManager";
+import { CoinsUI } from "../../ui/game/CoinsUI";
+import { NotificationsUI } from "../../ui/game/NotificationsUI";
 
 export const MAP_WIDTH = 1600;
 export const MAP_HEIGHT = 1080;
 
-/** The screen that holds the app */
 export class MainScreen extends Container {
-  /** Assets bundles required by this screen */
   public static assetBundles = ["main"];
 
   private mainContainer: Container;
@@ -27,20 +25,20 @@ export class MainScreen extends Container {
   private backgroundSprite?: Sprite;
   private pauseButton: FancyButton;
   private settingsButton: FancyButton;
-  private contenedorMonedas: MonedasUI;
+  private coinsContainer: CoinsUI;
   private cameraX = 0;
   private cameraY = 0;
   private viewportWidth = 0;
   private viewportHeight = 0;
 
-  private administradorJuego!: AdministradorJuego;
+  private gameManager!: GameManager;
   private editMapButton: FancyButton;
 
   private paused = false;
 
   public editableMaps: EditableMaps;
 
-  private notificaciones: NotificacionesUI;
+  private notifications: NotificationsUI;
 
   private isDragging = false;
   private dragStartX = 0;
@@ -62,8 +60,8 @@ export class MainScreen extends Container {
     this.worldContainer = new Container();
     this.cameraContainer.addChild(this.worldContainer);
 
-    const asignarBackgroud = (imagenBackgroud: string) => {
-      const texture = Assets.get(imagenBackgroud);
+    const assignBackground = (backgroundImage: string) => {
+      const texture = Assets.get(backgroundImage);
       this.backgroundSprite = new Sprite(texture);
       this.backgroundSprite.eventMode = "none";
       this.worldContainer.addChild(this.backgroundSprite);
@@ -87,7 +85,6 @@ export class MainScreen extends Container {
       const dx = e.global.x - this.dragStartX;
       const dy = e.global.y - this.dragStartY;
 
-      // movimiento inverso (clave)
       this.setCamera(this.cameraStartX - dx, this.cameraStartY - dy);
     });
 
@@ -101,16 +98,16 @@ export class MainScreen extends Container {
 
     this.editableMaps = new EditableMaps(this);
 
-    this.contenedorMonedas = new MonedasUI();
-    this.addChild(this.contenedorMonedas);
+    this.coinsContainer = new CoinsUI();
+    this.addChild(this.coinsContainer);
 
-    this.notificaciones = new NotificacionesUI(this.mainContainer);
+    this.notifications = new NotificationsUI(this.mainContainer);
 
-    this.administradorJuego = new AdministradorJuego(
+    this.gameManager = new GameManager(
       this.worldContainer,
-      this.contenedorMonedas,
-      this.notificaciones,
-      asignarBackgroud,
+      this.coinsContainer,
+      this.notifications,
+      assignBackground,
     );
 
     const buttonAnimations = {
@@ -156,22 +153,16 @@ export class MainScreen extends Container {
     this.addChild(this.editMapButton);
   }
 
-  /** Prepare the screen just before showing */
   public async prepare() {}
 
-  /** Update the screen */
   public update(_time: Ticker) {
-    // si el juego esta en pausa no actualiza nada
     if (this.paused) return;
 
-    // si no hay administrador de juego mietras carga no hace nada tamposo
-    if (!this.administradorJuego) return;
+    if (!this.gameManager) return;
 
-    // actualiza todas las unidades hechas por un Creador de Unidades
-    this.administradorJuego.update(_time);
+    this.gameManager.update(_time);
   }
 
-  /** Pause gameplay - automatically fired when a popup is presented */
   public async pause({ ignoreInteractiveChildren = false }: PauseResumeOption = {}) {
     if (!ignoreInteractiveChildren) {
       this.mainContainer.interactiveChildren = false;
@@ -179,7 +170,6 @@ export class MainScreen extends Container {
     this.paused = true;
   }
 
-  /** Resume gameplay */
   public async resume({ ignoreInteractiveChildren = false }: PauseResumeOption = {}) {
     if (!ignoreInteractiveChildren) {
       this.mainContainer.interactiveChildren = true;
@@ -187,10 +177,8 @@ export class MainScreen extends Container {
     this.paused = false;
   }
 
-  /** Fully reset */
   public reset() {}
 
-  /** Resize the screen, fired whenever window size changes */
   public resize(width: number, height: number) {
     const centerX = width * 0.5;
     const centerY = height * 0.5;
@@ -201,7 +189,6 @@ export class MainScreen extends Container {
     this.mainContainer.x = centerX;
     this.mainContainer.y = centerY;
 
-    // centrar cámara inicialmente
     const startX = (MAP_WIDTH - width) * 0.5;
     const startY = (MAP_HEIGHT - height) * 0.5;
 
@@ -211,15 +198,14 @@ export class MainScreen extends Container {
     this.pauseButton.y = 30;
     this.settingsButton.x = width - 30;
     this.settingsButton.y = 30;
-    this.contenedorMonedas.x = width - this.contenedorMonedas.width - 50;
-    this.contenedorMonedas.y = 60;
+    this.coinsContainer.x = width - this.coinsContainer.width - 50;
+    this.coinsContainer.y = 60;
     this.editMapButton.x = width - 30;
     this.editMapButton.y = 90;
 
-    this.notificaciones.resize(centerX, centerY);
+    this.notifications.resize(centerX, centerY);
   }
 
-  /** Show screen with animations */
   public async show(): Promise<void> {
     engine().audio.bgm.play("main/sounds/bgm-main.mp3", { volume: 0.6 });
 
@@ -247,10 +233,8 @@ export class MainScreen extends Container {
     this.cameraContainer.y = -this.cameraY;
   }
 
-  /** Hide screen with animations */
   public async hide() {}
 
-  /** Auto pause the app when window go out of focus */
   public blur() {
     if (!engine().navigation.currentPopup) {
       engine().navigation.presentPopup(PausePopup);

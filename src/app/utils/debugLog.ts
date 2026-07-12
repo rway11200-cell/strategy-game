@@ -2,16 +2,16 @@
 type StringifyFn = (value: unknown) => string;
 
 interface DebugLogOptions {
-  /** Etiqueta general para agrupar logs (opcional) */
+  /** General label for grouping logs (optional) */
   prefix?: string;
-  /** Custom stringify (por defecto JSON.stringify o String) */
+  /** Custom stringify (defaults to JSON.stringify or String) */
   stringify?: StringifyFn;
-  /** Flag global para encender/apagar logs */
+  /** Global flag to enable/disable logs */
   enabled?: boolean;
 }
 
 /**
- * Guarda el último valor logueado por "key" y solo vuelve a loguear si cambió.
+ * Stores the last logged value by "key" and only logs again if it changed.
  */
 const lastValues = new Map<string, string>();
 
@@ -20,7 +20,7 @@ export function debugLogChanged(key: string, value: unknown = "", options: Debug
 
   if (!enabled) return;
 
-  // Cómo transformamos el valor a string para comparar:
+  // How we transform the value to string for comparison:
   let repr: string;
   if (stringify) {
     repr = stringify(value);
@@ -36,23 +36,23 @@ export function debugLogChanged(key: string, value: unknown = "", options: Debug
 
   const last = lastValues.get(key);
   if (last === repr) {
-    // No cambió, no logueamos nada.
+    // It didn't change, don't log anything.
     return;
   }
 
-  // Guardamos el nuevo valor
+  // Save the new value
   lastValues.set(key, repr);
 
-  // Hacemos el log con info clara de antes/después si quieres
+  // Log with clear before/after info
   if (last === undefined) {
     console.log(`${prefix} [${key}] =`, value);
   } else {
-    console.log(`${prefix} [${key}] cambió:`, { antes: last, ahora: value });
+    console.log(`${prefix} [${key}] changed:`, { before: last, now: value });
   }
 }
 
 /**
- * Si quieres limpiar el historial (por ejemplo al cambiar de escena)
+ * If you want to clear the history (e.g. when changing scenes)
  */
 export function debugLogReset() {
   lastValues.clear();

@@ -1,53 +1,53 @@
 import { describe, expect, it } from "vitest";
 
-describe("⚙️ Tipos básicos e inferencia en TypeScript (AAA)", () => {
-  it("tipos primitivos", () => {
-    // Organizar
-    const nombre: string = "Camila";
-    const edad: number = 28;
-    const activo: boolean = true;
+describe("Basic types and inference in TypeScript (AAA)", () => {
+  it("primitive types", () => {
+    // Arrange
+    const name: string = "Camila";
+    const age: number = 28;
+    const active: boolean = true;
 
-    // Acción
-    const mensaje = `${nombre} tiene ${edad} años, activo: ${activo}`;
+    // Action
+    const message = `${name} is ${age} years old, active: ${active}`;
 
-    // Esperado
-    expect(mensaje).toBe("Camila tiene 28 años, activo: true");
+    // Assert
+    expect(message).toBe("Camila is 28 years old, active: true");
   });
 
-  it("inferencia de tipos automática", () => {
-    // Organizar
-    const saludo = "Hola"; // TS infiere string
-    const cantidad = 5; // TS infiere number
+  it("automatic type inference", () => {
+    // Arrange
+    const greeting = "Hello"; // TS infers string
+    const amount = 5; // TS infers number
 
-    // Acción
-    const resultado = `${saludo} (${typeof cantidad})`;
+    // Action
+    const result = `${greeting} (${typeof amount})`;
 
-    // Esperado
-    expect(resultado).toBe("Hola (number)");
+    // Assert
+    expect(result).toBe("Hello (number)");
   });
 
-  it("casting o 'as' para convertir tipos", () => {
-    // Organizar
-    const valor: unknown = "123";
+  it("casting or 'as' to convert types", () => {
+    // Arrange
+    const value: unknown = "123";
 
-    // Acción
-    const numero = Number(valor as string);
+    // Action
+    const number = Number(value as string);
 
-    // Esperado
-    expect(numero).toBe(123);
+    // Assert
+    expect(number).toBe(123);
   });
 
-  it("usa enum para representar opciones limitadas", () => {
-    // Organizar
-    enum Estado {
-      Activo = "activo",
-      Inactivo = "inactivo",
+  it("uses enum to represent limited options", () => {
+    // Arrange
+    enum Status {
+      Active = "active",
+      Inactive = "inactive",
     }
 
-    // Acción
-    const estadoActual: Estado = Estado.Activo;
+    // Action
+    const currentState: Status = Status.Active;
 
-    // Esperado
-    expect(estadoActual).toBe("activo");
+    // Assert
+    expect(currentState).toBe("active");
   });
 });

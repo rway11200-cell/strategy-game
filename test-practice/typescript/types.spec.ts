@@ -1,39 +1,39 @@
 import { describe, expect, it } from "vitest";
 
-describe("🧠 Tipos TS — ejemplos básicos (AAA)", () => {
-  it("usa un alias con unión de tipos", () => {
-    // Organizar
+describe("TS Types — basic examples (AAA)", () => {
+  it("uses alias with union type", () => {
+    // Arrange
     type ID = string | number;
-    const valorA: ID = 123;
-    const valorB: ID = "abc";
+    const valueA: ID = 123;
+    const valueB: ID = "abc";
 
-    // Acción
-    const combinado = String(valorA) + valorB;
+    // Action
+    const combined = String(valueA) + valueB;
 
-    // Esperado
-    expect(combinado).toBe("123abc");
+    // Assert
+    expect(combined).toBe("123abc");
   });
 
-  it("usa intersección de tipos", () => {
-    // Organizar
-    type ConFechas = { createdAt: Date };
-    type Usuario = { nombre: string } & ConFechas;
-    const usuario: Usuario = { nombre: "Camila", createdAt: new Date() };
+  it("uses intersection type", () => {
+    // Arrange
+    type WithDates = { createdAt: Date };
+    type User = { name: string } & WithDates;
+    const user: User = { name: "Camila", createdAt: new Date() };
 
-    // Esperado
-    expect(usuario.nombre).toBe("Camila");
+    // Assert
+    expect(user.name).toBe("Camila");
   });
 
-  it("usa genérico para envolver un valor", () => {
-    // Organizar
-    function envolver<T>(valor: T) {
-      return { valor };
+  it("uses generic to wrap a value", () => {
+    // Arrange
+    function wrap<T>(value: T) {
+      return { value };
     }
 
-    // Acción
-    const resultado = envolver({ x: 1 });
+    // Action
+    const result = wrap({ x: 1 });
 
-    // Esperado
-    expect(resultado.valor.x).toBe(1);
+    // Assert
+    expect(result.value.x).toBe(1);
   });
 });

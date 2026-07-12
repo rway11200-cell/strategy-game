@@ -1,198 +1,198 @@
 import { describe, expect, it } from "vitest";
 
-describe("🌀 Estructuras de control — condicionales, loops y flujo (AAA)", () => {
+describe("Control structures — conditionals, loops and flow (AAA)", () => {
   it("if / else if / else", () => {
-    // Organizar
-    const temperatura = 32;
+    // Arrange
+    const temperature = 32;
 
-    // Acción
-    let estado = "";
-    if (temperatura > 30) estado = "calor";
-    else if (temperatura >= 15) estado = "templado";
-    else estado = "frío";
+    // Action
+    let state = "";
+    if (temperature > 30) state = "hot";
+    else if (temperature >= 15) state = "mild";
+    else state = "cold";
 
-    // Esperado
-    expect(estado).toBe("calor");
+    // Assert
+    expect(state).toBe("hot");
   });
 
-  it("switch: selecciona por caso", () => {
-    // Organizar
-    const dia: string = "sábado";
+  it("switch: selects by case", () => {
+    // Arrange
+    const day: string = "saturday";
 
-    // Acción
-    let tipo = "";
-    switch (dia) {
-      case "lunes":
-      case "martes":
-      case "miércoles":
-      case "jueves":
-      case "viernes":
-        tipo = "laboral";
+    // Action
+    let type = "";
+    switch (day) {
+      case "monday":
+      case "tuesday":
+      case "wednesday":
+      case "thursday":
+      case "friday":
+        type = "weekday";
         break;
-      case "sábado":
-      case "domingo":
-        tipo = "fin de semana";
+      case "saturday":
+      case "sunday":
+        type = "weekend";
         break;
       default:
-        tipo = "desconocido";
+        type = "unknown";
     }
 
-    // Esperado
-    expect(tipo).toBe("fin de semana");
+    // Assert
+    expect(type).toBe("weekend");
   });
 
-  it("operadores lógicos AND / OR / NOT", () => {
-    // Organizar
-    const esCliente = true;
-    const tieneDescuento = false;
-    const cupón = true;
+  it("logical operators AND / OR / NOT", () => {
+    // Arrange
+    const isCustomer = true;
+    const hasDiscount = false;
+    const coupon = true;
 
-    // Acción
-    const puedeComprar = esCliente && (tieneDescuento || cupón);
-    const restringido = !esCliente;
+    // Action
+    const canBuy = isCustomer && (hasDiscount || coupon);
+    const restricted = !isCustomer;
 
-    // Esperado
-    expect(puedeComprar).toBe(true);
-    expect(restringido).toBe(false);
+    // Assert
+    expect(canBuy).toBe(true);
+    expect(restricted).toBe(false);
   });
 
-  it("for: recorre una cantidad fija", () => {
-    // Organizar
-    const numeros = [1, 2, 3];
-    let suma = 0;
+  it("for: iterates a fixed number of times", () => {
+    // Arrange
+    const numbers = [1, 2, 3];
+    let sum = 0;
 
-    // Acción
-    for (let i = 0; i < numeros.length; i++) {
-      suma += numeros[i];
+    // Action
+    for (let i = 0; i < numbers.length; i++) {
+      sum += numbers[i];
     }
 
-    // Esperado
-    expect(suma).toBe(6);
+    // Assert
+    expect(sum).toBe(6);
   });
 
-  it("for...of: recorre valores de un array", () => {
-    // Organizar
-    const letras = ["a", "b", "c"];
-    let resultado = "";
+  it("for...of: iterates over array values", () => {
+    // Arrange
+    const letters = ["a", "b", "c"];
+    let result = "";
 
-    // Acción
-    for (const letra of letras) {
-      resultado += letra;
+    // Action
+    for (const letter of letters) {
+      result += letter;
     }
 
-    // Esperado
-    expect(resultado).toBe("abc");
+    // Assert
+    expect(result).toBe("abc");
   });
 
-  it("for...in: recorre claves de un objeto", () => {
-    // Organizar
-    const cafe = { tipo: "espresso", precio: 2000 };
-    const claves: string[] = [];
+  it("for...in: iterates over object keys", () => {
+    // Arrange
+    const coffee = { type: "espresso", price: 2000 };
+    const keys: string[] = [];
 
-    // Acción
-    for (const k in cafe) {
-      claves.push(k);
+    // Action
+    for (const k in coffee) {
+      keys.push(k);
     }
 
-    // Esperado
-    expect(claves).toContain("tipo");
-    expect(claves).toContain("precio");
+    // Assert
+    expect(keys).toContain("type");
+    expect(keys).toContain("price");
   });
 
-  it("while: repite mientras una condición sea verdadera", () => {
-    // Organizar
+  it("while: repeats while a condition is true", () => {
+    // Arrange
     let n = 3;
-    let resultado = 1;
+    let result = 1;
 
-    // Acción
+    // Action
     while (n > 0) {
-      resultado *= n;
+      result *= n;
       n--;
     }
 
-    // Esperado
-    expect(resultado).toBe(6); // factorial de 3
+    // Assert
+    expect(result).toBe(6);
   });
 
-  it("do...while: ejecuta al menos una vez", () => {
-    // Organizar
-    let contador = 0;
-    let resultado = "";
+  it("do...while: executes at least once", () => {
+    // Arrange
+    let counter = 0;
+    let result = "";
 
-    // Acción
+    // Action
     do {
-      resultado += "X";
-      contador++;
-    } while (contador < 3);
+      result += "X";
+      counter++;
+    } while (counter < 3);
 
-    // Esperado
-    expect(resultado).toBe("XXX");
+    // Assert
+    expect(result).toBe("XXX");
   });
 
-  it("break: interrumpe el bucle", () => {
-    // Organizar
-    const numeros = [1, 2, 3, 4, 5];
-    let encontrado = 0;
+  it("break: interrupts the loop", () => {
+    // Arrange
+    const numbers = [1, 2, 3, 4, 5];
+    let found = 0;
 
-    // Acción
-    for (const n of numeros) {
+    // Action
+    for (const n of numbers) {
       if (n === 3) {
-        encontrado = n;
+        found = n;
         break;
       }
     }
 
-    // Esperado
-    expect(encontrado).toBe(3);
+    // Assert
+    expect(found).toBe(3);
   });
 
-  it("continue: salta a la siguiente iteración", () => {
-    // Organizar
+  it("continue: skips to next iteration", () => {
+    // Arrange
     const nums = [1, 2, 3, 4];
-    const pares: number[] = [];
+    const evens: number[] = [];
 
-    // Acción
+    // Action
     for (const n of nums) {
       if (n % 2 !== 0) continue;
-      pares.push(n);
+      evens.push(n);
     }
 
-    // Esperado
-    expect(pares).toEqual([2, 4]);
+    // Assert
+    expect(evens).toEqual([2, 4]);
   });
 
-  it("return: termina la ejecución de una función", () => {
-    // Organizar
-    const buscar = (lista: string[], valor: string) => {
-      for (const el of lista) {
-        if (el === valor) return true;
+  it("return: terminates function execution", () => {
+    // Arrange
+    const find = (list: string[], value: string) => {
+      for (const el of list) {
+        if (el === value) return true;
       }
       return false;
     };
 
-    // Acción
-    const existe = buscar(["a", "b", "c"], "b");
+    // Action
+    const exists = find(["a", "b", "c"], "b");
 
-    // Esperado
-    expect(existe).toBe(true);
+    // Assert
+    expect(exists).toBe(true);
   });
 
-  it("try + condicional: combina control y errores", () => {
-    // Organizar
-    const dividir = (a: number, b: number) => {
-      if (b === 0) throw new Error("División por cero");
+  it("try + conditional: combines control and errors", () => {
+    // Arrange
+    const divide = (a: number, b: number) => {
+      if (b === 0) throw new Error("Division by zero");
       return a / b;
     };
 
-    // Acción
-    let resultado: number | string;
+    // Action
+    let result: number | string;
     try {
-      resultado = dividir(10, 2);
+      result = divide(10, 2);
     } catch (e) {
-      resultado = (e as Error).message;
+      result = (e as Error).message;
     }
 
-    // Esperado
-    expect(resultado).toBe(5);
+    // Assert
+    expect(result).toBe(5);
   });
 });

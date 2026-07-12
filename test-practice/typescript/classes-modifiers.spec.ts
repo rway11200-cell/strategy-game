@@ -1,83 +1,77 @@
 import { describe, expect, it } from "vitest";
 
-describe("🧱 Clases y modificadores — public/private/protected/static/get/set (AAA)", () => {
-  it("public/private/get/set: encapsulación simple", () => {
-    // Organizar
-    class Cuenta {
-      public titular: string;
-      private _saldo: number = 0;
+describe("Classes and modifiers — public/private/protected/static/get/set (AAA)", () => {
+  it("public/private/get/set: simple encapsulation", () => {
+    // Arrange
+    class Account {
+      public holder: string;
+      private _balance: number = 0;
 
-      constructor(titular: string) {
-        this.titular = titular;
+      constructor(holder: string) {
+        this.holder = holder;
       }
 
-      get saldo() {
-        return this._saldo;
+      get balance() {
+        return this._balance;
       }
 
-      set saldo(valor: number) {
-        if (valor < 0) throw new Error("Saldo negativo");
-        this._saldo = valor;
+      set balance(value: number) {
+        if (value < 0) throw new Error("Negative balance");
+        this._balance = value;
       }
 
-      depositar(monto: number) {
-        this.saldo = this._saldo + monto;
+      deposit(amount: number) {
+        this.balance = this._balance + amount;
       }
     }
 
-    // Acción
-    const c = new Cuenta("Camila");
-    c.depositar(100);
+    // Action
+    const c = new Account("Camila");
+    c.deposit(100);
 
-    // Esperado
-    expect(c.titular).toBe("Camila");
-    expect(c.saldo).toBe(100);
-    // @ts-expect-error _saldo es privado
-    // c._saldo = 999;
+    // Assert
+    expect(c.holder).toBe("Camila");
+    expect(c.balance).toBe(100);
   });
 
-  it("protected y herencia + super()", () => {
-    // Organizar
+  it("protected and inheritance + super()", () => {
+    // Arrange
     class Base {
-      protected formatear(msg: string) {
+      protected format(msg: string) {
         return `[Base] ${msg}`;
       }
     }
 
-    class Hija extends Base {
-      saludar() {
-        return this.formatear("hola");
+    class Child extends Base {
+      greet() {
+        return this.format("hello");
       }
     }
 
-    // Acción
-    const h = new Hija();
-    const texto = h.saludar();
+    // Action
+    const h = new Child();
+    const text = h.greet();
 
-    // Esperado
-    expect(texto).toBe("[Base] hola");
-    // @ts-expect-error formatear es protected, no desde instancia
-    // h.formatear("x");
+    // Assert
+    expect(text).toBe("[Base] hello");
   });
 
-  it("static y readonly: miembros de clase y constantes", () => {
-    // Organizar
+  it("static and readonly: class members and constants", () => {
+    // Arrange
     class Config {
       static readonly version = "1.0.0";
-      readonly nombre: string;
+      readonly name: string;
 
-      constructor(nombre: string) {
-        this.nombre = nombre;
+      constructor(name: string) {
+        this.name = name;
       }
     }
 
-    // Acción
+    // Action
     const conf = new Config("App");
 
-    // Esperado
+    // Assert
     expect(Config.version).toBe("1.0.0");
-    expect(conf.nombre).toBe("App");
-    // @ts-expect-error version es readonly
-    // Config.version = "2.0.0";
+    expect(conf.name).toBe("App");
   });
 });

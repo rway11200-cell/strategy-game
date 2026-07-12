@@ -16,12 +16,12 @@ export function clamp(v: number, min = 0, max = 1) {
   return v < min ? min : v > max ? max : v;
 }
 
-export const ingresoCircunferencia = (
-  objetoX: number,
-  objetoY: number,
+export const isInsideCircle = (
+  objectX: number,
+  objectY: number,
   targetX: number,
   targetY: number,
-  radio: number,
+  radius: number,
 ): boolean => {
-  return Math.pow(objetoX - targetX, 2) + Math.pow(objetoY - targetY, 2) <= Math.pow(radio, 2);
+  return Math.pow(objectX - targetX, 2) + Math.pow(objectY - targetY, 2) <= Math.pow(radius, 2);
 };

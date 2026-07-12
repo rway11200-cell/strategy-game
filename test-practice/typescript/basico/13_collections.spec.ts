@@ -1,58 +1,58 @@
 import { describe, expect, it } from "vitest";
 
-describe("🗂 Colecciones modernas — Map / Set / WeakMap / WeakSet (AAA)", () => {
-  it("Map: pares clave-valor de cualquier tipo", () => {
-    // Organizar
-    const precios = new Map<string, number>();
-    precios.set("café", 2000);
-    precios.set("té", 1500);
+describe("Modern collections — Map / Set / WeakMap / WeakSet (AAA)", () => {
+  it("Map: key-value pairs of any type", () => {
+    // Arrange
+    const prices = new Map<string, number>();
+    prices.set("coffee", 2000);
+    prices.set("tea", 1500);
 
-    // Acción
-    const cafe = precios.get("café");
-    const total = Array.from(precios.values()).reduce((a, b) => a + b, 0);
+    // Action
+    const coffee = prices.get("coffee");
+    const total = Array.from(prices.values()).reduce((a, b) => a + b, 0);
 
-    // Esperado
-    expect(cafe).toBe(2000);
+    // Assert
+    expect(coffee).toBe(2000);
     expect(total).toBe(3500);
   });
 
-  it("Set: colección sin duplicados", () => {
-    // Organizar
-    const ingredientes = new Set(["agua", "café", "agua"]);
+  it("Set: collection without duplicates", () => {
+    // Arrange
+    const ingredients = new Set(["water", "coffee", "water"]);
 
-    // Acción
-    ingredientes.add("leche");
+    // Action
+    ingredients.add("milk");
 
-    // Esperado
-    expect([...ingredientes]).toEqual(["agua", "café", "leche"]);
+    // Assert
+    expect([...ingredients]).toEqual(["water", "coffee", "milk"]);
   });
 
-  it("WeakMap: solo acepta objetos como claves", () => {
-    // Organizar
+  it("WeakMap: only accepts objects as keys", () => {
+    // Arrange
     const wm = new WeakMap<object, string>();
     const obj = { id: 1 };
 
-    // Acción
-    wm.set(obj, "guardado");
-    const valor = wm.get(obj);
+    // Action
+    wm.set(obj, "saved");
+    const value = wm.get(obj);
 
-    // Esperado
-    expect(valor).toBe("guardado");
+    // Assert
+    expect(value).toBe("saved");
   });
 
-  it("WeakSet: contiene objetos únicos y débiles", () => {
-    // Organizar
+  it("WeakSet: contains unique weak objects", () => {
+    // Arrange
     const ws = new WeakSet<object>();
     const a = { id: 1 };
     const b = { id: 2 };
 
-    // Acción
+    // Action
     ws.add(a);
-    const tieneA = ws.has(a);
-    const tieneB = ws.has(b);
+    const hasA = ws.has(a);
+    const hasB = ws.has(b);
 
-    // Esperado
-    expect(tieneA).toBe(true);
-    expect(tieneB).toBe(false);
+    // Assert
+    expect(hasA).toBe(true);
+    expect(hasB).toBe(false);
   });
 });

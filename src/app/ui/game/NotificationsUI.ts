@@ -1,7 +1,7 @@
 import { Container } from "pixi.js";
 import { Label } from "../Label";
 
-export class NotificacionesUI {
+export class NotificationsUI {
   private labels: Label[];
   private mainContainer: Container;
   private centerX: number;
@@ -23,36 +23,36 @@ export class NotificacionesUI {
     });
   }
 
-  notifica(mensaje: string) {
-    const labelEncontrado = this.labels.find((label) => {
+  notify(message: string) {
+    const foundLabel = this.labels.find((label) => {
       return label.text === "";
     });
 
-    if (labelEncontrado) {
-      labelEncontrado.text = mensaje;
-      this.limpiarLabel(labelEncontrado);
+    if (foundLabel) {
+      foundLabel.text = message;
+      this.clearLabel(foundLabel);
       return;
     }
 
-    const labelNuevo = new Label({
-      text: mensaje,
+    const newLabel = new Label({
+      text: message,
       style: {
         fill: "white",
         align: "right",
       },
     });
-    labelNuevo.anchor.set(1, 0.5);
+    newLabel.anchor.set(1, 0.5);
 
-    this.labels.push(labelNuevo);
-    this.mainContainer.addChild(labelNuevo);
+    this.labels.push(newLabel);
+    this.mainContainer.addChild(newLabel);
     this.resize(this.centerX, this.centerY);
 
-    this.limpiarLabel(labelNuevo);
+    this.clearLabel(newLabel);
   }
 
-  private limpiarLabel(labe: Label) {
+  private clearLabel(label: Label) {
     setTimeout(() => {
-      labe.text = "";
+      label.text = "";
     }, 3000);
   }
 }

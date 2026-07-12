@@ -14,30 +14,28 @@ const cache: Record<
 > = {};
 
 /**
- * Obtiene texturas ordenadas desde un spritesheet Aseprite o Pixi,
- * soportando ambos formatos de `sheet.data.frames` (array u objeto).
+ * Gets ordered textures from an Aseprite or Pixi spritesheet,
+ * supporting both array and object formats of `sheet.data.frames`.
  */
 export function getFramesAseprite(
   assetId: string,
-  patronNombreFrames: RegExp = /(\d+)\.(png|aseprite)$/,
+  frameNamePattern: RegExp = /(\d+)\.(png|aseprite)$/,
 ) {
   const cached = cache[assetId];
   if (cached) return cached;
 
-  // Tipamos sheet.data como AsepriteJSON para poder leer frames
   const sheet = Assets.get<Spritesheet & { data: AsepriteJSON }>(assetId);
-  if (!sheet) throw new Error(`Spritesheet "${assetId}" no encontrado.`);
+  if (!sheet) throw new Error(`Spritesheet "${assetId}" not found.`);
 
   const raw = sheet.data.frames;
 
-  // Normalizar a array de AsepriteFrame[]
   let rawFramesArray: AsepriteFrame[] = [];
 
   if (Array.isArray(raw)) {
-    // caso ideal: ya es array (export directo de Aseprite)
+    // ideal case: already an array (direct Aseprite export)
     rawFramesArray = raw as AsepriteFrame[];
   } else if (raw && typeof raw === "object") {
-    // caso Pixi: frames es un objeto con keys -> convertir a array
+    // Pixi case: frames is an object with keys -> convert to array
     rawFramesArray = Object.keys(raw).map((name) => {
       const entry = (raw as Record<string, any>)[name];
       return {
@@ -46,13 +44,12 @@ export function getFramesAseprite(
       } as AsepriteFrame;
     });
   } else {
-    throw new Error("Formato de sheet.data.frames no soportado.");
+    throw new Error("sheet.data.frames format not supported.");
   }
 
-  // ahora sí podemos mapear, extraer id, ordenar...
   const parsed = rawFramesArray
     .map((f, index) => {
-      const match = f.filename.match(patronNombreFrames);
+      const match = f.filename.match(frameNamePattern);
       const id = match ? Number(match[1]) : -1;
       return { name: f.filename, index, id, duration: f.duration ?? 0 };
     })

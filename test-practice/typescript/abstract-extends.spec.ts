@@ -1,57 +1,57 @@
 import { describe, expect, it } from "vitest";
 
-describe("🐾 Abstractas y herencia — ejemplos claros (AAA)", () => {
-  it("usa clase abstracta con polimorfismo", () => {
-    // Organizar
+describe("Abstract classes and inheritance — clear examples (AAA)", () => {
+  it("uses abstract class with polymorphism", () => {
+    // Arrange
     abstract class Animal {
-      constructor(public nombre: string) {}
-      abstract sonido(): string;
-      describir() {
-        return `Soy ${this.nombre} y hago ${this.sonido()}`;
+      constructor(public name: string) {}
+      abstract sound(): string;
+      describe() {
+        return `I am ${this.name} and I go ${this.sound()}`;
       }
     }
 
-    class Gato extends Animal {
-      sonido() {
-        return "miau";
+    class Cat extends Animal {
+      sound() {
+        return "meow";
       }
     }
 
-    class Perro extends Animal {
-      sonido() {
-        return "guau";
+    class Dog extends Animal {
+      sound() {
+        return "woof";
       }
     }
 
-    const animales = [new Gato("Michi"), new Perro("Hoko")];
+    const animals = [new Cat("Michi"), new Dog("Hoko")];
 
-    // Acción
-    const frases = animales.map((a) => a.describir());
+    // Action
+    const phrases = animals.map((a) => a.describe());
 
-    // Esperado
-    expect(frases).toContain("Soy Michi y hago miau");
-    expect(frases).toContain("Soy Hoko y hago guau");
+    // Assert
+    expect(phrases).toContain("I am Michi and I go meow");
+    expect(phrases).toContain("I am Hoko and I go woof");
   });
 
-  it("usa 'extends' para heredar comportamiento", () => {
-    // Organizar
+  it("uses 'extends' to inherit behavior", () => {
+    // Arrange
     class Base {
       protected log(m: string) {
         return `[Base] ${m}`;
       }
     }
 
-    class Derivada extends Base {
-      saludar() {
-        return this.log("hola");
+    class Derived extends Base {
+      greet() {
+        return this.log("hello");
       }
     }
 
-    // Acción
-    const instancia = new Derivada();
-    const mensaje = instancia.saludar();
+    // Action
+    const instance = new Derived();
+    const message = instance.greet();
 
-    // Esperado
-    expect(mensaje).toBe("[Base] hola");
+    // Assert
+    expect(message).toBe("[Base] hello");
   });
 });
