@@ -2,6 +2,7 @@
 
 - Project: Tower Defence Pixi
 - Status: active
-- Current task: Migrate code from Spanish to English
-- Details: Phase 1 — analysis and planning, Phase 2 — incremental migration
-- Next: review diff after OpenCode finishes
+- Current task: Diseñar GridConfig — estructura de datos del grid ✅
+- Grid subsystem: Phase 1 complete (GridConfig types + gridToWorld/worldToGrid)
+- Next tasks in queue: GridState, Pathfinder (A*), GridRenderer, CellEvents, GridDebugOverlay
+- Auto commit: false — all changes need manual review
