@@ -14,8 +14,9 @@ export default defineConfig({
     port: 4173,
     host: true,
     allowedHosts: [
-      "tower-defence-pixi-production.up.railway.app", // tu dominio real
-      "localhost", // útil si haces pruebas locales
+      "tower-defence-pixi-production.up.railway.app",
+      "strategy-game-production-0277.up.railway.app",
+      "localhost",
     ],
   },
   define: {

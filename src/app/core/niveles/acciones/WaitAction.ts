@@ -10,7 +10,6 @@ export class WaitAction implements LevelAction {
   getName(): string {
     return "WaitAction";
   }
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   update(gameTimeMs: number, _: LevelContext): boolean {
     if (!this.initialTime) {
       this.initialTime = gameTimeMs;

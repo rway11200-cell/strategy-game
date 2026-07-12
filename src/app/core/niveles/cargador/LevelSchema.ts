@@ -34,7 +34,7 @@ export type EntityDef = {
   type: string;
   x: number;
   y: number;
-  props?: Record<string, any>;
+  props?: Record<string, unknown>;
 };
 
 export type WaveEnemyDef = {

@@ -10,7 +10,7 @@ export class SpawnEntitiesAction implements LevelAction {
   update(_: number, context: LevelContext): boolean {
     context.entities.forEach((entity) => {
       switch (entity.type) {
-        case "base_tower":
+        case "base_tower": {
           const baseTower = context.baseTowerCreator.get();
           baseTower.position = { x: entity.x, y: entity.y };
           baseTower.spawn();
@@ -35,6 +35,8 @@ export class SpawnEntitiesAction implements LevelAction {
             }
             engine().audio.sfx.play("main/sounds/sfx-hover.wav", { volume: 0.6 });
           });
+          break;
+        }
       }
     });
 

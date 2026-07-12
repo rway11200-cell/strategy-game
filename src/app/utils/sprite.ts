@@ -37,7 +37,7 @@ export function getFramesAseprite(
   } else if (raw && typeof raw === "object") {
     // Pixi case: frames is an object with keys -> convert to array
     rawFramesArray = Object.keys(raw).map((name) => {
-      const entry = (raw as Record<string, any>)[name];
+      const entry = (raw as Record<string, { duration?: number }>)[name];
       return {
         filename: name,
         duration: entry?.duration ?? 100,
