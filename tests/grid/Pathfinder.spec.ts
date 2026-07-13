@@ -22,43 +22,43 @@ function buildState(
 describe("findPath", () => {
   it("finds a straight horizontal path", () => {
     const state = buildState(5, 1);
-    const path = findPath({ x: 0, y: 0 }, { x: 4, y: 0 }, state);
+    const path = findPath({ col: 0, row: 0 }, { col: 4, row: 0 }, state);
     expect(path).toEqual([
-      { x: 1, y: 0 },
-      { x: 2, y: 0 },
-      { x: 3, y: 0 },
-      { x: 4, y: 0 },
+      { col: 1, row: 0 },
+      { col: 2, row: 0 },
+      { col: 3, row: 0 },
+      { col: 4, row: 0 },
     ]);
   });
 
   it("finds a straight vertical path", () => {
     const state = buildState(1, 5);
-    const path = findPath({ x: 0, y: 0 }, { x: 0, y: 4 }, state);
+    const path = findPath({ col: 0, row: 0 }, { col: 0, row: 4 }, state);
     expect(path).toEqual([
-      { x: 0, y: 1 },
-      { x: 0, y: 2 },
-      { x: 0, y: 3 },
-      { x: 0, y: 4 },
+      { col: 0, row: 1 },
+      { col: 0, row: 2 },
+      { col: 0, row: 3 },
+      { col: 0, row: 4 },
     ]);
   });
 
   it("navigates around an obstacle", () => {
     const state = buildState(3, 3, [{ col: 1, row: 0 }]);
-    const path = findPath({ x: 0, y: 0 }, { x: 2, y: 0 }, state);
+    const path = findPath({ col: 0, row: 0 }, { col: 2, row: 0 }, state);
     expect(path).not.toHaveLength(0);
     const last = path[path.length - 1];
-    expect(last).toEqual({ x: 2, y: 0 });
+    expect(last).toEqual({ col: 2, row: 0 });
   });
 
   it("returns empty array when start is blocked", () => {
     const state = buildState(3, 3, [{ col: 0, row: 0 }]);
-    const path = findPath({ x: 0, y: 0 }, { x: 2, y: 2 }, state);
+    const path = findPath({ col: 0, row: 0 }, { col: 2, row: 2 }, state);
     expect(path).toEqual([]);
   });
 
   it("returns empty array when end is blocked", () => {
     const state = buildState(3, 3, [{ col: 2, row: 2 }]);
-    const path = findPath({ x: 0, y: 0 }, { x: 2, y: 2 }, state);
+    const path = findPath({ col: 0, row: 0 }, { col: 2, row: 2 }, state);
     expect(path).toEqual([]);
   });
 
@@ -69,19 +69,19 @@ describe("findPath", () => {
       { col: 1, row: 2 },
     ];
     const state = buildState(3, 3, blocked);
-    const path = findPath({ x: 0, y: 1 }, { x: 2, y: 1 }, state);
+    const path = findPath({ col: 0, row: 1 }, { col: 2, row: 1 }, state);
     expect(path).toEqual([]);
   });
 
   it("handles start equals end", () => {
     const state = buildState(3, 3);
-    const path = findPath({ x: 1, y: 1 }, { x: 1, y: 1 }, state);
+    const path = findPath({ col: 1, row: 1 }, { col: 1, row: 1 }, state);
     expect(path).toEqual([]);
   });
 
   it("finds shortest path in an open grid", () => {
     const state = buildState(4, 4);
-    const path = findPath({ x: 0, y: 0 }, { x: 3, y: 3 }, state);
+    const path = findPath({ col: 0, row: 0 }, { col: 3, row: 3 }, state);
     expect(path.length).toBeGreaterThanOrEqual(6);
   });
 });

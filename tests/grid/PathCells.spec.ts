@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import type { Point } from "../../src/core/grid/GridConfig";
 import { createDefaultGridConfig } from "../../src/grid/GridConfig";
 import { GridState } from "../../src/grid/GridState";
 import { findPath } from "../../src/grid/Pathfinder";
@@ -20,30 +21,34 @@ function buildState(
   return state;
 }
 
+function toPoint(cellCoord: { col: number; row: number }): Point {
+  return { x: cellCoord.col, y: cellCoord.row };
+}
+
 describe("PathCells", () => {
   describe("contiguity", () => {
     it("returns a path where every adjacent pair is contiguous", () => {
       const state = buildState(10, 10);
-      const path = findPath({ x: 0, y: 0 }, { x: 9, y: 9 }, state);
-      const footprint = pathToFootprint(path);
+      const path = findPath({ col: 0, row: 0 }, { col: 9, row: 9 }, state);
+      const footprint = pathToFootprint(path.map(toPoint));
       expect(isContiguous(footprint)).toBe(true);
     });
 
     it("returns a contiguous path around an obstacle", () => {
       const state = buildState(5, 5, [{ col: 2, row: 1 }, { col: 2, row: 2 }]);
-      const path = findPath({ x: 0, y: 0 }, { x: 4, y: 4 }, state);
-      const footprint = pathToFootprint(path);
+      const path = findPath({ col: 0, row: 0 }, { col: 4, row: 4 }, state);
+      const footprint = pathToFootprint(path.map(toPoint));
       expect(isContiguous(footprint)).toBe(true);
     });
 
     it("path cells are all within grid bounds", () => {
       const state = buildState(5, 5);
-      const path = findPath({ x: 0, y: 0 }, { x: 4, y: 4 }, state);
+      const path = findPath({ col: 0, row: 0 }, { col: 4, row: 4 }, state);
       for (const p of path) {
-        expect(p.x).toBeGreaterThanOrEqual(0);
-        expect(p.x).toBeLessThan(5);
-        expect(p.y).toBeGreaterThanOrEqual(0);
-        expect(p.y).toBeLessThan(5);
+        expect(p.col).toBeGreaterThanOrEqual(0);
+        expect(p.col).toBeLessThan(5);
+        expect(p.row).toBeGreaterThanOrEqual(0);
+        expect(p.row).toBeLessThan(5);
       }
     });
   });
@@ -51,7 +56,7 @@ describe("PathCells", () => {
   describe("shortest path", () => {
     it("returns the shortest possible path on an open grid", () => {
       const state = buildState(4, 4);
-      const path = findPath({ x: 0, y: 0 }, { x: 3, y: 3 }, state);
+      const path = findPath({ col: 0, row: 0 }, { col: 3, row: 3 }, state);
       expect(path.length).toBe(6);
     });
 
@@ -64,17 +69,17 @@ describe("PathCells", () => {
         { col: 1, row: 4 },
         { col: 1, row: 5 },
       ]);
-      const path = findPath({ x: 0, y: 0 }, { x: 7, y: 7 }, state);
+      const path = findPath({ col: 0, row: 0 }, { col: 7, row: 7 }, state);
       const directLength = 14;
       expect(path.length).toBeGreaterThanOrEqual(directLength);
     });
 
     it("does not revisit cells in the returned path", () => {
       const state = buildState(6, 6);
-      const path = findPath({ x: 0, y: 0 }, { x: 5, y: 5 }, state);
+      const path = findPath({ col: 0, row: 0 }, { col: 5, row: 5 }, state);
       const seen = new Set<string>();
       for (const p of path) {
-        const key = `${p.x},${p.y}`;
+        const key = `${p.col},${p.row}`;
         expect(seen.has(key)).toBe(false);
         seen.add(key);
       }
@@ -85,9 +90,9 @@ describe("PathCells", () => {
     it("does not include blocked cells in the path", () => {
       const blocked = { col: 1, row: 0 };
       const state = buildState(3, 3, [blocked]);
-      const path = findPath({ x: 0, y: 0 }, { x: 2, y: 0 }, state);
+      const path = findPath({ col: 0, row: 0 }, { col: 2, row: 0 }, state);
       for (const p of path) {
-        expect(p.x !== blocked.col || p.y !== blocked.row).toBe(true);
+        expect(p.col !== blocked.col || p.row !== blocked.row).toBe(true);
       }
     });
 
@@ -100,9 +105,9 @@ describe("PathCells", () => {
         { col: 3, row: 2 },
       ];
       const state = buildState(6, 6, blocked);
-      const path = findPath({ x: 0, y: 0 }, { x: 5, y: 5 }, state);
+      const path = findPath({ col: 0, row: 0 }, { col: 5, row: 5 }, state);
       expect(path.length).toBeGreaterThan(0);
-      const footprint = pathToFootprint(path);
+      const footprint = pathToFootprint(path.map(toPoint));
       expect(isContiguous(footprint)).toBe(true);
     });
   });
@@ -111,15 +116,14 @@ describe("PathCells", () => {
     it("prefers lower-cost cells when multiple paths exist", () => {
       const config = createDefaultGridConfig({ gridWidth: 3, gridHeight: 3 });
       const state = new GridState(config);
+
       const direct = state.getCell({ col: 1, row: 0 });
       state.setCell({ col: 1, row: 0 }, { ...direct!, walkCost: 100 });
 
-      const upper = state.getCell({ col: 1, row: 0 });
       const lower = state.getCell({ col: 1, row: 2 });
-      state.setCell({ col: 1, row: 0 }, { ...upper!, walkCost: 100 });
       state.setCell({ col: 1, row: 2 }, { ...lower!, walkCost: 1 });
 
-      const path = findPath({ x: 0, y: 0 }, { x: 2, y: 0 }, state);
+      const path = findPath({ col: 0, row: 0 }, { col: 2, row: 0 }, state);
       expect(path.length).toBeGreaterThan(0);
     });
   });
@@ -127,13 +131,13 @@ describe("PathCells", () => {
   describe("edge cases", () => {
     it("handles start at the top-left corner", () => {
       const state = buildState(3, 3);
-      const path = findPath({ x: 0, y: 0 }, { x: 2, y: 2 }, state);
+      const path = findPath({ col: 0, row: 0 }, { col: 2, row: 2 }, state);
       expect(path.length).toBeGreaterThan(0);
     });
 
     it("handles start at the bottom-right corner", () => {
       const state = buildState(3, 3);
-      const path = findPath({ x: 2, y: 2 }, { x: 0, y: 0 }, state);
+      const path = findPath({ col: 2, row: 2 }, { col: 0, row: 0 }, state);
       expect(path.length).toBeGreaterThan(0);
     });
 
@@ -147,13 +151,13 @@ describe("PathCells", () => {
         { col: 0, row: 2 },
       ];
       const state = buildState(3, 3, blocked);
-      const path = findPath({ x: 0, y: 0 }, { x: 2, y: 2 }, state);
+      const path = findPath({ col: 0, row: 0 }, { col: 2, row: 2 }, state);
       expect(path.length).toBe(0);
     });
 
     it("returns empty when the grid has no walkable path to end", () => {
       const state = buildState(2, 1, [{ col: 1, row: 0 }]);
-      const path = findPath({ x: 0, y: 0 }, { x: 1, y: 0 }, state);
+      const path = findPath({ col: 0, row: 0 }, { col: 1, row: 0 }, state);
       expect(path).toEqual([]);
     });
   });

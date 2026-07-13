@@ -46,20 +46,16 @@ export class CellEvents {
   private config: GridConfig;
   private currentCell: CellCoord | null = null;
 
-  /** Exposed for testing — routes raw coordinates through the same logic as pointer events. */
-  private pointToCoord(p: { x: number; y: number }): CellCoord {
-    return { col: p.x, row: p.y };
-  }
-
   readonly router: CellEventRouter = {
     handlePointerDown: (x: number, y: number): void => {
-      const coord = this.pointToCoord(worldToGrid(x, y, this.config));
+      const p = worldToGrid(x, y, this.config);
+      const coord: CellCoord = { col: p.x, row: p.y };
       if (!isInsideGrid(coord, this.config)) return;
       this.callbacks.onClick?.(coord);
     },
     handlePointerMove: (x: number, y: number): void => {
-      const raw = worldToGrid(x, y, this.config);
-      const coord = this.pointToCoord(raw);
+      const p = worldToGrid(x, y, this.config);
+      const coord: CellCoord = { col: p.x, row: p.y };
 
       if (!isInsideGrid(coord, this.config)) {
         if (this.currentCell !== null) {

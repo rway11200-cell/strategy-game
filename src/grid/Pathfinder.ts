@@ -1,4 +1,3 @@
-import { Point } from "../core/grid/GridConfig";
 import { type CellCoord } from "./GridConfig";
 import { GridState } from "./GridState";
 
@@ -22,23 +21,16 @@ function heuristic(a: CellCoord, b: CellCoord): number {
   return Math.abs(a.col - b.col) + Math.abs(a.row - b.row);
 }
 
-function coordFromPoint(p: Point): CellCoord {
-  return { col: p.x, row: p.y };
-}
-
 function nodeKey(n: CellCoord): string {
   return `${n.col},${n.row}`;
 }
 
 export function findPath(
-  start: Point,
-  end: Point,
+  start: CellCoord,
+  end: CellCoord,
   gridState: GridState,
-): Point[] {
-  const startCoord = coordFromPoint(start);
-  const endCoord = coordFromPoint(end);
-
-  if (!gridState.isWalkable(startCoord) || !gridState.isWalkable(endCoord)) {
+): CellCoord[] {
+  if (!gridState.isWalkable(start) || !gridState.isWalkable(end)) {
     return [];
   }
 
@@ -46,10 +38,10 @@ export function findPath(
   const closed = new Set<string>();
 
   const startNode: AStarNode = {
-    col: startCoord.col,
-    row: startCoord.row,
+    col: start.col,
+    row: start.row,
     g: 0,
-    h: heuristic(startCoord, endCoord),
+    h: heuristic(start, end),
     f: 0,
     parent: null,
   };
@@ -61,11 +53,11 @@ export function findPath(
     const current = open.shift()!;
     const key = nodeKey(current);
 
-    if (current.col === endCoord.col && current.row === endCoord.row) {
-      const path: Point[] = [];
+    if (current.col === end.col && current.row === end.row) {
+      const path: CellCoord[] = [];
       let node: AStarNode | null = current;
       while (node) {
-        path.unshift({ x: node.col, y: node.row });
+        path.unshift({ col: node.col, row: node.row });
         node = node.parent;
       }
       path.shift();
@@ -88,7 +80,7 @@ export function findPath(
       if (!gridState.isWalkable(neighbor)) continue;
 
       const g = current.g + cell.walkCost;
-      const h = heuristic(neighbor, endCoord);
+      const h = heuristic(neighbor, end);
       const f = g + h;
 
       const existing = open.find((n) => n.col === neighbor.col && n.row === neighbor.row);

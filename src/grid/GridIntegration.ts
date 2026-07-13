@@ -1,14 +1,7 @@
-import { type GridConfig } from "../core/grid/GridConfig";
+import { gridToWorld, type GridConfig } from "../core/grid/GridConfig";
 import { type CellCoord } from "./GridConfig";
 import { type CellState, GridState } from "./GridState";
 import { findPath } from "./Pathfinder";
-
-export interface GridPathRequest {
-  fromCol: number;
-  fromRow: number;
-  toCol: number;
-  toRow: number;
-}
 
 export interface GridIntegrationConfig {
   gridConfig: GridConfig;
@@ -37,13 +30,14 @@ export class GridIntegration {
     }
   }
 
+  /**
+   * Computes a path from spawn to base using A*.
+   * Returns world-space pixel coordinates so the result can be
+   * passed directly to the movement system.
+   */
   calculatePath(): { x: number; y: number }[] {
-    const path = findPath(
-      { x: this.spawn.col, y: this.spawn.row },
-      { x: this.base.col, y: this.base.row },
-      this.gridState,
-    );
-    return path.map((p) => this.gridToWorld(p.x, p.y));
+    const path = findPath(this.spawn, this.base, this.gridState);
+    return path.map((c) => gridToWorld(c.col, c.row, this.gridConfig));
   }
 
   isWalkable(col: number, row: number): boolean {
@@ -64,13 +58,5 @@ export class GridIntegration {
 
   setCell(col: number, row: number, state: CellState): void {
     this.gridState.setCell({ col, row }, state);
-  }
-
-  private gridToWorld(col: number, row: number): { x: number; y: number } {
-    const { cellSize, offsetX, offsetY } = this.gridConfig;
-    return {
-      x: offsetX + col * cellSize + cellSize / 2,
-      y: offsetY + row * cellSize + cellSize / 2,
-    };
   }
 }
