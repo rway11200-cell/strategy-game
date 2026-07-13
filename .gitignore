@@ -28,6 +28,9 @@ dist-ssr
 *.sln
 *.sw?
 
+# Playwright visual test snapshots
+tests/playwright/**/__snapshots__/
+
 #public/assets
 #.assetpack
 #src/manifest.json
