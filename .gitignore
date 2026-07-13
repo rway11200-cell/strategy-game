@@ -7,6 +7,10 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# This project is not a monorepo; ignore any accidentally generated/committed
+# pnpm workspace file to prevent recurring build failures.
+pnpm-workspace.yaml
+
 package-lock.json
 node_modules
 dist
