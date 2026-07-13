@@ -8,6 +8,8 @@ import {
   canPlaceFootprint,
   getOccupantCells,
 } from "./OccupationFootprint";
+import type { CellRenderData, GridRenderAdapter } from "./render/GridRenderAdapter";
+import { gridStateToCellData } from "./render/cellDataBridge";
 
 export interface GridIntegrationConfig {
   gridConfig: GridConfig;
@@ -21,6 +23,7 @@ export class GridIntegration {
   public readonly spawn: CellCoord;
   public readonly base: CellCoord;
   private gridConfig: GridConfig;
+  public renderAdapter: GridRenderAdapter | null = null;
 
   constructor(config: GridIntegrationConfig) {
     this.gridConfig = config.gridConfig;
@@ -81,5 +84,26 @@ export class GridIntegration {
 
   getOccupantCells(occupantId: string): CellCoord[] {
     return getOccupantCells(occupantId, this.gridState, this.gridConfig);
+  }
+
+  setRenderAdapter(adapter: GridRenderAdapter | null): void {
+    this.renderAdapter = adapter;
+  }
+
+  syncRender(): void {
+    if (!this.renderAdapter) return;
+    this.renderAdapter.render(this.buildCellMatrix());
+  }
+
+  private buildCellMatrix(): CellRenderData[][] {
+    const raw: (import("./GridState").CellState | null)[][] = [];
+    for (let row = 0; row < this.gridConfig.gridHeight; row++) {
+      const rowData: (import("./GridState").CellState | null)[] = [];
+      for (let col = 0; col < this.gridConfig.gridWidth; col++) {
+        rowData.push(this.gridState.getCell({ col, row }) ?? null);
+      }
+      raw.push(rowData);
+    }
+    return gridStateToCellData(raw);
   }
 }
