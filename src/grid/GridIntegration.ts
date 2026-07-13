@@ -1,6 +1,13 @@
 import { type CellCoord, gridToWorld, type GridConfig } from "./GridConfig";
 import { type CellState, GridState } from "./GridState";
 import { findPath } from "./Pathfinder";
+import {
+  type FootprintSize,
+  placeFootprint,
+  removeFootprint,
+  canPlaceFootprint,
+  getOccupantCells,
+} from "./OccupationFootprint";
 
 export interface GridIntegrationConfig {
   gridConfig: GridConfig;
@@ -57,5 +64,22 @@ export class GridIntegration {
 
   setCell(col: number, row: number, state: CellState): void {
     this.gridState.setCell({ col, row }, state);
+  }
+
+  canPlaceFootprint(col: number, row: number, size: FootprintSize): boolean {
+    return canPlaceFootprint({ col, row }, size, this.gridState, this.gridConfig).success;
+  }
+
+  placeFootprint(col: number, row: number, size: FootprintSize, occupantId: string): boolean {
+    const anchor: CellCoord = { col, row };
+    return placeFootprint(anchor, size, occupantId, this.gridState, this.gridConfig);
+  }
+
+  removeFootprint(occupantId: string): void {
+    removeFootprint(occupantId, this.gridState, this.gridConfig);
+  }
+
+  getOccupantCells(occupantId: string): CellCoord[] {
+    return getOccupantCells(occupantId, this.gridState, this.gridConfig);
   }
 }
