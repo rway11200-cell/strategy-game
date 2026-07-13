@@ -1,5 +1,4 @@
-import { gridToWorld, type GridConfig } from "../core/grid/GridConfig";
-import { type CellCoord } from "./GridConfig";
+import { type CellCoord, gridToWorld, type GridConfig } from "./GridConfig";
 import { type CellState, GridState } from "./GridState";
 import { findPath } from "./Pathfinder";
 

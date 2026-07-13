@@ -1,5 +1,14 @@
 export type CellType = "walkable" | "blocked" | "spawn" | "base" | "tower" | "path";
 
+export const CELL_TYPES: readonly CellType[] = [
+  "walkable",
+  "blocked",
+  "spawn",
+  "base",
+  "tower",
+  "path",
+] as const;
+
 export interface CellCoord {
   col: number;
   row: number;
@@ -12,6 +21,13 @@ export interface GridConfig {
   offsetX: number;
   offsetY: number;
 }
+
+export {
+  gridToWorld,
+  worldToGrid,
+} from "../core/grid/GridConfig";
+
+export type { Point } from "../core/grid/GridConfig";
 
 const DEFAULT_GRID: GridConfig = {
   cellSize: 64,

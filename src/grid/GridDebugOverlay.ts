@@ -1,7 +1,6 @@
 import { Container, Graphics } from "pixi.js";
-import { type GridConfig, gridToWorld } from "../core/grid/GridConfig";
+import { type GridConfig, gridToWorld, type Point } from "./GridConfig";
 import type { CellState } from "./GridState";
-import type { Point } from "../core/grid/GridConfig";
 
 const CELL_COLORS: Record<string, number> = {
   walkable: 0x4caf50,
