@@ -1,18 +1,13 @@
-FROM node:20-alpine AS builder
+FROM node:20-alpine
 
-RUN apk add --no-cache curl && \
-    curl -fsSL https://get.pnpm.io/install.sh | sh - && \
-    ln -s /root/.local/share/pnpm/pnpm /usr/local/bin/pnpm
+RUN npm install -g pnpm
 
 WORKDIR /app
 
-COPY package.json pnpm-lock.yaml ./
-RUN pnpm install --frozen-lockfile
-
+COPY package.json ./
+RUN pnpm install
 COPY . .
 RUN pnpm build
 
-FROM nginx:alpine
-COPY --from=builder /app/dist /usr/share/nginx/html
-EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
+EXPOSE 4173
+CMD ["pnpm", "start"]
