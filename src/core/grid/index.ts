@@ -8,6 +8,7 @@ export {
 export { GridRenderer } from "./GridRenderer";
 
 export type {
+  CellCoord,
   CellType,
   CellState,
   GridConfig,

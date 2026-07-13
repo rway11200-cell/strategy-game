@@ -65,13 +65,14 @@ describe("GridConfig", () => {
   });
 
   describe("CELL_TYPES exhaustion", () => {
-    it("includes exactly the five expected cell types", () => {
+    it("includes exactly the six expected cell types", () => {
       expect(CELL_TYPES).toContain("walkable");
       expect(CELL_TYPES).toContain("blocked");
       expect(CELL_TYPES).toContain("spawn");
       expect(CELL_TYPES).toContain("base");
       expect(CELL_TYPES).toContain("tower");
-      expect(CELL_TYPES.length).toBe(5);
+      expect(CELL_TYPES).toContain("path");
+      expect(CELL_TYPES.length).toBe(6);
     });
   });
 });

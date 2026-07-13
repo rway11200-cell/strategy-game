@@ -13,7 +13,7 @@ export interface CellData {
   weight: number;
 }
 
-const CELL_COLORS: Record<CellType, number> = {
+const CELL_COLORS: Record<string, number> = {
   walkable: 0x4caf50,
   blocked: 0xb71c1c,
   spawn: 0x7b1fa2,
