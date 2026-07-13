@@ -19,7 +19,8 @@ describe("⏳ Promesas y async/await (AAA)", () => {
     // Organizar
     const puedeFallar = (ok: boolean) =>
       new Promise<string>((resolve, reject) => {
-        ok ? resolve("OK") : reject("Error");
+        if (ok) resolve("OK");
+        else reject("Error");
       });
 
     // Acción

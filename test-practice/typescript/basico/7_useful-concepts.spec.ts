@@ -14,6 +14,7 @@ describe("Various useful concepts (AAA)", () => {
 
   it("optional chaining and nullish coalescing", () => {
     // Arrange
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- learning test needs flexible type
     const user: any = { profile: null };
 
     // Action
