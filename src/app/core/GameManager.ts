@@ -1,4 +1,7 @@
 import { Assets, Container, Ticker } from "pixi.js";
+import { createGridConfig } from "../../core/grid/GridConfig";
+import { type CellCoord } from "../../grid/GridConfig";
+import { type GridIntegrationConfig, GridIntegration } from "../../grid/GridIntegration";
 import { CoinsUI } from "../ui/game/CoinsUI";
 import { NotificationsUI } from "../ui/game/NotificationsUI";
 import { devToolDrawPoints } from "../utils/devTools";
@@ -37,11 +40,34 @@ export class GameManager {
 
     this.gameContext = this.createGameContext(levelStructure, notificaciones);
 
-    this.gameContext.paths.forEach((pathDef) => {
-      devToolDrawPoints(this.mainGameContainer, pathDef.points, "red", 15);
-    });
+    const gridPathDef = levelStructure.getPaths().find((p) => p.grid);
+    if (gridPathDef?.grid) {
+      const gridConfig = createGridConfig({ gridWidth: 25, gridHeight: 19, cellSize: 64 });
+      const gridConfig2: GridIntegrationConfig = {
+        gridConfig,
+        spawn: { col: gridPathDef.grid.spawnCol, row: gridPathDef.grid.spawnRow },
+        base: { col: gridPathDef.grid.baseCol, row: gridPathDef.grid.baseRow },
+        blockedCells: this.buildBlockedCells(levelStructure),
+      };
+      this.gameContext.gridIntegration = new GridIntegration(gridConfig2);
+    } else {
+      this.gameContext.paths.forEach((pathDef) => {
+        devToolDrawPoints(this.mainGameContainer, pathDef.points, "red", 15);
+      });
+    }
 
     this.levelEventHandler = new LevelEventManager(levelStructure);
+  }
+
+  private buildBlockedCells(levelStructure: JsonToLevelConverter): CellCoord[] {
+    return levelStructure.getEntities().flatMap((e) => {
+      if (e.type === "base_tower") {
+        const col = Math.floor(e.x / 64);
+        const row = Math.floor(e.y / 64);
+        return [{ col, row }];
+      }
+      return [];
+    });
   }
 
   private createGameContext(
@@ -57,6 +83,7 @@ export class GameManager {
     });
 
     return {
+      gridIntegration: null,
       paths: levelStructure.getPaths(),
       entities: levelStructure.getEntities(),
       coins: levelStructure.getCoins(),

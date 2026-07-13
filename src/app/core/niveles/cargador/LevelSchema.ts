@@ -27,6 +27,12 @@ export type BackgroundDef = {
 export type PathDef = {
   id: string;
   points: { x: number; y: number }[];
+  grid?: {
+    spawnCol: number;
+    spawnRow: number;
+    baseCol: number;
+    baseRow: number;
+  };
 };
 
 export type EntityDef = {

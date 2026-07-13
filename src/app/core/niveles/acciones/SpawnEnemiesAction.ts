@@ -45,10 +45,18 @@ export class SpawnEnemiesAction implements LevelAction {
       const unit = context.enemyCreator.get();
       unit.initializeEnemy(nextEnemyType);
 
-      unit.initializeTargetFollower({
-        targets: selectedPath.points,
-        variation: 40,
-      });
+      if (selectedPath.grid && context.gridIntegration) {
+        const worldPath = context.gridIntegration.calculatePath();
+        unit.initializeTargetFollower({
+          targets: worldPath,
+          variation: 40,
+        });
+      } else {
+        unit.initializeTargetFollower({
+          targets: selectedPath.points,
+          variation: 40,
+        });
+      }
 
       unit.spawn();
 
