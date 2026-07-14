@@ -1,6 +1,7 @@
 import { type CellCoord, gridToWorld, type GridConfig } from "./GridConfig";
 import { type CellState, GridState } from "./GridState";
-import { findPath } from "./Pathfinder";
+import { findPath, findPathWithFootprint } from "./Pathfinder";
+import { getEntityFootprint, getFootprintCellsForPos } from "./EntityFootprint";
 import {
   type FootprintSize,
   placeFootprint,
@@ -93,6 +94,31 @@ export class GridIntegration {
   syncRender(): void {
     if (!this.renderAdapter) return;
     this.renderAdapter.render(this.buildCellMatrix());
+  }
+
+  calculateEntityPath(entityType: string): { x: number; y: number }[] {
+    const path = findPathWithFootprint(this.spawn, this.base, this.gridState, this.gridConfig, entityType);
+    return path.map((c) => gridToWorld(c.col, c.row, this.gridConfig));
+  }
+
+  occupyEntityCells(anchor: CellCoord, entityType: string, occupantId: string): void {
+    const footprint = getEntityFootprint(entityType);
+    const cells = getFootprintCellsForPos(anchor, footprint.width, footprint.height);
+    for (const c of cells) {
+      this.gridState.occupyCell(c, occupantId);
+    }
+  }
+
+  liberateEntityCells(occupantId: string): void {
+    for (let row = 0; row < this.gridConfig.gridHeight; row++) {
+      for (let col = 0; col < this.gridConfig.gridWidth; col++) {
+        const coord: CellCoord = { col, row };
+        const cell = this.gridState.getCell(coord);
+        if (cell && cell.occupied && cell.occupantId === occupantId) {
+          this.gridState.liberateCell(coord);
+        }
+      }
+    }
   }
 
   private buildCellMatrix(): CellRenderData[][] {

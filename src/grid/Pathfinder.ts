@@ -1,5 +1,6 @@
-import { type CellCoord } from "./GridConfig";
+import { type CellCoord, type GridConfig } from "./GridConfig";
 import { GridState } from "./GridState";
+import { getEntityFootprint, isFootprintWalkable } from "./EntityFootprint";
 
 interface AStarNode {
   col: number;
@@ -78,6 +79,94 @@ export function findPath(
       const cell = gridState.getCell(neighbor);
       if (!cell) continue;
       if (!gridState.isWalkable(neighbor)) continue;
+
+      const g = current.g + cell.walkCost;
+      const h = heuristic(neighbor, end);
+      const f = g + h;
+
+      const existing = open.find((n) => n.col === neighbor.col && n.row === neighbor.row);
+      if (existing) {
+        if (g < existing.g) {
+          existing.g = g;
+          existing.f = f;
+          existing.parent = current;
+        }
+      } else {
+        open.push({
+          col: neighbor.col,
+          row: neighbor.row,
+          g,
+          h,
+          f,
+          parent: current,
+        });
+      }
+    }
+  }
+
+  return [];
+}
+
+export function findPathWithFootprint(
+  start: CellCoord,
+  end: CellCoord,
+  gridState: GridState,
+  config: GridConfig,
+  entityType: string,
+): CellCoord[] {
+  const footprint = getEntityFootprint(entityType);
+
+  if (!isFootprintWalkable(start, footprint.width, footprint.height, gridState, config)) {
+    return [];
+  }
+  if (!isFootprintWalkable(end, footprint.width, footprint.height, gridState, config)) {
+    return [];
+  }
+
+  const open: AStarNode[] = [];
+  const closed = new Set<string>();
+
+  const startNode: AStarNode = {
+    col: start.col,
+    row: start.row,
+    g: 0,
+    h: heuristic(start, end),
+    f: 0,
+    parent: null,
+  };
+  startNode.f = startNode.g + startNode.h;
+  open.push(startNode);
+
+  while (open.length > 0) {
+    open.sort((a, b) => a.f - b.f);
+    const current = open.shift()!;
+    const key = nodeKey(current);
+
+    if (current.col === end.col && current.row === end.row) {
+      const path: CellCoord[] = [];
+      let node: AStarNode | null = current;
+      while (node) {
+        path.unshift({ col: node.col, row: node.row });
+        node = node.parent;
+      }
+      path.shift();
+      return path;
+    }
+
+    closed.add(key);
+
+    for (const [dc, dr] of DIRS) {
+      const neighbor: CellCoord = {
+        col: current.col + dc,
+        row: current.row + dr,
+      };
+      const nKey = nodeKey(neighbor);
+
+      if (closed.has(nKey)) continue;
+      if (!isFootprintWalkable(neighbor, footprint.width, footprint.height, gridState, config)) continue;
+
+      const cell = gridState.getCell(neighbor);
+      if (!cell) continue;
 
       const g = current.g + cell.walkCost;
       const h = heuristic(neighbor, end);
