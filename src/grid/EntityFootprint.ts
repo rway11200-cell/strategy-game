@@ -6,14 +6,19 @@ export interface EntityFootprintDef {
   height: number;
 }
 
-const FOOTPRINTS: Record<string, EntityFootprintDef> = {
+export const ENTITY_FOOTPRINTS: Record<string, EntityFootprintDef> = {
   goblin: { width: 1, height: 1 },
   skeleton: { width: 1, height: 2 },
   ghost: { width: 1, height: 1 },
+  tower: { width: 2, height: 2 },
+  mine: { width: 3, height: 3 },
+  base: { width: 4, height: 4 },
 };
 
+export const FOOTPRINTS = ENTITY_FOOTPRINTS;
+
 export function getEntityFootprint(entityType: string): EntityFootprintDef {
-  return FOOTPRINTS[entityType] ?? { width: 1, height: 1 };
+  return ENTITY_FOOTPRINTS[entityType] ?? { width: 1, height: 1 };
 }
 
 export function getFootprintCellsForPos(

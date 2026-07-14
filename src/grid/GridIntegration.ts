@@ -3,7 +3,7 @@ import { type CellState, GridState } from "./GridState";
 import { findPath, findPathWithFootprint } from "./Pathfinder";
 import { getEntityFootprint, getFootprintCellsForPos } from "./EntityFootprint";
 import {
-  type FootprintSize,
+  type OccupationFootprint,
   placeFootprint,
   removeFootprint,
   canPlaceFootprint,
@@ -70,13 +70,13 @@ export class GridIntegration {
     this.gridState.setCell({ col, row }, state);
   }
 
-  canPlaceFootprint(col: number, row: number, size: FootprintSize): boolean {
-    return canPlaceFootprint({ col, row }, size, this.gridState, this.gridConfig).success;
+  canPlaceFootprint(col: number, row: number, footprint: OccupationFootprint): boolean {
+    return canPlaceFootprint({ col, row }, footprint, this.gridState, this.gridConfig).success;
   }
 
-  placeFootprint(col: number, row: number, size: FootprintSize, occupantId: string): boolean {
+  placeFootprint(col: number, row: number, footprint: OccupationFootprint, occupantId: string): boolean {
     const anchor: CellCoord = { col, row };
-    return placeFootprint(anchor, size, occupantId, this.gridState, this.gridConfig);
+    return placeFootprint(anchor, footprint, occupantId, this.gridState, this.gridConfig);
   }
 
   removeFootprint(occupantId: string): void {

@@ -1,62 +1,62 @@
 {
     "assets": {
-        "/workspace/strategy-game/raw-assets": {
+        "/opt/data/proyectos/strategy-game/raw-assets": {
             "isFolder": true,
             "metaData": {},
             "inheritedMetaData": {},
             "transformData": {},
             "stats": {
-                "date": 1783965374864,
-                "duration": 21.456020999999964,
+                "date": 1784043229570,
+                "duration": 19.038808000000245,
                 "success": true
             }
         },
-        "/workspace/strategy-game/raw-assets/main{m}": {
+        "/opt/data/proyectos/strategy-game/raw-assets/main{m}": {
             "isFolder": true,
-            "parent": "/workspace/strategy-game/raw-assets",
+            "parent": "/opt/data/proyectos/strategy-game/raw-assets",
             "metaData": {
                 "m": true
             },
             "inheritedMetaData": {},
             "transformData": {},
             "stats": {
-                "date": 1783965374865,
-                "duration": 21.007778000000144,
+                "date": 1784043229570,
+                "duration": 18.491083999999773,
                 "success": true
             }
         },
-        "/workspace/strategy-game/raw-assets/main{m}/background": {
+        "/opt/data/proyectos/strategy-game/raw-assets/main{m}/background": {
             "isFolder": true,
-            "parent": "/workspace/strategy-game/raw-assets/main{m}",
+            "parent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true
             },
             "transformData": {},
             "stats": {
-                "date": 1783965374865,
-                "duration": 20.955056000000013,
+                "date": 1784043229576,
+                "duration": 12.422931999999946,
                 "success": true
             }
         },
-        "/workspace/strategy-game/raw-assets/main{m}/background/fondo_test_2.png": {
+        "/opt/data/proyectos/strategy-game/raw-assets/main{m}/background/fondo_test_2.png": {
             "isFolder": false,
-            "parent": "/workspace/strategy-game/raw-assets/main{m}/background",
+            "parent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}/background",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true
             },
             "transformData": {},
             "stats": {
-                "date": 1783965374865,
-                "duration": 1397.186335,
+                "date": 1784043229577,
+                "duration": 3493.0595179999996,
                 "success": true
             },
             "hash": "yqwtMg"
         },
         ".assetpack/mipmap/main{m}/background/fondo_test_2.png": {
             "isFolder": false,
-            "transformParent": "/workspace/strategy-game/raw-assets/main{m}/background/fondo_test_2.png",
+            "transformParent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}/background/fondo_test_2.png",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true
@@ -72,7 +72,7 @@
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/public/assets/main/background/fondo_test_2.png": {
+        "/opt/data/proyectos/strategy-game/public/assets/main/background/fondo_test_2.png": {
             "isFolder": false,
             "transformParent": ".assetpack/compress/main{m}/background/fondo_test_2.png",
             "metaData": {},
@@ -90,7 +90,7 @@
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/public/assets/main/background/fondo_test_2.webp": {
+        "/opt/data/proyectos/strategy-game/public/assets/main/background/fondo_test_2.webp": {
             "isFolder": false,
             "transformParent": ".assetpack/compress/main{m}/background/fondo_test_2.webp",
             "metaData": {},
@@ -101,7 +101,7 @@
         },
         ".assetpack/mipmap/main{m}/background/fondo_test_2@0.5x.png": {
             "isFolder": false,
-            "transformParent": "/workspace/strategy-game/raw-assets/main{m}/background/fondo_test_2.png",
+            "transformParent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}/background/fondo_test_2.png",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true
@@ -117,7 +117,7 @@
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/public/assets/main/background/fondo_test_2@0.5x.png": {
+        "/opt/data/proyectos/strategy-game/public/assets/main/background/fondo_test_2@0.5x.png": {
             "isFolder": false,
             "transformParent": ".assetpack/compress/main{m}/background/fondo_test_2@0.5x.png",
             "metaData": {},
@@ -135,7 +135,7 @@
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/public/assets/main/background/fondo_test_2@0.5x.webp": {
+        "/opt/data/proyectos/strategy-game/public/assets/main/background/fondo_test_2@0.5x.webp": {
             "isFolder": false,
             "transformParent": ".assetpack/compress/main{m}/background/fondo_test_2@0.5x.webp",
             "metaData": {},
@@ -144,45 +144,45 @@
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/raw-assets/main{m}/levels": {
+        "/opt/data/proyectos/strategy-game/raw-assets/main{m}/levels": {
             "isFolder": true,
-            "parent": "/workspace/strategy-game/raw-assets/main{m}",
+            "parent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true
             },
             "transformData": {},
             "stats": {
-                "date": 1783965374886,
-                "duration": 0.27607499999999163,
+                "date": 1784043229588,
+                "duration": 0.5962610000001405,
                 "success": true
             }
         },
-        "/workspace/strategy-game/raw-assets/main{m}/levels/level_01.json": {
+        "/opt/data/proyectos/strategy-game/raw-assets/main{m}/levels/level_01.json": {
             "isFolder": false,
-            "parent": "/workspace/strategy-game/raw-assets/main{m}/levels",
+            "parent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}/levels",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true
             },
             "transformData": {},
             "stats": {
-                "date": 1783965374886,
-                "duration": 12.300340000000006,
+                "date": 1784043229589,
+                "duration": 16.501336000000265,
                 "success": true
             },
-            "hash": "5VB7QQ"
+            "hash": "naGVWQ"
         },
         ".assetpack/json/main{m}/levels/level_01.json": {
             "isFolder": false,
-            "transformParent": "/workspace/strategy-game/raw-assets/main{m}/levels/level_01.json",
+            "transformParent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}/levels/level_01.json",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/public/assets/main/levels/level_01.json": {
+        "/opt/data/proyectos/strategy-game/public/assets/main/levels/level_01.json": {
             "isFolder": false,
             "transformParent": ".assetpack/json/main{m}/levels/level_01.json",
             "metaData": {},
@@ -191,69 +191,69 @@
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/raw-assets/main{m}/logo-white.svg": {
+        "/opt/data/proyectos/strategy-game/raw-assets/main{m}/logo-white.svg": {
             "isFolder": false,
-            "parent": "/workspace/strategy-game/raw-assets/main{m}",
+            "parent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true
             },
             "transformData": {},
             "stats": {
-                "date": 1783965374893,
-                "duration": 5.276110999999901,
+                "date": 1784043229595,
+                "duration": 9.605644000000211,
                 "success": true
             },
             "hash": "Wq9lMw"
         },
-        "/workspace/strategy-game/public/assets/main/logo-white.svg": {
+        "/opt/data/proyectos/strategy-game/public/assets/main/logo-white.svg": {
             "isFolder": false,
-            "transformParent": "/workspace/strategy-game/raw-assets/main{m}/logo-white.svg",
+            "transformParent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}/logo-white.svg",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/raw-assets/main{m}/sounds": {
+        "/opt/data/proyectos/strategy-game/raw-assets/main{m}/sounds": {
             "isFolder": true,
-            "parent": "/workspace/strategy-game/raw-assets/main{m}",
+            "parent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true
             },
             "transformData": {},
             "stats": {
-                "date": 1783965374896,
-                "duration": 1.7932839999998578,
+                "date": 1784043229597,
+                "duration": 6.728708000000097,
                 "success": true
             }
         },
-        "/workspace/strategy-game/raw-assets/main{m}/sounds/bgm-main.mp3": {
+        "/opt/data/proyectos/strategy-game/raw-assets/main{m}/sounds/bgm-main.mp3": {
             "isFolder": false,
-            "parent": "/workspace/strategy-game/raw-assets/main{m}/sounds",
+            "parent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}/sounds",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true
             },
             "transformData": {},
             "stats": {
-                "date": 1783965374896,
-                "duration": 2320.470104,
+                "date": 1784043229597,
+                "duration": 4398.681173,
                 "success": true
             },
             "hash": "cPUMxw"
         },
         ".assetpack/audio/main{m}/sounds/bgm-main.mp3": {
             "isFolder": false,
-            "transformParent": "/workspace/strategy-game/raw-assets/main{m}/sounds/bgm-main.mp3",
+            "transformParent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}/sounds/bgm-main.mp3",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/public/assets/main/sounds/bgm-main.mp3": {
+        "/opt/data/proyectos/strategy-game/public/assets/main/sounds/bgm-main.mp3": {
             "isFolder": false,
             "transformParent": ".assetpack/audio/main{m}/sounds/bgm-main.mp3",
             "metaData": {},
@@ -264,14 +264,14 @@
         },
         ".assetpack/audio/main{m}/sounds/bgm-main.ogg": {
             "isFolder": false,
-            "transformParent": "/workspace/strategy-game/raw-assets/main{m}/sounds/bgm-main.mp3",
+            "transformParent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}/sounds/bgm-main.mp3",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/public/assets/main/sounds/bgm-main.ogg": {
+        "/opt/data/proyectos/strategy-game/public/assets/main/sounds/bgm-main.ogg": {
             "isFolder": false,
             "transformParent": ".assetpack/audio/main{m}/sounds/bgm-main.ogg",
             "metaData": {},
@@ -280,31 +280,31 @@
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/raw-assets/main{m}/sounds/sfx-hover.wav": {
+        "/opt/data/proyectos/strategy-game/raw-assets/main{m}/sounds/sfx-hover.wav": {
             "isFolder": false,
-            "parent": "/workspace/strategy-game/raw-assets/main{m}/sounds",
+            "parent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}/sounds",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true
             },
             "transformData": {},
             "stats": {
-                "date": 1783965374898,
-                "duration": 540.5564320000001,
+                "date": 1784043229604,
+                "duration": 2673.6983139999998,
                 "success": true
             },
             "hash": "P9yd"
         },
         ".assetpack/audio/main{m}/sounds/sfx-hover.mp3": {
             "isFolder": false,
-            "transformParent": "/workspace/strategy-game/raw-assets/main{m}/sounds/sfx-hover.wav",
+            "transformParent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}/sounds/sfx-hover.wav",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/public/assets/main/sounds/sfx-hover.mp3": {
+        "/opt/data/proyectos/strategy-game/public/assets/main/sounds/sfx-hover.mp3": {
             "isFolder": false,
             "transformParent": ".assetpack/audio/main{m}/sounds/sfx-hover.mp3",
             "metaData": {},
@@ -315,14 +315,14 @@
         },
         ".assetpack/audio/main{m}/sounds/sfx-hover.ogg": {
             "isFolder": false,
-            "transformParent": "/workspace/strategy-game/raw-assets/main{m}/sounds/sfx-hover.wav",
+            "transformParent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}/sounds/sfx-hover.wav",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/public/assets/main/sounds/sfx-hover.ogg": {
+        "/opt/data/proyectos/strategy-game/public/assets/main/sounds/sfx-hover.ogg": {
             "isFolder": false,
             "transformParent": ".assetpack/audio/main{m}/sounds/sfx-hover.ogg",
             "metaData": {},
@@ -331,31 +331,31 @@
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/raw-assets/main{m}/sounds/sfx-press.wav": {
+        "/opt/data/proyectos/strategy-game/raw-assets/main{m}/sounds/sfx-press.wav": {
             "isFolder": false,
-            "parent": "/workspace/strategy-game/raw-assets/main{m}/sounds",
+            "parent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}/sounds",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true
             },
             "transformData": {},
             "stats": {
-                "date": 1783965374898,
-                "duration": 578.4932329999999,
+                "date": 1784043229605,
+                "duration": 2745.7998070000003,
                 "success": true
             },
             "hash": "59LMfg"
         },
         ".assetpack/audio/main{m}/sounds/sfx-press.mp3": {
             "isFolder": false,
-            "transformParent": "/workspace/strategy-game/raw-assets/main{m}/sounds/sfx-press.wav",
+            "transformParent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}/sounds/sfx-press.wav",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/public/assets/main/sounds/sfx-press.mp3": {
+        "/opt/data/proyectos/strategy-game/public/assets/main/sounds/sfx-press.mp3": {
             "isFolder": false,
             "transformParent": ".assetpack/audio/main{m}/sounds/sfx-press.mp3",
             "metaData": {},
@@ -366,14 +366,14 @@
         },
         ".assetpack/audio/main{m}/sounds/sfx-press.ogg": {
             "isFolder": false,
-            "transformParent": "/workspace/strategy-game/raw-assets/main{m}/sounds/sfx-press.wav",
+            "transformParent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}/sounds/sfx-press.wav",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/public/assets/main/sounds/sfx-press.ogg": {
+        "/opt/data/proyectos/strategy-game/public/assets/main/sounds/sfx-press.ogg": {
             "isFolder": false,
             "transformParent": ".assetpack/audio/main{m}/sounds/sfx-press.ogg",
             "metaData": {},
@@ -382,38 +382,38 @@
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/raw-assets/main{m}/towers": {
+        "/opt/data/proyectos/strategy-game/raw-assets/main{m}/towers": {
             "isFolder": true,
-            "parent": "/workspace/strategy-game/raw-assets/main{m}",
+            "parent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true
             },
             "transformData": {},
             "stats": {
-                "date": 1783965374898,
-                "duration": 0.07435199999986253,
+                "date": 1784043229605,
+                "duration": 0.06794399999989764,
                 "success": true
             }
         },
-        "/workspace/strategy-game/raw-assets/main{m}/towers/Tower 02.png": {
+        "/opt/data/proyectos/strategy-game/raw-assets/main{m}/towers/Tower 02.png": {
             "isFolder": false,
-            "parent": "/workspace/strategy-game/raw-assets/main{m}/towers",
+            "parent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}/towers",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true
             },
             "transformData": {},
             "stats": {
-                "date": 1783965374899,
-                "duration": 353.127287,
+                "date": 1784043229605,
+                "duration": 2490.0129660000002,
                 "success": true
             },
             "hash": "ItOF1A"
         },
         ".assetpack/mipmap/main{m}/towers/Tower 02.png": {
             "isFolder": false,
-            "transformParent": "/workspace/strategy-game/raw-assets/main{m}/towers/Tower 02.png",
+            "transformParent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}/towers/Tower 02.png",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true
@@ -429,7 +429,7 @@
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/public/assets/main/towers/Tower 02.png": {
+        "/opt/data/proyectos/strategy-game/public/assets/main/towers/Tower 02.png": {
             "isFolder": false,
             "transformParent": ".assetpack/compress/main{m}/towers/Tower 02.png",
             "metaData": {},
@@ -447,7 +447,7 @@
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/public/assets/main/towers/Tower 02.webp": {
+        "/opt/data/proyectos/strategy-game/public/assets/main/towers/Tower 02.webp": {
             "isFolder": false,
             "transformParent": ".assetpack/compress/main{m}/towers/Tower 02.webp",
             "metaData": {},
@@ -458,7 +458,7 @@
         },
         ".assetpack/mipmap/main{m}/towers/Tower 02@0.5x.png": {
             "isFolder": false,
-            "transformParent": "/workspace/strategy-game/raw-assets/main{m}/towers/Tower 02.png",
+            "transformParent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}/towers/Tower 02.png",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true
@@ -474,7 +474,7 @@
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/public/assets/main/towers/Tower 02@0.5x.png": {
+        "/opt/data/proyectos/strategy-game/public/assets/main/towers/Tower 02@0.5x.png": {
             "isFolder": false,
             "transformParent": ".assetpack/compress/main{m}/towers/Tower 02@0.5x.png",
             "metaData": {},
@@ -492,7 +492,7 @@
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/public/assets/main/towers/Tower 02@0.5x.webp": {
+        "/opt/data/proyectos/strategy-game/public/assets/main/towers/Tower 02@0.5x.webp": {
             "isFolder": false,
             "transformParent": ".assetpack/compress/main{m}/towers/Tower 02@0.5x.webp",
             "metaData": {},
@@ -501,24 +501,24 @@
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/raw-assets/main{m}/towers/Tower 03.png": {
+        "/opt/data/proyectos/strategy-game/raw-assets/main{m}/towers/Tower 03.png": {
             "isFolder": false,
-            "parent": "/workspace/strategy-game/raw-assets/main{m}/towers",
+            "parent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}/towers",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true
             },
             "transformData": {},
             "stats": {
-                "date": 1783965375252,
-                "duration": 274.87691800000016,
+                "date": 1784043232096,
+                "duration": 224.6467679999996,
                 "success": true
             },
             "hash": "Rx6ihw"
         },
         ".assetpack/mipmap/main{m}/towers/Tower 03.png": {
             "isFolder": false,
-            "transformParent": "/workspace/strategy-game/raw-assets/main{m}/towers/Tower 03.png",
+            "transformParent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}/towers/Tower 03.png",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true
@@ -534,7 +534,7 @@
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/public/assets/main/towers/Tower 03.png": {
+        "/opt/data/proyectos/strategy-game/public/assets/main/towers/Tower 03.png": {
             "isFolder": false,
             "transformParent": ".assetpack/compress/main{m}/towers/Tower 03.png",
             "metaData": {},
@@ -552,7 +552,7 @@
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/public/assets/main/towers/Tower 03.webp": {
+        "/opt/data/proyectos/strategy-game/public/assets/main/towers/Tower 03.webp": {
             "isFolder": false,
             "transformParent": ".assetpack/compress/main{m}/towers/Tower 03.webp",
             "metaData": {},
@@ -563,7 +563,7 @@
         },
         ".assetpack/mipmap/main{m}/towers/Tower 03@0.5x.png": {
             "isFolder": false,
-            "transformParent": "/workspace/strategy-game/raw-assets/main{m}/towers/Tower 03.png",
+            "transformParent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}/towers/Tower 03.png",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true
@@ -579,7 +579,7 @@
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/public/assets/main/towers/Tower 03@0.5x.png": {
+        "/opt/data/proyectos/strategy-game/public/assets/main/towers/Tower 03@0.5x.png": {
             "isFolder": false,
             "transformParent": ".assetpack/compress/main{m}/towers/Tower 03@0.5x.png",
             "metaData": {},
@@ -597,7 +597,7 @@
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/public/assets/main/towers/Tower 03@0.5x.webp": {
+        "/opt/data/proyectos/strategy-game/public/assets/main/towers/Tower 03@0.5x.webp": {
             "isFolder": false,
             "transformParent": ".assetpack/compress/main{m}/towers/Tower 03@0.5x.webp",
             "metaData": {},
@@ -606,9 +606,9 @@
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/raw-assets/main{m}/ui{tps}": {
+        "/opt/data/proyectos/strategy-game/raw-assets/main{m}/ui{tps}": {
             "isFolder": true,
-            "parent": "/workspace/strategy-game/raw-assets/main{m}",
+            "parent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}",
             "metaData": {
                 "tps": true
             },
@@ -617,14 +617,14 @@
             },
             "transformData": {},
             "stats": {
-                "date": 1783965375438,
-                "duration": 758.2314620000002,
+                "date": 1784043232278,
+                "duration": 634.3843530000004,
                 "success": true
             }
         },
-        "/workspace/strategy-game/raw-assets/main{m}/ui{tps}/button.png": {
+        "/opt/data/proyectos/strategy-game/raw-assets/main{m}/ui{tps}/button.png": {
             "isFolder": false,
-            "parent": "/workspace/strategy-game/raw-assets/main{m}/ui{tps}",
+            "parent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}/ui{tps}",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true,
@@ -633,9 +633,9 @@
             "transformData": {},
             "hash": "33gC"
         },
-        "/workspace/strategy-game/raw-assets/main{m}/ui{tps}/icon-pause.png": {
+        "/opt/data/proyectos/strategy-game/raw-assets/main{m}/ui{tps}/icon-pause.png": {
             "isFolder": false,
-            "parent": "/workspace/strategy-game/raw-assets/main{m}/ui{tps}",
+            "parent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}/ui{tps}",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true,
@@ -644,9 +644,9 @@
             "transformData": {},
             "hash": "6xk80g"
         },
-        "/workspace/strategy-game/raw-assets/main{m}/ui{tps}/icon-settings.png": {
+        "/opt/data/proyectos/strategy-game/raw-assets/main{m}/ui{tps}/icon-settings.png": {
             "isFolder": false,
-            "parent": "/workspace/strategy-game/raw-assets/main{m}/ui{tps}",
+            "parent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}/ui{tps}",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true,
@@ -655,9 +655,9 @@
             "transformData": {},
             "hash": "xq0X7Q"
         },
-        "/workspace/strategy-game/raw-assets/main{m}/ui{tps}/rounded-rectangle.png": {
+        "/opt/data/proyectos/strategy-game/raw-assets/main{m}/ui{tps}/rounded-rectangle.png": {
             "isFolder": false,
-            "parent": "/workspace/strategy-game/raw-assets/main{m}/ui{tps}",
+            "parent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}/ui{tps}",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true,
@@ -668,7 +668,7 @@
         },
         ".assetpack/texture-packer/main{m}/ui.png": {
             "isFolder": false,
-            "transformParent": "/workspace/strategy-game/raw-assets/main{m}/ui{tps}",
+            "transformParent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}/ui{tps}",
             "metaData": {
                 "mIgnore": true,
                 "nomip": true
@@ -691,7 +691,7 @@
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/public/assets/main/ui.png": {
+        "/opt/data/proyectos/strategy-game/public/assets/main/ui.png": {
             "isFolder": false,
             "transformParent": ".assetpack/compress/main{m}/ui.png",
             "metaData": {},
@@ -715,7 +715,7 @@
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/public/assets/main/ui.webp": {
+        "/opt/data/proyectos/strategy-game/public/assets/main/ui.webp": {
             "isFolder": false,
             "transformParent": ".assetpack/compress/main{m}/ui.webp",
             "metaData": {},
@@ -729,7 +729,7 @@
         },
         ".assetpack/texture-packer/main{m}/ui.json": {
             "isFolder": false,
-            "transformParent": "/workspace/strategy-game/raw-assets/main{m}/ui{tps}",
+            "transformParent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}/ui{tps}",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true,
@@ -763,7 +763,7 @@
                 "page": 0
             }
         },
-        "/workspace/strategy-game/public/assets/main/ui.png.json": {
+        "/opt/data/proyectos/strategy-game/public/assets/main/ui.png.json": {
             "isFolder": false,
             "transformParent": ".assetpack/json/main{m}/ui.png.json",
             "metaData": {},
@@ -799,7 +799,7 @@
                 "page": 0
             }
         },
-        "/workspace/strategy-game/public/assets/main/ui.webp.json": {
+        "/opt/data/proyectos/strategy-game/public/assets/main/ui.webp.json": {
             "isFolder": false,
             "transformParent": ".assetpack/json/main{m}/ui.webp.json",
             "metaData": {},
@@ -813,7 +813,7 @@
         },
         ".assetpack/texture-packer/main{m}/ui@0.5x.png": {
             "isFolder": false,
-            "transformParent": "/workspace/strategy-game/raw-assets/main{m}/ui{tps}",
+            "transformParent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}/ui{tps}",
             "metaData": {
                 "mIgnore": true,
                 "nomip": true
@@ -836,7 +836,7 @@
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/public/assets/main/ui@0.5x.png": {
+        "/opt/data/proyectos/strategy-game/public/assets/main/ui@0.5x.png": {
             "isFolder": false,
             "transformParent": ".assetpack/compress/main{m}/ui@0.5x.png",
             "metaData": {},
@@ -860,7 +860,7 @@
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/public/assets/main/ui@0.5x.webp": {
+        "/opt/data/proyectos/strategy-game/public/assets/main/ui@0.5x.webp": {
             "isFolder": false,
             "transformParent": ".assetpack/compress/main{m}/ui@0.5x.webp",
             "metaData": {},
@@ -874,7 +874,7 @@
         },
         ".assetpack/texture-packer/main{m}/ui@0.5x.json": {
             "isFolder": false,
-            "transformParent": "/workspace/strategy-game/raw-assets/main{m}/ui{tps}",
+            "transformParent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}/ui{tps}",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true,
@@ -908,7 +908,7 @@
                 "page": 0
             }
         },
-        "/workspace/strategy-game/public/assets/main/ui@0.5x.png.json": {
+        "/opt/data/proyectos/strategy-game/public/assets/main/ui@0.5x.png.json": {
             "isFolder": false,
             "transformParent": ".assetpack/json/main{m}/ui@0.5x.png.json",
             "metaData": {},
@@ -944,7 +944,7 @@
                 "page": 0
             }
         },
-        "/workspace/strategy-game/public/assets/main/ui@0.5x.webp.json": {
+        "/opt/data/proyectos/strategy-game/public/assets/main/ui@0.5x.webp.json": {
             "isFolder": false,
             "transformParent": ".assetpack/json/main{m}/ui@0.5x.webp.json",
             "metaData": {},
@@ -956,87 +956,87 @@
                 "page": 0
             }
         },
-        "/workspace/strategy-game/raw-assets/main{m}/unidades": {
+        "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades": {
             "isFolder": true,
-            "parent": "/workspace/strategy-game/raw-assets/main{m}",
+            "parent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true
             },
             "transformData": {},
             "stats": {
-                "date": 1783965375477,
-                "duration": 0.06568500000003041,
+                "date": 1784043232320,
+                "duration": 0.08264799999960815,
                 "success": true
             }
         },
-        "/workspace/strategy-game/raw-assets/main{m}/unidades/enemigos": {
+        "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades/enemigos": {
             "isFolder": true,
-            "parent": "/workspace/strategy-game/raw-assets/main{m}/unidades",
+            "parent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true
             },
             "transformData": {},
             "stats": {
-                "date": 1783965375477,
-                "duration": 0.03677800000014031,
+                "date": 1784043232320,
+                "duration": 0.03633399999944231,
                 "success": true
             }
         },
-        "/workspace/strategy-game/raw-assets/main{m}/unidades/enemigos/esqueleto": {
+        "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades/enemigos/esqueleto": {
             "isFolder": true,
-            "parent": "/workspace/strategy-game/raw-assets/main{m}/unidades/enemigos",
+            "parent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades/enemigos",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true
             },
             "transformData": {},
             "stats": {
-                "date": 1783965375477,
-                "duration": 0.11940800000002127,
+                "date": 1784043232320,
+                "duration": 0.03588899999977002,
                 "success": true
             }
         },
-        "/workspace/strategy-game/raw-assets/main{m}/unidades/enemigos/esqueleto/esqueleton-dead": {
+        "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades/enemigos/esqueleto/esqueleton-dead": {
             "isFolder": true,
-            "parent": "/workspace/strategy-game/raw-assets/main{m}/unidades/enemigos/esqueleto",
+            "parent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades/enemigos/esqueleto",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true
             },
             "transformData": {},
             "stats": {
-                "date": 1783965375477,
-                "duration": 0.04339000000004489,
+                "date": 1784043232320,
+                "duration": 0.03774100000009639,
                 "success": true
             }
         },
-        "/workspace/strategy-game/raw-assets/main{m}/unidades/enemigos/esqueleto/esqueleton-dead/esqueleton-dead.json": {
+        "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades/enemigos/esqueleto/esqueleton-dead/esqueleton-dead.json": {
             "isFolder": false,
-            "parent": "/workspace/strategy-game/raw-assets/main{m}/unidades/enemigos/esqueleto/esqueleton-dead",
+            "parent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades/enemigos/esqueleto/esqueleton-dead",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true
             },
             "transformData": {},
             "stats": {
-                "date": 1783965375477,
-                "duration": 14.036494000000175,
+                "date": 1784043232320,
+                "duration": 6.170039999999972,
                 "success": true
             },
             "hash": "118MBA"
         },
         ".assetpack/json/main{m}/unidades/enemigos/esqueleto/esqueleton-dead/esqueleton-dead.json": {
             "isFolder": false,
-            "transformParent": "/workspace/strategy-game/raw-assets/main{m}/unidades/enemigos/esqueleto/esqueleton-dead/esqueleton-dead.json",
+            "transformParent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades/enemigos/esqueleto/esqueleton-dead/esqueleton-dead.json",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/public/assets/main/unidades/enemigos/esqueleto/esqueleton-dead/esqueleton-dead.json": {
+        "/opt/data/proyectos/strategy-game/public/assets/main/unidades/enemigos/esqueleto/esqueleton-dead/esqueleton-dead.json": {
             "isFolder": false,
             "transformParent": ".assetpack/json/main{m}/unidades/enemigos/esqueleto/esqueleton-dead/esqueleton-dead.json",
             "metaData": {},
@@ -1045,24 +1045,24 @@
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/raw-assets/main{m}/unidades/enemigos/esqueleto/esqueleton-dead/esqueleton-dead.png": {
+        "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades/enemigos/esqueleto/esqueleton-dead/esqueleton-dead.png": {
             "isFolder": false,
-            "parent": "/workspace/strategy-game/raw-assets/main{m}/unidades/enemigos/esqueleto/esqueleton-dead",
+            "parent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades/enemigos/esqueleto/esqueleton-dead",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true
             },
             "transformData": {},
             "stats": {
-                "date": 1783965375491,
-                "duration": 138.10647000000017,
+                "date": 1784043232327,
+                "duration": 187.43741600000067,
                 "success": true
             },
             "hash": "2roFzw"
         },
         ".assetpack/mipmap/main{m}/unidades/enemigos/esqueleto/esqueleton-dead/esqueleton-dead.png": {
             "isFolder": false,
-            "transformParent": "/workspace/strategy-game/raw-assets/main{m}/unidades/enemigos/esqueleto/esqueleton-dead/esqueleton-dead.png",
+            "transformParent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades/enemigos/esqueleto/esqueleton-dead/esqueleton-dead.png",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true
@@ -1078,7 +1078,7 @@
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/public/assets/main/unidades/enemigos/esqueleto/esqueleton-dead/esqueleton-dead.png": {
+        "/opt/data/proyectos/strategy-game/public/assets/main/unidades/enemigos/esqueleto/esqueleton-dead/esqueleton-dead.png": {
             "isFolder": false,
             "transformParent": ".assetpack/compress/main{m}/unidades/enemigos/esqueleto/esqueleton-dead/esqueleton-dead.png",
             "metaData": {},
@@ -1096,7 +1096,7 @@
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/public/assets/main/unidades/enemigos/esqueleto/esqueleton-dead/esqueleton-dead.webp": {
+        "/opt/data/proyectos/strategy-game/public/assets/main/unidades/enemigos/esqueleto/esqueleton-dead/esqueleton-dead.webp": {
             "isFolder": false,
             "transformParent": ".assetpack/compress/main{m}/unidades/enemigos/esqueleto/esqueleton-dead/esqueleton-dead.webp",
             "metaData": {},
@@ -1107,7 +1107,7 @@
         },
         ".assetpack/mipmap/main{m}/unidades/enemigos/esqueleto/esqueleton-dead/esqueleton-dead@0.5x.png": {
             "isFolder": false,
-            "transformParent": "/workspace/strategy-game/raw-assets/main{m}/unidades/enemigos/esqueleto/esqueleton-dead/esqueleton-dead.png",
+            "transformParent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades/enemigos/esqueleto/esqueleton-dead/esqueleton-dead.png",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true
@@ -1123,7 +1123,7 @@
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/public/assets/main/unidades/enemigos/esqueleto/esqueleton-dead/esqueleton-dead@0.5x.png": {
+        "/opt/data/proyectos/strategy-game/public/assets/main/unidades/enemigos/esqueleto/esqueleton-dead/esqueleton-dead@0.5x.png": {
             "isFolder": false,
             "transformParent": ".assetpack/compress/main{m}/unidades/enemigos/esqueleto/esqueleton-dead/esqueleton-dead@0.5x.png",
             "metaData": {},
@@ -1141,7 +1141,7 @@
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/public/assets/main/unidades/enemigos/esqueleto/esqueleton-dead/esqueleton-dead@0.5x.webp": {
+        "/opt/data/proyectos/strategy-game/public/assets/main/unidades/enemigos/esqueleto/esqueleton-dead/esqueleton-dead@0.5x.webp": {
             "isFolder": false,
             "transformParent": ".assetpack/compress/main{m}/unidades/enemigos/esqueleto/esqueleton-dead/esqueleton-dead@0.5x.webp",
             "metaData": {},
@@ -1150,45 +1150,45 @@
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/raw-assets/main{m}/unidades/enemigos/esqueleto/esqueleton-idle": {
+        "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades/enemigos/esqueleto/esqueleton-idle": {
             "isFolder": true,
-            "parent": "/workspace/strategy-game/raw-assets/main{m}/unidades/enemigos/esqueleto",
+            "parent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades/enemigos/esqueleto",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true
             },
             "transformData": {},
             "stats": {
-                "date": 1783965375527,
-                "duration": 0.05099999999993088,
+                "date": 1784043232351,
+                "duration": 0.08588899999995192,
                 "success": true
             }
         },
-        "/workspace/strategy-game/raw-assets/main{m}/unidades/enemigos/esqueleto/esqueleton-idle/esqueleton-idle.json": {
+        "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades/enemigos/esqueleto/esqueleton-idle/esqueleton-idle.json": {
             "isFolder": false,
-            "parent": "/workspace/strategy-game/raw-assets/main{m}/unidades/enemigos/esqueleto/esqueleton-idle",
+            "parent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades/enemigos/esqueleto/esqueleton-idle",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true
             },
             "transformData": {},
             "stats": {
-                "date": 1783965375527,
-                "duration": 4.6925169999999525,
+                "date": 1784043232351,
+                "duration": 19.83068000000003,
                 "success": true
             },
             "hash": "Yp6B"
         },
         ".assetpack/json/main{m}/unidades/enemigos/esqueleto/esqueleton-idle/esqueleton-idle.json": {
             "isFolder": false,
-            "transformParent": "/workspace/strategy-game/raw-assets/main{m}/unidades/enemigos/esqueleto/esqueleton-idle/esqueleton-idle.json",
+            "transformParent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades/enemigos/esqueleto/esqueleton-idle/esqueleton-idle.json",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/public/assets/main/unidades/enemigos/esqueleto/esqueleton-idle/esqueleton-idle.json": {
+        "/opt/data/proyectos/strategy-game/public/assets/main/unidades/enemigos/esqueleto/esqueleton-idle/esqueleton-idle.json": {
             "isFolder": false,
             "transformParent": ".assetpack/json/main{m}/unidades/enemigos/esqueleto/esqueleton-idle/esqueleton-idle.json",
             "metaData": {},
@@ -1197,24 +1197,24 @@
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/raw-assets/main{m}/unidades/enemigos/esqueleto/esqueleton-idle/esqueleton-idle.png": {
+        "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades/enemigos/esqueleto/esqueleton-idle/esqueleton-idle.png": {
             "isFolder": false,
-            "parent": "/workspace/strategy-game/raw-assets/main{m}/unidades/enemigos/esqueleto/esqueleton-idle",
+            "parent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades/enemigos/esqueleto/esqueleton-idle",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true
             },
             "transformData": {},
             "stats": {
-                "date": 1783965375531,
-                "duration": 125.89022299999988,
+                "date": 1784043232371,
+                "duration": 181.53665499999988,
                 "success": true
             },
             "hash": "_qWc3w"
         },
         ".assetpack/mipmap/main{m}/unidades/enemigos/esqueleto/esqueleton-idle/esqueleton-idle.png": {
             "isFolder": false,
-            "transformParent": "/workspace/strategy-game/raw-assets/main{m}/unidades/enemigos/esqueleto/esqueleton-idle/esqueleton-idle.png",
+            "transformParent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades/enemigos/esqueleto/esqueleton-idle/esqueleton-idle.png",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true
@@ -1230,7 +1230,7 @@
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/public/assets/main/unidades/enemigos/esqueleto/esqueleton-idle/esqueleton-idle.png": {
+        "/opt/data/proyectos/strategy-game/public/assets/main/unidades/enemigos/esqueleto/esqueleton-idle/esqueleton-idle.png": {
             "isFolder": false,
             "transformParent": ".assetpack/compress/main{m}/unidades/enemigos/esqueleto/esqueleton-idle/esqueleton-idle.png",
             "metaData": {},
@@ -1248,7 +1248,7 @@
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/public/assets/main/unidades/enemigos/esqueleto/esqueleton-idle/esqueleton-idle.webp": {
+        "/opt/data/proyectos/strategy-game/public/assets/main/unidades/enemigos/esqueleto/esqueleton-idle/esqueleton-idle.webp": {
             "isFolder": false,
             "transformParent": ".assetpack/compress/main{m}/unidades/enemigos/esqueleto/esqueleton-idle/esqueleton-idle.webp",
             "metaData": {},
@@ -1259,7 +1259,7 @@
         },
         ".assetpack/mipmap/main{m}/unidades/enemigos/esqueleto/esqueleton-idle/esqueleton-idle@0.5x.png": {
             "isFolder": false,
-            "transformParent": "/workspace/strategy-game/raw-assets/main{m}/unidades/enemigos/esqueleto/esqueleton-idle/esqueleton-idle.png",
+            "transformParent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades/enemigos/esqueleto/esqueleton-idle/esqueleton-idle.png",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true
@@ -1275,7 +1275,7 @@
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/public/assets/main/unidades/enemigos/esqueleto/esqueleton-idle/esqueleton-idle@0.5x.png": {
+        "/opt/data/proyectos/strategy-game/public/assets/main/unidades/enemigos/esqueleto/esqueleton-idle/esqueleton-idle@0.5x.png": {
             "isFolder": false,
             "transformParent": ".assetpack/compress/main{m}/unidades/enemigos/esqueleto/esqueleton-idle/esqueleton-idle@0.5x.png",
             "metaData": {},
@@ -1293,7 +1293,7 @@
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/public/assets/main/unidades/enemigos/esqueleto/esqueleton-idle/esqueleton-idle@0.5x.webp": {
+        "/opt/data/proyectos/strategy-game/public/assets/main/unidades/enemigos/esqueleto/esqueleton-idle/esqueleton-idle@0.5x.webp": {
             "isFolder": false,
             "transformParent": ".assetpack/compress/main{m}/unidades/enemigos/esqueleto/esqueleton-idle/esqueleton-idle@0.5x.webp",
             "metaData": {},
@@ -1302,45 +1302,45 @@
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/raw-assets/main{m}/unidades/enemigos/esqueleto/esqueleton-run": {
+        "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades/enemigos/esqueleto/esqueleton-run": {
             "isFolder": true,
-            "parent": "/workspace/strategy-game/raw-assets/main{m}/unidades/enemigos/esqueleto",
+            "parent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades/enemigos/esqueleto",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true
             },
             "transformData": {},
             "stats": {
-                "date": 1783965375629,
-                "duration": 0.07916699999987031,
+                "date": 1784043232514,
+                "duration": 0.07451799999944342,
                 "success": true
             }
         },
-        "/workspace/strategy-game/raw-assets/main{m}/unidades/enemigos/esqueleto/esqueleton-run/esqueleton-run.json": {
+        "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades/enemigos/esqueleto/esqueleton-run/esqueleton-run.json": {
             "isFolder": false,
-            "parent": "/workspace/strategy-game/raw-assets/main{m}/unidades/enemigos/esqueleto/esqueleton-run",
+            "parent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades/enemigos/esqueleto/esqueleton-run",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true
             },
             "transformData": {},
             "stats": {
-                "date": 1783965375629,
-                "duration": 14.68214399999988,
+                "date": 1784043232514,
+                "duration": 6.002242999999908,
                 "success": true
             },
             "hash": "u_-UZA"
         },
         ".assetpack/json/main{m}/unidades/enemigos/esqueleto/esqueleton-run/esqueleton-run.json": {
             "isFolder": false,
-            "transformParent": "/workspace/strategy-game/raw-assets/main{m}/unidades/enemigos/esqueleto/esqueleton-run/esqueleton-run.json",
+            "transformParent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades/enemigos/esqueleto/esqueleton-run/esqueleton-run.json",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/public/assets/main/unidades/enemigos/esqueleto/esqueleton-run/esqueleton-run.json": {
+        "/opt/data/proyectos/strategy-game/public/assets/main/unidades/enemigos/esqueleto/esqueleton-run/esqueleton-run.json": {
             "isFolder": false,
             "transformParent": ".assetpack/json/main{m}/unidades/enemigos/esqueleto/esqueleton-run/esqueleton-run.json",
             "metaData": {},
@@ -1349,24 +1349,24 @@
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/raw-assets/main{m}/unidades/enemigos/esqueleto/esqueleton-run/esqueleton-run.png": {
+        "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades/enemigos/esqueleto/esqueleton-run/esqueleton-run.png": {
             "isFolder": false,
-            "parent": "/workspace/strategy-game/raw-assets/main{m}/unidades/enemigos/esqueleto/esqueleton-run",
+            "parent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades/enemigos/esqueleto/esqueleton-run",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true
             },
             "transformData": {},
             "stats": {
-                "date": 1783965375644,
-                "duration": 81.96056799999997,
+                "date": 1784043232520,
+                "duration": 110.47212800000034,
                 "success": true
             },
             "hash": "Tlyi"
         },
         ".assetpack/mipmap/main{m}/unidades/enemigos/esqueleto/esqueleton-run/esqueleton-run.png": {
             "isFolder": false,
-            "transformParent": "/workspace/strategy-game/raw-assets/main{m}/unidades/enemigos/esqueleto/esqueleton-run/esqueleton-run.png",
+            "transformParent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades/enemigos/esqueleto/esqueleton-run/esqueleton-run.png",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true
@@ -1382,7 +1382,7 @@
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/public/assets/main/unidades/enemigos/esqueleto/esqueleton-run/esqueleton-run.png": {
+        "/opt/data/proyectos/strategy-game/public/assets/main/unidades/enemigos/esqueleto/esqueleton-run/esqueleton-run.png": {
             "isFolder": false,
             "transformParent": ".assetpack/compress/main{m}/unidades/enemigos/esqueleto/esqueleton-run/esqueleton-run.png",
             "metaData": {},
@@ -1400,7 +1400,7 @@
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/public/assets/main/unidades/enemigos/esqueleto/esqueleton-run/esqueleton-run.webp": {
+        "/opt/data/proyectos/strategy-game/public/assets/main/unidades/enemigos/esqueleto/esqueleton-run/esqueleton-run.webp": {
             "isFolder": false,
             "transformParent": ".assetpack/compress/main{m}/unidades/enemigos/esqueleto/esqueleton-run/esqueleton-run.webp",
             "metaData": {},
@@ -1411,7 +1411,7 @@
         },
         ".assetpack/mipmap/main{m}/unidades/enemigos/esqueleto/esqueleton-run/esqueleton-run@0.5x.png": {
             "isFolder": false,
-            "transformParent": "/workspace/strategy-game/raw-assets/main{m}/unidades/enemigos/esqueleto/esqueleton-run/esqueleton-run.png",
+            "transformParent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades/enemigos/esqueleto/esqueleton-run/esqueleton-run.png",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true
@@ -1427,7 +1427,7 @@
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/public/assets/main/unidades/enemigos/esqueleto/esqueleton-run/esqueleton-run@0.5x.png": {
+        "/opt/data/proyectos/strategy-game/public/assets/main/unidades/enemigos/esqueleto/esqueleton-run/esqueleton-run@0.5x.png": {
             "isFolder": false,
             "transformParent": ".assetpack/compress/main{m}/unidades/enemigos/esqueleto/esqueleton-run/esqueleton-run@0.5x.png",
             "metaData": {},
@@ -1445,7 +1445,7 @@
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/public/assets/main/unidades/enemigos/esqueleto/esqueleton-run/esqueleton-run@0.5x.webp": {
+        "/opt/data/proyectos/strategy-game/public/assets/main/unidades/enemigos/esqueleto/esqueleton-run/esqueleton-run@0.5x.webp": {
             "isFolder": false,
             "transformParent": ".assetpack/compress/main{m}/unidades/enemigos/esqueleto/esqueleton-run/esqueleton-run@0.5x.webp",
             "metaData": {},
@@ -1454,45 +1454,45 @@
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/raw-assets/main{m}/unidades/enemigos/fantasma": {
+        "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades/enemigos/fantasma": {
             "isFolder": true,
-            "parent": "/workspace/strategy-game/raw-assets/main{m}/unidades/enemigos",
+            "parent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades/enemigos",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true
             },
             "transformData": {},
             "stats": {
-                "date": 1783965375657,
-                "duration": 0.05111200000010285,
+                "date": 1784043232552,
+                "duration": 0.05048199999964709,
                 "success": true
             }
         },
-        "/workspace/strategy-game/raw-assets/main{m}/unidades/enemigos/fantasma/fantasma-dead.json": {
+        "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades/enemigos/fantasma/fantasma-dead.json": {
             "isFolder": false,
-            "parent": "/workspace/strategy-game/raw-assets/main{m}/unidades/enemigos/fantasma",
+            "parent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades/enemigos/fantasma",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true
             },
             "transformData": {},
             "stats": {
-                "date": 1783965375657,
-                "duration": 5.203703000000132,
+                "date": 1784043232552,
+                "duration": 6.424318999999741,
                 "success": true
             },
             "hash": "WCe8ag"
         },
         ".assetpack/json/main{m}/unidades/enemigos/fantasma/fantasma-dead.json": {
             "isFolder": false,
-            "transformParent": "/workspace/strategy-game/raw-assets/main{m}/unidades/enemigos/fantasma/fantasma-dead.json",
+            "transformParent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades/enemigos/fantasma/fantasma-dead.json",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/public/assets/main/unidades/enemigos/fantasma/fantasma-dead.json": {
+        "/opt/data/proyectos/strategy-game/public/assets/main/unidades/enemigos/fantasma/fantasma-dead.json": {
             "isFolder": false,
             "transformParent": ".assetpack/json/main{m}/unidades/enemigos/fantasma/fantasma-dead.json",
             "metaData": {},
@@ -1501,24 +1501,24 @@
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/raw-assets/main{m}/unidades/enemigos/fantasma/fantasma-dead.png": {
+        "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades/enemigos/fantasma/fantasma-dead.png": {
             "isFolder": false,
-            "parent": "/workspace/strategy-game/raw-assets/main{m}/unidades/enemigos/fantasma",
+            "parent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades/enemigos/fantasma",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true
             },
             "transformData": {},
             "stats": {
-                "date": 1783965375663,
-                "duration": 129.02386399999978,
+                "date": 1784043232559,
+                "duration": 100.22790700000041,
                 "success": true
             },
             "hash": "46W6FA"
         },
         ".assetpack/mipmap/main{m}/unidades/enemigos/fantasma/fantasma-dead.png": {
             "isFolder": false,
-            "transformParent": "/workspace/strategy-game/raw-assets/main{m}/unidades/enemigos/fantasma/fantasma-dead.png",
+            "transformParent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades/enemigos/fantasma/fantasma-dead.png",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true
@@ -1534,7 +1534,7 @@
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/public/assets/main/unidades/enemigos/fantasma/fantasma-dead.png": {
+        "/opt/data/proyectos/strategy-game/public/assets/main/unidades/enemigos/fantasma/fantasma-dead.png": {
             "isFolder": false,
             "transformParent": ".assetpack/compress/main{m}/unidades/enemigos/fantasma/fantasma-dead.png",
             "metaData": {},
@@ -1552,7 +1552,7 @@
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/public/assets/main/unidades/enemigos/fantasma/fantasma-dead.webp": {
+        "/opt/data/proyectos/strategy-game/public/assets/main/unidades/enemigos/fantasma/fantasma-dead.webp": {
             "isFolder": false,
             "transformParent": ".assetpack/compress/main{m}/unidades/enemigos/fantasma/fantasma-dead.webp",
             "metaData": {},
@@ -1563,7 +1563,7 @@
         },
         ".assetpack/mipmap/main{m}/unidades/enemigos/fantasma/fantasma-dead@0.5x.png": {
             "isFolder": false,
-            "transformParent": "/workspace/strategy-game/raw-assets/main{m}/unidades/enemigos/fantasma/fantasma-dead.png",
+            "transformParent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades/enemigos/fantasma/fantasma-dead.png",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true
@@ -1579,7 +1579,7 @@
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/public/assets/main/unidades/enemigos/fantasma/fantasma-dead@0.5x.png": {
+        "/opt/data/proyectos/strategy-game/public/assets/main/unidades/enemigos/fantasma/fantasma-dead@0.5x.png": {
             "isFolder": false,
             "transformParent": ".assetpack/compress/main{m}/unidades/enemigos/fantasma/fantasma-dead@0.5x.png",
             "metaData": {},
@@ -1597,7 +1597,7 @@
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/public/assets/main/unidades/enemigos/fantasma/fantasma-dead@0.5x.webp": {
+        "/opt/data/proyectos/strategy-game/public/assets/main/unidades/enemigos/fantasma/fantasma-dead@0.5x.webp": {
             "isFolder": false,
             "transformParent": ".assetpack/compress/main{m}/unidades/enemigos/fantasma/fantasma-dead@0.5x.webp",
             "metaData": {},
@@ -1606,31 +1606,31 @@
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/raw-assets/main{m}/unidades/enemigos/fantasma/fantasma-idle.json": {
+        "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades/enemigos/fantasma/fantasma-idle.json": {
             "isFolder": false,
-            "parent": "/workspace/strategy-game/raw-assets/main{m}/unidades/enemigos/fantasma",
+            "parent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades/enemigos/fantasma",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true
             },
             "transformData": {},
             "stats": {
-                "date": 1783965375726,
-                "duration": 9.920664000000215,
+                "date": 1784043232631,
+                "duration": 9.853497000000061,
                 "success": true
             },
             "hash": "fqu0HA"
         },
         ".assetpack/json/main{m}/unidades/enemigos/fantasma/fantasma-idle.json": {
             "isFolder": false,
-            "transformParent": "/workspace/strategy-game/raw-assets/main{m}/unidades/enemigos/fantasma/fantasma-idle.json",
+            "transformParent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades/enemigos/fantasma/fantasma-idle.json",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/public/assets/main/unidades/enemigos/fantasma/fantasma-idle.json": {
+        "/opt/data/proyectos/strategy-game/public/assets/main/unidades/enemigos/fantasma/fantasma-idle.json": {
             "isFolder": false,
             "transformParent": ".assetpack/json/main{m}/unidades/enemigos/fantasma/fantasma-idle.json",
             "metaData": {},
@@ -1639,24 +1639,24 @@
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/raw-assets/main{m}/unidades/enemigos/fantasma/fantasma-idle.png": {
+        "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades/enemigos/fantasma/fantasma-idle.png": {
             "isFolder": false,
-            "parent": "/workspace/strategy-game/raw-assets/main{m}/unidades/enemigos/fantasma",
+            "parent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades/enemigos/fantasma",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true
             },
             "transformData": {},
             "stats": {
-                "date": 1783965375736,
-                "duration": 305.6698230000002,
+                "date": 1784043232641,
+                "duration": 168.46873799999958,
                 "success": true
             },
             "hash": "x-FK6Q"
         },
         ".assetpack/mipmap/main{m}/unidades/enemigos/fantasma/fantasma-idle.png": {
             "isFolder": false,
-            "transformParent": "/workspace/strategy-game/raw-assets/main{m}/unidades/enemigos/fantasma/fantasma-idle.png",
+            "transformParent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades/enemigos/fantasma/fantasma-idle.png",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true
@@ -1672,7 +1672,7 @@
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/public/assets/main/unidades/enemigos/fantasma/fantasma-idle.png": {
+        "/opt/data/proyectos/strategy-game/public/assets/main/unidades/enemigos/fantasma/fantasma-idle.png": {
             "isFolder": false,
             "transformParent": ".assetpack/compress/main{m}/unidades/enemigos/fantasma/fantasma-idle.png",
             "metaData": {},
@@ -1690,7 +1690,7 @@
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/public/assets/main/unidades/enemigos/fantasma/fantasma-idle.webp": {
+        "/opt/data/proyectos/strategy-game/public/assets/main/unidades/enemigos/fantasma/fantasma-idle.webp": {
             "isFolder": false,
             "transformParent": ".assetpack/compress/main{m}/unidades/enemigos/fantasma/fantasma-idle.webp",
             "metaData": {},
@@ -1701,7 +1701,7 @@
         },
         ".assetpack/mipmap/main{m}/unidades/enemigos/fantasma/fantasma-idle@0.5x.png": {
             "isFolder": false,
-            "transformParent": "/workspace/strategy-game/raw-assets/main{m}/unidades/enemigos/fantasma/fantasma-idle.png",
+            "transformParent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades/enemigos/fantasma/fantasma-idle.png",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true
@@ -1717,7 +1717,7 @@
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/public/assets/main/unidades/enemigos/fantasma/fantasma-idle@0.5x.png": {
+        "/opt/data/proyectos/strategy-game/public/assets/main/unidades/enemigos/fantasma/fantasma-idle@0.5x.png": {
             "isFolder": false,
             "transformParent": ".assetpack/compress/main{m}/unidades/enemigos/fantasma/fantasma-idle@0.5x.png",
             "metaData": {},
@@ -1735,7 +1735,7 @@
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/public/assets/main/unidades/enemigos/fantasma/fantasma-idle@0.5x.webp": {
+        "/opt/data/proyectos/strategy-game/public/assets/main/unidades/enemigos/fantasma/fantasma-idle@0.5x.webp": {
             "isFolder": false,
             "transformParent": ".assetpack/compress/main{m}/unidades/enemigos/fantasma/fantasma-idle@0.5x.webp",
             "metaData": {},
@@ -1744,31 +1744,31 @@
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/raw-assets/main{m}/unidades/enemigos/fantasma/fantasma-run.json": {
+        "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades/enemigos/fantasma/fantasma-run.json": {
             "isFolder": false,
-            "parent": "/workspace/strategy-game/raw-assets/main{m}/unidades/enemigos/fantasma",
+            "parent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades/enemigos/fantasma",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true
             },
             "transformData": {},
             "stats": {
-                "date": 1783965375792,
-                "duration": 14.316124999999829,
+                "date": 1784043232659,
+                "duration": 4.474033999999847,
                 "success": true
             },
             "hash": "YwAQEw"
         },
         ".assetpack/json/main{m}/unidades/enemigos/fantasma/fantasma-run.json": {
             "isFolder": false,
-            "transformParent": "/workspace/strategy-game/raw-assets/main{m}/unidades/enemigos/fantasma/fantasma-run.json",
+            "transformParent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades/enemigos/fantasma/fantasma-run.json",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/public/assets/main/unidades/enemigos/fantasma/fantasma-run.json": {
+        "/opt/data/proyectos/strategy-game/public/assets/main/unidades/enemigos/fantasma/fantasma-run.json": {
             "isFolder": false,
             "transformParent": ".assetpack/json/main{m}/unidades/enemigos/fantasma/fantasma-run.json",
             "metaData": {},
@@ -1777,24 +1777,24 @@
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/raw-assets/main{m}/unidades/enemigos/fantasma/fantasma-run.png": {
+        "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades/enemigos/fantasma/fantasma-run.png": {
             "isFolder": false,
-            "parent": "/workspace/strategy-game/raw-assets/main{m}/unidades/enemigos/fantasma",
+            "parent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades/enemigos/fantasma",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true
             },
             "transformData": {},
             "stats": {
-                "date": 1783965375806,
-                "duration": 250.67536900000005,
+                "date": 1784043232663,
+                "duration": 155.08502500000031,
                 "success": true
             },
             "hash": "KIBY1g"
         },
         ".assetpack/mipmap/main{m}/unidades/enemigos/fantasma/fantasma-run.png": {
             "isFolder": false,
-            "transformParent": "/workspace/strategy-game/raw-assets/main{m}/unidades/enemigos/fantasma/fantasma-run.png",
+            "transformParent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades/enemigos/fantasma/fantasma-run.png",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true
@@ -1810,7 +1810,7 @@
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/public/assets/main/unidades/enemigos/fantasma/fantasma-run.png": {
+        "/opt/data/proyectos/strategy-game/public/assets/main/unidades/enemigos/fantasma/fantasma-run.png": {
             "isFolder": false,
             "transformParent": ".assetpack/compress/main{m}/unidades/enemigos/fantasma/fantasma-run.png",
             "metaData": {},
@@ -1828,7 +1828,7 @@
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/public/assets/main/unidades/enemigos/fantasma/fantasma-run.webp": {
+        "/opt/data/proyectos/strategy-game/public/assets/main/unidades/enemigos/fantasma/fantasma-run.webp": {
             "isFolder": false,
             "transformParent": ".assetpack/compress/main{m}/unidades/enemigos/fantasma/fantasma-run.webp",
             "metaData": {},
@@ -1839,7 +1839,7 @@
         },
         ".assetpack/mipmap/main{m}/unidades/enemigos/fantasma/fantasma-run@0.5x.png": {
             "isFolder": false,
-            "transformParent": "/workspace/strategy-game/raw-assets/main{m}/unidades/enemigos/fantasma/fantasma-run.png",
+            "transformParent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades/enemigos/fantasma/fantasma-run.png",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true
@@ -1855,7 +1855,7 @@
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/public/assets/main/unidades/enemigos/fantasma/fantasma-run@0.5x.png": {
+        "/opt/data/proyectos/strategy-game/public/assets/main/unidades/enemigos/fantasma/fantasma-run@0.5x.png": {
             "isFolder": false,
             "transformParent": ".assetpack/compress/main{m}/unidades/enemigos/fantasma/fantasma-run@0.5x.png",
             "metaData": {},
@@ -1873,7 +1873,7 @@
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/public/assets/main/unidades/enemigos/fantasma/fantasma-run@0.5x.webp": {
+        "/opt/data/proyectos/strategy-game/public/assets/main/unidades/enemigos/fantasma/fantasma-run@0.5x.webp": {
             "isFolder": false,
             "transformParent": ".assetpack/compress/main{m}/unidades/enemigos/fantasma/fantasma-run@0.5x.webp",
             "metaData": {},
@@ -1882,45 +1882,45 @@
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/raw-assets/main{m}/unidades/enemigos/goblin": {
+        "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades/enemigos/goblin": {
             "isFolder": true,
-            "parent": "/workspace/strategy-game/raw-assets/main{m}/unidades/enemigos",
+            "parent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades/enemigos",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true
             },
             "transformData": {},
             "stats": {
-                "date": 1783965376041,
-                "duration": 0.04568599999993239,
+                "date": 1784043232809,
+                "duration": 0.05474099999992177,
                 "success": true
             }
         },
-        "/workspace/strategy-game/raw-assets/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-death 1.json": {
+        "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-death 1.json": {
             "isFolder": false,
-            "parent": "/workspace/strategy-game/raw-assets/main{m}/unidades/enemigos/goblin",
+            "parent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades/enemigos/goblin",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true
             },
             "transformData": {},
             "stats": {
-                "date": 1783965376041,
-                "duration": 12.894415999999637,
+                "date": 1784043232809,
+                "duration": 6.63394900000003,
                 "success": true
             },
             "hash": "WS27XQ"
         },
         ".assetpack/json/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-death 1.json": {
             "isFolder": false,
-            "transformParent": "/workspace/strategy-game/raw-assets/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-death 1.json",
+            "transformParent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-death 1.json",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/public/assets/main/unidades/enemigos/goblin/goblin scout - silhouette all animations-death 1.json": {
+        "/opt/data/proyectos/strategy-game/public/assets/main/unidades/enemigos/goblin/goblin scout - silhouette all animations-death 1.json": {
             "isFolder": false,
             "transformParent": ".assetpack/json/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-death 1.json",
             "metaData": {},
@@ -1929,24 +1929,24 @@
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/raw-assets/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-death 1.png": {
+        "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-death 1.png": {
             "isFolder": false,
-            "parent": "/workspace/strategy-game/raw-assets/main{m}/unidades/enemigos/goblin",
+            "parent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades/enemigos/goblin",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true
             },
             "transformData": {},
             "stats": {
-                "date": 1783965376054,
-                "duration": 127.36624700000039,
+                "date": 1784043232816,
+                "duration": 107.98802700000033,
                 "success": true
             },
             "hash": "1YrG_Q"
         },
         ".assetpack/mipmap/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-death 1.png": {
             "isFolder": false,
-            "transformParent": "/workspace/strategy-game/raw-assets/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-death 1.png",
+            "transformParent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-death 1.png",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true
@@ -1962,7 +1962,7 @@
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/public/assets/main/unidades/enemigos/goblin/goblin scout - silhouette all animations-death 1.png": {
+        "/opt/data/proyectos/strategy-game/public/assets/main/unidades/enemigos/goblin/goblin scout - silhouette all animations-death 1.png": {
             "isFolder": false,
             "transformParent": ".assetpack/compress/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-death 1.png",
             "metaData": {},
@@ -1980,7 +1980,7 @@
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/public/assets/main/unidades/enemigos/goblin/goblin scout - silhouette all animations-death 1.webp": {
+        "/opt/data/proyectos/strategy-game/public/assets/main/unidades/enemigos/goblin/goblin scout - silhouette all animations-death 1.webp": {
             "isFolder": false,
             "transformParent": ".assetpack/compress/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-death 1.webp",
             "metaData": {},
@@ -1991,7 +1991,7 @@
         },
         ".assetpack/mipmap/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-death 1@0.5x.png": {
             "isFolder": false,
-            "transformParent": "/workspace/strategy-game/raw-assets/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-death 1.png",
+            "transformParent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-death 1.png",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true
@@ -2007,7 +2007,7 @@
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/public/assets/main/unidades/enemigos/goblin/goblin scout - silhouette all animations-death 1@0.5x.png": {
+        "/opt/data/proyectos/strategy-game/public/assets/main/unidades/enemigos/goblin/goblin scout - silhouette all animations-death 1@0.5x.png": {
             "isFolder": false,
             "transformParent": ".assetpack/compress/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-death 1@0.5x.png",
             "metaData": {},
@@ -2025,7 +2025,7 @@
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/public/assets/main/unidades/enemigos/goblin/goblin scout - silhouette all animations-death 1@0.5x.webp": {
+        "/opt/data/proyectos/strategy-game/public/assets/main/unidades/enemigos/goblin/goblin scout - silhouette all animations-death 1@0.5x.webp": {
             "isFolder": false,
             "transformParent": ".assetpack/compress/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-death 1@0.5x.webp",
             "metaData": {},
@@ -2034,31 +2034,31 @@
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/raw-assets/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-hit.json": {
+        "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-hit.json": {
             "isFolder": false,
-            "parent": "/workspace/strategy-game/raw-assets/main{m}/unidades/enemigos/goblin",
+            "parent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades/enemigos/goblin",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true
             },
             "transformData": {},
             "stats": {
-                "date": 1783965376057,
-                "duration": 1.3641900000002352,
+                "date": 1784043232819,
+                "duration": 3.474438000000191,
                 "success": true
             },
             "hash": "8gabHw"
         },
         ".assetpack/json/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-hit.json": {
             "isFolder": false,
-            "transformParent": "/workspace/strategy-game/raw-assets/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-hit.json",
+            "transformParent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-hit.json",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/public/assets/main/unidades/enemigos/goblin/goblin scout - silhouette all animations-hit.json": {
+        "/opt/data/proyectos/strategy-game/public/assets/main/unidades/enemigos/goblin/goblin scout - silhouette all animations-hit.json": {
             "isFolder": false,
             "transformParent": ".assetpack/json/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-hit.json",
             "metaData": {},
@@ -2067,24 +2067,24 @@
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/raw-assets/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-hit.png": {
+        "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-hit.png": {
             "isFolder": false,
-            "parent": "/workspace/strategy-game/raw-assets/main{m}/unidades/enemigos/goblin",
+            "parent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades/enemigos/goblin",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true
             },
             "transformData": {},
             "stats": {
-                "date": 1783965376058,
-                "duration": 141.56211200000007,
+                "date": 1784043232822,
+                "duration": 104.94038699999965,
                 "success": true
             },
             "hash": "F2Rn0A"
         },
         ".assetpack/mipmap/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-hit.png": {
             "isFolder": false,
-            "transformParent": "/workspace/strategy-game/raw-assets/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-hit.png",
+            "transformParent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-hit.png",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true
@@ -2100,7 +2100,7 @@
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/public/assets/main/unidades/enemigos/goblin/goblin scout - silhouette all animations-hit.png": {
+        "/opt/data/proyectos/strategy-game/public/assets/main/unidades/enemigos/goblin/goblin scout - silhouette all animations-hit.png": {
             "isFolder": false,
             "transformParent": ".assetpack/compress/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-hit.png",
             "metaData": {},
@@ -2118,7 +2118,7 @@
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/public/assets/main/unidades/enemigos/goblin/goblin scout - silhouette all animations-hit.webp": {
+        "/opt/data/proyectos/strategy-game/public/assets/main/unidades/enemigos/goblin/goblin scout - silhouette all animations-hit.webp": {
             "isFolder": false,
             "transformParent": ".assetpack/compress/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-hit.webp",
             "metaData": {},
@@ -2129,7 +2129,7 @@
         },
         ".assetpack/mipmap/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-hit@0.5x.png": {
             "isFolder": false,
-            "transformParent": "/workspace/strategy-game/raw-assets/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-hit.png",
+            "transformParent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-hit.png",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true
@@ -2145,7 +2145,7 @@
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/public/assets/main/unidades/enemigos/goblin/goblin scout - silhouette all animations-hit@0.5x.png": {
+        "/opt/data/proyectos/strategy-game/public/assets/main/unidades/enemigos/goblin/goblin scout - silhouette all animations-hit@0.5x.png": {
             "isFolder": false,
             "transformParent": ".assetpack/compress/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-hit@0.5x.png",
             "metaData": {},
@@ -2163,7 +2163,7 @@
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/public/assets/main/unidades/enemigos/goblin/goblin scout - silhouette all animations-hit@0.5x.webp": {
+        "/opt/data/proyectos/strategy-game/public/assets/main/unidades/enemigos/goblin/goblin scout - silhouette all animations-hit@0.5x.webp": {
             "isFolder": false,
             "transformParent": ".assetpack/compress/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-hit@0.5x.webp",
             "metaData": {},
@@ -2172,31 +2172,31 @@
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/raw-assets/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-idle.json": {
+        "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-idle.json": {
             "isFolder": false,
-            "parent": "/workspace/strategy-game/raw-assets/main{m}/unidades/enemigos/goblin",
+            "parent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades/enemigos/goblin",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true
             },
             "transformData": {},
             "stats": {
-                "date": 1783965376182,
-                "duration": 13.333490999999867,
+                "date": 1784043232912,
+                "duration": 3.8388279999999213,
                 "success": true
             },
             "hash": "SMuCZg"
         },
         ".assetpack/json/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-idle.json": {
             "isFolder": false,
-            "transformParent": "/workspace/strategy-game/raw-assets/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-idle.json",
+            "transformParent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-idle.json",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/public/assets/main/unidades/enemigos/goblin/goblin scout - silhouette all animations-idle.json": {
+        "/opt/data/proyectos/strategy-game/public/assets/main/unidades/enemigos/goblin/goblin scout - silhouette all animations-idle.json": {
             "isFolder": false,
             "transformParent": ".assetpack/json/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-idle.json",
             "metaData": {},
@@ -2205,24 +2205,24 @@
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/raw-assets/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-idle.png": {
+        "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-idle.png": {
             "isFolder": false,
-            "parent": "/workspace/strategy-game/raw-assets/main{m}/unidades/enemigos/goblin",
+            "parent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades/enemigos/goblin",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true
             },
             "transformData": {},
             "stats": {
-                "date": 1783965376195,
-                "duration": 58.52955900000006,
+                "date": 1784043232916,
+                "duration": 59.73707999999988,
                 "success": true
             },
             "hash": "kNVkag"
         },
         ".assetpack/mipmap/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-idle.png": {
             "isFolder": false,
-            "transformParent": "/workspace/strategy-game/raw-assets/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-idle.png",
+            "transformParent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-idle.png",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true
@@ -2238,7 +2238,7 @@
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/public/assets/main/unidades/enemigos/goblin/goblin scout - silhouette all animations-idle.png": {
+        "/opt/data/proyectos/strategy-game/public/assets/main/unidades/enemigos/goblin/goblin scout - silhouette all animations-idle.png": {
             "isFolder": false,
             "transformParent": ".assetpack/compress/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-idle.png",
             "metaData": {},
@@ -2256,7 +2256,7 @@
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/public/assets/main/unidades/enemigos/goblin/goblin scout - silhouette all animations-idle.webp": {
+        "/opt/data/proyectos/strategy-game/public/assets/main/unidades/enemigos/goblin/goblin scout - silhouette all animations-idle.webp": {
             "isFolder": false,
             "transformParent": ".assetpack/compress/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-idle.webp",
             "metaData": {},
@@ -2267,7 +2267,7 @@
         },
         ".assetpack/mipmap/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-idle@0.5x.png": {
             "isFolder": false,
-            "transformParent": "/workspace/strategy-game/raw-assets/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-idle.png",
+            "transformParent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-idle.png",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true
@@ -2283,7 +2283,7 @@
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/public/assets/main/unidades/enemigos/goblin/goblin scout - silhouette all animations-idle@0.5x.png": {
+        "/opt/data/proyectos/strategy-game/public/assets/main/unidades/enemigos/goblin/goblin scout - silhouette all animations-idle@0.5x.png": {
             "isFolder": false,
             "transformParent": ".assetpack/compress/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-idle@0.5x.png",
             "metaData": {},
@@ -2301,7 +2301,7 @@
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/public/assets/main/unidades/enemigos/goblin/goblin scout - silhouette all animations-idle@0.5x.webp": {
+        "/opt/data/proyectos/strategy-game/public/assets/main/unidades/enemigos/goblin/goblin scout - silhouette all animations-idle@0.5x.webp": {
             "isFolder": false,
             "transformParent": ".assetpack/compress/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-idle@0.5x.webp",
             "metaData": {},
@@ -2310,31 +2310,31 @@
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/raw-assets/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-run.json": {
+        "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-run.json": {
             "isFolder": false,
-            "parent": "/workspace/strategy-game/raw-assets/main{m}/unidades/enemigos/goblin",
+            "parent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades/enemigos/goblin",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true
             },
             "transformData": {},
             "stats": {
-                "date": 1783965376197,
-                "duration": 2.0027289999998175,
+                "date": 1784043232924,
+                "duration": 1.9884510000001683,
                 "success": true
             },
             "hash": "rWRmZw"
         },
         ".assetpack/json/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-run.json": {
             "isFolder": false,
-            "transformParent": "/workspace/strategy-game/raw-assets/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-run.json",
+            "transformParent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-run.json",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/public/assets/main/unidades/enemigos/goblin/goblin scout - silhouette all animations-run.json": {
+        "/opt/data/proyectos/strategy-game/public/assets/main/unidades/enemigos/goblin/goblin scout - silhouette all animations-run.json": {
             "isFolder": false,
             "transformParent": ".assetpack/json/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-run.json",
             "metaData": {},
@@ -2343,24 +2343,24 @@
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/raw-assets/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-run.png": {
+        "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-run.png": {
             "isFolder": false,
-            "parent": "/workspace/strategy-game/raw-assets/main{m}/unidades/enemigos/goblin",
+            "parent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades/enemigos/goblin",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true
             },
             "transformData": {},
             "stats": {
-                "date": 1783965376199,
-                "duration": 72.98710999999957,
+                "date": 1784043232926,
+                "duration": 83.76120099999935,
                 "success": true
             },
             "hash": "YWd-Pg"
         },
         ".assetpack/mipmap/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-run.png": {
             "isFolder": false,
-            "transformParent": "/workspace/strategy-game/raw-assets/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-run.png",
+            "transformParent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-run.png",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true
@@ -2376,7 +2376,7 @@
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/public/assets/main/unidades/enemigos/goblin/goblin scout - silhouette all animations-run.png": {
+        "/opt/data/proyectos/strategy-game/public/assets/main/unidades/enemigos/goblin/goblin scout - silhouette all animations-run.png": {
             "isFolder": false,
             "transformParent": ".assetpack/compress/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-run.png",
             "metaData": {},
@@ -2394,7 +2394,7 @@
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/public/assets/main/unidades/enemigos/goblin/goblin scout - silhouette all animations-run.webp": {
+        "/opt/data/proyectos/strategy-game/public/assets/main/unidades/enemigos/goblin/goblin scout - silhouette all animations-run.webp": {
             "isFolder": false,
             "transformParent": ".assetpack/compress/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-run.webp",
             "metaData": {},
@@ -2405,7 +2405,7 @@
         },
         ".assetpack/mipmap/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-run@0.5x.png": {
             "isFolder": false,
-            "transformParent": "/workspace/strategy-game/raw-assets/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-run.png",
+            "transformParent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-run.png",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true
@@ -2421,7 +2421,7 @@
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/public/assets/main/unidades/enemigos/goblin/goblin scout - silhouette all animations-run@0.5x.png": {
+        "/opt/data/proyectos/strategy-game/public/assets/main/unidades/enemigos/goblin/goblin scout - silhouette all animations-run@0.5x.png": {
             "isFolder": false,
             "transformParent": ".assetpack/compress/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-run@0.5x.png",
             "metaData": {},
@@ -2439,7 +2439,7 @@
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/public/assets/main/unidades/enemigos/goblin/goblin scout - silhouette all animations-run@0.5x.webp": {
+        "/opt/data/proyectos/strategy-game/public/assets/main/unidades/enemigos/goblin/goblin scout - silhouette all animations-run@0.5x.webp": {
             "isFolder": false,
             "transformParent": ".assetpack/compress/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-run@0.5x.webp",
             "metaData": {},
@@ -2448,31 +2448,31 @@
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/raw-assets/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-walk.json": {
+        "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-walk.json": {
             "isFolder": false,
-            "parent": "/workspace/strategy-game/raw-assets/main{m}/unidades/enemigos/goblin",
+            "parent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades/enemigos/goblin",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true
             },
             "transformData": {},
             "stats": {
-                "date": 1783965376200,
-                "duration": 1.5233950000001641,
+                "date": 1784043232927,
+                "duration": 1.4643940000005387,
                 "success": true
             },
             "hash": "t68y5w"
         },
         ".assetpack/json/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-walk.json": {
             "isFolder": false,
-            "transformParent": "/workspace/strategy-game/raw-assets/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-walk.json",
+            "transformParent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-walk.json",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/public/assets/main/unidades/enemigos/goblin/goblin scout - silhouette all animations-walk.json": {
+        "/opt/data/proyectos/strategy-game/public/assets/main/unidades/enemigos/goblin/goblin scout - silhouette all animations-walk.json": {
             "isFolder": false,
             "transformParent": ".assetpack/json/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-walk.json",
             "metaData": {},
@@ -2481,24 +2481,24 @@
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/raw-assets/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-walk.png": {
+        "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-walk.png": {
             "isFolder": false,
-            "parent": "/workspace/strategy-game/raw-assets/main{m}/unidades/enemigos/goblin",
+            "parent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades/enemigos/goblin",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true
             },
             "transformData": {},
             "stats": {
-                "date": 1783965376201,
-                "duration": 83.85985200000005,
+                "date": 1784043232928,
+                "duration": 55.54384300000038,
                 "success": true
             },
             "hash": "HYzPEg"
         },
         ".assetpack/mipmap/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-walk.png": {
             "isFolder": false,
-            "transformParent": "/workspace/strategy-game/raw-assets/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-walk.png",
+            "transformParent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-walk.png",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true
@@ -2514,7 +2514,7 @@
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/public/assets/main/unidades/enemigos/goblin/goblin scout - silhouette all animations-walk.png": {
+        "/opt/data/proyectos/strategy-game/public/assets/main/unidades/enemigos/goblin/goblin scout - silhouette all animations-walk.png": {
             "isFolder": false,
             "transformParent": ".assetpack/compress/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-walk.png",
             "metaData": {},
@@ -2532,7 +2532,7 @@
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/public/assets/main/unidades/enemigos/goblin/goblin scout - silhouette all animations-walk.webp": {
+        "/opt/data/proyectos/strategy-game/public/assets/main/unidades/enemigos/goblin/goblin scout - silhouette all animations-walk.webp": {
             "isFolder": false,
             "transformParent": ".assetpack/compress/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-walk.webp",
             "metaData": {},
@@ -2543,7 +2543,7 @@
         },
         ".assetpack/mipmap/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-walk@0.5x.png": {
             "isFolder": false,
-            "transformParent": "/workspace/strategy-game/raw-assets/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-walk.png",
+            "transformParent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-walk.png",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true
@@ -2559,7 +2559,7 @@
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/public/assets/main/unidades/enemigos/goblin/goblin scout - silhouette all animations-walk@0.5x.png": {
+        "/opt/data/proyectos/strategy-game/public/assets/main/unidades/enemigos/goblin/goblin scout - silhouette all animations-walk@0.5x.png": {
             "isFolder": false,
             "transformParent": ".assetpack/compress/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-walk@0.5x.png",
             "metaData": {},
@@ -2577,7 +2577,7 @@
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/public/assets/main/unidades/enemigos/goblin/goblin scout - silhouette all animations-walk@0.5x.webp": {
+        "/opt/data/proyectos/strategy-game/public/assets/main/unidades/enemigos/goblin/goblin scout - silhouette all animations-walk@0.5x.webp": {
             "isFolder": false,
             "transformParent": ".assetpack/compress/main{m}/unidades/enemigos/goblin/goblin scout - silhouette all animations-walk@0.5x.webp",
             "metaData": {},
@@ -2586,45 +2586,45 @@
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/raw-assets/main{m}/unidades/torres": {
+        "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades/torres": {
             "isFolder": true,
-            "parent": "/workspace/strategy-game/raw-assets/main{m}/unidades",
+            "parent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true
             },
             "transformData": {},
             "stats": {
-                "date": 1783965376254,
-                "duration": 0.04679699999996956,
+                "date": 1784043232976,
+                "duration": 0.06990800000039599,
                 "success": true
             }
         },
-        "/workspace/strategy-game/raw-assets/main{m}/unidades/torres/Torre1.json": {
+        "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades/torres/Torre1.json": {
             "isFolder": false,
-            "parent": "/workspace/strategy-game/raw-assets/main{m}/unidades/torres",
+            "parent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades/torres",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true
             },
             "transformData": {},
             "stats": {
-                "date": 1783965376254,
-                "duration": 2.0419510000001537,
+                "date": 1784043232976,
+                "duration": 3.1346220000004905,
                 "success": true
             },
             "hash": "OTITMw"
         },
         ".assetpack/json/main{m}/unidades/torres/Torre1.json": {
             "isFolder": false,
-            "transformParent": "/workspace/strategy-game/raw-assets/main{m}/unidades/torres/Torre1.json",
+            "transformParent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades/torres/Torre1.json",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/public/assets/main/unidades/torres/Torre1.json": {
+        "/opt/data/proyectos/strategy-game/public/assets/main/unidades/torres/Torre1.json": {
             "isFolder": false,
             "transformParent": ".assetpack/json/main{m}/unidades/torres/Torre1.json",
             "metaData": {},
@@ -2633,24 +2633,24 @@
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/raw-assets/main{m}/unidades/torres/Torre1.png": {
+        "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades/torres/Torre1.png": {
             "isFolder": false,
-            "parent": "/workspace/strategy-game/raw-assets/main{m}/unidades/torres",
+            "parent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades/torres",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true
             },
             "transformData": {},
             "stats": {
-                "date": 1783965376256,
-                "duration": 63.39998400000013,
+                "date": 1784043232979,
+                "duration": 47.01535000000058,
                 "success": true
             },
             "hash": "nRsPxQ"
         },
         ".assetpack/mipmap/main{m}/unidades/torres/Torre1.png": {
             "isFolder": false,
-            "transformParent": "/workspace/strategy-game/raw-assets/main{m}/unidades/torres/Torre1.png",
+            "transformParent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades/torres/Torre1.png",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true
@@ -2666,7 +2666,7 @@
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/public/assets/main/unidades/torres/Torre1.png": {
+        "/opt/data/proyectos/strategy-game/public/assets/main/unidades/torres/Torre1.png": {
             "isFolder": false,
             "transformParent": ".assetpack/compress/main{m}/unidades/torres/Torre1.png",
             "metaData": {},
@@ -2684,7 +2684,7 @@
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/public/assets/main/unidades/torres/Torre1.webp": {
+        "/opt/data/proyectos/strategy-game/public/assets/main/unidades/torres/Torre1.webp": {
             "isFolder": false,
             "transformParent": ".assetpack/compress/main{m}/unidades/torres/Torre1.webp",
             "metaData": {},
@@ -2695,7 +2695,7 @@
         },
         ".assetpack/mipmap/main{m}/unidades/torres/Torre1@0.5x.png": {
             "isFolder": false,
-            "transformParent": "/workspace/strategy-game/raw-assets/main{m}/unidades/torres/Torre1.png",
+            "transformParent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades/torres/Torre1.png",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true
@@ -2711,7 +2711,7 @@
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/public/assets/main/unidades/torres/Torre1@0.5x.png": {
+        "/opt/data/proyectos/strategy-game/public/assets/main/unidades/torres/Torre1@0.5x.png": {
             "isFolder": false,
             "transformParent": ".assetpack/compress/main{m}/unidades/torres/Torre1@0.5x.png",
             "metaData": {},
@@ -2729,7 +2729,7 @@
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/public/assets/main/unidades/torres/Torre1@0.5x.webp": {
+        "/opt/data/proyectos/strategy-game/public/assets/main/unidades/torres/Torre1@0.5x.webp": {
             "isFolder": false,
             "transformParent": ".assetpack/compress/main{m}/unidades/torres/Torre1@0.5x.webp",
             "metaData": {},
@@ -2738,31 +2738,31 @@
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/raw-assets/main{m}/unidades/torres/suelo-torre.json": {
+        "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades/torres/suelo-torre.json": {
             "isFolder": false,
-            "parent": "/workspace/strategy-game/raw-assets/main{m}/unidades/torres",
+            "parent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades/torres",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true
             },
             "transformData": {},
             "stats": {
-                "date": 1783965376262,
-                "duration": 4.685758000000078,
+                "date": 1784043232984,
+                "duration": 3.6177910000005795,
                 "success": true
             },
             "hash": "bRJfHw"
         },
         ".assetpack/json/main{m}/unidades/torres/suelo-torre.json": {
             "isFolder": false,
-            "transformParent": "/workspace/strategy-game/raw-assets/main{m}/unidades/torres/suelo-torre.json",
+            "transformParent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades/torres/suelo-torre.json",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/public/assets/main/unidades/torres/suelo-torre.json": {
+        "/opt/data/proyectos/strategy-game/public/assets/main/unidades/torres/suelo-torre.json": {
             "isFolder": false,
             "transformParent": ".assetpack/json/main{m}/unidades/torres/suelo-torre.json",
             "metaData": {},
@@ -2771,24 +2771,24 @@
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/raw-assets/main{m}/unidades/torres/suelo-torre.png": {
+        "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades/torres/suelo-torre.png": {
             "isFolder": false,
-            "parent": "/workspace/strategy-game/raw-assets/main{m}/unidades/torres",
+            "parent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades/torres",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true
             },
             "transformData": {},
             "stats": {
-                "date": 1783965376267,
-                "duration": 56.015605999999934,
+                "date": 1784043232988,
+                "duration": 46.03886499999953,
                 "success": true
             },
             "hash": "IIDVBQ"
         },
         ".assetpack/mipmap/main{m}/unidades/torres/suelo-torre.png": {
             "isFolder": false,
-            "transformParent": "/workspace/strategy-game/raw-assets/main{m}/unidades/torres/suelo-torre.png",
+            "transformParent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades/torres/suelo-torre.png",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true
@@ -2804,7 +2804,7 @@
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/public/assets/main/unidades/torres/suelo-torre.png": {
+        "/opt/data/proyectos/strategy-game/public/assets/main/unidades/torres/suelo-torre.png": {
             "isFolder": false,
             "transformParent": ".assetpack/compress/main{m}/unidades/torres/suelo-torre.png",
             "metaData": {},
@@ -2822,7 +2822,7 @@
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/public/assets/main/unidades/torres/suelo-torre.webp": {
+        "/opt/data/proyectos/strategy-game/public/assets/main/unidades/torres/suelo-torre.webp": {
             "isFolder": false,
             "transformParent": ".assetpack/compress/main{m}/unidades/torres/suelo-torre.webp",
             "metaData": {},
@@ -2833,7 +2833,7 @@
         },
         ".assetpack/mipmap/main{m}/unidades/torres/suelo-torre@0.5x.png": {
             "isFolder": false,
-            "transformParent": "/workspace/strategy-game/raw-assets/main{m}/unidades/torres/suelo-torre.png",
+            "transformParent": "/opt/data/proyectos/strategy-game/raw-assets/main{m}/unidades/torres/suelo-torre.png",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true
@@ -2849,7 +2849,7 @@
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/public/assets/main/unidades/torres/suelo-torre@0.5x.png": {
+        "/opt/data/proyectos/strategy-game/public/assets/main/unidades/torres/suelo-torre@0.5x.png": {
             "isFolder": false,
             "transformParent": ".assetpack/compress/main{m}/unidades/torres/suelo-torre@0.5x.png",
             "metaData": {},
@@ -2867,7 +2867,7 @@
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/public/assets/main/unidades/torres/suelo-torre@0.5x.webp": {
+        "/opt/data/proyectos/strategy-game/public/assets/main/unidades/torres/suelo-torre@0.5x.webp": {
             "isFolder": false,
             "transformParent": ".assetpack/compress/main{m}/unidades/torres/suelo-torre@0.5x.webp",
             "metaData": {},
@@ -2876,38 +2876,38 @@
             },
             "transformData": {}
         },
-        "/workspace/strategy-game/raw-assets/preload{m}": {
+        "/opt/data/proyectos/strategy-game/raw-assets/preload{m}": {
             "isFolder": true,
-            "parent": "/workspace/strategy-game/raw-assets",
+            "parent": "/opt/data/proyectos/strategy-game/raw-assets",
             "metaData": {
                 "m": true
             },
             "inheritedMetaData": {},
             "transformData": {},
             "stats": {
-                "date": 1783965376272,
-                "duration": 0.05955600000015693,
+                "date": 1784043233010,
+                "duration": 0.09798200000022916,
                 "success": true
             }
         },
-        "/workspace/strategy-game/raw-assets/preload{m}/logo.svg": {
+        "/opt/data/proyectos/strategy-game/raw-assets/preload{m}/logo.svg": {
             "isFolder": false,
-            "parent": "/workspace/strategy-game/raw-assets/preload{m}",
+            "parent": "/opt/data/proyectos/strategy-game/raw-assets/preload{m}",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true
             },
             "transformData": {},
             "stats": {
-                "date": 1783965376272,
-                "duration": 0.7091879999998127,
+                "date": 1784043233010,
+                "duration": 2.1827299999995375,
                 "success": true
             },
             "hash": "LmftHw"
         },
-        "/workspace/strategy-game/public/assets/preload/logo.svg": {
+        "/opt/data/proyectos/strategy-game/public/assets/preload/logo.svg": {
             "isFolder": false,
-            "transformParent": "/workspace/strategy-game/raw-assets/preload{m}/logo.svg",
+            "transformParent": "/opt/data/proyectos/strategy-game/raw-assets/preload{m}/logo.svg",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true

@@ -1,14 +1,17 @@
 import { type CellCoord, type GridConfig } from "./GridConfig";
+import type { EntityFootprintDef } from "./EntityFootprint";
 import { GridState } from "./GridState";
 
 export type FootprintSize = 1 | 2 | 3 | 4;
 
 export const FOOTPRINT_SIZES: readonly FootprintSize[] = [1, 2, 3, 4];
 
+export type OccupationFootprint = FootprintSize | EntityFootprintDef;
+
 export interface Occupant {
   id: string;
   anchor: CellCoord;
-  size: FootprintSize;
+  size: OccupationFootprint;
 }
 
 export interface FootprintValidation {
@@ -21,12 +24,16 @@ export interface PlaceFootprintResult {
   reason?: "out_of_bounds" | "overlaps_existing" | "anchor_occupied";
 }
 
-function cellsForFootprint(anchor: CellCoord, size: FootprintSize): CellCoord[] {
-  const halfBefore = Math.floor((size - 1) / 2);
-  const halfAfter = Math.ceil((size - 1) / 2);
+function cellsForFootprint(anchor: CellCoord, footprint: OccupationFootprint): CellCoord[] {
+  const { width, height } =
+    typeof footprint === "number" ? { width: footprint, height: footprint } : footprint;
+  const colsBefore = Math.floor((width - 1) / 2);
+  const colsAfter = Math.ceil((width - 1) / 2);
+  const rowsBefore = Math.floor((height - 1) / 2);
+  const rowsAfter = Math.ceil((height - 1) / 2);
   const cells: CellCoord[] = [];
-  for (let dr = -halfBefore; dr <= halfAfter; dr++) {
-    for (let dc = -halfBefore; dc <= halfAfter; dc++) {
+  for (let dr = -rowsBefore; dr <= rowsAfter; dr++) {
+    for (let dc = -colsBefore; dc <= colsAfter; dc++) {
       cells.push({ col: anchor.col + dc, row: anchor.row + dr });
     }
   }
@@ -44,10 +51,10 @@ function isInsideGrid(coord: CellCoord, config: GridConfig): boolean {
 
 export function getAllFootprintCells(
   anchor: CellCoord,
-  size: FootprintSize,
+  footprint: OccupationFootprint,
   config: GridConfig,
 ): FootprintValidation {
-  const candidateCells = cellsForFootprint(anchor, size);
+  const candidateCells = cellsForFootprint(anchor, footprint);
   const blockedCells: CellCoord[] = [];
 
   for (const c of candidateCells) {
@@ -64,16 +71,16 @@ export function getAllFootprintCells(
 
 export function canPlaceFootprint(
   anchor: CellCoord,
-  size: FootprintSize,
+  footprint: OccupationFootprint,
   gridState: GridState,
   config: GridConfig,
 ): PlaceFootprintResult {
-  const { valid } = getAllFootprintCells(anchor, size, config);
+  const { valid } = getAllFootprintCells(anchor, footprint, config);
   if (!valid) {
     return { success: false, reason: "out_of_bounds" };
   }
 
-  const allCells = cellsForFootprint(anchor, size);
+  const allCells = cellsForFootprint(anchor, footprint);
   for (const c of allCells) {
     const cell = gridState.getCell(c);
     if (!cell) {
@@ -94,15 +101,15 @@ export function canPlaceFootprint(
 
 export function placeFootprint(
   anchor: CellCoord,
-  size: FootprintSize,
+  footprint: OccupationFootprint,
   occupantId: string,
   gridState: GridState,
   config: GridConfig,
 ): boolean {
-  const check = canPlaceFootprint(anchor, size, gridState, config);
+  const check = canPlaceFootprint(anchor, footprint, gridState, config);
   if (!check.success) return false;
 
-  const allCells = cellsForFootprint(anchor, size);
+  const allCells = cellsForFootprint(anchor, footprint);
   for (const c of allCells) {
     gridState.occupyCell(c, occupantId);
   }
