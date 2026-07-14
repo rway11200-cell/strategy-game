@@ -112,7 +112,7 @@ export class MainScreen extends Container {
       assignBackground,
     );
 
-    const gridConfig = createGridConfig({ gridWidth: 25, gridHeight: 19, cellSize: 64 });
+    const gridConfig = createGridConfig();
     const gridOverlay = new GridDebugOverlay(gridConfig, true);
     this.worldContainer.addChild(gridOverlay.getContainer());
     gridOverlay.toggle();

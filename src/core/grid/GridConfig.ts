@@ -36,8 +36,8 @@ export interface CellState {
 
 const DEFAULT_GRID: GridConfig = {
   cellSize: 64,
-  gridWidth: 20,
-  gridHeight: 15,
+  gridWidth: 12,
+  gridHeight: 9,
   offsetX: 0,
   offsetY: 0,
 };

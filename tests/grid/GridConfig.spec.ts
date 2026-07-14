@@ -6,8 +6,8 @@ describe("GridConfig", () => {
     it("returns default values when called with no arguments", () => {
       const config = createDefaultGridConfig();
       expect(config.cellSize).toBe(64);
-      expect(config.gridWidth).toBe(20);
-      expect(config.gridHeight).toBe(15);
+      expect(config.gridWidth).toBe(12);
+      expect(config.gridHeight).toBe(9);
       expect(config.offsetX).toBe(0);
       expect(config.offsetY).toBe(0);
     });
@@ -16,7 +16,7 @@ describe("GridConfig", () => {
       const config = createDefaultGridConfig({ cellSize: 32, gridWidth: 10 });
       expect(config.cellSize).toBe(32);
       expect(config.gridWidth).toBe(10);
-      expect(config.gridHeight).toBe(15);
+      expect(config.gridHeight).toBe(9);
       expect(config.offsetX).toBe(0);
       expect(config.offsetY).toBe(0);
     });
