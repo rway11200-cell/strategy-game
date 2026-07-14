@@ -116,6 +116,7 @@ export class MainScreen extends Container {
     const gridOverlay = new GridDebugOverlay(gridConfig, true);
     this.worldContainer.addChild(gridOverlay.getContainer());
     gridOverlay.toggle();
+    gridOverlay.render();
 
     const buttonAnimations = {
       hover: {
