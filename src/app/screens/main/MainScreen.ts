@@ -12,6 +12,7 @@ import { PauseResumeOption } from "../../../engine/navigation/navigation";
 import { GameManager } from "../../core/GameManager";
 import { CoinsUI } from "../../ui/game/CoinsUI";
 import { NotificationsUI } from "../../ui/game/NotificationsUI";
+import { createGridConfig } from "../../../grid/GridConfig";
 import { GridDebugOverlay } from "../../../grid/GridDebugOverlay";
 
 export const MAP_WIDTH = 1600;
@@ -111,10 +112,10 @@ export class MainScreen extends Container {
       assignBackground,
     );
 
-    // Mostrar grid overlay por defecto
-    const gridOverlay = new GridDebugOverlay(25, 19, 64);
-    this.worldContainer.addChild(gridOverlay);
-    gridOverlay.show();
+    const gridConfig = createGridConfig({ gridWidth: 25, gridHeight: 19, cellSize: 64 });
+    const gridOverlay = new GridDebugOverlay(gridConfig, true);
+    this.worldContainer.addChild(gridOverlay.getContainer());
+    gridOverlay.toggle();
 
     const buttonAnimations = {
       hover: {
