@@ -46,10 +46,14 @@ export class SpawnEnemiesAction implements LevelAction {
       unit.initializeEnemy(nextEnemyType);
 
       if (selectedPath.grid && context.gridIntegration) {
-        const worldPath = context.gridIntegration.calculatePath();
-        unit.initializeTargetFollower({
-          targets: worldPath,
-          variation: 40,
+        const grid = context.gridIntegration;
+        const cellPath = grid.calculateEntityCellPath(nextEnemyType);
+        unit.initializeTileMovement({
+          cells: cellPath,
+          gridConfig: grid.gridConfig,
+          gridState: grid.gridState,
+          start: grid.spawn,
+          entityType: nextEnemyType,
         });
       } else {
         unit.initializeTargetFollower({

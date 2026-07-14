@@ -1,11 +1,14 @@
 import { AnimatedSprite, Container, Graphics, ObservablePoint, PointData, Ticker } from "pixi.js";
 import { getDistance } from "../../../engine/utils/maths";
+import type { CellCoord, GridConfig } from "../../../grid/GridConfig";
+import type { GridState } from "../../../grid/GridState";
 import { debugLogChanged } from "../../utils/debugLog";
 import { devToolDrawPoints } from "../../utils/devTools";
 import { getFramesAseprite } from "../../utils/sprite";
 import { UnitCreator } from "../UnitCreator";
 import { MovementDirection, Movement } from "../Movement";
 import { TargetFollower } from "../PathFollower";
+import { TileMovement } from "../TileMovement";
 import { Projectile } from "./Projectile";
 
 export interface ShootOptions {
@@ -21,6 +24,15 @@ export interface TargetFollowerOptions {
   variation?: number;
   speed?: number;
   forceActivatePathFollower?: boolean;
+}
+
+export interface TileTargetFollowerOptions {
+  cells: CellCoord[];
+  gridConfig: GridConfig;
+  gridState: GridState;
+  start: CellCoord;
+  entityType: string;
+  ticksPerCell?: number;
 }
 export interface FramesJson {
   idle: string;
@@ -55,6 +67,7 @@ export class Unit extends Container {
   private rangeGraph?: Graphics;
 
   private movement?: Movement;
+  private tileMovement?: TileMovement;
 
   public animatedSprite?: AnimatedSprite;
   private framesJson?: FramesJson;
@@ -155,6 +168,8 @@ export class Unit extends Container {
   }
 
   public initializeTargetFollower(targetFollowerOptions: TargetFollowerOptions) {
+    this.tileMovement?.releaseOccupation();
+    this.tileMovement = undefined;
     this.targetFollowerOptions = {
       ...this.targetFollowerOptions,
       ...targetFollowerOptions,
@@ -191,6 +206,21 @@ export class Unit extends Container {
     }
   }
 
+  public initializeTileMovement(options: TileTargetFollowerOptions) {
+    this.targetFollower = new TargetFollower();
+    this.targetFollower.setRouteFromCells({
+      cells: options.cells,
+      gridConfig: options.gridConfig,
+    });
+
+    this.tileMovement?.releaseOccupation();
+    this.tileMovement = new TileMovement({
+      ...options,
+      occupantId: this.getId(),
+      ticksPerCell: options.ticksPerCell ?? Math.max(1, Math.round(1 / this.speed)),
+    });
+  }
+
   public update(_time: Ticker) {
     if (!this.active || !this.animatedSprite || !this.animatedSprite.visible) return;
 
@@ -209,6 +239,18 @@ export class Unit extends Container {
 
   private updateMovement(_time: Ticker) {
     if (!this.targetFollower) return;
+
+    if (this.tileMovement) {
+      const targetCell = this.targetFollower.targetCell;
+      if (!targetCell) {
+        this.setAnimationIdle();
+        return;
+      }
+
+      const { direction } = this.tileMovement.walk(this, this.targetFollower);
+      this.setAnimationRun(direction);
+      return;
+    }
 
     const target = this.targetFollower.target;
     if (!target) {
@@ -336,6 +378,7 @@ export class Unit extends Container {
     this.active = true;
     this.canBeProjectileTarget = true;
     if (this.movement) this.movement.active = true;
+    if (this.tileMovement) this.tileMovement.active = true;
 
     if (!this.animatedSprite) {
       debugLogChanged(this.getId("this.animatedSprite not initialized"));
@@ -347,7 +390,11 @@ export class Unit extends Container {
 
     if (this.targetFollower) {
       this.targetFollower.reset();
-      this.position = this.targetFollower.getOrigin();
+      if (this.tileMovement) {
+        this.tileMovement.spawn(this);
+      } else {
+        this.position = this.targetFollower.getOrigin();
+      }
     }
 
     if (this.rangeGraph) {
@@ -363,6 +410,10 @@ export class Unit extends Container {
   public destroy() {
     this.canBeProjectileTarget = false;
     if (this.movement) this.movement.active = false;
+    if (this.tileMovement) {
+      this.tileMovement.active = false;
+      this.tileMovement.releaseOccupation();
+    }
     this.onDestroy?.(this);
 
     this.setAnimationDead(() => {

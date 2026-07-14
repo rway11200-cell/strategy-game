@@ -1,5 +1,6 @@
 import { PointData } from "pixi.js";
 import { randomFloat } from "../../engine/utils/random";
+import { type CellCoord, gridToWorld, type GridConfig } from "../../grid/GridConfig";
 import { Unit } from "./unidades/Unit";
 
 interface TargetFollowerFromPointsProps {
@@ -13,19 +14,29 @@ interface TargetFollowerFromContainerProps {
   loop?: boolean;
 }
 
+interface TargetFollowerFromCellsProps {
+  cells: CellCoord[];
+  gridConfig: GridConfig;
+  loop?: boolean;
+}
+
 type TargetProvider = () => PointData;
 
 export class TargetFollower {
   private targets: TargetProvider[] = [];
+  private cells?: CellCoord[];
   private units?: Unit[];
   private i = 0;
   private loop = false;
+  private completed = false;
   public variation: number = 0;
   public onDestinationReached?: () => void;
 
   constructor() {}
 
   setRouteFromPoints({ points, variation = 0, loop = false }: TargetFollowerFromPointsProps) {
+    this.cells = undefined;
+    this.units = undefined;
     this.variation = variation;
     this.targets = points.map((point): TargetProvider => {
       const pointWithVariation: PointData = {
@@ -37,6 +48,7 @@ export class TargetFollower {
     });
     this.i = 0;
     this.loop = loop;
+    this.completed = false;
   }
 
   setRouteFromUnits({ units, loop = false }: TargetFollowerFromContainerProps) {
@@ -44,6 +56,7 @@ export class TargetFollower {
       throw new Error("setRouteFromUnits called with empty units");
     }
 
+    this.cells = undefined;
     this.units = units;
     this.targets = units.map((unit): TargetProvider => {
       return () => {
@@ -55,29 +68,52 @@ export class TargetFollower {
     });
     this.i = 0;
     this.loop = loop;
+    this.completed = false;
+  }
+
+  setRouteFromCells({ cells, gridConfig, loop = false }: TargetFollowerFromCellsProps) {
+    this.units = undefined;
+    this.cells = cells.map((cell) => ({ ...cell }));
+    this.targets = this.cells.map((cell) => () => gridToWorld(cell.col, cell.row, gridConfig));
+    this.i = 0;
+    this.loop = loop;
+    this.completed = false;
   }
 
   get target(): PointData | undefined {
+    if (this.completed) return;
     const result = this.targets[this.i];
     if (!result) return;
     return result();
   }
 
-  advanceToNextTarget() {
-    if (!this.targets.length) return;
+  get targetCell(): CellCoord | undefined {
+    if (this.completed) return;
+    return this.cells?.[this.i];
+  }
+
+  advanceToNextTarget(): boolean {
+    if (!this.targets.length || this.completed) return false;
     this.i++;
     if (this.i >= this.targets.length) {
-      this.i = this.loop ? 0 : this.targets.length - 1;
-      this.onDestinationReached?.();
+      if (this.loop) {
+        this.i = 0;
+      } else {
+        this.completed = true;
+        this.onDestinationReached?.();
+      }
+      return true;
     }
+    return false;
   }
 
   get finished(): boolean {
-    return !this.loop && this.targets.length > 0 && this.i === this.targets.length - 1;
+    return !this.loop && this.completed;
   }
 
   reset() {
     this.i = 0;
+    this.completed = false;
   }
 
   public getOrigin(): PointData {

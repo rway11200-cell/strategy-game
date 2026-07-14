@@ -23,7 +23,7 @@ export class GridIntegration {
   public readonly gridState: GridState;
   public readonly spawn: CellCoord;
   public readonly base: CellCoord;
-  private gridConfig: GridConfig;
+  public readonly gridConfig: GridConfig;
   public renderAdapter: GridRenderAdapter | null = null;
 
   constructor(config: GridIntegrationConfig) {
@@ -97,8 +97,18 @@ export class GridIntegration {
   }
 
   calculateEntityPath(entityType: string): { x: number; y: number }[] {
-    const path = findPathWithFootprint(this.spawn, this.base, this.gridState, this.gridConfig, entityType);
+    const path = this.calculateEntityCellPath(entityType);
     return path.map((c) => gridToWorld(c.col, c.row, this.gridConfig));
+  }
+
+  calculateEntityCellPath(entityType: string): CellCoord[] {
+    return findPathWithFootprint(
+      this.spawn,
+      this.base,
+      this.gridState,
+      this.gridConfig,
+      entityType,
+    );
   }
 
   occupyEntityCells(anchor: CellCoord, entityType: string, occupantId: string): void {
