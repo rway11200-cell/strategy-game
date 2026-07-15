@@ -33,7 +33,7 @@ export class MainScreen extends Container {
   private viewportWidth = 0;
   private viewportHeight = 0;
 
-  private gameManager!: GameManager;
+  public gameManager!: GameManager;
   private editMapButton: FancyButton;
 
   private paused = false;

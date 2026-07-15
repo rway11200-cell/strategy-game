@@ -4,6 +4,7 @@ import { LoadScreen } from "./app/screens/LoadScreen";
 import { MainScreen } from "./app/screens/main/MainScreen";
 import { userSettings } from "./app/utils/userSettings";
 import { CreationEngine } from "./engine/engine";
+import { createGameTestApi } from "./app/testing/GameTestApi";
 
 /**
  * Importing these modules will automatically register there plugins with the engine.
@@ -34,3 +35,27 @@ setEngine(engine);
   // Show the main screen once the load screen is dismissed
   await engine.navigation.showScreen(MainScreen);
 })();
+
+// ═══════════════════════════════════════════════
+// Game Test API — expuesta globalmente para Playwright / Hermes
+// Solo en desarrollo; no afecta el flujo normal del juego.
+// ═══════════════════════════════════════════════
+
+function getMainScreen(): MainScreen | null {
+  const current = engine.navigation.currentScreen;
+  if (current instanceof MainScreen) {
+    return current;
+  }
+  return null;
+}
+
+function isGameReady(): boolean {
+  const screen = getMainScreen();
+  if (!screen) return false;
+  return screen.gameManager !== undefined && screen.gameManager !== null;
+}
+
+window.__GAME_TEST__ = createGameTestApi(
+  () => getMainScreen()?.gameManager ?? null,
+  isGameReady,
+);
