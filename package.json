@@ -13,7 +13,10 @@
     "test:watch": "vitest --reporter=verbose",
     "test:visual": "playwright test --reporter=list",
     "test:visual:update": "playwright test --reporter=list --update-snapshots",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "autonomy:monitor": "node scripts/monitor-railway.mjs",
+    "autonomy:gate": "node scripts/autonomy-gate.mjs",
+    "autonomy:check": "node scripts/monitor-railway.mjs | node scripts/autonomy-gate.mjs"
   },
   "dependencies": {
     "@esotericsoftware/spine-pixi-v8": "^4.2.74",

@@ -32,25 +32,14 @@ if [ "$HTTP_CODE" != "200" ]; then
 fi
 
 # ────────────────────────────────────────────
-# 3. Verificar versión vía window.__GAME_TEST__
-#    La versión solo se ve ejecutando JS, no en el HTML estático.
+# 3. Verificar que el bundle JS se cargue
+#    El HTML estático no contiene __GAME_TEST__, está en el bundle JS
+#    que se carga dinámicamente. No podemos detectarlo desde bash.
+#    Así que simplemente ejecutamos los tests — si fallan reportan.
 # ────────────────────────────────────────────
-# Usamos curl para obtener el HTML, si contiene el bundle JS
-# asumimos que el deploy está vivo. La verificación de versión
-# la hacemos preguntando a la API via fetch (no desde bash).
-# En su lugar: ejecutamos playwright directo — si la versión
-# no coincide, el test fallará y reportará.
 
 # ────────────────────────────────────────────
-# 4. Verificar que window.__GAME_TEST__ exista
-# ────────────────────────────────────────────
-if ! curl -s "$URL" --max-time 15 | grep -q '__GAME_TEST__'; then
-  # Deploy anterior sin GameTestApi — esperar
-  exit 0
-fi
-
-# ────────────────────────────────────────────
-# 5. Ejecutar tests Playwright
+# 4. Ejecutar tests Playwright
 # ────────────────────────────────────────────
 echo "🧪 Tests contra $URL (commit $LATEST_COMMIT, v$PKG_VERSION)"
 START_TS=$(date +%s)
@@ -61,7 +50,7 @@ END_TS=$(date +%s)
 DURATION=$((END_TS - START_TS))
 
 # ────────────────────────────────────────────
-# 6. Analizar resultado
+# 5. Analizar resultado
 # ────────────────────────────────────────────
 if grep -q "passed" "$LOG_FILE" 2>/dev/null && ! grep -q "failed" "$LOG_FILE" 2>/dev/null; then
   # ✅ Todo bien — silencio
@@ -74,6 +63,6 @@ elif grep -q "failed" "$LOG_FILE" 2>/dev/null; then
   exit 1
 else
   echo "⚠️  Tests incompletos (${DURATION}s). Últimas líneas:"
-  tail -10 "$LOG_FILE" 2>/dev/null || true
+  tail -20 "$LOG_FILE" 2>/dev/null || true
   exit 1
 fi
