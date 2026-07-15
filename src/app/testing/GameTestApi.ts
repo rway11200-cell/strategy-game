@@ -174,7 +174,7 @@ export function createGameTestApi(
       const activeTowers = ctx.towerCreator?.getUnits(true) ?? [];
 
       return {
-        version: APP_VERSION,
+        version: "x.x.x",
         coins: ctx.coins ?? 0,
         enemiesCount: activeEnemies.length,
         towersCount: activeTowers.length,
