@@ -10,9 +10,7 @@
  */
 
 import type { GridConfig } from "../../grid/GridConfig";
-import type { CellCoord } from "../../grid/GridConfig";
 import type { GridIntegration } from "../../grid/GridIntegration";
-import type { CellState } from "../../grid/GridState";
 import type { GameManager } from "../core/GameManager";
 import type { LevelContext } from "../core/niveles/cargador/LevelContext";
 import type { Enemy } from "../core/unidades/Enemy";
