@@ -8,7 +8,7 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
   reporter: "list",
   use: {
-    baseURL: "http://localhost:4173",
+    baseURL: "https://strategy-game-production-0277.up.railway.app",
     trace: "on-first-retry",
     headless: true,
   },
@@ -18,9 +18,7 @@ export default defineConfig({
       use: { ...devices["Desktop Chrome"] },
     },
   ],
-  webServer: {
-    command: "npm run preview",
-    url: "http://localhost:4173",
-    reuseExistingServer: !process.env.CI,
-  },
+  // Sin webServer — los tests apuntan a Railway (producción)
+  // Para pruebas locales, cambiar baseURL a http://localhost:4173 y
+  // ejecutar primero: npm run build && npm run preview
 });
