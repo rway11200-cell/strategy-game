@@ -14,49 +14,38 @@ LOG_FILE="/tmp/strategy-game-test-last.log"
 cd "$PROJECT_DIR"
 
 # ────────────────────────────────────────────
-# 1. Obtener último commit de GitHub (local)
+# 1. Obtener último commit y versión local
 # ────────────────────────────────────────────
 LATEST_COMMIT=$(git rev-parse HEAD 2>/dev/null || echo "")
 if [ -z "$LATEST_COMMIT" ]; then
-  echo "⚠️  No se pudo obtener el commit local. Saltando."
   exit 0
 fi
+
+PKG_VERSION=$(node -e "console.log(require('./package.json').version)" 2>/dev/null || echo "unknown")
 
 # ────────────────────────────────────────────
 # 2. Verificar que Railway responda
 # ────────────────────────────────────────────
 HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "$URL" --max-time 15)
 if [ "$HTTP_CODE" != "200" ]; then
-  # Railway no disponible aún — silencio
   exit 0
 fi
 
 # ────────────────────────────────────────────
-# 3. Verificar que Railway tenga el último commit
-#    Buscamos un hash o señal de que es el deploy correcto
+# 3. Verificar versión vía window.__GAME_TEST__
+#    La versión solo se ve ejecutando JS, no en el HTML estático.
 # ────────────────────────────────────────────
-# No podemos leer el commit desde Railway directamente,
-# pero sí podemos verificar que window.__GAME_TEST__ existe
-# con la versión correcta.
-GAME_TEST_EXISTS=$(curl -s "$URL" --max-time 15 | grep -c '__GAME_TEST__' || true)
-if [ "$GAME_TEST_EXISTS" -eq 0 ]; then
-  # Railway todavía no tiene el nuevo deploy — silencio
-  exit 0
-fi
+# Usamos curl para obtener el HTML, si contiene el bundle JS
+# asumimos que el deploy está vivo. La verificación de versión
+# la hacemos preguntando a la API via fetch (no desde bash).
+# En su lugar: ejecutamos playwright directo — si la versión
+# no coincide, el test fallará y reportará.
 
 # ────────────────────────────────────────────
-# 4. Verificar versión del juego vs package.json
+# 4. Verificar que window.__GAME_TEST__ exista
 # ────────────────────────────────────────────
-PKG_VERSION=$(node -e "console.log(require('./package.json').version)" 2>/dev/null || echo "unknown")
-
-# Usamos una verificación indirecta: el HTML tiene la versión
-# Vite inyecta APP_VERSION en el build. Si Railway sirve una
-# versión distinta a la actual, el build no está actualizado.
-# Intentamos detectar la versión desde el HTML servido.
-# (Esto es una heurística, no blocking)
-VERSION_IN_URL=$(curl -s "$URL" --max-time 10 | grep -oP 'v[\d]+\.[\d]+\.[\d]+' | head -1 || echo "")
-if [ -n "$VERSION_IN_URL" ] && [ "$VERSION_IN_URL" != "v$PKG_VERSION" ]; then
-  # La versión servida no coincide con el package.json — deploy desactualizado
+if ! curl -s "$URL" --max-time 15 | grep -q '__GAME_TEST__'; then
+  # Deploy anterior sin GameTestApi — esperar
   exit 0
 fi
 
@@ -75,7 +64,6 @@ DURATION=$((END_TS - START_TS))
 # 6. Analizar resultado
 # ────────────────────────────────────────────
 if grep -q "passed" "$LOG_FILE" 2>/dev/null && ! grep -q "failed" "$LOG_FILE" 2>/dev/null; then
-  PASSED=$(grep -oP '\d+ passed' "$LOG_FILE" | head -1 | awk '{print $1}')
   # ✅ Todo bien — silencio
   exit 0
 elif grep -q "failed" "$LOG_FILE" 2>/dev/null; then

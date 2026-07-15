@@ -36,7 +36,7 @@ test.describe("GameTestApi — window.__GAME_TEST__", () => {
     expect(ready).toBe(true);
   });
 
-  test("getState() devuelve un objeto serializable", async ({ page }) => {
+  test("getState() devuelve un objeto serializable con versión correcta", async ({ page }) => {
     await page.goto("/");
     await page.waitForLoadState("networkidle");
     await waitForGameReady(page);
@@ -44,6 +44,7 @@ test.describe("GameTestApi — window.__GAME_TEST__", () => {
     const state = await page.evaluate(() => window.__GAME_TEST__!.getState());
 
     expect(state).toBeDefined();
+    expect(state.version).toBe("0.1.0"); // Debe coincidir con package.json
     expect(typeof state.coins).toBe("number");
     expect(typeof state.enemiesCount).toBe("number");
     expect(typeof state.towersCount).toBe("number");
