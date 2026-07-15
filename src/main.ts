@@ -59,3 +59,9 @@ window.__GAME_TEST__ = createGameTestApi(
   () => getMainScreen()?.gameManager ?? null,
   isGameReady,
 );
+
+// Mostrar versión en pantalla
+const versionEl = document.getElementById("app-version");
+if (versionEl) {
+  versionEl.textContent = `v${APP_VERSION}`;
+}

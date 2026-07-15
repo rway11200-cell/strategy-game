@@ -1,3 +1,5 @@
+/// <reference types="vite/client" />
+
 /**
  * GameTestApi — API de testing para validación automática del juego.
  *
@@ -21,6 +23,7 @@ import type { Tower } from "../core/unidades/Tower";
 // ──────────────────────────────────────────────
 
 export interface GameTestState {
+  version: string;
   coins: number;
   enemiesCount: number;
   towersCount: number;
@@ -157,20 +160,21 @@ export function createGameTestApi(
     getState(): GameTestState {
       const mgr = getManager();
       if (!mgr) {
-        return { coins: 0, enemiesCount: 0, towersCount: 0, currentWave: 0, errors: ["GameManager not initialized"] };
+        return { version: APP_VERSION, coins: 0, enemiesCount: 0, towersCount: 0, currentWave: 0, errors: ["GameManager not initialized"] };
       }
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const mgrDebug = mgr as any as GameManagerDebug;
       const ctx = mgrDebug.gameContext;
       if (!ctx) {
-        return { coins: 0, enemiesCount: 0, towersCount: 0, currentWave: 0, errors: ["LevelContext not initialized"] };
+        return { version: APP_VERSION, coins: 0, enemiesCount: 0, towersCount: 0, currentWave: 0, errors: ["LevelContext not initialized"] };
       }
 
       const activeEnemies = ctx.enemyCreator?.getUnits(true) ?? [];
       const activeTowers = ctx.towerCreator?.getUnits(true) ?? [];
 
       return {
+        version: APP_VERSION,
         coins: ctx.coins ?? 0,
         enemiesCount: activeEnemies.length,
         towersCount: activeTowers.length,
