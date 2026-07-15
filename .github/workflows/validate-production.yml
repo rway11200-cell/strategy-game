@@ -1,0 +1,57 @@
+name: Validate production
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  validate-production:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      PRODUCTION_URL: ${{ secrets.PRODUCTION_URL }}
+      EXPECTED_COMMIT_SHA: ${{ github.sha }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Prepare artifact directories
+        run: |
+          mkdir -p playwright-report test-results
+          touch playwright-report/workflow-placeholder.txt
+          touch test-results/workflow-placeholder.txt
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Wait for Railway deployment
+        run: npm run wait:production
+
+      - name: Run production smoke test
+        run: npm run test:e2e:production
+
+      - name: Upload Playwright artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: production-validation-${{ github.run_id }}
+          path: |
+            playwright-report/
+            test-results/
+          if-no-files-found: warn
+          retention-days: 14

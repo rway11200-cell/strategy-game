@@ -6,10 +6,14 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 1 : undefined,
-  reporter: "list",
+  reporter: process.env.CI
+    ? [["list"], ["html", { outputFolder: "playwright-report", open: "never" }]]
+    : "list",
+  outputDir: "test-results",
   use: {
-    baseURL: "https://strategy-game-production-0277.up.railway.app",
-    trace: "on-first-retry",
+    baseURL: process.env.PRODUCTION_URL ?? "http://localhost:4173",
+    screenshot: "only-on-failure",
+    trace: "retain-on-failure",
     headless: true,
   },
   projects: [
@@ -18,7 +22,6 @@ export default defineConfig({
       use: { ...devices["Desktop Chrome"] },
     },
   ],
-  // Sin webServer — los tests apuntan a Railway (producción)
-  // Para pruebas locales, cambiar baseURL a http://localhost:4173 y
-  // ejecutar primero: npm run build && npm run preview
+  // No webServer: production tests target PRODUCTION_URL. The localhost
+  // fallback supports a manually started `npm run preview`.
 });

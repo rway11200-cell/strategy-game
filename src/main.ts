@@ -20,7 +20,6 @@ initDevtools({ app: engine });
 setEngine(engine);
 
 (async () => {
-
   // Initialize the creation engine instance
   await engine.init({
     background: "#333333ff",
@@ -36,11 +35,6 @@ setEngine(engine);
   await engine.navigation.showScreen(MainScreen);
 })();
 
-// ═══════════════════════════════════════════════
-// Game Test API — expuesta globalmente para Playwright / Hermes
-// Solo en desarrollo; no afecta el flujo normal del juego.
-// ═══════════════════════════════════════════════
-
 function getMainScreen(): MainScreen | null {
   const current = engine.navigation.currentScreen;
   if (current instanceof MainScreen) {
@@ -55,10 +49,9 @@ function isGameReady(): boolean {
   return screen.gameManager !== undefined && screen.gameManager !== null;
 }
 
-window.__GAME_TEST__ = createGameTestApi(
-  () => getMainScreen()?.gameManager ?? null,
-  isGameReady,
-);
+if (import.meta.env.MODE === "test" || import.meta.env.VITE_ENABLE_GAME_TEST_API === "true") {
+  window.__GAME_TEST__ = createGameTestApi(() => getMainScreen()?.gameManager ?? null, isGameReady);
+}
 
 // Mostrar versión en pantalla
 const versionEl = document.getElementById("app-version");
