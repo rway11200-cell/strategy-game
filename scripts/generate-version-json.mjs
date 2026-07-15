@@ -38,7 +38,7 @@ export function generateVersionJson() {
         version,
         commit: commitSha || "unknown",
         buildTime: new Date().toISOString(),
-        environment: process.env.RAILWAY_ENVIRONMENT || "production",
+        environment: process.env.RAILWAY_ENVIRONMENT_NAME || "production",
         railwayProject: process.env.RAILWAY_PROJECT_NAME || "",
         railwayService: process.env.RAILWAY_SERVICE_NAME || "",
       };

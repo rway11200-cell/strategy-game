@@ -12,7 +12,8 @@ GitHub Actions. No crea contenedores ni integra Hermes.
    vuelve a desplegar. Vite incorpora esta variable durante el build; sin ella
    `window.__GAME_TEST__` no se publica en produccion.
 4. Confirma que Railway proporciona `RAILWAY_GIT_COMMIT_SHA` durante el build.
-   El plugin de Vite usa ese valor para escribir `dist/version.json`.
+   El Dockerfile declara esta variable y el plugin de Vite usa su valor para
+   escribir `dist/version.json`.
 
 No se debe guardar `PRODUCTION_URL` ni ninguna credencial en el repositorio.
 `EXPECTED_COMMIT_SHA` lo define el workflow automáticamente con
