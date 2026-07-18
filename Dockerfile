@@ -35,4 +35,4 @@ ENV PORT=${PORT:-4173}
 
 EXPOSE 4173
 
-CMD ["npx", "vite", "preview", "--host", "0.0.0.0", "--port", "${PORT:-4173}"]
+CMD ["npm", "start"]
