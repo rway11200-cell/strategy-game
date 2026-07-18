@@ -7,6 +7,11 @@ export default defineConfig({
   server: {
     port: 8080,
     open: false,
+    allowedHosts: [
+      "tower-defence-pixi-production.up.railway.app",
+      "strategy-game-production-0277.up.railway.app",
+      "localhost",
+    ],
   },
   build: {
     sourcemap: true,
