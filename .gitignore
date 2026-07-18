@@ -36,3 +36,4 @@ tests/playwright/**/__snapshots__/
 #public/assets
 #.assetpack
 #src/manifest.json
+public/version.json
