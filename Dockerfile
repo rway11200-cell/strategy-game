@@ -1,11 +1,10 @@
-FROM node:20-alpine
-
-RUN npm install -g pnpm
+FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-COPY package.json ./
-RUN pnpm install
+COPY package.json package-lock.json ./
+RUN npm ci
+
 COPY . .
 
 ARG RAILWAY_GIT_COMMIT_SHA
@@ -14,7 +13,26 @@ ARG RAILWAY_PROJECT_NAME
 ARG RAILWAY_SERVICE_NAME
 ARG VITE_ENABLE_GAME_TEST_API
 
-RUN pnpm build
+RUN npm run build
+
+FROM node:20-alpine
+
+WORKDIR /app
+
+COPY package.json package-lock.json ./
+RUN npm ci --omit=dev
+
+COPY --from=builder /app/dist ./dist
+
+ARG RAILWAY_GIT_COMMIT_SHA
+ARG RAILWAY_ENVIRONMENT_NAME
+ARG RAILWAY_PROJECT_NAME
+ARG RAILWAY_SERVICE_NAME
+ARG VITE_ENABLE_GAME_TEST_API
+
+ENV VITE_ENABLE_GAME_TEST_API=${VITE_ENABLE_GAME_TEST_API:-false}
+ENV PORT=${PORT:-4173}
 
 EXPOSE 4173
-CMD ["pnpm", "start"]
+
+CMD ["npx", "vite", "preview", "--host", "0.0.0.0", "--port", "${PORT:-4173}"]

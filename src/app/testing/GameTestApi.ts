@@ -15,6 +15,7 @@ import type { GridConfig } from "../../grid/GridConfig";
 import type { GridIntegration } from "../../grid/GridIntegration";
 import type { GameManager } from "../core/GameManager";
 import type { LevelContext } from "../core/niveles/cargador/LevelContext";
+import { EnemyType } from "../core/unidades/Enemy";
 import type { Enemy } from "../core/unidades/Enemy";
 import type { Tower } from "../core/unidades/Tower";
 
@@ -328,7 +329,7 @@ export function createGameTestApi(
         enemy.position.set(worldSpawn.x, worldSpawn.y);
       }
 
-      enemy.initializeEnemy(1 as any); // Goblin
+      enemy.initializeEnemy(EnemyType.Goblin);
       enemy.spawn();
     },
 
@@ -342,7 +343,6 @@ export function createGameTestApi(
       const target = start + ms;
 
       // Sincrónico: bloqueamos hasta que pase el tiempo
-      // eslint-disable-next-line no-empty
       while (performance.now() < target) {
         // busy-wait — poco elegante pero funciona para tests
       }
