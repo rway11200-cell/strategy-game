@@ -1,39 +1,60 @@
-# OpenCode Coding Guidelines
+# OpenCode — Reglas de codificación
 
-Sigue estas reglas en CADA tarea que realices. Son obligatorias.
+## Archivos que NO debe modificar sin aprobación humana
 
-## Claridad > Cleverness
+Estos archivos son críticos para infraestructura y deploy. OpenCode no debe modificarlos en ninguna tarea a menos que la tarea diga explícitamente "Modificar [archivo]".
 
-- El código debe ser **entendible por un humano primero**. Optimizar después si es necesario.
-- Nombres descriptivos siempre: `enemyCount` no `ec`, `calculateDamage` no `calcDmg`, `spawnWave` no `sw`
-- Funciones cortas (máximo ~30 líneas). Si una función hace varias cosas, divídela.
-- No uses abreviaturas crípticas ni one-liners complejos.
+### 🚫 Prohibido tocar sin aprobación:
 
-## Comentarios
+| Archivo | Razón |
+|---|---|
+| `Dockerfile` | Configuración de deploy. Un error rompe Railway. |
+| `docker-compose.yml` | Infraestructura local. |
+| `.github/workflows/*.yml` | CI/CD — puede romper tests y deploys. |
+| `vite.config.ts` | Configuración de build y servidor. |
+| `package.json` — solo `scripts` y `dependencies` | OpenCode puede tocar `devDependencies` si agrega una lib nueva, pero no cambiar `scripts` de start/build/preview. |
+| `nginx.conf` (si existe) | Config de servidor web. |
+| `scripts/github-actions-*.mjs` | Scripts de monitoreo autónomo. |
+| `.autonomy/*` | Estado interno de monitoreo. |
 
-- Comenta el **"por qué"**, no el **"qué"**. El código debe explicar el qué por sí mismo.
-- Usa JSDoc/docstring en funciones públicas o no obvias.
-- Nada de comentarios obvios como `// incrementa el contador`.
+### ⚠️ Requiere aprobación humana:
 
-## Funciones complejas
+| Archivo | Razón |
+|---|---|
+| `src/app/core/GameManager.ts` | Orquestador principal del juego. |
+| `src/app/testing/GameTestApi.ts` | API de testing — cambios aquí afectan tests. |
+| `src/grid/GridConfig.ts` | Config de la grilla — cambios afectan pathfinding. |
+| `tests/playwright/*.ts` | Tests de integración que fallan en CI. |
 
-- Si una lógica es compleja, **enciérrala en una función con nombre descriptivo**.
-- Extra: `if (esAtaqueCritico())` en vez de `if (damage > baseDamage * 2 && random() < 0.3)`.
-- Las condiciones complejas merecen una función nombrada.
+### ✅ OpenCode puede modificar libremente:
 
-## Tests
+- `src/app/core/unidades/*.ts` — Enemigos, torres, proyectiles
+- `src/app/core/niveles/*.ts` — Niveles y oleadas
+- `src/app/core/Movement.ts`, `PathFollower.ts`, `TileMovement.ts` — Movimiento
+- `src/grid/*.ts` — Pathfinding, ocupación, grilla (excepto GridConfig.ts)
+- `src/app/ui/*.ts` — UI del juego
+- Cualquier archivo dentro de `src/` no listado arriba
+- Tests unitarios en `tests/*.spec.ts`
 
-- Si modificas comportamiento existente, asegúrate de que los tests existentes pasen.
-- Si agregas funcionalidad nueva, crea tests.
-- Si el proyecto no tiene tests para el área que tocas, al menos verifica que build/lint pasen.
+## Reglas de verificación antes de commit
 
-## Documentación
+1. **Siempre ejecutar tests locales antes de commitear:**
+   ```bash
+   npx vitest run 2>&1 | tail -20
+   ```
 
-- Si creas un módulo nuevo o una función pública significativa, agrega JSDoc.
-- Si ves que falta documentación en algo que tocaste, agrégala.
-- No crees documentos separados a menos que la tarea lo pida explícitamente.
+2. **Verificar que el build no se rompe:**
+   ```bash
+   npx tsc --noEmit 2>&1 | tail -20
+   ```
 
-## Antes de empezar
+3. **No cambiar scripts de package.json** (`start`, `build`, `preview`, `dev`).
 
-- Verifica que no haya cambios sin commit en el repo. Si los hay, DETENTE y reporta.
-- No modifiques dependencias, configs de build, ni CI a menos que la tarea lo indique.
+4. **No cambiar config de Vite** (`vite.config.ts`).
+
+5. **No cambiar Dockerfile ni CI/CD**.
+
+6. Si una tarea requiere cambios en archivos prohibidos, debe:
+   - Marcar la tarea como "Needs review"
+   - Incluir en `next_actions` una descripción clara del cambio necesario
+   - Esperar aprobación humana
