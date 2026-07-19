@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 /**
  * generate-version-json.mjs
  * Genera public/version.json con metadatos del deploy.
@@ -46,13 +45,12 @@ function main() {
   const outDir = resolve(projectRoot, "public");
   const outPath = resolve(outDir, "version.json");
 
-  // Asegurar que public/ existe
   try {
     writeFileSync(outPath, JSON.stringify(payload, null, 2) + "\n");
     console.log("[version-json] Generado:", outPath, JSON.stringify(payload));
   } catch (err) {
     console.error("[version-json] Error:", err.message);
-    process.exit(0); // Non-fatal: no romper el startup
+    process.exit(0);
   }
 }
 
