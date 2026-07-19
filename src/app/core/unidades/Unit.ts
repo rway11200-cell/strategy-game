@@ -8,7 +8,13 @@ import { getFramesAseprite } from "../../utils/sprite";
 import { UnitCreator } from "../UnitCreator";
 import { MovementDirection, Movement } from "../Movement";
 import { TargetFollower } from "../PathFollower";
-import { TileMovement } from "../TileMovement";
+import { TileMovement, type TileWalkResult } from "../TileMovement";
+import {
+  type CommandContext,
+  type CommandPathfinder,
+  defaultCommandPathfinder,
+  type IUnitCommand,
+} from "../UnitCommands";
 import { Projectile } from "./Projectile";
 
 export interface ShootOptions {
@@ -64,11 +70,15 @@ export class Unit extends Container {
   private combatGridConfig?: GridConfig;
   private lastShotTime: number = 0;
   public targetToShoot?: Unit;
+  private shootingMode: "auto" | "forced" | "disabled" = "auto";
+  private forcedShootingTarget?: Unit;
 
   private rangeGraph?: Graphics;
 
   private movement?: Movement;
   private tileMovement?: TileMovement;
+  private commandContext?: CommandContext;
+  public currentCommand?: IUnitCommand;
 
   public animatedSprite?: AnimatedSprite;
   private framesJson?: FramesJson;
@@ -147,6 +157,10 @@ export class Unit extends Container {
     }
 
     this.shootOptions.targets = targets;
+    if (this.commandContext) this.commandContext.enemies = targets;
+    if (this.targetToShoot && !targets.includes(this.targetToShoot)) {
+      this.targetToShoot = undefined;
+    }
   }
 
   public initializeShootingRange(shootOptions: ShootOptions) {
@@ -189,6 +203,9 @@ export class Unit extends Container {
   }
 
   public initializeTargetFollower(targetFollowerOptions: TargetFollowerOptions) {
+    this.currentCommand?.cancel(this);
+    this.currentCommand = undefined;
+    this.commandContext = undefined;
     this.tileMovement?.releaseOccupation();
     this.tileMovement = undefined;
     this.targetFollowerOptions = {
@@ -228,6 +245,8 @@ export class Unit extends Container {
   }
 
   public initializeTileMovement(options: TileTargetFollowerOptions) {
+    this.currentCommand?.cancel(this);
+    this.currentCommand = undefined;
     this.setCombatGrid(options.gridConfig);
     this.targetFollower = new TargetFollower();
     this.targetFollower.setRouteFromCells({
@@ -236,17 +255,83 @@ export class Unit extends Container {
     });
 
     this.tileMovement?.releaseOccupation();
+    const occupantId = this.getId();
     this.tileMovement = new TileMovement({
       ...options,
-      occupantId: this.getId(),
+      occupantId,
       ticksPerCell: options.ticksPerCell ?? Math.max(1, Math.round(1 / this.speed)),
     });
+    this.commandContext = {
+      gridConfig: options.gridConfig,
+      gridState: options.gridState,
+      pathfinder: defaultCommandPathfinder,
+      enemies: this.shootOptions?.targets ?? [],
+      entityType: options.entityType,
+      occupantId,
+    };
+  }
+
+  public issueCommand(command: IUnitCommand): void {
+    this.currentCommand?.cancel(this);
+    this.currentCommand = undefined;
+    if (!this.commandContext) return;
+
+    this.currentCommand = command;
+    command.execute(this, this.commandContext);
+    if (command.status !== "running") this.currentCommand = undefined;
+  }
+
+  public setCommandPathfinder(pathfinder: CommandPathfinder): void {
+    if (this.commandContext) this.commandContext.pathfinder = pathfinder;
+  }
+
+  public setCommandCellRoute(cells: CellCoord[], loop = false): void {
+    if (!this.targetFollower || !this.commandContext || !this.tileMovement) return;
+    this.tileMovement.setReleaseOccupationOnDestination(false);
+    this.tileMovement.resetStepProgress();
+    this.targetFollower.setRouteFromCells({
+      cells,
+      gridConfig: this.commandContext.gridConfig,
+      loop,
+    });
+  }
+
+  public clearCommandMovement(): void {
+    this.targetFollower?.clear();
+    this.tileMovement?.resetStepProgress();
+    this.setAnimationIdle();
+  }
+
+  public updateCommandMovement(ticker: Ticker): TileWalkResult {
+    return this.updateMovement(ticker);
+  }
+
+  public isCommandMovementFinished(): boolean {
+    return this.targetFollower?.finished ?? true;
+  }
+
+  public getShootingRange(): number | undefined {
+    return this.shootOptions?.range;
+  }
+
+  public setCommandShooting(
+    mode: "auto" | "forced" | "disabled",
+    target?: Unit,
+  ): void {
+    this.shootingMode = mode;
+    this.forcedShootingTarget = mode === "forced" ? target : undefined;
+    this.targetToShoot = undefined;
   }
 
   public update(_time: Ticker) {
     if (!this.active || !this.animatedSprite || !this.animatedSprite.visible) return;
 
-    this.updateMovement(_time);
+    if (this.currentCommand && this.commandContext) {
+      const status = this.currentCommand.update(this, this.commandContext, _time);
+      if (status !== "running") this.currentCommand = undefined;
+    } else {
+      this.updateMovement(_time);
+    }
     this.updateHealth();
     this.updateShooting(_time);
   }
@@ -259,25 +344,27 @@ export class Unit extends Container {
     this.healthBar.scale.x = currentHealthPercent / 100;
   }
 
-  private updateMovement(_time: Ticker) {
-    if (!this.targetFollower) return;
+  private updateMovement(_time: Ticker): TileWalkResult {
+    const noMovement = { moved: false, destinationReached: false, blocked: false };
+    if (!this.targetFollower) return noMovement;
 
     if (this.tileMovement) {
       const targetCell = this.targetFollower.targetCell;
       if (!targetCell) {
         this.setAnimationIdle();
-        return;
+        return noMovement;
       }
 
-      const { direction } = this.tileMovement.walk(this, this.targetFollower);
+      const result = this.tileMovement.walk(this, this.targetFollower);
+      const { direction } = result;
       this.setAnimationRun(direction);
-      return;
+      return result;
     }
 
     const target = this.targetFollower.target;
     if (!target) {
       this.setAnimationIdle();
-      return;
+      return noMovement;
     }
 
     if (this.movement?.canWalk()) {
@@ -288,6 +375,7 @@ export class Unit extends Container {
         this.targetFollower.advanceToNextTarget();
       }
     }
+    return noMovement;
   }
 
   private setAnimationIdle() {
@@ -353,18 +441,32 @@ export class Unit extends Container {
     }, frames.totalMs);
   }
   private updateShooting(_time: Ticker) {
+    if (this.shootingMode === "disabled") return;
+
     const shootOptions = this.shootOptions;
     const gridConfig = this.combatGridConfig;
     const towerCell = this.getGridCell();
     if (!shootOptions?.range || !gridConfig || !towerCell) return;
 
-    this.targetToShoot = getCurrentOrClosestGridTarget(
-      towerCell,
-      shootOptions.targets ?? [],
-      shootOptions.range,
-      gridConfig,
-      this.targetToShoot,
-    );
+    if (this.shootingMode === "forced") {
+      const target = this.forcedShootingTarget;
+      const targetCell = target?.getGridCell(gridConfig);
+      this.targetToShoot =
+        target?.active &&
+        target.canBeProjectileTarget &&
+        targetCell &&
+        getCellDistance(towerCell, targetCell) <= shootOptions.range
+          ? target
+          : undefined;
+    } else {
+      this.targetToShoot = getCurrentOrClosestGridTarget(
+        towerCell,
+        shootOptions.targets ?? [],
+        shootOptions.range,
+        gridConfig,
+        this.targetToShoot,
+      );
+    }
 
     if (!this.targetToShoot) return;
 
@@ -429,6 +531,8 @@ export class Unit extends Container {
   }
 
   public destroy() {
+    this.currentCommand?.cancel(this);
+    this.currentCommand = undefined;
     this.canBeProjectileTarget = false;
     if (this.movement) this.movement.active = false;
     if (this.tileMovement) {

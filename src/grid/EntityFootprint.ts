@@ -41,6 +41,7 @@ export function isFootprintWalkable(
   height: number,
   gridState: GridState,
   config: GridConfig,
+  ignoredOccupantId?: string,
 ): boolean {
   const cells = getFootprintCellsForPos(anchor, width, height);
   for (const c of cells) {
@@ -52,7 +53,7 @@ export function isFootprintWalkable(
     ) {
       return false;
     }
-    if (!gridState.isWalkable(c)) return false;
+    if (!gridState.isWalkable(c, ignoredOccupantId)) return false;
   }
   return true;
 }

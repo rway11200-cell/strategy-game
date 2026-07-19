@@ -43,10 +43,10 @@ export class GridState {
     this.onChange?.(coord, previous, state);
   }
 
-  isWalkable(coord: CellCoord): boolean {
+  isWalkable(coord: CellCoord, ignoredOccupantId?: string): boolean {
     const cell = this.getCell(coord);
     if (!cell) return false;
-    if (cell.occupied) return false;
+    if (cell.occupied && cell.occupantId !== ignoredOccupantId) return false;
     if (cell.type === "blocked") return false;
     return true;
   }

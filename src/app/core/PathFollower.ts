@@ -35,6 +35,7 @@ export class TargetFollower {
   constructor() {}
 
   setRouteFromPoints({ points, variation = 0, loop = false }: TargetFollowerFromPointsProps) {
+    this.onDestinationReached = undefined;
     this.cells = undefined;
     this.units = undefined;
     this.variation = variation;
@@ -56,6 +57,7 @@ export class TargetFollower {
       throw new Error("setRouteFromUnits called with empty units");
     }
 
+    this.onDestinationReached = undefined;
     this.cells = undefined;
     this.units = units;
     this.targets = units.map((unit): TargetProvider => {
@@ -72,12 +74,23 @@ export class TargetFollower {
   }
 
   setRouteFromCells({ cells, gridConfig, loop = false }: TargetFollowerFromCellsProps) {
+    this.onDestinationReached = undefined;
     this.units = undefined;
     this.cells = cells.map((cell) => ({ ...cell }));
     this.targets = this.cells.map((cell) => () => gridToWorld(cell.col, cell.row, gridConfig));
     this.i = 0;
     this.loop = loop;
-    this.completed = false;
+    this.completed = cells.length === 0 && !loop;
+  }
+
+  clear(): void {
+    this.targets = [];
+    this.cells = undefined;
+    this.units = undefined;
+    this.i = 0;
+    this.loop = false;
+    this.completed = true;
+    this.onDestinationReached = undefined;
   }
 
   get target(): PointData | undefined {

@@ -12,11 +12,13 @@ export interface TileMovementOptions {
   entityType: string;
   occupantId: string;
   ticksPerCell?: number;
+  releaseOccupationOnDestination?: boolean;
 }
 
 export interface TileWalkResult {
   moved: boolean;
   destinationReached: boolean;
+  blocked: boolean;
   direction?: MovementDirection;
 }
 
@@ -31,6 +33,7 @@ export class TileMovement {
   private readonly occupantId: string;
   private currentCell?: CellCoord;
   private elapsedTicks = 0;
+  private releaseOccupationOnDestination: boolean;
 
   constructor(options: TileMovementOptions) {
     this.gridConfig = options.gridConfig;
@@ -39,10 +42,19 @@ export class TileMovement {
     this.entityType = options.entityType;
     this.occupantId = options.occupantId;
     this.ticksPerCell = Math.max(1, Math.round(options.ticksPerCell ?? 1));
+    this.releaseOccupationOnDestination = options.releaseOccupationOnDestination ?? true;
   }
 
   get cell(): CellCoord | undefined {
     return this.currentCell ? { ...this.currentCell } : undefined;
+  }
+
+  setReleaseOccupationOnDestination(release: boolean): void {
+    this.releaseOccupationOnDestination = release;
+  }
+
+  resetStepProgress(): void {
+    this.elapsedTicks = 0;
   }
 
   spawn(obj: Container): void {
@@ -62,7 +74,7 @@ export class TileMovement {
   walk(obj: Container, targetFollower: TargetFollower): TileWalkResult {
     const targetCell = targetFollower.targetCell;
     if (!this.active || !targetCell) {
-      return { moved: false, destinationReached: false };
+      return { moved: false, destinationReached: false, blocked: false };
     }
 
     const target = gridToWorld(targetCell.col, targetCell.row, this.gridConfig);
@@ -70,12 +82,12 @@ export class TileMovement {
 
     this.elapsedTicks++;
     if (this.elapsedTicks < this.ticksPerCell) {
-      return { moved: false, destinationReached: false, direction };
+      return { moved: false, destinationReached: false, blocked: false, direction };
     }
     this.elapsedTicks = 0;
 
     if (!this.canOccupy(targetCell)) {
-      return { moved: false, destinationReached: false, direction };
+      return { moved: false, destinationReached: false, blocked: true, direction };
     }
 
     this.releaseOccupation();
@@ -84,12 +96,12 @@ export class TileMovement {
     obj.position.set(target.x, target.y);
 
     const destinationReached = targetFollower.advanceToNextTarget();
-    if (destinationReached) {
+    if (destinationReached && targetFollower.finished && this.releaseOccupationOnDestination) {
       this.releaseOccupation();
       this.currentCell = undefined;
     }
 
-    return { moved: true, destinationReached, direction };
+    return { moved: true, destinationReached, blocked: false, direction };
   }
 
   releaseOccupation(): void {

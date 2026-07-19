@@ -30,8 +30,9 @@ export function findPath(
   start: CellCoord,
   end: CellCoord,
   gridState: GridState,
+  ignoredOccupantId?: string,
 ): CellCoord[] {
-  if (!gridState.isWalkable(start) || !gridState.isWalkable(end)) {
+  if (!gridState.isWalkable(start, ignoredOccupantId) || !gridState.isWalkable(end, ignoredOccupantId)) {
     return [];
   }
 
@@ -78,7 +79,7 @@ export function findPath(
 
       const cell = gridState.getCell(neighbor);
       if (!cell) continue;
-      if (!gridState.isWalkable(neighbor)) continue;
+      if (!gridState.isWalkable(neighbor, ignoredOccupantId)) continue;
 
       const g = current.g + cell.walkCost;
       const h = heuristic(neighbor, end);
@@ -113,13 +114,32 @@ export function findPathWithFootprint(
   gridState: GridState,
   config: GridConfig,
   entityType: string,
+  ignoredOccupantId?: string,
 ): CellCoord[] {
   const footprint = getEntityFootprint(entityType);
 
-  if (!isFootprintWalkable(start, footprint.width, footprint.height, gridState, config)) {
+  if (
+    !isFootprintWalkable(
+      start,
+      footprint.width,
+      footprint.height,
+      gridState,
+      config,
+      ignoredOccupantId,
+    )
+  ) {
     return [];
   }
-  if (!isFootprintWalkable(end, footprint.width, footprint.height, gridState, config)) {
+  if (
+    !isFootprintWalkable(
+      end,
+      footprint.width,
+      footprint.height,
+      gridState,
+      config,
+      ignoredOccupantId,
+    )
+  ) {
     return [];
   }
 
@@ -163,7 +183,17 @@ export function findPathWithFootprint(
       const nKey = nodeKey(neighbor);
 
       if (closed.has(nKey)) continue;
-      if (!isFootprintWalkable(neighbor, footprint.width, footprint.height, gridState, config)) continue;
+      if (
+        !isFootprintWalkable(
+          neighbor,
+          footprint.width,
+          footprint.height,
+          gridState,
+          config,
+          ignoredOccupantId,
+        )
+      )
+        continue;
 
       const cell = gridState.getCell(neighbor);
       if (!cell) continue;
