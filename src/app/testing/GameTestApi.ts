@@ -125,7 +125,7 @@ export interface GameTestApi {
    * Crea un enemigo en una celda específica del grid.
    * @param cellX Columna (0-indexed)
    * @param cellY Fila (0-indexed)
-   * @param enemyType Tipo de enemigo: "goblin", "skeleton", "ghost"
+   * @param enemyType Tipo de enemigo: "basic", "fast", "tank", "boss"
    * @returns Resultado con success, enemyId y error en caso de fallo
    */
   spawnEnemy(cellX: number, cellY: number, enemyType: string): SpawnEnemyResult;
