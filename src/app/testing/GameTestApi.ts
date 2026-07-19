@@ -68,6 +68,12 @@ export interface EnemyTestState {
   type?: string;
 }
 
+export interface SpawnEnemyResult {
+  success: boolean;
+  enemyId?: string;
+  error?: string;
+}
+
 export interface GameTestApi {
   /**
    * Indica si el juego terminó de cargar assets, pantalla,
@@ -114,6 +120,15 @@ export interface GameTestApi {
    * un modo de simulación headless. tick() forza N ms de juego real.
    */
   tick(ms: number): void;
+
+  /**
+   * Crea un enemigo en una celda específica del grid.
+   * @param cellX Columna (0-indexed)
+   * @param cellY Fila (0-indexed)
+   * @param enemyType Tipo de enemigo: "goblin", "skeleton", "ghost"
+   * @returns Resultado con success, enemyId y error en caso de fallo
+   */
+  spawnEnemy(cellX: number, cellY: number, enemyType: string): SpawnEnemyResult;
 }
 
 // ──────────────────────────────────────────────
@@ -135,6 +150,27 @@ export interface LevelContextDebug {
 type EnemyLect = any;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type TowerLect = any;
+
+// ──────────────────────────────────────────────
+// Mapa de tipos de enemigo de test a EnemyType
+// ──────────────────────────────────────────────
+
+/**
+ * basic -> Goblin, fast -> Ghost, tank/boss -> Skeleton
+ */
+function testEnemyTypeToInternal(enemyType: string): EnemyType | null {
+  switch (enemyType) {
+    case "basic":
+      return EnemyType.Goblin;
+    case "fast":
+      return EnemyType.Ghost;
+    case "tank":
+    case "boss":
+      return EnemyType.Skeleton;
+    default:
+      return null;
+  }
+}
 
 // ──────────────────────────────────────────────
 // Implementación
@@ -346,6 +382,59 @@ export function createGameTestApi(
       while (performance.now() < target) {
         // busy-wait — poco elegante pero funciona para tests
       }
+    },
+
+    spawnEnemy(cellX: number, cellY: number, enemyType: string): SpawnEnemyResult {
+      const mgr = getManager();
+      if (!mgr) {
+        return { success: false, error: "GameManager not initialized" };
+      }
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const mgrDebug = mgr as any as GameManagerDebug;
+      const ctx = mgrDebug.gameContext;
+      const gi = ctx?.gridIntegration;
+      if (!gi) {
+        return { success: false, error: "Grid not initialized" };
+      }
+
+      // Validar que cellX/cellY estén dentro de los límites del grid
+      if (
+        cellX < 0 ||
+        cellY < 0 ||
+        cellX >= gi.gridConfig.gridWidth ||
+        cellY >= gi.gridConfig.gridHeight
+      ) {
+        return { success: false, error: `Cell (${cellX}, ${cellY}) is out of grid bounds (${gi.gridConfig.gridWidth}x${gi.gridConfig.gridHeight})` };
+      }
+
+      // Validar enemyType
+      const internalType = testEnemyTypeToInternal(enemyType);
+      if (!internalType) {
+        return { success: false, error: `Unknown enemy type: "${enemyType}". Valid types: basic, fast, tank, boss` };
+      }
+
+      // Obtener un enemigo del pool
+      const enemy = ctx.enemyCreator?.get(false);
+      if (!enemy) {
+        return { success: false, error: "No available enemy in pool" };
+      }
+
+      // Calcular la posición del mundo para la celda
+      const worldPos = {
+        x: cellX * gi.gridConfig.cellSize + gi.gridConfig.cellSize / 2,
+        y: cellY * gi.gridConfig.cellSize + gi.gridConfig.cellSize / 2,
+      };
+
+      enemy.position.set(worldPos.x, worldPos.y);
+      enemy.initializeEnemy(internalType);
+      enemy.spawn();
+
+      // Ocupar la celda en el grid
+      const enemyId = enemy.getId("spawned");
+      gi.gridState.occupyCell({ col: cellX, row: cellY }, enemyId);
+
+      return { success: true, enemyId };
     },
   };
 
