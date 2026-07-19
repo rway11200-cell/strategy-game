@@ -1,11 +1,10 @@
 FROM node:20-alpine
 
-RUN npm install -g pnpm
-
 WORKDIR /app
 
-COPY package.json ./
-RUN pnpm install
+COPY package.json package-lock.json ./
+RUN npm ci
+
 COPY . .
 
 ARG RAILWAY_GIT_COMMIT_SHA
@@ -19,4 +18,4 @@ ENV PORT=${PORT:-4173}
 
 EXPOSE 4173
 
-CMD ["pnpm", "start"]
+CMD ["npm", "start"]
