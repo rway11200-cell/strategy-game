@@ -1,14 +1,16 @@
 import { Container, Graphics } from "pixi.js";
 import { Label } from "../Label";
+import { WaveUI } from "./WaveUI";
 
 export class CoinsUI extends Container {
   public numberLabel: Label;
+  public waveUI: WaveUI;
   private lastValue = 0;
   constructor() {
     super();
     const background = new Graphics();
     const panelWidth = 200;
-    const panelHeight = 40;
+    const panelHeight = 72;
     background.roundRect(0, 0, panelWidth, panelHeight, 4).fill({ color: 0xffffff, alpha: 0.4 });
 
     this.addChild(background);
@@ -22,9 +24,14 @@ export class CoinsUI extends Container {
     });
     this.numberLabel.anchor.set(1, 0.5);
     this.numberLabel.x = panelWidth - 10;
-    this.numberLabel.y = panelHeight / 2;
+    this.numberLabel.y = 20;
 
     this.addChild(this.numberLabel);
+
+    this.waveUI = new WaveUI();
+    this.waveUI.x = panelWidth / 2;
+    this.waveUI.y = 51;
+    this.addChild(this.waveUI);
   }
 
   public setCoins(value: number): void {

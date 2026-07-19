@@ -31,19 +31,29 @@ function setup(entityType = "goblin", ticksPerCell = 1) {
 }
 
 describe("TileMovement", () => {
-  it("moves exactly one cell after ticksPerCell updates", () => {
+  it("interpolates smoothly and reaches one cell after ticksPerCell updates", () => {
     const { follower, gridState, movement, unit } = setup("goblin", 2);
 
     expect(unit.position).toMatchObject({ x: 32, y: 32 });
     expect(gridState.getCell({ col: 0, row: 0 })?.occupantId).toBe("enemy-1");
 
-    expect(movement.walk(unit, follower).moved).toBe(false);
-    expect(unit.position).toMatchObject({ x: 32, y: 32 });
+    expect(movement.walk(unit, follower).moved).toBe(true);
+    expect(unit.position).toMatchObject({ x: 64, y: 32 });
+    expect(gridState.getCell({ col: 0, row: 0 })?.occupantId).toBe("enemy-1");
 
     expect(movement.walk(unit, follower).moved).toBe(true);
     expect(unit.position).toMatchObject({ x: 96, y: 32 });
     expect(gridState.getCell({ col: 0, row: 0 })?.occupied).toBe(false);
     expect(gridState.getCell({ col: 1, row: 0 })?.occupantId).toBe("enemy-1");
+  });
+
+  it("uses ticker deltaTime while interpolating between cells", () => {
+    const { follower, movement, unit } = setup("goblin", 4);
+
+    movement.walk(unit, follower, { deltaTime: 2 } as never);
+
+    expect(unit.position).toMatchObject({ x: 64, y: 32 });
+    expect(movement.cell).toEqual({ col: 0, row: 0 });
   });
 
   it("releases occupancy and notifies once on reaching the destination", () => {

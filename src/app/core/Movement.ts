@@ -7,6 +7,20 @@ export type WalkResult = {
   direction?: MovementDirection;
 };
 
+export function interpolatePosition(
+  obj: Container,
+  from: PointData,
+  to: PointData,
+  progress: number,
+): void {
+  const clampedProgress = Math.max(0, Math.min(1, progress));
+  const easedProgress = clampedProgress * clampedProgress * (3 - 2 * clampedProgress);
+  obj.position.set(
+    from.x + (to.x - from.x) * easedProgress,
+    from.y + (to.y - from.y) * easedProgress,
+  );
+}
+
 export class Movement {
   public speed: number;
   public active: boolean;

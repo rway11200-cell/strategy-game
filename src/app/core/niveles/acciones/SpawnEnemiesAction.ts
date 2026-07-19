@@ -1,4 +1,5 @@
 import { EnemyType } from "../../unidades/Enemy";
+import type { CellCoord } from "../../../../grid/GridConfig";
 import { LevelContext } from "../cargador/LevelContext";
 import { LevelAction } from "../cargador/LevelEventManager";
 import { PathDef } from "../cargador/LevelSchema";
@@ -10,6 +11,7 @@ export type EnemiesProps = {
 export class SpawnEnemiesAction implements LevelAction {
   private initialTime?: number;
   private enemiesToSpawn: EnemyType[] = [];
+  private cellPaths = new Map<EnemyType, CellCoord[]>();
   constructor(
     private path: string,
     private interval: number,
@@ -35,6 +37,15 @@ export class SpawnEnemiesAction implements LevelAction {
       return true;
     }
 
+    if (selectedPath.grid && context.gridIntegration && this.cellPaths.size === 0) {
+      new Set(this.enemiesToSpawn).forEach((enemyType) => {
+        this.cellPaths.set(
+          enemyType,
+          context.gridIntegration!.calculateEntityCellPath(enemyType),
+        );
+      });
+    }
+
     if (!this.initialTime) {
       this.initialTime = gameTimeMs;
     }
@@ -47,7 +58,7 @@ export class SpawnEnemiesAction implements LevelAction {
 
       if (selectedPath.grid && context.gridIntegration) {
         const grid = context.gridIntegration;
-        const cellPath = grid.calculateEntityCellPath(nextEnemyType);
+        const cellPath = this.cellPaths.get(nextEnemyType) ?? [];
         unit.initializeTileMovement({
           cells: cellPath,
           gridConfig: grid.gridConfig,

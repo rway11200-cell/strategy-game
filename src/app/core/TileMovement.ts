@@ -1,8 +1,8 @@
-import type { Container } from "pixi.js";
+import type { Container, Ticker } from "pixi.js";
 import { getEntityFootprint, getFootprintCellsForPos } from "../../grid/EntityFootprint";
 import { type CellCoord, gridToWorld, type GridConfig } from "../../grid/GridConfig";
 import { GridState } from "../../grid/GridState";
-import type { MovementDirection } from "./Movement";
+import { interpolatePosition, type MovementDirection } from "./Movement";
 import { TargetFollower } from "./PathFollower";
 
 export interface TileMovementOptions {
@@ -71,7 +71,7 @@ export class TileMovement {
     }
   }
 
-  walk(obj: Container, targetFollower: TargetFollower): TileWalkResult {
+  walk(obj: Container, targetFollower: TargetFollower, ticker?: Ticker): TileWalkResult {
     const targetCell = targetFollower.targetCell;
     if (!this.active || !targetCell) {
       return { moved: false, destinationReached: false, blocked: false };
@@ -80,20 +80,32 @@ export class TileMovement {
     const target = gridToWorld(targetCell.col, targetCell.row, this.gridConfig);
     const direction = this.getDirection(obj.position.x, target.x);
 
-    this.elapsedTicks++;
-    if (this.elapsedTicks < this.ticksPerCell) {
-      return { moved: false, destinationReached: false, blocked: false, direction };
-    }
-    this.elapsedTicks = 0;
-
     if (!this.canOccupy(targetCell)) {
+      this.elapsedTicks = 0;
+      const current = this.currentCell
+        ? gridToWorld(this.currentCell.col, this.currentCell.row, this.gridConfig)
+        : obj.position;
+      obj.position.set(current.x, current.y);
       return { moved: false, destinationReached: false, blocked: true, direction };
     }
+
+    const current = this.currentCell
+      ? gridToWorld(this.currentCell.col, this.currentCell.row, this.gridConfig)
+      : obj.position;
+    this.elapsedTicks = Math.min(
+      this.ticksPerCell,
+      this.elapsedTicks + Math.max(0, ticker?.deltaTime ?? 1),
+    );
+    interpolatePosition(obj, current, target, this.elapsedTicks / this.ticksPerCell);
+
+    if (this.elapsedTicks < this.ticksPerCell) {
+      return { moved: true, destinationReached: false, blocked: false, direction };
+    }
+    this.elapsedTicks = 0;
 
     this.releaseOccupation();
     this.currentCell = { ...targetCell };
     this.occupy(targetCell);
-    obj.position.set(target.x, target.y);
 
     const destinationReached = targetFollower.advanceToNextTarget();
     if (destinationReached && targetFollower.finished && this.releaseOccupationOnDestination) {

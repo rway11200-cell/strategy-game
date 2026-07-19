@@ -259,7 +259,8 @@ export class Unit extends Container {
     this.tileMovement = new TileMovement({
       ...options,
       occupantId,
-      ticksPerCell: options.ticksPerCell ?? Math.max(1, Math.round(1 / this.speed)),
+      ticksPerCell:
+        options.ticksPerCell ?? Math.max(1, Math.round(options.gridConfig.cellSize / this.speed)),
     });
     this.commandContext = {
       gridConfig: options.gridConfig,
@@ -355,7 +356,7 @@ export class Unit extends Container {
         return noMovement;
       }
 
-      const result = this.tileMovement.walk(this, this.targetFollower);
+      const result = this.tileMovement.walk(this, this.targetFollower, _time);
       const { direction } = result;
       this.setAnimationRun(direction);
       return result;
