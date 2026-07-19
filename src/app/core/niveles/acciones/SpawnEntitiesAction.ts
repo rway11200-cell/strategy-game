@@ -1,4 +1,5 @@
 import { engine } from "../../../getEngine";
+import { worldToGrid } from "../../../../grid/GridConfig";
 import { LevelContext } from "../cargador/LevelContext";
 import { LevelAction } from "../cargador/LevelEventManager";
 
@@ -25,8 +26,14 @@ export class SpawnEntitiesAction implements LevelAction {
               return;
             }
 
-            const tower = context.towerCreator.get(true);
-            tower.position = baseTower.position;
+            const tower = context.towerCreator.get();
+            if (context.gridIntegration) {
+              const gridConfig = context.gridIntegration.gridConfig;
+              const cell = worldToGrid(baseTower.position.x, baseTower.position.y, gridConfig);
+              tower.setGridPosition(cell.x, cell.y, gridConfig);
+            } else {
+              tower.position = baseTower.position;
+            }
             tower.spawn();
 
             baseTower.built = true;

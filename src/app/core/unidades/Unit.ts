@@ -1,6 +1,6 @@
-import { AnimatedSprite, Container, Graphics, ObservablePoint, PointData, Ticker } from "pixi.js";
-import { getDistance } from "../../../engine/utils/maths";
+import { AnimatedSprite, Container, Graphics, PointData, Ticker } from "pixi.js";
 import type { CellCoord, GridConfig } from "../../../grid/GridConfig";
+import { worldToGrid } from "../../../grid/GridConfig";
 import type { GridState } from "../../../grid/GridState";
 import { debugLogChanged } from "../../utils/debugLog";
 import { devToolDrawPoints } from "../../utils/devTools";
@@ -61,6 +61,7 @@ export class Unit extends Container {
   public targetFollower?: TargetFollower;
 
   private shootOptions?: ShootOptions;
+  private combatGridConfig?: GridConfig;
   private lastShotTime: number = 0;
   public targetToShoot?: Unit;
 
@@ -159,8 +160,28 @@ export class Unit extends Container {
         this.shootOptions.range,
         "circle",
       );
+      if (this.combatGridConfig) {
+        this.rangeGraph.scale.set(this.combatGridConfig.cellSize);
+      }
       this.rangeGraph.visible = false;
     }
+  }
+
+  public setCombatGrid(gridConfig: GridConfig): void {
+    this.combatGridConfig = gridConfig;
+    this.rangeGraph?.scale.set(gridConfig.cellSize);
+  }
+
+  public getGridCell(gridConfig: GridConfig = this.combatGridConfig!): CellCoord | undefined {
+    const movementCell = this.tileMovement?.cell;
+    if (movementCell) return movementCell;
+    if (!gridConfig) return;
+
+    const cell = worldToGrid(this.position.x, this.position.y, gridConfig);
+    if (cell.x < 0 || cell.y < 0 || cell.x >= gridConfig.gridWidth || cell.y >= gridConfig.gridHeight) {
+      return;
+    }
+    return { col: cell.x, row: cell.y };
   }
 
   public initializeSpeed(speed: number) {
@@ -207,6 +228,7 @@ export class Unit extends Container {
   }
 
   public initializeTileMovement(options: TileTargetFollowerOptions) {
+    this.setCombatGrid(options.gridConfig);
     this.targetFollower = new TargetFollower();
     this.targetFollower.setRouteFromCells({
       cells: options.cells,
@@ -332,17 +354,17 @@ export class Unit extends Container {
   }
   private updateShooting(_time: Ticker) {
     const shootOptions = this.shootOptions;
-    if (!shootOptions?.range) return;
+    const gridConfig = this.combatGridConfig;
+    const towerCell = this.getGridCell();
+    if (!shootOptions?.range || !gridConfig || !towerCell) return;
 
-    if (shootOptions.targets && shootOptions.targets.length > 0) {
-      const target = getCurrentOrClosestTarget(
-        this.position,
-        shootOptions.targets,
-        shootOptions.range,
-        this.targetToShoot,
-      );
-      this.targetToShoot = target;
-    }
+    this.targetToShoot = getCurrentOrClosestGridTarget(
+      towerCell,
+      shootOptions.targets ?? [],
+      shootOptions.range,
+      gridConfig,
+      this.targetToShoot,
+    );
 
     if (!this.targetToShoot) return;
 
@@ -353,20 +375,19 @@ export class Unit extends Container {
 
     this.lastShotTime = _time.lastTime;
 
-    const newProjectile = shootOptions.projectileCreator.get();
-    if (!newProjectile.targetFollower) return;
+    const target = this.targetToShoot;
+    const targetCell = target.getGridCell(gridConfig);
+    if (!targetCell) return;
 
-    newProjectile.targetFollower.setRouteFromUnits({
-      units: [this, this.targetToShoot],
-    });
-    newProjectile.targetFollower.onDestinationReached = () => {
-      newProjectile.destroy();
-      this.targetToShoot?.damage(this.shootOptions?.damage);
-      if (this.targetToShoot?.isDead()) {
+    const newProjectile = shootOptions.projectileCreator.get();
+    newProjectile.launchAtCell(towerCell, targetCell, gridConfig, target, () => {
+      if (target.canBeProjectileTarget) {
+        target.damage(shootOptions.damage);
+      }
+      if (target.isDead() && this.targetToShoot === target) {
         this.targetToShoot = undefined;
       }
-    };
-    newProjectile.spawn();
+    });
   }
 
   public isDead(): boolean {
@@ -445,23 +466,19 @@ export class Unit extends Container {
   }
 }
 
-function getCurrentOrClosestTarget(
-  position: ObservablePoint,
+export function getCurrentOrClosestGridTarget(
+  position: CellCoord,
   targets: Unit[],
   range: number,
+  gridConfig: GridConfig,
   currentTarget: Unit | undefined,
 ): Unit | undefined {
   let closestTarget: Unit | undefined;
-  let closestTargetDistance = 1000000000000;
+  let closestTargetDistance = Number.POSITIVE_INFINITY;
 
   if (currentTarget && currentTarget.canBeProjectileTarget) {
-    const distanceToCurrentTarget = getDistance(
-      position.x,
-      position.y,
-      currentTarget.x,
-      currentTarget.y,
-    );
-    if (distanceToCurrentTarget <= range) {
+    const currentTargetCell = currentTarget.getGridCell(gridConfig);
+    if (currentTargetCell && getCellDistance(position, currentTargetCell) <= range) {
       return currentTarget;
     }
   }
@@ -472,7 +489,9 @@ function getCurrentOrClosestTarget(
     })
     .forEach((target) => {
       if (target.active && target.canBeProjectileTarget) {
-        const currentDistance = getDistance(position.x, position.y, target.x, target.y);
+        const targetCell = target.getGridCell(gridConfig);
+        if (!targetCell) return;
+        const currentDistance = getCellDistance(position, targetCell);
         if (currentDistance < closestTargetDistance && currentDistance <= range) {
           closestTargetDistance = currentDistance;
           closestTarget = target;
@@ -480,4 +499,8 @@ function getCurrentOrClosestTarget(
       }
     });
   return closestTarget;
+}
+
+function getCellDistance(origin: CellCoord, target: CellCoord): number {
+  return Math.hypot(target.col - origin.col, target.row - origin.row);
 }

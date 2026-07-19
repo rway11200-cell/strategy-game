@@ -108,8 +108,8 @@ export class GameManager {
         initialPoolSize: 10,
         factory: () => {
           return new Tower(this.mainGameContainer, {
-            shootOptions: {
-              range: 150,
+           shootOptions: {
+              range: 3,
               damage: 20,
               fireRate: 0.5,
               projectileCreator: projectileCreator,
@@ -128,9 +128,9 @@ export class GameManager {
   }
 
   private removeAsProjectileTarget = (unit: Unit) => {
-    const activeProjectiles = this.gameContext.projectileCreator.getUnits();
+    const activeProjectiles = this.gameContext.projectileCreator.getUnits(true);
     activeProjectiles.forEach((projectile) => {
-      if (projectile.targetFollower?.getFinalUnit() === unit) {
+      if (projectile.targetUnit === unit) {
         projectile.destroy();
       }
     });

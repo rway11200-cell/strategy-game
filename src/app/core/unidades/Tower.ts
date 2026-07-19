@@ -16,6 +16,7 @@ export class Tower extends Unit {
   }
 
   setGridPosition(col: number, row: number, gridConfig: GridConfig): void {
+    this.setCombatGrid(gridConfig);
     this.col = col;
     this.row = row;
     const world = gridToWorld(col, row, gridConfig);

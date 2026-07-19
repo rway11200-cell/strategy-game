@@ -41,6 +41,10 @@ export class TileMovement {
     this.ticksPerCell = Math.max(1, Math.round(options.ticksPerCell ?? 1));
   }
 
+  get cell(): CellCoord | undefined {
+    return this.currentCell ? { ...this.currentCell } : undefined;
+  }
+
   spawn(obj: Container): void {
     this.releaseOccupation();
     this.currentCell = { ...this.start };
