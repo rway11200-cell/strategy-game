@@ -1,5 +1,5 @@
 import { Container, Texture, type Ticker } from "pixi.js";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("../src/app/utils/sprite", () => ({
   getFramesAseprite: () => ({ textures: [Texture.EMPTY], totalMs: 0, frameMs: [0] }),
@@ -30,6 +30,15 @@ function makeTarget(container: Container, col: number, row: number, health = 20)
 
 describe("grid-based tower combat", () => {
   let container: Container;
+
+  beforeAll(() => {
+    vi.stubGlobal("requestAnimationFrame", () => 1);
+    vi.stubGlobal("cancelAnimationFrame", () => undefined);
+  });
+
+  afterAll(() => {
+    vi.unstubAllGlobals();
+  });
 
   beforeEach(() => {
     container = new Container();
