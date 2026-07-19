@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "start": "vite preview --host 0.0.0.0 --port ${PORT:-4173}",
+    "start": "vite preview --host 0.0.0.0 --port ${PORT:-4173} --allowedHosts strategy-game-production-0277.up.railway.app --allowedHosts tower-defence-pixi-production.up.railway.app",
     "build": "tsc && node scripts/generate-version-json.mjs && vite build",
     "lint": "eslint .",
     "dev": "vite",
