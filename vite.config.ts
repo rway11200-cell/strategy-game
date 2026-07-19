@@ -1,9 +1,8 @@
 import { defineConfig } from "vite";
 import { assetpackPlugin } from "./scripts/assetpack-vite-plugin";
-import { generateVersionJson } from "./scripts/generate-version-json.mjs";
 
 export default defineConfig({
-  plugins: [assetpackPlugin(), generateVersionJson()],
+  plugins: [assetpackPlugin()],
   server: {
     port: 8080,
     open: false,
