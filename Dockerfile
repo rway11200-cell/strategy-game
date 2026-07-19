@@ -1,4 +1,4 @@
-FROM node:20-alpine
+FROM node:20-alpine AS builder
 
 WORKDIR /app
 
@@ -13,9 +13,28 @@ ARG RAILWAY_PROJECT_NAME
 ARG RAILWAY_SERVICE_NAME
 ARG VITE_ENABLE_GAME_TEST_API
 
+ENV RAILWAY_GIT_COMMIT_SHA=${RAILWAY_GIT_COMMIT_SHA}
+ENV RAILWAY_ENVIRONMENT_NAME=${RAILWAY_ENVIRONMENT_NAME}
+ENV RAILWAY_PROJECT_NAME=${RAILWAY_PROJECT_NAME}
+ENV RAILWAY_SERVICE_NAME=${RAILWAY_SERVICE_NAME}
 ENV VITE_ENABLE_GAME_TEST_API=${VITE_ENABLE_GAME_TEST_API:-false}
+
+RUN npm run build
+
+FROM node:20-alpine
+
+WORKDIR /app
+
+COPY package.json package-lock.json ./
+RUN npm ci --omit=dev
+
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/public/version.json ./dist/version.json
+
+ARG RAILWAY_GIT_COMMIT_SHA
+
 ENV PORT=${PORT:-4173}
 
 EXPOSE 4173
 
-CMD ["npm", "start"]
+CMD npx vite preview --host 0.0.0.0 --port ${PORT}
