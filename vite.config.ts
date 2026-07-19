@@ -18,11 +18,7 @@ export default defineConfig({
   preview: {
     port: 4173,
     host: true,
-    allowedHosts: [
-      "tower-defence-pixi-production.up.railway.app",
-      "strategy-game-production-0277.up.railway.app",
-      "localhost",
-    ],
+    allowedHosts: true,
   },
   define: {
     APP_VERSION: JSON.stringify(process.env.npm_package_version),

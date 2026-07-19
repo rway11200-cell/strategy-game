@@ -1,4 +1,4 @@
-FROM node:20-alpine
+FROM node:20-alpine AS build
 
 WORKDIR /app
 
@@ -11,9 +11,16 @@ ARG RAILWAY_GIT_COMMIT_SHA
 ARG RAILWAY_ENVIRONMENT_NAME
 ARG RAILWAY_PROJECT_NAME
 ARG RAILWAY_SERVICE_NAME
-ARG VITE_ENABLE_GAME_TEST_API
+ARG VITE_ENABLE_GAME_TEST_API=false
 
 RUN npm run build
 
-EXPOSE 4173
-CMD ["npm", "start"]
+FROM busybox:1.37
+
+WORKDIR /app
+
+COPY --from=build /app/dist .
+
+EXPOSE 3000
+
+CMD ["sh", "-c", "httpd -f -p ${PORT:-3000}"]
