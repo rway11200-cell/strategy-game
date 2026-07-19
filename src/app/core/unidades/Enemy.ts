@@ -10,7 +10,9 @@ export enum EnemyType {
 
 type EnemyDefinition = {
   health: number;
+  damage: number;
   speed: number;
+  range: number;
   framesJson: FramesJson;
   reward: number;
 };
@@ -20,7 +22,9 @@ const EnemyDefinitions = new Map<EnemyType, EnemyDefinition>([
     EnemyType.Skeleton,
     {
       health: 600,
+      damage: 20,
       speed: 0.5,
+      range: 1,
       reward: 50,
       framesJson: {
         idle: "esqueleton-idle.json",
@@ -33,7 +37,9 @@ const EnemyDefinitions = new Map<EnemyType, EnemyDefinition>([
     EnemyType.Ghost,
     {
       health: 70,
+      damage: 8,
       speed: 1.2,
+      range: 1,
       reward: 15,
       framesJson: {
         idle: "fantasma-idle.json",
@@ -46,7 +52,9 @@ const EnemyDefinitions = new Map<EnemyType, EnemyDefinition>([
     EnemyType.Goblin,
     {
       health: 50,
+      damage: 6,
       speed: 0.6,
+      range: 1,
       reward: 6,
       framesJson: {
         idle: "goblin scout - silhouette all animations-idle.json",
@@ -59,8 +67,10 @@ const EnemyDefinitions = new Map<EnemyType, EnemyDefinition>([
 
 export class Enemy extends Unit {
   private reward: number = 10;
+  public enemyType?: EnemyType;
+
   constructor(mainContainer: Container) {
-    super(mainContainer);
+    super(mainContainer, { team: "enemy", controller: "ai" });
   }
 
   initializeEnemy(nextEnemyType: EnemyType) {
@@ -73,6 +83,13 @@ export class Enemy extends Unit {
     this.initializeAnimation(enemyDef.framesJson);
     this.initializeHealthBar(enemyDef.health);
     this.initializeSpeed(enemyDef.speed);
+    this.model.configure({
+      damage: enemyDef.damage,
+      range: enemyDef.range,
+      team: "enemy",
+      controller: "ai",
+    });
+    this.enemyType = nextEnemyType;
     this.reward = enemyDef.reward;
   }
 

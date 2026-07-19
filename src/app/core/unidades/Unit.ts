@@ -16,6 +16,14 @@ import {
   type IUnitCommand,
 } from "../UnitCommands";
 import { Projectile } from "./Projectile";
+import {
+  UnitSystem,
+  type UnitController,
+  type UnitFaction,
+  type UnitState,
+  type UnitStats,
+  type UnitTeam,
+} from "./UnitSystem";
 
 export interface ShootOptions {
   range: number;
@@ -51,6 +59,15 @@ export interface UnitProps {
   shootOptions?: ShootOptions;
   targetFollowerOptions?: TargetFollowerOptions;
   health?: number;
+  hp?: number;
+  maxHp?: number;
+  damage?: number;
+  speed?: number;
+  range?: number;
+  team?: UnitTeam;
+  faction?: UnitFaction;
+  state?: UnitState;
+  controller?: UnitController;
 }
 
 function isArrayOfUnits(targets: PointData[] | Unit[]): targets is Unit[] {
@@ -60,6 +77,8 @@ function isArrayOfUnits(targets: PointData[] | Unit[]): targets is Unit[] {
 export class Unit extends Container {
   public active: boolean = false;
   public canBeProjectileTarget = false;
+  public readonly model: UnitSystem;
+  public readonly unitSystem: UnitSystem;
   private lastAnimation: string = "idle";
 
   private mainContainer: Container;
@@ -84,13 +103,28 @@ export class Unit extends Container {
   private framesJson?: FramesJson;
 
   private health?: number;
-  private speed: number = 1;
   private currentHealth?: number = this.health;
   private healthBar?: Graphics;
   public onDestroy?: (unit: Unit) => void;
 
   constructor(mainContainer: Container, options?: UnitProps) {
     super();
+
+    this.model = new UnitSystem({
+      hp: options?.hp ?? options?.health,
+      maxHp: options?.maxHp ?? options?.health,
+      damage: options?.damage ?? options?.shootOptions?.damage,
+      speed: options?.speed ?? options?.targetFollowerOptions?.speed,
+      range: options?.range ?? options?.shootOptions?.range,
+      team: options?.team,
+      faction: options?.faction,
+      state: options?.state,
+      controller: options?.controller,
+      position: this.position,
+    });
+    this.unitSystem = this.model;
+    this.health = this.model.maxHp;
+    this.currentHealth = this.model.hp;
 
     this.mainContainer = mainContainer;
     this.mainContainer.addChild(this);
@@ -99,17 +133,22 @@ export class Unit extends Container {
       return;
     }
 
-    const { framesJson, health, shootOptions, targetFollowerOptions, position } = options;
+    const { framesJson, health, hp, maxHp, shootOptions, targetFollowerOptions, position } = options;
     if (position) {
-      this.position = position;
+      this.position.set(position.x, position.y);
     }
 
     if (framesJson) {
       this.initializeAnimation(framesJson);
     }
 
-    if (health) {
-      this.initializeHealthBar(health);
+    const initialHealth = maxHp ?? hp ?? health;
+    if (initialHealth !== undefined) {
+      this.initializeHealthBar(initialHealth);
+      if (hp !== undefined) {
+        this.model.configure({ hp, maxHp: initialHealth });
+        this.currentHealth = this.model.hp;
+      }
     }
 
     if (targetFollowerOptions) {
@@ -121,8 +160,69 @@ export class Unit extends Container {
     }
   }
 
+  public get hp(): number {
+    return this.model.hp;
+  }
+
+  public get maxHp(): number {
+    return this.model.maxHp;
+  }
+
+  public get attackDamage(): number {
+    return this.model.damage;
+  }
+
+  public get speed(): number {
+    return this.model.speed;
+  }
+
+  public get range(): number {
+    return this.model.range;
+  }
+
+  public get team(): UnitTeam {
+    return this.model.team;
+  }
+
+  public set team(team: UnitTeam) {
+    this.model.team = team;
+  }
+
+  public get faction(): UnitFaction {
+    return this.model.faction;
+  }
+
+  public set faction(faction: UnitFaction) {
+    this.model.faction = faction;
+  }
+
+  public get state(): UnitState {
+    return this.model.state;
+  }
+
+  public get controller(): UnitController {
+    return this.model.controller;
+  }
+
+  public get stats(): UnitStats {
+    return this.model.stats;
+  }
+
+  public get isAIControlled(): boolean {
+    return this.controller === "ai";
+  }
+
+  public isHostileTo(other: Unit): boolean {
+    return this.model.isHostileTo(other.model);
+  }
+
   public initializeAnimation(framesJson: FramesJson) {
     this.framesJson = framesJson;
+    if (this.animatedSprite) {
+      this.animatedSprite.textures = getFramesAseprite(this.framesJson.idle).textures;
+      this.animatedSprite.visible = false;
+      return;
+    }
     this.animatedSprite = new AnimatedSprite(getFramesAseprite(this.framesJson.idle).textures);
     this.animatedSprite.animationSpeed = 10 / 60;
     this.animatedSprite.anchor.set(0.5);
@@ -137,9 +237,15 @@ export class Unit extends Container {
 
     const healthYPosition = (this.animatedSprite && this.animatedSprite.height) ?? 100;
 
-    this.healthBar = new Graphics();
-    this.health = health;
-    this.currentHealth = health;
+    if (!this.healthBar) {
+      this.healthBar = new Graphics();
+      this.addChild(this.healthBar);
+    } else {
+      this.healthBar.clear();
+    }
+    this.health = Math.max(0, health);
+    this.currentHealth = this.health;
+    this.model.configure({ hp: this.health, maxHp: this.health });
     const healthHeight = 2;
     const heightAdjustment = 20;
     const healthWidth = 30;
@@ -147,7 +253,6 @@ export class Unit extends Container {
     this.healthBar.rect(0, -healthYPosition / 2 + heightAdjustment, healthWidth, healthHeight).fill("green");
     this.healthBar.position.x = -(healthWidth / 2);
     this.healthBar.visible = false;
-    this.addChild(this.healthBar);
   }
 
   public setShootingTargets(targets: Unit[]) {
@@ -165,6 +270,7 @@ export class Unit extends Container {
 
   public initializeShootingRange(shootOptions: ShootOptions) {
     this.shootOptions = { ...this.shootOptions, ...shootOptions };
+    this.model.configure({ damage: shootOptions.damage, range: shootOptions.range });
 
     if (this.shootOptions?.range) {
       this.rangeGraph = devToolDrawPoints(
@@ -199,7 +305,7 @@ export class Unit extends Container {
   }
 
   public initializeSpeed(speed: number) {
-    this.speed = speed;
+    this.model.configure({ speed });
   }
 
   public initializeTargetFollower(targetFollowerOptions: TargetFollowerOptions) {
@@ -213,10 +319,10 @@ export class Unit extends Container {
       ...targetFollowerOptions,
     };
 
-    if (targetFollowerOptions.speed)
-      this.speed = targetFollowerOptions.speed;
+    if (targetFollowerOptions.speed !== undefined)
+      this.model.configure({ speed: targetFollowerOptions.speed });
 
-    this.movement = new Movement(this.speed ?? 1);
+    this.movement = new Movement(this.speed);
 
     const targets = this.targetFollowerOptions?.targets;
     if (targets && targets.length > 0) {
@@ -237,7 +343,7 @@ export class Unit extends Container {
 
       const target = this.targetFollower.target;
       if (target) {
-        this.position = target;
+        this.position.set(target.x, target.y);
       }
     } else if (this.targetFollowerOptions?.forceActivatePathFollower) {
       this.targetFollower = new TargetFollower();
@@ -327,6 +433,8 @@ export class Unit extends Container {
   public update(_time: Ticker) {
     if (!this.active || !this.animatedSprite || !this.animatedSprite.visible) return;
 
+    this.model.state = "idle";
+
     if (this.currentCommand && this.commandContext) {
       const status = this.currentCommand.update(this, this.commandContext, _time);
       if (status !== "running") this.currentCommand = undefined;
@@ -338,8 +446,9 @@ export class Unit extends Container {
   }
 
   private updateHealth() {
-    if (!this.health || !this.currentHealth || !this.healthBar) return;
+    if (this.health === undefined || this.health <= 0 || !this.healthBar) return;
 
+    this.currentHealth = this.model.hp;
     const currentHealthPercent = (this.currentHealth * 100) / this.health;
     this.healthBar.visible = currentHealthPercent < 100 && currentHealthPercent > 0;
     this.healthBar.scale.x = currentHealthPercent / 100;
@@ -358,7 +467,8 @@ export class Unit extends Container {
 
       const result = this.tileMovement.walk(this, this.targetFollower, _time);
       const { direction } = result;
-      this.setAnimationRun(direction);
+      if (result.moved && !this.targetFollower.finished) this.setAnimationRun(direction);
+      else this.setAnimationIdle();
       return result;
     }
 
@@ -374,6 +484,7 @@ export class Unit extends Container {
 
       if (reachedTarget) {
         this.targetFollower.advanceToNextTarget();
+        if (this.targetFollower.finished) this.setAnimationIdle();
       }
     }
     return noMovement;
@@ -381,6 +492,7 @@ export class Unit extends Container {
 
   private setAnimationIdle() {
     const animation = "idle";
+    if (this.model.state !== "dead") this.model.state = "idle";
     if (this.lastAnimation === animation) return;
     this.lastAnimation = animation;
 
@@ -391,6 +503,7 @@ export class Unit extends Container {
   }
   private setAnimationRun(direction: MovementDirection | undefined) {
     const animation = "run";
+    if (this.model.state !== "dead") this.model.state = "moving";
 
     this.changeFacingDirection(direction);
     if (this.lastAnimation === animation) return;
@@ -423,7 +536,10 @@ export class Unit extends Container {
     if (this.lastAnimation === animation) return;
     this.lastAnimation = animation;
 
-    if (!this.animatedSprite || !this.framesJson) return;
+    if (!this.animatedSprite || !this.framesJson) {
+      onDeathAction();
+      return;
+    }
 
     if (!this.framesJson.dead) {
       onDeathAction();
@@ -470,6 +586,7 @@ export class Unit extends Container {
     }
 
     if (!this.targetToShoot) return;
+    this.model.state = "attacking";
 
     const timeSinceLastShot = _time.lastTime - this.lastShotTime;
     const fireRateInMilliseconds = shootOptions.fireRate * 1000;
@@ -494,13 +611,16 @@ export class Unit extends Container {
   }
 
   public isDead(): boolean {
-    return !this.active;
+    return this.model.state === "dead" || !this.active;
   }
 
   public spawn() {
     this.visible = true;
     this.active = true;
     this.canBeProjectileTarget = true;
+    this.model.reset();
+    this.currentHealth = this.model.hp;
+    this.lastAnimation = "idle";
     if (this.movement) this.movement.active = true;
     if (this.tileMovement) this.tileMovement.active = true;
 
@@ -517,7 +637,8 @@ export class Unit extends Container {
       if (this.tileMovement) {
         this.tileMovement.spawn(this);
       } else {
-        this.position = this.targetFollower.getOrigin();
+        const origin = this.targetFollower.getOrigin();
+        this.position.set(origin.x, origin.y);
       }
     }
 
@@ -525,8 +646,7 @@ export class Unit extends Container {
       this.rangeGraph.visible = true;
     }
 
-    if (this.health) {
-      this.currentHealth = this.health;
+    if (this.health !== undefined) {
       this.updateHealth();
     }
   }
@@ -535,6 +655,7 @@ export class Unit extends Container {
     this.currentCommand?.cancel(this);
     this.currentCommand = undefined;
     this.canBeProjectileTarget = false;
+    this.model.state = "dead";
     if (this.movement) this.movement.active = false;
     if (this.tileMovement) {
       this.tileMovement.active = false;
@@ -556,14 +677,15 @@ export class Unit extends Container {
   }
 
   public damage(amount?: number) {
-    if (!amount || !this.currentHealth) {
-      return;
-    }
+    this.takeDamage(amount);
+  }
 
-    this.currentHealth = this.currentHealth - amount;
-    if (this.currentHealth <= 0) {
-      this.destroy();
-    }
+  public takeDamage(amount?: number): number {
+    if (amount === undefined || amount <= 0 || this.model.state === "dead") return this.model.hp;
+
+    this.currentHealth = this.model.takeDamage(amount);
+    if (this.model.hp === 0) this.destroy();
+    return this.model.hp;
   }
 
   public getId(complement?: string): string {

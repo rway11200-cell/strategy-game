@@ -13,6 +13,8 @@ export class Projectile extends Unit {
         forceActivatePathFollower: true,
         speed: 3,
       },
+      team: "player",
+      controller: "player",
     };
     super(mainContainer, options);
     this.scale.set(0.1, 0.1);
@@ -44,5 +46,6 @@ export class Projectile extends Unit {
   public destroy(): void {
     super.destroy();
     this.targetUnit = undefined;
+    this.targetCell = undefined;
   }
 }

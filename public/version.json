@@ -1,8 +1,8 @@
 {
   "name": "strategy-game",
-  "version": "0.0.0",
-  "commit": "0d65f933fd42635c8a360753541983eb36987d3e",
-  "buildTime": "2026-07-18T23:42:29.907Z",
+  "version": "0.1.0",
+  "commit": "53400290c47eca0fadf795446eb31cab14780a7f",
+  "buildTime": "2026-07-19T10:40:45.362Z",
   "environment": "development",
   "railwayProject": "",
   "railwayService": ""

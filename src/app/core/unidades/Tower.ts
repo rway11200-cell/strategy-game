@@ -8,9 +8,12 @@ export class Tower extends Unit {
   public row: number = -1;
 
   constructor(mainContainer: Container, options: UnitProps) {
-    options.framesJson = { idle: "Torre1.json" };
-
-    super(mainContainer, options);
+    super(mainContainer, {
+      ...options,
+      framesJson: { idle: "Torre1.json" },
+      team: options.team ?? "player",
+      controller: options.controller ?? "player",
+    });
     if (this.animatedSprite) this.animatedSprite.anchor = { x: 0.5, y: 1 };
     this.zIndex = 10;
   }

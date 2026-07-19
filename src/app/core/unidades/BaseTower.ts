@@ -9,7 +9,14 @@ export class BaseTower extends Unit {
   public built: boolean = false;
 
   constructor(mainContainer: Container) {
-    super(mainContainer, { framesJson: { idle: "suelo-torre.json" } });
+    super(mainContainer, {
+      framesJson: { idle: "suelo-torre.json" },
+      team: "player",
+      controller: "player",
+      speed: 0,
+      range: 0,
+      damage: 0,
+    });
     this.eventMode = "static";
   }
 
