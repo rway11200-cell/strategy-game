@@ -5,6 +5,7 @@ import { MainScreen } from "./app/screens/main/MainScreen";
 import { userSettings } from "./app/utils/userSettings";
 import { CreationEngine } from "./engine/engine";
 import { createGameTestApi } from "./app/testing/GameTestApi";
+import { createGridVisualTestApi } from "./app/testing/GridVisualTestApi";
 
 /**
  * Importing these modules will automatically register there plugins with the engine.
@@ -51,6 +52,7 @@ function isGameReady(): boolean {
 
 if (import.meta.env.MODE === "test" || import.meta.env.VITE_ENABLE_GAME_TEST_API === "true") {
   window.__GAME_TEST__ = createGameTestApi(() => getMainScreen()?.gameManager ?? null, isGameReady);
+  window.__GRID_VISUAL_TEST__ = createGridVisualTestApi();
 }
 
 // Mostrar versión en pantalla

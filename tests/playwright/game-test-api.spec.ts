@@ -1,166 +1,84 @@
-import { test, expect, type Page } from "@playwright/test";
+import { expect, test } from "./support/GameTestFixture";
 
-/**
- * Helper: espera a que window.__GAME_TEST__ exista y esté ready.
- */
-async function waitForGameReady(page: Page, timeout = 15000): Promise<void> {
-  await page.waitForFunction(
-    () => {
-      const api = (window as Record<string, unknown>).__GAME_TEST__;
-      if (!api) return false;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      return typeof (api as any).isReady === "function" && (api as any).isReady();
-    },
-    { timeout },
-  );
-}
-
-test.describe("GameTestApi — window.__GAME_TEST__", () => {
-  test("el juego carga y window.__GAME_TEST__ existe", async ({ page }) => {
-    await page.goto("/");
-    await page.waitForLoadState("networkidle");
-
-    // Confirmar que la API existe
-    const exists = await page.evaluate(() => {
-      return typeof window.__GAME_TEST__ !== "undefined";
+test.describe("contrato público de GameTestApi", () => {
+  test("expone un snapshot de arranque coherente y atómico", async ({ game }) => {
+    await test.step("Dado que la aplicación terminó de cargar", async () => {
+      await game.open();
+      await game.waitUntilReady();
     });
-    expect(exists).toBe(true);
+
+    await test.step("Entonces renderer, versión y grid están listos en el mismo snapshot", async () => {
+      const boot = await game.getBootSnapshot();
+      expect(boot).toMatchObject({
+        lifecycle: "ready",
+        version: expect.stringMatching(/^\d+\.\d+\.\d+/),
+        renderer: {
+          surfaceCount: 1,
+          width: expect.any(Number),
+          height: expect.any(Number),
+        },
+        errors: [],
+      });
+      expect(boot.renderer.width).toBeGreaterThan(0);
+      expect(boot.renderer.height).toBeGreaterThan(0);
+    });
   });
 
-  test("isReady() llega a true tras la carga", async ({ page }) => {
-    await page.goto("/");
-    await page.waitForLoadState("networkidle");
+  test("la cuadrícula inicial es rectangular y sus coordenadas son consistentes", async ({
+    game,
+  }) => {
+    await game.open();
+    await game.waitUntilReady();
 
-    await waitForGameReady(page);
-    const ready = await page.evaluate(() => window.__GAME_TEST__!.isReady());
-    expect(ready).toBe(true);
-  });
-
-  test("getState() devuelve un objeto serializable con versión correcta", async ({ page }) => {
-    await page.goto("/");
-    await page.waitForLoadState("networkidle");
-    await waitForGameReady(page);
-
-    const state = await page.evaluate(() => window.__GAME_TEST__!.getState());
-
-    expect(state).toBeDefined();
-    expect(state.version).toBe("0.1.0"); // Debe coincidir con package.json
-    expect(typeof state.coins).toBe("number");
-    expect(typeof state.enemiesCount).toBe("number");
-    expect(typeof state.towersCount).toBe("number");
-    expect(Array.isArray(state.errors)).toBe(true);
-
-    // Verificar serialización JSON
-    const serialized = JSON.stringify(state);
-    expect(() => JSON.parse(serialized)).not.toThrow();
-  });
-
-  test("getGrid() devuelve columnas, rows y tileSize", async ({ page }) => {
-    await page.goto("/");
-    await page.waitForLoadState("networkidle");
-    await waitForGameReady(page);
-
-    const grid = await page.evaluate(() => window.__GAME_TEST__!.getGrid());
-
-    expect(grid).toBeDefined();
-    expect(typeof grid.columns).toBe("number");
-    expect(typeof grid.rows).toBe("number");
-    expect(typeof grid.tileSize).toBe("number");
+    const grid = (await game.getBootSnapshot()).grid;
     expect(grid.columns).toBeGreaterThan(0);
     expect(grid.rows).toBeGreaterThan(0);
     expect(grid.tileSize).toBeGreaterThan(0);
-    expect(Array.isArray(grid.cells)).toBe(true);
-    expect(grid.cells.length).toBe(grid.rows);
-  });
+    expect(grid.cells).toHaveLength(grid.rows);
 
-  test("se puede intentar construir una torre", async ({ page }) => {
-    await page.goto("/");
-    await page.waitForLoadState("networkidle");
-    await waitForGameReady(page);
-
-    // Obtener la primera celda walkable no ocupada
-    const grid = await page.evaluate(() => window.__GAME_TEST__!.getGrid());
-
-    let targetCol = -1;
-    let targetRow = -1;
-
-    for (let row = 0; row < grid.cells.length; row++) {
-      for (let col = 0; col < grid.cells[row].length; col++) {
-        const cell = grid.cells[row][col];
-        if (cell.type === "walkable" && !cell.occupied) {
-          targetCol = cell.col;
-          targetRow = cell.row;
-          break;
-        }
+    for (const [row, cells] of grid.cells.entries()) {
+      expect(cells, `row ${row} must contain every column`).toHaveLength(grid.columns);
+      for (const [col, cell] of cells.entries()) {
+        expect(cell).toMatchObject({ col, row, occupied: expect.any(Boolean) });
+        expect(cell.occupied || cell.occupantId === undefined).toBe(true);
       }
-      if (targetCol >= 0) break;
     }
-
-    // Intentar colocar torre en la celda encontrada
-    const result = await page.evaluate(
-      ({ col, row }) => window.__GAME_TEST__!.placeTower(col, row),
-      { col: targetCol, row: targetRow },
-    );
-
-    // Si falló, debe ser porque no hay torres en el pool o no hay coins
-    // Pero debe ejecutarse sin errores
-    expect(typeof result).toBe("boolean");
-
-    // Verificar que el estado cambió
-    const stateAfter = await page.evaluate(() => window.__GAME_TEST__!.getState());
-    expect(stateAfter.errors.length).toBe(0);
   });
 
-  test("startWave() inicia sin errores", async ({ page }) => {
-    await page.goto("/");
-    await page.waitForLoadState("networkidle");
-    await waitForGameReady(page);
+  test("colocar una torre actualiza economía y ocupación como una sola transacción", async ({
+    game,
+  }) => {
+    await game.open();
+    await game.waitUntilReady();
+    const scenario = await game.beginScenario("tower-placement");
+    const buildCell = game.point(scenario, "buildCell");
+    const before = await game.snapshot(scenario.id);
 
-    await page.evaluate(() => window.__GAME_TEST__!.startWave());
-
-    // Pequeña espera para que el enemigo se procese
-    await page.waitForTimeout(500);
-
-    const state = await page.evaluate(() => window.__GAME_TEST__!.getState());
-    expect(state.errors.length).toBe(0);
-  });
-
-  test("no hay errores críticos de consola durante la carga", async ({ page }) => {
-    const consoleErrors: string[] = [];
-
-    page.on("console", (msg) => {
-      if (msg.type() === "error") {
-        consoleErrors.push(msg.text());
-      }
+    const placement = await game.placeTower({
+      scenarioId: scenario.id,
+      id: "placed-tower",
+      archetype: "basic-tower",
+      cell: buildCell,
     });
+    const after = await game.snapshot(scenario.id);
 
-    // También capturar excepciones de página
-    page.on("pageerror", (err) => {
-      consoleErrors.push(`Page error: ${err.message}`);
+    expect(placement.tower).toMatchObject({
+      id: "placed-tower",
+      active: true,
+      cell: buildCell,
+      occupiedCells: [buildCell],
     });
-
-    await page.goto("/");
-    await page.waitForLoadState("networkidle");
-    await waitForGameReady(page);
-
-    // Registrar errores como info (no deben haber page errors críticos)
-    if (consoleErrors.length > 0) {
-      console.log("Console errors detected:", consoleErrors);
-    }
-
-    // Permitir errores menores (assets faltantes, etc.) pero no page crashes
-    // Filtramos errores conocidos de assets vs errores reales
-    const criticalErrors = consoleErrors.filter(
-      (e) =>
-        !e.includes("Failed to load resource") &&
-        !e.includes("404") &&
-        !e.includes("texture") &&
-        !e.includes("sprite") &&
-        !e.includes("sound") &&
-        !e.includes("audio") &&
-        !e.includes("fetch"),
-    );
-
-    expect(criticalErrors.length).toBe(0);
+    expect(
+      after.cells.find(
+        (cell) => cell.cell.col === buildCell.col && cell.cell.row === buildCell.row,
+      ),
+    ).toMatchObject({
+      occupied: true,
+      occupantId: "placed-tower",
+    });
+    expect(after.units).toHaveLength(before.units.length + 1);
+    expect(placement.cost).toBeGreaterThan(0);
+    expect(after.economy.coins).toBe(before.economy.coins - placement.cost);
+    expect(after.errors).toEqual([]);
   });
 });

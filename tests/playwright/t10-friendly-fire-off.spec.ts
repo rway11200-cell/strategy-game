@@ -1,149 +1,80 @@
 import { expect, test } from "@playwright/test";
+import { GameTestDriver, getUnit } from "./support/GameTestDriver";
 
-type Cell = { col: number; row: number; type: string; occupied: boolean };
-type UnitTeam = "player" | "enemy";
-type UnitState = {
-  id: string;
-  col: number;
-  row: number;
-  team: UnitTeam;
-  health?: number;
-  range?: number;
-};
+const ATTACKER_ID = "player-attacker";
+const ALLY_ID = "closer-player-ally";
+const ENEMY_ID = "farther-enemy";
 
-interface T10GameTestApi {
-  isReady(): boolean;
-  getGrid(): { cells: Cell[][] };
-  getState(): { units: UnitState[]; errors: string[] };
-  spawnUnit(params: {
-    id: string;
-    col: number;
-    row: number;
-    type: string;
-    team: UnitTeam;
-  }): UnitState;
-  advanceTurns(turns: number): void;
-}
+test("friendly fire desactivado ignora al aliado más cercano y ataca al enemigo", async ({
+  page,
+}) => {
+  const game = new GameTestDriver(page);
 
-test("units do not damage their own team when friendly fire is off", async ({ page }) => {
-  await page.goto("/");
+  const setup =
+    await test.step("Dado un aliado más cercano que un enemigo, ambos en rango", async () => {
+      await game.open();
+      await game.waitUntilReady();
+      const scenario = await game.beginScenario("friendly-fire-selection", {
+        friendlyFire: false,
+      });
+      const attackerCell = game.point(scenario, "attacker");
+      const allyCell = game.point(scenario, "closerAlly");
+      const enemyCell = game.point(scenario, "fartherEnemy");
 
-  await expect
-    .poll(() => page.evaluate(() => window.__GAME_TEST__?.isReady() ?? false), {
-      timeout: 15_000,
-      message: "the game should become ready",
-    })
-    .toBe(true);
-
-  const supportsCombatSetup = await page.evaluate(() => {
-    const api = window.__GAME_TEST__ as unknown as Partial<T10GameTestApi>;
-    return ["spawnUnit", "advanceTurns"].every(
-      (method) => typeof api[method as keyof T10GameTestApi] === "function",
-    );
-  });
-  expect(supportsCombatSetup, "GameTestApi must expose the T10 combat methods").toBe(true);
-
-  const setup = await page.evaluate(() => {
-    const api = window.__GAME_TEST__ as unknown as T10GameTestApi;
-    const freeCells = api
-      .getGrid()
-      .cells.flat()
-      .filter((cell) => cell.type !== "blocked" && !cell.occupied);
-    const distance = (a: Cell, b: Cell) => Math.hypot(a.col - b.col, a.row - b.row);
-    const attackerCell = freeCells.find(
-      (candidate) =>
-        freeCells.filter((cell) => cell !== candidate && distance(candidate, cell) <= 1.5).length >=
-        2,
-    );
-    if (!attackerCell) throw new Error("the grid needs three adjacent free cells");
-
-    const [allyCell, enemyCell] = freeCells
-      .filter((cell) => cell !== attackerCell && distance(attackerCell, cell) <= 1.5)
-      .slice(0, 2);
-
-    const attacker = api.spawnUnit({
-      id: "t10-player-attacker",
-      col: attackerCell.col,
-      row: attackerCell.row,
-      type: "tower",
-      team: "player",
-    });
-    const ally = api.spawnUnit({
-      id: "t10-player-ally",
-      col: allyCell.col,
-      row: allyCell.row,
-      type: "tower",
-      team: "player",
+      await game.spawnUnit({
+        scenarioId: scenario.id,
+        id: ATTACKER_ID,
+        archetype: "test-ranged-unit",
+        team: "player",
+        cell: attackerCell,
+        stats: { damage: 20, rangeCells: 3, fireCooldownFrames: 1 },
+      });
+      const ally = await game.spawnUnit({
+        scenarioId: scenario.id,
+        id: ALLY_ID,
+        archetype: "test-target",
+        team: "player",
+        cell: allyCell,
+        stats: { hp: 100 },
+      });
+      const enemy = await game.spawnUnit({
+        scenarioId: scenario.id,
+        id: ENEMY_ID,
+        archetype: "goblin",
+        team: "enemy",
+        cell: enemyCell,
+        stats: { hp: 100 },
+      });
+      return { scenario, ally, enemy };
     });
 
-    const units = api.getState().units;
-    const attackerState = units.find((unit) => unit.id === attacker.id);
-    const allyState = units.find((unit) => unit.id === ally.id);
-    if (!attackerState || !allyState) {
-      throw new Error("the allied T10 units were not exposed by the API");
-    }
-
-    return {
-      attackerId: attacker.id,
-      attackerHealth: attackerState.health,
-      attackerRange: attackerState.range ?? 0,
-      allyId: ally.id,
-      allyHealth: allyState.health,
-      allyDistance: distance(attackerCell, allyCell),
-      enemyCell: { col: enemyCell.col, row: enemyCell.row },
-      enemyDistance: distance(attackerCell, enemyCell),
-    };
+  await test.step("Cuando la atacante busca automáticamente un objetivo", async () => {
+    await game.issueOrder(ATTACKER_ID, { type: "hold-position" });
   });
 
-  expect(setup.attackerHealth).toBeGreaterThan(0);
-  expect(setup.allyHealth).toBeGreaterThan(0);
-  expect(setup.allyDistance).toBeLessThanOrEqual(setup.attackerRange);
-
-  const alliedHealthAfterCombat = await page.evaluate(({ attackerId, allyId }) => {
-    const api = window.__GAME_TEST__ as unknown as T10GameTestApi;
-    api.advanceTurns(20);
-    const units = api.getState().units;
-    return {
-      attacker: units.find((unit) => unit.id === attackerId)?.health,
-      ally: units.find((unit) => unit.id === allyId)?.health,
-    };
-  }, setup);
-
-  expect(alliedHealthAfterCombat.attacker).toBe(setup.attackerHealth);
-  expect(alliedHealthAfterCombat.ally).toBe(setup.allyHealth);
-
-  const enemy = await page.evaluate(({ enemyCell }) => {
-    const api = window.__GAME_TEST__ as unknown as T10GameTestApi;
-    const spawned = api.spawnUnit({
-      id: "t10-enemy-control",
-      col: enemyCell.col,
-      row: enemyCell.row,
-      type: "skeleton",
-      team: "enemy",
+  await test.step("Entonces selecciona y daña solamente al enemigo", async () => {
+    const acquired = await game.advanceUntil({
+      scenarioId: setup.scenario.id,
+      condition: { type: "event", eventType: "target.acquired", unitId: ATTACKER_ID },
     });
-    const state = api.getState().units.find((unit) => unit.id === spawned.id);
-    if (!state) throw new Error("the enemy control unit was not exposed by the API");
-    return { id: spawned.id, health: state.health };
-  }, setup);
+    expect(acquired.matchedEvent.targetId).toBe(ENEMY_ID);
 
-  expect(setup.enemyDistance).toBeLessThanOrEqual(setup.attackerRange);
-  expect(enemy.health).toBeGreaterThan(0);
-
-  await expect
-    .poll(
-      () =>
-        page.evaluate((enemyId) => {
-          const api = window.__GAME_TEST__ as unknown as T10GameTestApi;
-          api.advanceTurns(1);
-          return api.getState().units.find((unit) => unit.id === enemyId)?.health;
-        }, enemy.id),
-      { timeout: 10_000, message: "the enemy control unit should receive damage" },
-    )
-    .toBeLessThan(enemy.health!);
-
-  await expect
-    .poll(() => page.evaluate(() => window.__GAME_TEST__!.getState().errors), {
-      message: "the game should report no errors",
-    })
-    .toEqual([]);
+    const impact = await game.advanceUntil({
+      scenarioId: setup.scenario.id,
+      afterSequence: acquired.matchedEvent.sequence,
+      condition: { type: "event", eventType: "damage.applied", targetId: ENEMY_ID },
+    });
+    expect(getUnit(impact.snapshot, ALLY_ID).hp).toBe(setup.ally.hp);
+    expect(getUnit(impact.snapshot, ENEMY_ID).hp).toBe(setup.enemy.hp - 20);
+    expect(
+      impact.snapshot.events.filter(
+        (event) =>
+          event.sourceId === ATTACKER_ID &&
+          event.targetId === ALLY_ID &&
+          ["projectile.launched", "damage.applied"].includes(event.type),
+      ),
+    ).toEqual([]);
+    expect(impact.snapshot.rules.friendlyFire).toBe(false);
+    expect(impact.snapshot.errors).toEqual([]);
+  });
 });

@@ -14,11 +14,11 @@
 import type { GridConfig, CellCoord } from "../../grid/GridConfig";
 import type { GridIntegration } from "../../grid/GridIntegration";
 import type { GameManager } from "../core/GameManager";
+import { PatrolCommand, type CommandStatus, type UnitCommandType } from "../core/UnitCommands";
 import type { LevelContext } from "../core/niveles/cargador/LevelContext";
 import { EnemyType } from "../core/unidades/Enemy";
 import type { Enemy } from "../core/unidades/Enemy";
 import type { Tower } from "../core/unidades/Tower";
-import { PatrolCommand } from "../core/UnitCommands";
 
 // ──────────────────────────────────────────────
 // Tipos públicos de la API de testing
@@ -62,12 +62,17 @@ export interface TowerTestState {
 }
 
 export interface EnemyTestState {
-  id?: string;
+  id: string;
   worldX: number;
   worldY: number;
+  cell?: CellCoord;
   health?: number;
   active: boolean;
   type?: string;
+  command: {
+    type: UnitCommandType;
+    status: CommandStatus;
+  } | null;
 }
 
 export interface UnitTestState {
@@ -86,6 +91,169 @@ export interface SpawnEnemyResult {
   success: boolean;
   enemyId?: string;
   error?: string;
+}
+
+export interface ApiError {
+  code: string;
+  message: string;
+  details?: Record<string, unknown>;
+}
+
+export type ApiResult<T> = { ok: true; value: T } | { ok: false; error: ApiError };
+
+export type TestScenarioPreset =
+  | "tower-placement"
+  | "long-movement-corridor"
+  | "hold-position-lane"
+  | "hold-fire-stationary"
+  | "hold-fire-patrol"
+  | "three-cell-patrol-corridor"
+  | "single-wave-path-to-base"
+  | "five-unit-contended-patrol"
+  | "single-unit-death"
+  | "friendly-fire-selection";
+
+export type TestUnitTeam = "player" | "enemy" | "neutral";
+export type TestUnitLifecycle = "alive" | "dying" | "dead" | "despawned";
+export type TestOrderStatus = "running" | "completed" | "failed" | "cancelled" | "rejected";
+export type TestOrderType = "move" | "stop" | "hold-position" | "patrol" | "attack";
+
+export interface BootTestSnapshot {
+  lifecycle: "ready";
+  version: string;
+  renderer: {
+    surfaceCount: number;
+    width: number;
+    height: number;
+  };
+  grid: {
+    columns: number;
+    rows: number;
+    tileSize: number;
+    cells: CellTestState[][];
+  };
+  errors: ApiError[];
+}
+
+export interface ScenarioTestState {
+  id: string;
+  preset: TestScenarioPreset;
+  simulation: "manual";
+  frame: number;
+  landmarks: Record<string, CellCoord>;
+  groups: Record<string, CellCoord[]>;
+  path: CellCoord[];
+  expectedUnitCount?: number;
+}
+
+export interface TestOrderSnapshot {
+  id: string;
+  unitId: string;
+  type: TestOrderType;
+  status: TestOrderStatus;
+  issuedAtFrame: number;
+  finishedAtFrame: number | null;
+  destination?: CellCoord;
+  endpoints?: readonly [CellCoord, CellCoord];
+  targetId?: string;
+  phase?: "approaching-start" | "outbound" | "returning";
+  completedCycles?: number;
+  failureCode?: string;
+}
+
+export interface TestUnitSnapshot {
+  id: string;
+  archetype: string;
+  team: TestUnitTeam;
+  lifecycle: TestUnitLifecycle;
+  active: boolean;
+  cell: CellCoord | null;
+  world: { x: number; y: number };
+  occupiedCells: CellCoord[];
+  hp: number;
+  maxHp: number;
+  movement: {
+    mode: "idle" | "moving" | "stopped" | "holding" | "patrolling";
+    route: CellCoord[];
+    targetCell: CellCoord | null;
+    stepProgress: number;
+  };
+  combat: {
+    mode: "auto" | "forced" | "disabled";
+    targetId: string | null;
+    damage: number;
+    rangeCells: number;
+  };
+  order: TestOrderSnapshot | null;
+}
+
+export interface ObservedCellTestState {
+  cell: CellCoord;
+  type: string;
+  occupied: boolean;
+  occupantId: string | null;
+}
+
+export interface TestEventSnapshot {
+  sequence: number;
+  frame: number;
+  type: string;
+  unitId?: string;
+  sourceId?: string;
+  targetId?: string;
+  orderId?: string;
+  waveId?: string;
+  from?: CellCoord;
+  to?: CellCoord;
+  cell?: CellCoord;
+  amount?: number;
+  hpBefore?: number;
+  hpAfter?: number;
+  reason?: string;
+}
+
+export interface TestWaveSnapshot {
+  id: string;
+  number: number;
+  status: "idle" | "running" | "completed";
+  unitIds: string[];
+  spawnedCount: number;
+  reachedBaseCount: number;
+}
+
+export interface ScenarioTestSnapshot {
+  scenarioId: string;
+  frame: number;
+  eventSequence: number;
+  economy: { coins: number };
+  units: TestUnitSnapshot[];
+  orders: TestOrderSnapshot[];
+  cells: ObservedCellTestState[];
+  events: TestEventSnapshot[];
+  wave: TestWaveSnapshot | null;
+  rules: { friendlyFire: boolean };
+  errors: ApiError[];
+}
+
+export type AdvanceTestCondition =
+  | { type: "event"; eventType: string; unitId?: string; targetId?: string }
+  | { type: "unit-entered-cell"; unitId: string; cell?: CellCoord }
+  | { type: "all-units-progressed"; unitIds: string[]; minimumTransitions: number }
+  | { type: "wave-status"; waveId: string; status: "running" | "completed" }
+  | { type: "unit-lifecycle"; unitId: string; lifecycle: TestUnitLifecycle };
+
+export interface AdvanceTestResult {
+  elapsedFrames: number;
+  matchedEvent: TestEventSnapshot;
+  snapshot: ScenarioTestSnapshot;
+}
+
+export interface CleanupScenarioResult {
+  removedUnitIds: string[];
+  remainingTestUnitIds: string[];
+  leakedOccupations: ObservedCellTestState[];
+  pendingOrderIds: string[];
+  pendingProjectileIds: string[];
 }
 
 export interface GameTestApi {
@@ -165,6 +333,83 @@ export interface GameTestApi {
    * @returns true si la unidad fue encontrada y dañada
    */
   damageUnit(unitId: string, damage: number): boolean;
+
+  /** Devuelve un snapshot atómico del juego una vez completado el arranque. */
+  getBootSnapshot(): BootTestSnapshot;
+
+  /** Crea un escenario aislado y pausa el reloj real del juego. */
+  beginScenario(options: {
+    preset: TestScenarioPreset;
+    simulation: "manual";
+    seed?: number;
+    friendlyFire?: boolean;
+  }): ApiResult<ScenarioTestState>;
+
+  /** Crea de forma atómica una unidad controlada por el escenario de test. */
+  spawnTestUnit(options: {
+    scenarioId: string;
+    id: string;
+    archetype: string;
+    team: TestUnitTeam;
+    cell: CellCoord;
+    stats?: {
+      hp?: number;
+      damage?: number;
+      rangeCells?: number;
+      movementFramesPerCell?: number;
+      fireCooldownFrames?: number;
+    };
+  }): ApiResult<TestUnitSnapshot>;
+
+  /** Emite cualquier orden de unidad con identidad e historial observable. */
+  issueTestOrder(options: {
+    unitId: string;
+    order:
+      | { type: "move"; destination: CellCoord }
+      | { type: "stop" }
+      | { type: "hold-position" }
+      | { type: "patrol"; endpoints: readonly [CellCoord, CellCoord] }
+      | { type: "attack"; targetId: string };
+  }): ApiResult<TestOrderSnapshot>;
+
+  /** Obtiene unidades, órdenes, celdas, eventos y errores en el mismo frame. */
+  getScenarioSnapshot(scenarioId: string): ScenarioTestSnapshot;
+
+  /** Avanza el reloj manual hasta una condición observable. */
+  advanceTestSimulation(options: {
+    scenarioId: string;
+    afterSequence?: number;
+    maxFrames: number;
+    condition: AdvanceTestCondition;
+  }): ApiResult<AdvanceTestResult>;
+
+  /** Avanza una cantidad exacta de frames sin depender del tiempo real. */
+  advanceTestFrames(scenarioId: string, frames: number): ApiResult<ScenarioTestSnapshot>;
+
+  /** Coloca una torre de forma transaccional en un escenario de test. */
+  placeTestTower(options: {
+    scenarioId: string;
+    id: string;
+    archetype: string;
+    cell: CellCoord;
+  }): ApiResult<{ tower: TestUnitSnapshot; cost: number }>;
+
+  /** Inicia una oleada real y devuelve sus IDs y ruta esperada. */
+  startTestWave(options: {
+    scenarioId: string;
+    wave: number;
+  }): ApiResult<{ wave: TestWaveSnapshot; path: CellCoord[] }>;
+
+  /** Aplica daño trazable y devuelve el snapshot del evento resultante. */
+  applyTestDamage(options: {
+    scenarioId: string;
+    sourceId?: string;
+    targetId: string;
+    amount: number;
+  }): ApiResult<{ event: TestEventSnapshot; snapshot: ScenarioTestSnapshot }>;
+
+  /** Elimina las entidades del escenario y comprueba que no queden ocupaciones. */
+  cleanupScenario(scenarioId: string): ApiResult<CleanupScenarioResult>;
 }
 
 // ──────────────────────────────────────────────
@@ -208,6 +453,10 @@ function testEnemyTypeToInternal(enemyType: string): EnemyType | null {
   }
 }
 
+function notImplemented(method: keyof GameTestApi): never {
+  throw new Error(`GameTestApi.${method} is not implemented`);
+}
+
 // ──────────────────────────────────────────────
 // Implementación
 // ──────────────────────────────────────────────
@@ -233,14 +482,28 @@ export function createGameTestApi(
     getState(): GameTestState {
       const mgr = getManager();
       if (!mgr) {
-        return { version: APP_VERSION, coins: 0, enemiesCount: 0, towersCount: 0, currentWave: 0, errors: ["GameManager not initialized"] };
+        return {
+          version: APP_VERSION,
+          coins: 0,
+          enemiesCount: 0,
+          towersCount: 0,
+          currentWave: 0,
+          errors: ["GameManager not initialized"],
+        };
       }
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const mgrDebug = mgr as any as GameManagerDebug;
       const ctx = mgrDebug.gameContext;
       if (!ctx) {
-        return { version: APP_VERSION, coins: 0, enemiesCount: 0, towersCount: 0, currentWave: 0, errors: ["LevelContext not initialized"] };
+        return {
+          version: APP_VERSION,
+          coins: 0,
+          enemiesCount: 0,
+          towersCount: 0,
+          currentWave: 0,
+          errors: ["LevelContext not initialized"],
+        };
       }
 
       const activeEnemies = ctx.enemyCreator?.getUnits(true) ?? [];
@@ -332,6 +595,7 @@ export function createGameTestApi(
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const mgrDebug = mgr as any as GameManagerDebug;
       const ctx = mgrDebug.gameContext;
+      const gridConfig = ctx?.gridIntegration?.gridConfig;
       const activeEnemies = ctx?.enemyCreator?.getUnits(true) ?? [];
 
       return activeEnemies.map((e: EnemyLect) => {
@@ -340,11 +604,19 @@ export function createGameTestApi(
         const anyEnemy = e as any;
 
         return {
-          id: enemy.getId("test"),
+          id: enemy.getId(),
           worldX: enemy.x,
           worldY: enemy.y,
+          cell: gridConfig ? enemy.getGridCell(gridConfig) : undefined,
           health: anyEnemy.currentHealth,
           active: enemy.active,
+          type: enemy.enemyType,
+          command: enemy.currentCommand
+            ? {
+                type: enemy.currentCommand.type,
+                status: enemy.currentCommand.status,
+              }
+            : null,
         };
       });
     },
@@ -525,13 +797,24 @@ export function createGameTestApi(
         cellX >= gi.gridConfig.gridWidth ||
         cellY >= gi.gridConfig.gridHeight
       ) {
-        return { success: false, error: `Cell (${cellX}, ${cellY}) is out of grid bounds (${gi.gridConfig.gridWidth}x${gi.gridConfig.gridHeight})` };
+        return {
+          success: false,
+          error: `Cell (${cellX}, ${cellY}) is out of grid bounds (${gi.gridConfig.gridWidth}x${gi.gridConfig.gridHeight})`,
+        };
       }
 
       // Validar enemyType
       const internalType = testEnemyTypeToInternal(enemyType);
       if (!internalType) {
-        return { success: false, error: `Unknown enemy type: "${enemyType}". Valid types: basic, fast, tank, boss` };
+        return {
+          success: false,
+          error: `Unknown enemy type: "${enemyType}". Valid types: basic, fast, tank, boss`,
+        };
+      }
+
+      const spawnCell = { col: cellX, row: cellY };
+      if (!gi.gridState.isWalkable(spawnCell)) {
+        return { success: false, error: `Cell (${cellX}, ${cellY}) is blocked or occupied` };
       }
 
       // Obtener un enemigo del pool
@@ -540,19 +823,20 @@ export function createGameTestApi(
         return { success: false, error: "No available enemy in pool" };
       }
 
-      // Calcular la posición del mundo para la celda
-      const worldPos = {
-        x: cellX * gi.gridConfig.cellSize + gi.gridConfig.cellSize / 2,
-        y: cellY * gi.gridConfig.cellSize + gi.gridConfig.cellSize / 2,
-      };
-
-      enemy.position.set(worldPos.x, worldPos.y);
       enemy.initializeEnemy(internalType);
+      enemy.initializeTileMovement({
+        cells: [],
+        gridConfig: gi.gridConfig,
+        gridState: gi.gridState,
+        start: spawnCell,
+        entityType: internalType,
+      });
       enemy.spawn();
 
-      // Ocupar la celda en el grid
-      const enemyId = enemy.getId("spawned");
-      gi.gridState.occupyCell({ col: cellX, row: cellY }, enemyId);
+      const enemyId = enemy.getId();
+      if (!enemy.getGridCell(gi.gridConfig)) {
+        return { success: false, error: `Could not occupy cell (${cellX}, ${cellY})` };
+      }
 
       return { success: true, enemyId };
     },
@@ -592,6 +876,53 @@ export function createGameTestApi(
       enemy.issueCommand(patrolCmd);
 
       return true;
+    },
+
+    getBootSnapshot(): BootTestSnapshot {
+      return notImplemented("getBootSnapshot");
+    },
+
+    beginScenario(_options): ApiResult<ScenarioTestState> {
+      return notImplemented("beginScenario");
+    },
+
+    spawnTestUnit(_options): ApiResult<TestUnitSnapshot> {
+      return notImplemented("spawnTestUnit");
+    },
+
+    issueTestOrder(_options): ApiResult<TestOrderSnapshot> {
+      return notImplemented("issueTestOrder");
+    },
+
+    getScenarioSnapshot(_scenarioId): ScenarioTestSnapshot {
+      return notImplemented("getScenarioSnapshot");
+    },
+
+    advanceTestSimulation(_options): ApiResult<AdvanceTestResult> {
+      return notImplemented("advanceTestSimulation");
+    },
+
+    advanceTestFrames(_scenarioId, _frames): ApiResult<ScenarioTestSnapshot> {
+      return notImplemented("advanceTestFrames");
+    },
+
+    placeTestTower(_options): ApiResult<{ tower: TestUnitSnapshot; cost: number }> {
+      return notImplemented("placeTestTower");
+    },
+
+    startTestWave(_options): ApiResult<{ wave: TestWaveSnapshot; path: CellCoord[] }> {
+      return notImplemented("startTestWave");
+    },
+
+    applyTestDamage(_options): ApiResult<{
+      event: TestEventSnapshot;
+      snapshot: ScenarioTestSnapshot;
+    }> {
+      return notImplemented("applyTestDamage");
+    },
+
+    cleanupScenario(_scenarioId): ApiResult<CleanupScenarioResult> {
+      return notImplemented("cleanupScenario");
     },
   };
 

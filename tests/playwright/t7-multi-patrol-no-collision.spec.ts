@@ -1,146 +1,81 @@
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test } from "@playwright/test";
+import { GameTestDriver } from "./support/GameTestDriver";
 
-async function waitForGameReady(page: Page, timeout = 25_000): Promise<void> {
-  await page.waitForFunction(
-    () =>
-      typeof window.__GAME_TEST__?.isReady === "function" && window.__GAME_TEST__.isReady(),
-    undefined,
-    { timeout },
-  );
-}
+const UNIT_IDS = Array.from({ length: 5 }, (_, index) => `patrol-${index + 1}`);
 
-test("5 enemies patrol between two points without permanent collision", async ({ page }) => {
-  await page.goto("/");
-  await page.waitForLoadState("networkidle");
-  await waitForGameReady(page);
+test("cinco patrullas resuelven la contención sin colisiones ni starvation", async ({ page }) => {
+  const game = new GameTestDriver(page);
 
-  // Get grid info
-  const grid = await page.evaluate(() => window.__GAME_TEST__!.getGrid());
-  expect(grid.columns).toBeGreaterThan(1);
-  expect(grid.rows).toBeGreaterThan(1);
+  const setup =
+    await test.step("Dado cinco unidades ante un cuello de botella compartido", async () => {
+      await game.open();
+      await game.waitUntilReady();
+      const scenario = await game.beginScenario("five-unit-contended-patrol", { seed: 1 });
+      const spawnCells = game.group(scenario, "spawnCells");
+      const pointA = game.point(scenario, "pointA");
+      const pointB = game.point(scenario, "pointB");
+      expect(spawnCells).toHaveLength(UNIT_IDS.length);
 
-  // Find 5 free cells spread across the grid, avoiding blocked cells
-  // We'll use cells that are walkable and not occupied
-  const walkableCells = grid.cells
-    .flat()
-    .filter((cell) => cell.type !== "blocked" && !cell.occupied);
-
-  expect(walkableCells.length).toBeGreaterThanOrEqual(7);
-
-  // Pick 5 distinct spawn cells (first 5 walkable), and 2 patrol endpoints (last 2)
-  const spawnCells = walkableCells.slice(0, 5);
-  const patrolFrom = walkableCells[5];
-  const patrolTo = walkableCells[6];
-
-  // Spawn 5 enemies at the chosen cells
-  const spawnResults = await page.evaluate(
-    (cells) => {
-      return cells.map((cell) => window.__GAME_TEST__!.spawnEnemy(cell.col, cell.row, "basic"));
-    },
-    spawnCells.map((c) => ({ col: c.col, row: c.row })),
-  );
-
-  for (const result of spawnResults) {
-    expect(result.success).toBe(true);
-  }
-
-  // Verify 5 enemies are active
-  const enemiesAfterSpawn = await page.evaluate(() => window.__GAME_TEST__!.getEnemies());
-  expect(enemiesAfterSpawn.length).toBe(5);
-
-  // Issue patrol commands to all 5 enemies via the new API
-  // Each enemy patrols between the common patrolFrom and patrolTo endpoints
-  const patrolResults = await page.evaluate(
-    ({ spawnCells, patrolFrom, patrolTo }: {
-      spawnCells: { col: number; row: number }[];
-      patrolFrom: { col: number; row: number };
-      patrolTo: { col: number; row: number };
-    }) => {
-      return spawnCells.map((cell) =>
-        window.__GAME_TEST__!.patrolEnemy(patrolFrom.col, patrolFrom.row, patrolTo.col, patrolTo.row),
-      );
-    },
-    {
-      spawnCells: spawnCells.map((c) => ({ col: c.col, row: c.row })),
-      patrolFrom: { col: patrolFrom.col, row: patrolFrom.row },
-      patrolTo: { col: patrolTo.col, row: patrolTo.row },
-    },
-  );
-
-  for (const result of patrolResults) {
-    expect(result).toBe(true);
-  }
-
-  // Check no errors immediately after setup
-  const stateAfterSetup = await page.evaluate(() => window.__GAME_TEST__!.getState());
-  expect(stateAfterSetup.errors).toEqual([]);
-
-  // Wait for enemies to move — poll positions
-  // We expect all 5 enemies to have changed their grid cell at least once within the timeout
-  await expect
-    .poll(
-      async () => {
-        const enemies = await page.evaluate(() => window.__GAME_TEST__!.getEnemies());
-        // An enemy counts as "moved" if its position changed from where it was spawned
-        // Since we can only check world positions, we verify all 5 are still active
-        // (none was destroyed) and track how many are on a distinct position
-        const state = await page.evaluate(() => window.__GAME_TEST__!.getState());
-        return {
-          activeCount: enemies.length,
-          errors: state.errors,
-          // Check at least some enemies have moved from spawn positions
-          // by verifying they're in a different cell
-          hasMovement: await page.evaluate(
-            ({ spawnCells }: { spawnCells: { col: number; row: number }[] }) => {
-              const grid = window.__GAME_TEST__!.getGrid();
-              const currentEnemies = window.__GAME_TEST__!.getEnemies();
-              const tileSize = grid.tileSize;
-
-              let movedCount = 0;
-              for (const enemy of currentEnemies) {
-                // Convert world position to approximate grid cell
-                const col = Math.floor(enemy.worldX / tileSize);
-                const row = Math.floor(enemy.worldY / tileSize);
-                // Check if this enemy is NOT at any spawn cell (meaning it moved)
-                const atSpawn = spawnCells.some((s) => s.col === col && s.row === row);
-                if (!atSpawn) movedCount++;
-              }
-              return movedCount;
-            },
-            { spawnCells: spawnCells.map((c) => ({ col: c.col, row: c.row })) },
-          ),
-        };
-      },
-      { timeout: 20_000, message: "enemies should move from their spawn positions via patrol" },
-    )
-    .toEqual({
-      activeCount: 5,
-      errors: [],
-      hasMovement: expect.any(Number),
+      for (const [index, unitId] of UNIT_IDS.entries()) {
+        await game.spawnUnit({
+          scenarioId: scenario.id,
+          id: unitId,
+          archetype: "goblin",
+          team: "enemy",
+          cell: spawnCells[index],
+        });
+      }
+      const initial = await game.snapshot(scenario.id);
+      expect(initial.units.map((unit) => unit.id).sort()).toEqual([...UNIT_IDS].sort());
+      expect(initial.cells.filter((cell) => cell.occupied)).toHaveLength(UNIT_IDS.length);
+      return { scenario, pointA, pointB };
     });
 
-  // Actually check that at least 3 out of 5 enemies moved
-  const finalMovement = await page.evaluate(
-    ({ spawnCells }: { spawnCells: { col: number; row: number }[] }) => {
-      const grid = window.__GAME_TEST__!.getGrid();
-      const currentEnemies = window.__GAME_TEST__!.getEnemies();
-      const tileSize = grid.tileSize;
+  await test.step("Cuando todas reciben la misma ruta de patrulla", async () => {
+    for (const unitId of UNIT_IDS) {
+      const order = await game.issueOrder(unitId, {
+        type: "patrol",
+        endpoints: [setup.pointA, setup.pointB],
+      });
+      expect(order).toMatchObject({ unitId, type: "patrol", status: "running" });
+    }
+  });
 
-      let movedCount = 0;
-      for (const enemy of currentEnemies) {
-        const col = Math.floor(enemy.worldX / tileSize);
-        const row = Math.floor(enemy.worldY / tileSize);
-        const atSpawn = spawnCells.some((s) => s.col === col && s.row === row);
-        if (!atSpawn) movedCount++;
-      }
-      return movedCount;
-    },
-    { spawnCells: spawnCells.map((c) => ({ col: c.col, row: c.row })) },
-  );
+  await test.step("Entonces todas progresan y cada bloqueo temporal se resuelve", async () => {
+    const progressed = await game.advanceUntil({
+      scenarioId: setup.scenario.id,
+      condition: {
+        type: "all-units-progressed",
+        unitIds: UNIT_IDS,
+        minimumTransitions: 4,
+      },
+      maxFrames: 2_000,
+    });
 
-  // At least 3 of 5 enemies should have moved — checks no permanent collision block
-  expect(finalMovement).toBeGreaterThanOrEqual(3);
+    for (const unitId of UNIT_IDS) {
+      const transitions = progressed.snapshot.events.filter(
+        (event) => event.type === "unit.entered-cell" && event.unitId === unitId,
+      );
+      const blocked = progressed.snapshot.events.filter(
+        (event) => event.type === "movement.blocked" && event.unitId === unitId,
+      );
+      const resumed = progressed.snapshot.events.filter(
+        (event) => event.type === "movement.resumed" && event.unitId === unitId,
+      );
 
-  const finalState = await page.evaluate(() => window.__GAME_TEST__!.getState());
-  expect(finalState.errors).toEqual([]);
+      expect(transitions, `${unitId} must make progress`).toHaveLength(4);
+      expect(resumed.length, `${unitId} must resume every temporary block`).toBeGreaterThanOrEqual(
+        blocked.length,
+      );
+      expect(progressed.snapshot.orders.find((order) => order.unitId === unitId)).toMatchObject({
+        type: "patrol",
+        status: "running",
+      });
+    }
+    expect(
+      progressed.snapshot.events.filter((event) => event.type === "collision.detected"),
+    ).toEqual([]);
+    expect(progressed.snapshot.cells.filter((cell) => cell.occupied)).toHaveLength(UNIT_IDS.length);
+    expect(progressed.snapshot.errors).toEqual([]);
+  });
 });

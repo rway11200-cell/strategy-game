@@ -1,143 +1,83 @@
 import { expect, test } from "@playwright/test";
+import { GameTestDriver, getUnit } from "./support/GameTestDriver";
 
-type Cell = { col: number; row: number; type: string; occupied: boolean };
-type Position = { col: number; row: number };
-type UnitState = Position & { id: string };
+const UNIT_ID = "stoppable-unit";
 
-interface T2GameTestApi {
-  isReady(): boolean;
-  getGrid(): { cells: Cell[][] };
-  getState(): { units: UnitState[]; errors: string[] };
-  spawnUnit(params: {
-    id: string;
-    col: number;
-    row: number;
-    type: string;
-    team: string;
-  }): UnitState;
-  moveTo(unitId: string, col: number, row: number): void;
-  stop(unitId: string): void;
-}
+test("stop cancela un movimiento y mantiene la última celda confirmada", async ({ page }) => {
+  const game = new GameTestDriver(page);
 
-test("stop prevents a moving unit from reaching its destination", async ({ page }) => {
-  await page.goto("http://localhost:5173");
-
-  await expect
-    .poll(() => page.evaluate(() => window.__GAME_TEST__?.isReady() ?? false), {
-      timeout: 15_000,
-      message: "the game should become ready",
-    })
-    .toBe(true);
-
-  const supportsMovementCommands = await page.evaluate(() => {
-    const api = window.__GAME_TEST__ as unknown as Partial<T2GameTestApi>;
-    return ["spawnUnit", "moveTo", "stop"].every(
-      (method) => typeof api[method as keyof T2GameTestApi] === "function",
-    );
-  });
-  expect(supportsMovementCommands, "GameTestApi must expose the T2 movement methods").toBe(true);
-
-  const setup = await page.evaluate(() => {
-    const api = window.__GAME_TEST__ as unknown as T2GameTestApi;
-    const freeCells = api
-      .getGrid()
-      .cells.flat()
-      .filter((cell) => cell.type !== "blocked" && !cell.occupied);
-    const freeByKey = new Map(freeCells.map((cell) => [`${cell.col},${cell.row}`, cell]));
-    const directions = [
-      [0, -1],
-      [0, 1],
-      [-1, 0],
-      [1, 0],
-    ];
-
-    let route: { origin: Cell; destination: Cell } | undefined;
-    for (const origin of freeCells) {
-      const queue = [{ cell: origin, distance: 0 }];
-      const visited = new Set([`${origin.col},${origin.row}`]);
-      let farthest = queue[0];
-
-      for (let index = 0; index < queue.length; index++) {
-        const current = queue[index];
-        if (current.distance > farthest.distance) farthest = current;
-
-        for (const [deltaCol, deltaRow] of directions) {
-          const key = `${current.cell.col + deltaCol},${current.cell.row + deltaRow}`;
-          const neighbour = freeByKey.get(key);
-          if (!neighbour || visited.has(key)) continue;
-          visited.add(key);
-          queue.push({ cell: neighbour, distance: current.distance + 1 });
-        }
-      }
-
-      if (farthest.distance >= 6) {
-        route = { origin, destination: farthest.cell };
-        break;
-      }
-    }
-
-    if (!route) throw new Error("the grid needs two connected cells at least six steps apart");
-
-    const spawned = api.spawnUnit({
-      id: "t2-stoppable-unit",
-      col: route.origin.col,
-      row: route.origin.row,
-      type: "goblin",
+  const setup = await test.step("Dado una unidad en un corredor largo", async () => {
+    await game.open();
+    await game.waitUntilReady();
+    const scenario = await game.beginScenario("long-movement-corridor");
+    const origin = game.point(scenario, "origin");
+    const checkpoint = game.point(scenario, "checkpoint");
+    const destination = game.point(scenario, "destination");
+    const unit = await game.spawnUnit({
+      scenarioId: scenario.id,
+      id: UNIT_ID,
+      archetype: "goblin",
       team: "player",
+      cell: origin,
     });
-    const unitId = spawned.id;
-    api.moveTo(unitId, route.destination.col, route.destination.row);
 
-    return {
-      unitId,
-      origin: { col: route.origin.col, row: route.origin.row },
-      destination: { col: route.destination.col, row: route.destination.row },
-    };
+    expect(unit).toMatchObject({
+      cell: origin,
+      occupiedCells: [origin],
+      movement: { mode: "idle" },
+    });
+    return { scenario, checkpoint, destination };
   });
 
-  await expect
-    .poll(
-      () =>
-        page.evaluate(({ unitId, origin, destination }) => {
-          const api = window.__GAME_TEST__ as unknown as T2GameTestApi;
-          const unit = api.getState().units.find((candidate) => candidate.id === unitId);
-          if (!unit) return { moved: false, arrived: false };
-          return {
-            moved: unit.col !== origin.col || unit.row !== origin.row,
-            arrived: unit.col === destination.col && unit.row === destination.row,
-          };
-        }, setup),
-      {
-        timeout: 10_000,
-        intervals: [50, 100, 200],
-        message: "the unit should advance part of the route without reaching the destination",
-      },
-    )
-    .toEqual({ moved: true, arrived: false });
+  const move = await test.step("Cuando comienza a moverse hacia el destino", async () => {
+    const order = await game.issueOrder(UNIT_ID, {
+      type: "move",
+      destination: setup.destination,
+    });
+    expect(order).toMatchObject({
+      type: "move",
+      status: "running",
+      destination: setup.destination,
+    });
 
-  const stoppedAt = await page.evaluate((unitId) => {
-    const api = window.__GAME_TEST__ as unknown as T2GameTestApi;
-    api.stop(unitId);
-    const unit = api.getState().units.find((candidate) => candidate.id === unitId);
-    if (!unit) throw new Error("the stopped unit was not exposed by the API");
-    return { col: unit.col, row: unit.row };
-  }, setup.unitId);
+    const progressed = await game.advanceUntil({
+      scenarioId: setup.scenario.id,
+      condition: { type: "unit-entered-cell", unitId: UNIT_ID, cell: setup.checkpoint },
+    });
+    expect(getUnit(progressed.snapshot, UNIT_ID)).toMatchObject({
+      cell: setup.checkpoint,
+      occupiedCells: [setup.checkpoint],
+      movement: { mode: "moving" },
+      order: { id: order.id, status: "running" },
+    });
+    return order;
+  });
 
-  expect(stoppedAt).not.toEqual(setup.destination);
-  await page.waitForTimeout(750);
+  await test.step("Y recibe stop antes de llegar", async () => {
+    const stop = await game.issueOrder(UNIT_ID, { type: "stop" });
+    const snapshot = await game.snapshot(setup.scenario.id);
 
-  await expect
-    .poll(
-      () =>
-        page.evaluate((unitId) => {
-          const api = window.__GAME_TEST__ as unknown as T2GameTestApi;
-          const unit = api.getState().units.find((candidate) => candidate.id === unitId);
-          return unit ? { col: unit.col, row: unit.row } : null;
-        }, setup.unitId),
-      { timeout: 2_000, message: "the unit should remain stopped" },
-    )
-    .toEqual(stoppedAt);
+    expect(snapshot.orders.find((order) => order.id === move.id)).toMatchObject({
+      status: "cancelled",
+      finishedAtFrame: expect.any(Number),
+    });
+    expect(stop).toMatchObject({ type: "stop", status: "completed" });
+    expect(getUnit(snapshot, UNIT_ID)).toMatchObject({
+      cell: setup.checkpoint,
+      occupiedCells: [setup.checkpoint],
+      movement: { mode: "stopped", route: [], targetCell: null, stepProgress: 0 },
+      combat: { mode: "disabled" },
+      order: null,
+    });
+  });
 
-  expect(stoppedAt).not.toEqual(setup.destination);
-  expect(await page.evaluate(() => window.__GAME_TEST__!.getState().errors)).toEqual([]);
+  await test.step("Entonces permanece detenido aunque avance la simulación", async () => {
+    const before = getUnit(await game.snapshot(setup.scenario.id), UNIT_ID);
+    const after = getUnit(await game.advanceFrames(setup.scenario.id, 20), UNIT_ID);
+
+    expect(after.cell).toEqual(before.cell);
+    expect(after.world).toEqual(before.world);
+    expect(after.occupiedCells).toEqual(before.occupiedCells);
+    expect(after.cell).not.toEqual(setup.destination);
+  });
 });
