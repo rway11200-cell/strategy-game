@@ -16,12 +16,12 @@ function playwrightHarnessRoutes(): Plugin {
         }
 
         if (pathname === "/__test__/gameplay" || pathname === "/__test__/gameplay/") {
-          request.url = "/tests/playwright/harness/gameplay.html";
+          request.url = "/__test__/gameplay/index.html";
         } else if (
           pathname === "/__test__/grid-renderer" ||
           pathname === "/__test__/grid-renderer/"
         ) {
-          request.url = "/tests/playwright/harness/grid-renderer.html";
+          request.url = "/__test__/grid-renderer/index.html";
         }
 
         next();

@@ -16,6 +16,15 @@ No se debe guardar `PRODUCTION_URL` ni ninguna credencial en el repositorio.
 `EXPECTED_COMMIT_SHA` lo define el workflow automáticamente con
 `${{ github.sha }}`.
 
+El artefacto despliega intencionalmente dos playgrounds independientes del
+juego principal:
+
+- `/__test__/gameplay/` para escenarios controlados y `GameTestApi`.
+- `/__test__/grid-renderer/` para fixtures visuales de la grilla.
+
+Estas rutas son publicas por diseño. Cada navegador mantiene su propio runtime
+y no comparte estado de gameplay con otros visitantes.
+
 ## Ejecucion
 
 El workflow `.github/workflows/validate-production.yml` se ejecuta con cada
@@ -59,5 +68,5 @@ La seccion **Artifacts** de la ejecucion contiene un archivo
 - Para abrir un trace, ejecuta `npx playwright show-trace <archivo-trace.zip>`.
 
 Si la espera agota el timeout, comprueba el estado del deploy en Railway y el
-contenido publico de `/version.json`. La API mutable de gameplay se sirve solo
-desde el harness local de Playwright y no forma parte del artefacto productivo.
+contenido publico de `/version.json`. Las APIs mutables viven en sus entradas
+de playground y no alteran el arranque del juego principal en `/`.
