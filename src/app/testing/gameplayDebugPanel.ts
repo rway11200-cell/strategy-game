@@ -43,10 +43,26 @@ export function createGameplayDebugPanel(api: GameTestApi): HTMLDivElement {
   playBtn.id = "play-btn";
   const resetBtn = createButton("⟲ Reset");
   resetBtn.style.backgroundColor = "#444";
+  const speedSelect = document.createElement("select");
+  speedSelect.id = "playback-speed";
+  for (const [label, value] of [
+    ["0.25x", "0.25"],
+    ["1x", "1"],
+    ["2x", "2"],
+    ["4x", "4"],
+    ["Instant", "32"],
+  ] as const) {
+    const option = document.createElement("option");
+    option.value = value;
+    option.textContent = `Playback ${label}`;
+    option.selected = value === "1";
+    speedSelect.appendChild(option);
+  }
   controlSection.appendChild(step1Btn);
   controlSection.appendChild(step10Btn);
   controlSection.appendChild(playBtn);
   controlSection.appendChild(resetBtn);
+  controlSection.appendChild(speedSelect);
   panel.appendChild(controlSection);
 
   const hudSection = createSection("State");
@@ -76,10 +92,14 @@ export function createGameplayDebugPanel(api: GameTestApi): HTMLDivElement {
       lines.push(`Events: ${snapshot.events.length}`);
       for (const unit of snapshot.units) {
         const cell = unit.cell ? `(${unit.cell.col},${unit.cell.row})` : "?";
+        const progress = Math.round(unit.movement.stepProgress * 100);
+        const world = `(${unit.world.x.toFixed(1)},${unit.world.y.toFixed(1)})`;
         const orderInfo = unit.order
           ? ` [${unit.order.type}] ${unit.order.status}${unit.order.completedCycles !== undefined ? ` cycles:${unit.order.completedCycles}` : ""}`
           : "";
-        lines.push(`  ${unit.id} @ ${cell} hp:${unit.hp}/${unit.maxHp}${orderInfo}`);
+        lines.push(
+          `  ${unit.id} cell:${cell} world:${world} step:${progress}% hp:${unit.hp}/${unit.maxHp}${orderInfo}`,
+        );
       }
       hud.textContent = lines.join("\n");
 
@@ -178,7 +198,7 @@ export function createGameplayDebugPanel(api: GameTestApi): HTMLDivElement {
   playBtn.addEventListener("click", () => {
     if (!state.scenarioId && !state.playing) {
       loadDemoBtn.click();
-      setTimeout(() => { if (state.scenarioId) togglePlay(); }, 100);
+      if (state.scenarioId) togglePlay();
       return;
     }
     togglePlay();
@@ -186,19 +206,26 @@ export function createGameplayDebugPanel(api: GameTestApi): HTMLDivElement {
 
   function togglePlay(): void {
     state.playing = !state.playing;
+    playbackAccumulator = 0;
     playBtn.textContent = state.playing ? "⏸ Pause" : "▶ Play";
     if (state.playing) playLoop();
   }
 
   let frameHandle: number | null = null;
+  let playbackAccumulator = 0;
 
   function playLoop(): void {
     if (!state.playing || !state.scenarioId) {
       frameHandle = null;
       return;
     }
-    api.advanceTestFrames(state.scenarioId, 1);
-    refreshHUD();
+    playbackAccumulator += Number(speedSelect.value);
+    const frames = Math.floor(playbackAccumulator);
+    if (frames > 0) {
+      playbackAccumulator -= frames;
+      api.advanceTestFrames(state.scenarioId, frames);
+      refreshHUD();
+    }
     frameHandle = requestAnimationFrame(playLoop);
   }
 

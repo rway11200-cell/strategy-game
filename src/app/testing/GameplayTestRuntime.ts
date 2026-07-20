@@ -10,7 +10,6 @@ import {
 } from "../core/UnitCommands";
 import { Enemy, EnemyType } from "../core/unidades/Enemy";
 import type { CellCoord } from "../../grid/GridConfig";
-import { gridToWorld } from "../../grid/GridConfig";
 import type {
   ApiError,
   ApiResult,
@@ -197,8 +196,10 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
       gridConfig: scenario.gridConfig,
       gridState: scenario.gridState,
       start: options.cell,
-      entityType: "enemy",
-      ticksPerCell: options.stats?.movementFramesPerCell ?? 1,
+      entityType: options.archetype,
+      ...(options.stats?.movementFramesPerCell !== undefined
+        ? { ticksPerCell: options.stats.movementFramesPerCell }
+        : {}),
     });
 
     enemy.spawn();
@@ -541,9 +542,7 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
       lifecycle: "alive",
       active: unit.enemy.active,
       cell: cellCoord,
-      world: cellCoord
-        ? gridToWorld(cellCoord.col, cellCoord.row, gridConfig)
-        : { x: unit.enemy.position.x, y: unit.enemy.position.y },
+      world: { x: unit.enemy.position.x, y: unit.enemy.position.y },
       occupiedCells: cellCoord ? [cellCoord] : [],
       hp: unit.enemy.hp,
       maxHp: unit.enemy.maxHp,

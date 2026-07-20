@@ -15,7 +15,7 @@ import {
 } from "../src/app/core/UnitCommands";
 import { Projectile } from "../src/app/core/unidades/Projectile";
 import { type ShootOptions, Unit } from "../src/app/core/unidades/Unit";
-import { createGridConfig } from "../src/grid/GridConfig";
+import { createGridConfig, gridToWorld } from "../src/grid/GridConfig";
 import { GridState } from "../src/grid/GridState";
 
 const gridConfig = createGridConfig({ gridWidth: 8, gridHeight: 4, cellSize: 64 });
@@ -82,11 +82,23 @@ describe("unit commands", () => {
 
   it("cancels partial movement immediately when stopped", () => {
     const unit = createUnit(container, gridState, 0, 0, undefined, 2);
+    const origin = gridToWorld(0, 0, gridConfig);
+    const nextCell = gridToWorld(1, 0, gridConfig);
     unit.issueCommand(new MoveCommand({ col: 3, row: 0 }));
     unit.update(ticker(1));
 
+    expect(unit.position.x).toBeGreaterThan(origin.x);
+    expect(unit.position.x).toBeLessThan(nextCell.x);
+    expect(unit.getCommandMovementState().stepProgress).toBe(0.5);
+
     unit.issueCommand(new StopCommand());
     expect(unit.currentCommand).toBeUndefined();
+    expect(unit.position).toMatchObject(origin);
+    expect(unit.getCommandMovementState()).toMatchObject({
+      route: [],
+      targetCell: null,
+      stepProgress: 0,
+    });
     unit.update(ticker(2));
     unit.update(ticker(3));
 

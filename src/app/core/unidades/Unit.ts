@@ -408,7 +408,7 @@ export class Unit extends Container {
 
   public clearCommandMovement(): void {
     this.targetFollower?.clear();
-    this.tileMovement?.resetStepProgress();
+    this.tileMovement?.cancelStep(this);
     this.setAnimationIdle();
   }
 

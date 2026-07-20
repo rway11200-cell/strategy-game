@@ -61,6 +61,13 @@ export class TileMovement {
     this.elapsedTicks = 0;
   }
 
+  cancelStep(obj: Container): void {
+    this.elapsedTicks = 0;
+    if (!this.currentCell) return;
+    const world = gridToWorld(this.currentCell.col, this.currentCell.row, this.gridConfig);
+    obj.position.set(world.x, world.y);
+  }
+
   spawn(obj: Container): void {
     this.releaseOccupation();
     this.currentCell = { ...this.start };
