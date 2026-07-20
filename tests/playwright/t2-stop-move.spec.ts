@@ -1,11 +1,9 @@
-import { expect, test } from "@playwright/test";
-import { GameTestDriver, getUnit } from "./support/GameTestDriver";
+import { expect, test } from "./support/GameTestFixture";
+import { getUnit } from "./support/GameTestDriver";
 
 const UNIT_ID = "stoppable-unit";
 
-test("stop cancela un movimiento y mantiene la última celda confirmada", async ({ page }) => {
-  const game = new GameTestDriver(page);
-
+test("stop cancela un movimiento y mantiene la última celda confirmada", async ({ game }) => {
   const setup = await test.step("Dado una unidad en un corredor largo", async () => {
     await game.open();
     await game.waitUntilReady();

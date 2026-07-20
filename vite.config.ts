@@ -1,8 +1,10 @@
 import { defineConfig } from "vite";
 import { assetpackPlugin } from "./scripts/assetpack-vite-plugin";
 
+const skipAssetPack = process.env.VITE_SKIP_ASSETPACK === "true";
+
 export default defineConfig({
-  plugins: [assetpackPlugin()],
+  plugins: skipAssetPack ? [] : [assetpackPlugin()],
   server: {
     port: 8080,
     open: false,

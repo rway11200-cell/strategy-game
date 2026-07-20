@@ -1,12 +1,10 @@
-import { expect, test } from "@playwright/test";
-import { GameTestDriver, getUnit } from "./support/GameTestDriver";
+import { expect, test } from "./support/GameTestFixture";
+import { getUnit } from "./support/GameTestDriver";
 
 const DEFENDER_ID = "holding-defender";
 const PATROL_ID = "moving-target";
 
-test("hold-position ataca una patrulla en rango sin perseguirla", async ({ page }) => {
-  const game = new GameTestDriver(page);
-
+test("hold-position ataca una patrulla en rango sin perseguirla", async ({ game }) => {
   const setup =
     await test.step("Dado una defensora fija y una patrulla que cruza su rango", async () => {
       await game.open();

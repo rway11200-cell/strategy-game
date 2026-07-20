@@ -1,9 +1,6 @@
-import { expect, test } from "@playwright/test";
-import { GameTestDriver } from "./support/GameTestDriver";
+import { expect, test } from "./support/GameTestFixture";
 
-test("una oleada completa recorre la ruta y alcanza la base", async ({ page }) => {
-  const game = new GameTestDriver(page);
-
+test("una oleada completa recorre la ruta y alcanza la base", async ({ game }) => {
   const setup =
     await test.step("Dado un nivel aislado con una ruta única hasta la base", async () => {
       await game.open();

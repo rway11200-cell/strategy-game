@@ -64,6 +64,7 @@ After editing Playwright tests or their contracts, run at minimum:
 
 ```sh
 npx tsc --noEmit
+npx tsc --noEmit -p tests/playwright/tsconfig.json
 npx eslint src/app/testing tests/playwright
 git diff --check
 ```

@@ -11,17 +11,32 @@ export default defineConfig({
     : "list",
   outputDir: "test-results",
   use: {
-    baseURL: process.env.PRODUCTION_URL ?? "http://localhost:4173",
+    baseURL: "http://127.0.0.1:4173",
     screenshot: "only-on-failure",
     trace: "retain-on-failure",
     headless: true,
   },
   projects: [
     {
-      name: "chromium",
+      name: "gameplay",
+      testIgnore: ["**/production-smoke.spec.ts", "**/grid-render-screenshot.spec.ts"],
       use: { ...devices["Desktop Chrome"] },
     },
+    {
+      name: "grid-visual",
+      testMatch: "**/grid-render-screenshot.spec.ts",
+      use: {
+        ...devices["Desktop Chrome"],
+        viewport: { width: 512, height: 384 },
+        deviceScaleFactor: 1,
+      },
+    },
   ],
-  // No webServer: production tests target PRODUCTION_URL. The localhost
-  // fallback supports a manually started `npm run preview`.
+  webServer: {
+    command:
+      "VITE_ENABLE_GAME_TEST_API=true VITE_SKIP_ASSETPACK=true npx vite --host 127.0.0.1 --port 4173",
+    url: "http://127.0.0.1:4173",
+    reuseExistingServer: !process.env.CI,
+    timeout: 120_000,
+  },
 });

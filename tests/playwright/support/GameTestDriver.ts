@@ -202,8 +202,21 @@ export class GameTestDriver {
   }
 
   async cleanupStartedScenarios(): Promise<void> {
+    const failures: Error[] = [];
     for (const scenarioId of [...this.scenarioIds]) {
-      await this.cleanup(scenarioId);
+      try {
+        await this.cleanup(scenarioId);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        failures.push(new Error(`Failed to clean scenario "${scenarioId}": ${message}`));
+      }
+    }
+    if (failures.length > 0) {
+      throw new Error(
+        `One or more Playwright scenarios could not be cleaned:\n${failures
+          .map((failure) => failure.message)
+          .join("\n")}`,
+      );
     }
   }
 }

@@ -1,12 +1,10 @@
-import { expect, test } from "@playwright/test";
-import { GameTestDriver, getUnit } from "./support/GameTestDriver";
+import { expect, test } from "./support/GameTestFixture";
+import { getUnit } from "./support/GameTestDriver";
 
 const UNIT_ID = "doomed-unit";
 const REPLACEMENT_ID = "replacement-unit";
 
-test("la muerte libera inmediatamente la celda para otra unidad", async ({ page }) => {
-  const game = new GameTestDriver(page);
-
+test("la muerte libera inmediatamente la celda para otra unidad", async ({ game }) => {
   const setup = await test.step("Dado una unidad viva ocupando una celda", async () => {
     await game.open();
     await game.waitUntilReady();

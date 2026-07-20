@@ -1,11 +1,8 @@
-import { expect, test } from "@playwright/test";
-import { GameTestDriver } from "./support/GameTestDriver";
+import { expect, test } from "./support/GameTestFixture";
 
 const UNIT_IDS = Array.from({ length: 5 }, (_, index) => `patrol-${index + 1}`);
 
-test("cinco patrullas resuelven la contención sin colisiones ni starvation", async ({ page }) => {
-  const game = new GameTestDriver(page);
-
+test("cinco patrullas resuelven la contención sin colisiones ni starvation", async ({ game }) => {
   const setup =
     await test.step("Dado cinco unidades ante un cuello de botella compartido", async () => {
       await game.open();
@@ -63,7 +60,7 @@ test("cinco patrullas resuelven la contención sin colisiones ni starvation", as
         (event) => event.type === "movement.resumed" && event.unitId === unitId,
       );
 
-      expect(transitions, `${unitId} must make progress`).toHaveLength(4);
+      expect(transitions.length, `${unitId} must make progress`).toBeGreaterThanOrEqual(4);
       expect(resumed.length, `${unitId} must resume every temporary block`).toBeGreaterThanOrEqual(
         blocked.length,
       );

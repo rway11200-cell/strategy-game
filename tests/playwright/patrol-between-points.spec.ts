@@ -1,6 +1,6 @@
-import { expect, test } from "@playwright/test";
 import type { CellCoord } from "../../src/grid/GridConfig";
-import { GameTestDriver, getUnit } from "./support/GameTestDriver";
+import { expect, test } from "./support/GameTestFixture";
+import { getUnit } from "./support/GameTestDriver";
 
 const UNIT_ID = "patrol-unit";
 
@@ -8,9 +8,7 @@ function formatCell(cell: CellCoord): string {
   return `(${cell.col}, ${cell.row})`;
 }
 
-test("una unidad patrulla A -> B -> A y comienza un nuevo ciclo", async ({ page }) => {
-  const game = new GameTestDriver(page);
-
+test("una unidad patrulla A -> B -> A y comienza un nuevo ciclo", async ({ game }) => {
   const setup = await test.step("Dado un corredor aislado con una unidad en A", async () => {
     await game.open();
     await game.waitUntilReady();

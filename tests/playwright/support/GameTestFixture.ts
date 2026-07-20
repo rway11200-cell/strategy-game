@@ -4,8 +4,11 @@ import { GameTestDriver } from "./GameTestDriver";
 export const test = base.extend<{ game: GameTestDriver }>({
   game: async ({ page }, use) => {
     const game = new GameTestDriver(page);
-    await use(game);
-    await game.cleanupStartedScenarios();
+    try {
+      await use(game);
+    } finally {
+      await game.cleanupStartedScenarios();
+    }
   },
 });
 

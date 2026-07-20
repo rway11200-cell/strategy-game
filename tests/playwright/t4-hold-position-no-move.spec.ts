@@ -1,14 +1,12 @@
-import { expect, test } from "@playwright/test";
-import { GameTestDriver, getUnit } from "./support/GameTestDriver";
+import { expect, test } from "./support/GameTestFixture";
+import { getUnit } from "./support/GameTestDriver";
 
 const ALLY_ID = "holding-ally";
 const ENEMY_ID = "passing-enemy";
 
 test("hold-position mantiene una unidad inmóvil mientras un enemigo pasa cerca", async ({
-  page,
+  game,
 }) => {
-  const game = new GameTestDriver(page);
-
   const setup = await test.step("Dado una unidad aliada y un carril enemigo", async () => {
     await game.open();
     await game.waitUntilReady();

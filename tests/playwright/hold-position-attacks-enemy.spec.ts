@@ -1,12 +1,10 @@
-import { expect, test } from "@playwright/test";
-import { GameTestDriver, getUnit } from "./support/GameTestDriver";
+import { expect, test } from "./support/GameTestFixture";
+import { getUnit } from "./support/GameTestDriver";
 
 const ATTACKER_ID = "holding-attacker";
 const TARGET_ID = "stationary-target";
 
-test("hold-position permite atacar un enemigo en rango sin moverse", async ({ page }) => {
-  const game = new GameTestDriver(page);
-
+test("hold-position permite atacar un enemigo en rango sin moverse", async ({ game }) => {
   const setup =
     await test.step("Dado una atacante y un enemigo estacionario en rango", async () => {
       await game.open();

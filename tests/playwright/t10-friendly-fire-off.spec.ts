@@ -1,15 +1,13 @@
-import { expect, test } from "@playwright/test";
-import { GameTestDriver, getUnit } from "./support/GameTestDriver";
+import { expect, test } from "./support/GameTestFixture";
+import { getUnit } from "./support/GameTestDriver";
 
 const ATTACKER_ID = "player-attacker";
 const ALLY_ID = "closer-player-ally";
 const ENEMY_ID = "farther-enemy";
 
 test("friendly fire desactivado ignora al aliado más cercano y ataca al enemigo", async ({
-  page,
+  game,
 }) => {
-  const game = new GameTestDriver(page);
-
   const setup =
     await test.step("Dado un aliado más cercano que un enemigo, ambos en rango", async () => {
       await game.open();
