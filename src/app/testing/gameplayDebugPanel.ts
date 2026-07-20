@@ -8,6 +8,7 @@ import type {
 const PRESETS = [
   "three-cell-patrol-corridor",
   "long-movement-corridor",
+  "hold-position-lane",
   "five-unit-contended-patrol",
   "tower-placement",
 ];
@@ -51,10 +52,12 @@ export function createGameplayDebugPanel(api: GameTestApi): HTMLDivElement {
   const demoSection = createSection("Demo");
   const loadPatrolBtn = createButton("Patrol A ↔ B");
   const loadMoveBtn = createButton("Move + Stop");
+  const loadHoldBtn = createButton("Hold Position lane");
   const loadMultiBtn = createButton("Five-unit contention");
   const loadEmptyBtn = createButton("Empty selected scenario");
   demoSection.appendChild(loadPatrolBtn);
   demoSection.appendChild(loadMoveBtn);
+  demoSection.appendChild(loadHoldBtn);
   demoSection.appendChild(loadMultiBtn);
   demoSection.appendChild(loadEmptyBtn);
   panel.appendChild(demoSection);
@@ -233,6 +236,37 @@ export function createGameplayDebugPanel(api: GameTestApi): HTMLDivElement {
     refreshHUD();
   }
 
+  function loadHoldDemo(): void {
+    const scenario = beginScenario("hold-position-lane");
+    if (!scenario) return;
+    const allyId = "holding-ally";
+    const enemyId = "passing-enemy";
+    if (!unwrap(api.spawnTestUnit({
+      scenarioId: scenario.id,
+      id: allyId,
+      archetype: "test-ranged-unit",
+      team: "player",
+      cell: scenario.landmarks.ally,
+    }))) return;
+    if (!unwrap(api.spawnTestUnit({
+      scenarioId: scenario.id,
+      id: enemyId,
+      archetype: "goblin",
+      team: "enemy",
+      cell: scenario.landmarks.enemyStart,
+    }))) return;
+    if (!unwrap(api.issueTestOrder({ unitId: allyId, order: { type: "hold-position" } }))) {
+      return;
+    }
+    if (!unwrap(api.issueTestOrder({
+      unitId: enemyId,
+      order: { type: "move", destination: scenario.landmarks.enemyEnd },
+    }))) return;
+    setPrimaryUnit(allyId);
+    state.reloadDemo = loadHoldDemo;
+    refreshHUD();
+  }
+
   function loadMultiUnitDemo(): void {
     const scenario = beginScenario("five-unit-contended-patrol");
     if (!scenario) return;
@@ -282,6 +316,7 @@ export function createGameplayDebugPanel(api: GameTestApi): HTMLDivElement {
 
   loadPatrolBtn.addEventListener("click", loadPatrolDemo);
   loadMoveBtn.addEventListener("click", loadMoveDemo);
+  loadHoldBtn.addEventListener("click", loadHoldDemo);
   loadMultiBtn.addEventListener("click", loadMultiUnitDemo);
   loadEmptyBtn.addEventListener("click", () => loadEmptyScenario());
 

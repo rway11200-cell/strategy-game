@@ -57,6 +57,30 @@ const scenarios = new Map<TestScenarioPreset, TestScenarioDefinition>([
     },
   ],
   [
+    "hold-position-lane",
+    {
+      preset: "hold-position-lane",
+      grid: { columns: 7, rows: 3, tileSize: 64 },
+      landmarks: {
+        ally: { col: 3, row: 1 },
+        enemyStart: { col: 0, row: 0 },
+        enemyEnd: { col: 6, row: 0 },
+      },
+      groups: {
+        enemyPath: [
+          { col: 1, row: 0 },
+          { col: 2, row: 0 },
+          { col: 3, row: 0 },
+          { col: 4, row: 0 },
+          { col: 5, row: 0 },
+          { col: 6, row: 0 },
+        ],
+      },
+      path: [],
+      economy: { coins: 0 },
+    },
+  ],
+  [
     "tower-placement",
     {
       preset: "tower-placement",
