@@ -105,6 +105,14 @@ export class TargetFollower {
     return this.cells?.[this.i];
   }
 
+  get cellRoute(): CellCoord[] {
+    return this.cells?.map((c) => ({ ...c })) ?? [];
+  }
+
+  get currentRouteIndex(): number {
+    return this.i;
+  }
+
   advanceToNextTarget(): boolean {
     if (!this.targets.length || this.completed) return false;
     this.i++;

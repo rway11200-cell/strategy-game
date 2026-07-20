@@ -49,6 +49,10 @@ export class TileMovement {
     return this.currentCell ? { ...this.currentCell } : undefined;
   }
 
+  get stepProgress(): number {
+    return this.elapsedTicks / Math.max(1, this.ticksPerCell);
+  }
+
   setReleaseOccupationOnDestination(release: boolean): void {
     this.releaseOccupationOnDestination = release;
   }

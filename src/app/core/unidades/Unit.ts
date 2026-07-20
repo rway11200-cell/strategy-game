@@ -54,6 +54,7 @@ export interface FramesJson {
   dead?: string;
 }
 export interface UnitProps {
+  id?: string;
   framesJson?: FramesJson;
   position?: PointData;
   shootOptions?: ShootOptions;
@@ -98,6 +99,7 @@ export class Unit extends Container {
   private tileMovement?: TileMovement;
   private commandContext?: CommandContext;
   public currentCommand?: IUnitCommand;
+  private readonly stableId?: string;
 
   public animatedSprite?: AnimatedSprite;
   private framesJson?: FramesJson;
@@ -126,6 +128,7 @@ export class Unit extends Container {
     this.health = this.model.maxHp;
     this.currentHealth = this.model.hp;
 
+    this.stableId = options?.id;
     this.mainContainer = mainContainer;
     this.mainContainer.addChild(this);
 
@@ -417,6 +420,23 @@ export class Unit extends Container {
     return this.targetFollower?.finished ?? true;
   }
 
+  public getCommandMovementState(): {
+    route: CellCoord[];
+    targetCell: CellCoord | null;
+    stepProgress: number;
+  } {
+    const route = this.targetFollower?.cellRoute ?? [];
+    const targetCell = this.targetFollower?.targetCell
+      ? { ...this.targetFollower.targetCell }
+      : null;
+    const stepProgress = this.tileMovement?.stepProgress ?? 0;
+    return { route, targetCell, stepProgress };
+  }
+
+  public getShootingMode(): "auto" | "forced" | "disabled" {
+    return this.shootingMode;
+  }
+
   public getShootingRange(): number | undefined {
     return this.shootOptions?.range;
   }
@@ -676,6 +696,27 @@ export class Unit extends Container {
     });
   }
 
+  public despawnImmediately(): void {
+    this.currentCommand?.cancel(this);
+    this.currentCommand = undefined;
+    this.canBeProjectileTarget = false;
+    this.model.state = "dead";
+    if (this.movement) this.movement.active = false;
+    if (this.tileMovement) {
+      this.tileMovement.active = false;
+      this.tileMovement.releaseOccupation();
+    }
+    this.targetFollower?.clear();
+    this.targetToShoot = undefined;
+    this.shootingMode = "disabled";
+    if (this.animatedSprite) {
+      this.animatedSprite.stop();
+      this.animatedSprite.visible = false;
+    }
+    this.visible = false;
+    this.active = false;
+  }
+
   public damage(amount?: number) {
     this.takeDamage(amount);
   }
@@ -689,7 +730,8 @@ export class Unit extends Container {
   }
 
   public getId(complement?: string): string {
-    return `${this.constructor.name.toString()}-${this.uid}-${complement}`;
+    const base = this.stableId ?? `${this.constructor.name}-${this.uid}`;
+    return complement ? `${base}-${complement}` : base;
   }
 }
 

@@ -264,10 +264,49 @@ export interface BeginScenarioOptions {
   friendlyFire?: boolean;
 }
 
+export interface SpawnTestUnitOptions {
+  scenarioId: string;
+  id: string;
+  archetype: string;
+  team: TestUnitTeam;
+  cell: CellCoord;
+  stats?: {
+    hp?: number;
+    damage?: number;
+    defense?: number;
+    rangeCells?: number;
+    movementFramesPerCell?: number;
+    fireCooldownFrames?: number;
+  };
+}
+
+export type TestOrderInput =
+  | { type: "move"; destination: CellCoord }
+  | { type: "stop" }
+  | { type: "hold-position" }
+  | { type: "patrol"; endpoints: readonly [CellCoord, CellCoord] }
+  | { type: "attack"; targetId: string };
+
+export interface IssueTestOrderOptions {
+  unitId: string;
+  order: TestOrderInput;
+}
+
+export interface AdvanceTestSimulationOptions {
+  scenarioId: string;
+  afterSequence?: number;
+  maxFrames: number;
+  condition: AdvanceTestCondition;
+}
+
 export interface GameTestRuntimePort {
   getBootSnapshot(): BootTestSnapshot;
   beginScenario(options: BeginScenarioOptions): ApiResult<ScenarioTestState>;
+  spawnTestUnit(options: SpawnTestUnitOptions): ApiResult<TestUnitSnapshot>;
+  issueTestOrder(options: IssueTestOrderOptions): ApiResult<TestOrderSnapshot>;
   getScenarioSnapshot(scenarioId: string): ScenarioTestSnapshot;
+  advanceTestSimulation(options: AdvanceTestSimulationOptions): ApiResult<AdvanceTestResult>;
+  advanceTestFrames(scenarioId: string, frames: number): ApiResult<ScenarioTestSnapshot>;
   cleanupScenario(scenarioId: string): ApiResult<CleanupScenarioResult>;
 }
 
@@ -355,33 +394,9 @@ export interface GameTestApi {
   /** Crea un escenario aislado y pausa el reloj real del juego. */
   beginScenario(options: BeginScenarioOptions): ApiResult<ScenarioTestState>;
 
-  /** Crea de forma atómica una unidad controlada por el escenario de test. */
-  spawnTestUnit(options: {
-    scenarioId: string;
-    id: string;
-    archetype: string;
-    team: TestUnitTeam;
-    cell: CellCoord;
-    stats?: {
-      hp?: number;
-      damage?: number;
-      defense?: number;
-      rangeCells?: number;
-      movementFramesPerCell?: number;
-      fireCooldownFrames?: number;
-    };
-  }): ApiResult<TestUnitSnapshot>;
+  spawnTestUnit(options: SpawnTestUnitOptions): ApiResult<TestUnitSnapshot>;
 
-  /** Emite cualquier orden de unidad con identidad e historial observable. */
-  issueTestOrder(options: {
-    unitId: string;
-    order:
-      | { type: "move"; destination: CellCoord }
-      | { type: "stop" }
-      | { type: "hold-position" }
-      | { type: "patrol"; endpoints: readonly [CellCoord, CellCoord] }
-      | { type: "attack"; targetId: string };
-  }): ApiResult<TestOrderSnapshot>;
+  issueTestOrder(options: IssueTestOrderOptions): ApiResult<TestOrderSnapshot>;
 
   /** Obtiene unidades, órdenes, celdas, eventos y errores en el mismo frame. */
   getScenarioSnapshot(scenarioId: string): ScenarioTestSnapshot;
@@ -904,24 +919,24 @@ export function createGameTestApi(
       return runtime?.beginScenario(options) ?? notImplemented("beginScenario");
     },
 
-    spawnTestUnit(_options): ApiResult<TestUnitSnapshot> {
-      return notImplemented("spawnTestUnit");
+    spawnTestUnit(options): ApiResult<TestUnitSnapshot> {
+      return runtime?.spawnTestUnit(options) ?? notImplemented("spawnTestUnit");
     },
 
-    issueTestOrder(_options): ApiResult<TestOrderSnapshot> {
-      return notImplemented("issueTestOrder");
+    issueTestOrder(options): ApiResult<TestOrderSnapshot> {
+      return runtime?.issueTestOrder(options) ?? notImplemented("issueTestOrder");
     },
 
     getScenarioSnapshot(scenarioId): ScenarioTestSnapshot {
       return runtime?.getScenarioSnapshot(scenarioId) ?? notImplemented("getScenarioSnapshot");
     },
 
-    advanceTestSimulation(_options): ApiResult<AdvanceTestResult> {
-      return notImplemented("advanceTestSimulation");
+    advanceTestSimulation(options): ApiResult<AdvanceTestResult> {
+      return runtime?.advanceTestSimulation(options) ?? notImplemented("advanceTestSimulation");
     },
 
-    advanceTestFrames(_scenarioId, _frames): ApiResult<ScenarioTestSnapshot> {
-      return notImplemented("advanceTestFrames");
+    advanceTestFrames(scenarioId, frames): ApiResult<ScenarioTestSnapshot> {
+      return runtime?.advanceTestFrames(scenarioId, frames) ?? notImplemented("advanceTestFrames");
     },
 
     placeTestTower(_options): ApiResult<{ tower: TestUnitSnapshot; cost: number }> {

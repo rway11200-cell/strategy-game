@@ -69,8 +69,8 @@ export class Enemy extends Unit {
   private reward: number = 10;
   public enemyType?: EnemyType;
 
-  constructor(mainContainer: Container) {
-    super(mainContainer, { team: "enemy", controller: "ai" });
+  constructor(mainContainer: Container, options?: { id?: string }) {
+    super(mainContainer, { id: options?.id, team: "enemy", controller: "ai" });
   }
 
   initializeEnemy(nextEnemyType: EnemyType) {

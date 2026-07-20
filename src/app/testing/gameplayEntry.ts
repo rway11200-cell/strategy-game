@@ -1,5 +1,6 @@
 import "@pixi/sound";
 
+import { Assets } from "pixi.js";
 import { setEngine } from "../getEngine";
 import { CreationEngine } from "../../engine/engine";
 import { createGameTestApi } from "./GameTestApi";
@@ -30,12 +31,15 @@ async function bootstrapGameplayHarness(): Promise<void> {
     engine.ticker.stop();
     engine.canvas.dataset.testid = "game-test-canvas";
 
+    await Assets.loadBundle("main");
+
     ready = true;
     window.__GAME_TEST__ = createGameTestApi(
       () => null,
       () => ready,
       runtime,
     );
+    root.dataset.harness = "strategy-game-playwright";
     root.dataset.state = "ready";
 
     window.addEventListener(
