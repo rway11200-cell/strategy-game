@@ -5,7 +5,7 @@ import { setEngine } from "../getEngine";
 import { CreationEngine } from "../../engine/engine";
 import { createGameTestApi } from "./GameTestApi";
 import { GameplayTestRuntime } from "./GameplayTestRuntime";
-import { ScenarioVisualHost } from "./ScenarioVisualHost";
+import { ScenarioVisualHost, type VisualHostContext } from "./ScenarioVisualHost";
 import { createGameplayDebugPanel } from "./gameplayDebugPanel";
 
 const rootElement = document.querySelector<HTMLElement>("[data-testid='game-test-root']");
@@ -16,7 +16,17 @@ const engine = new CreationEngine();
 setEngine(engine);
 let ready = false;
 
-const visualHost = new ScenarioVisualHost(engine.stage);
+function findPixiContainer(): HTMLElement {
+  return document.getElementById("pixi-container")!;
+}
+
+const visualCtx: VisualHostContext = {
+  renderNow() { engine.renderer.render(engine.stage); },
+  getContainerWidth() { return findPixiContainer().clientWidth; },
+  getContainerHeight() { return findPixiContainer().clientHeight; },
+};
+
+const visualHost = new ScenarioVisualHost(engine.stage, visualCtx);
 
 const runtime = new GameplayTestRuntime(
   APP_VERSION,
@@ -34,12 +44,14 @@ async function bootstrapGameplayHarness(): Promise<void> {
   try {
     await engine.init({
       background: "#222222ff",
-      resizeOptions: { minWidth: 768, minHeight: 1024, letterbox: false },
+      resizeTo: findPixiContainer(),
+      resizeOptions: { minWidth: 100, minHeight: 100, letterbox: false },
     });
     engine.ticker.stop();
     engine.canvas.dataset.testid = "game-test-canvas";
 
     await Assets.loadBundle("main");
+    visualCtx.renderNow();
 
     ready = true;
     const api = createGameTestApi(
@@ -64,6 +76,11 @@ async function bootstrapGameplayHarness(): Promise<void> {
       },
       { once: true },
     );
+
+    window.addEventListener("resize", () => {
+      visualHost.recenter();
+      visualCtx.renderNow();
+    });
   } catch (error) {
     root.dataset.state = "error";
     root.dataset.error = error instanceof Error ? error.message : String(error);
