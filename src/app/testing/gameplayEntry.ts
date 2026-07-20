@@ -3,6 +3,7 @@ import "@pixi/sound";
 import { setEngine } from "../getEngine";
 import { CreationEngine } from "../../engine/engine";
 import { createGameTestApi } from "./GameTestApi";
+import { GameplayTestRuntime } from "./GameplayTestRuntime";
 
 const rootElement = document.querySelector<HTMLElement>("[data-testid='game-test-root']");
 if (!rootElement) throw new Error("Gameplay test root was not found");
@@ -10,6 +11,15 @@ const root: HTMLElement = rootElement;
 
 const engine = new CreationEngine();
 setEngine(engine);
+let ready = false;
+
+const runtime = new GameplayTestRuntime(APP_VERSION, () => ({
+  ready,
+  surfaceCount: root.querySelectorAll("canvas").length,
+  width: engine.canvas?.width ?? 0,
+  height: engine.canvas?.height ?? 0,
+  errors: [],
+}));
 
 async function bootstrapGameplayHarness(): Promise<void> {
   try {
@@ -20,10 +30,11 @@ async function bootstrapGameplayHarness(): Promise<void> {
     engine.ticker.stop();
     engine.canvas.dataset.testid = "game-test-canvas";
 
-    let ready = true;
+    ready = true;
     window.__GAME_TEST__ = createGameTestApi(
       () => null,
       () => ready,
+      runtime,
     );
     root.dataset.state = "ready";
 

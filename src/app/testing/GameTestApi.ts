@@ -7,8 +7,8 @@
  * Playwright, Hermes u otros agentes puedan inspeccionar y
  * controlar el juego sin depender del canvas.
  *
- * ⚠️ Solo debe activarse en entorno de desarrollo/test.
- * Nunca es una dependencia obligatoria de producción.
+ * Se expone únicamente desde el composition root del gameplay playground.
+ * La ruta principal de producción no depende de esta API.
  */
 
 import type { GridConfig, CellCoord } from "../../grid/GridConfig";
@@ -257,6 +257,20 @@ export interface CleanupScenarioResult {
   pendingProjectileIds: string[];
 }
 
+export interface BeginScenarioOptions {
+  preset: TestScenarioPreset;
+  simulation: "manual";
+  seed?: number;
+  friendlyFire?: boolean;
+}
+
+export interface GameTestRuntimePort {
+  getBootSnapshot(): BootTestSnapshot;
+  beginScenario(options: BeginScenarioOptions): ApiResult<ScenarioTestState>;
+  getScenarioSnapshot(scenarioId: string): ScenarioTestSnapshot;
+  cleanupScenario(scenarioId: string): ApiResult<CleanupScenarioResult>;
+}
+
 export interface GameTestApi {
   /**
    * Indica si el juego terminó de cargar assets, pantalla,
@@ -339,12 +353,7 @@ export interface GameTestApi {
   getBootSnapshot(): BootTestSnapshot;
 
   /** Crea un escenario aislado y pausa el reloj real del juego. */
-  beginScenario(options: {
-    preset: TestScenarioPreset;
-    simulation: "manual";
-    seed?: number;
-    friendlyFire?: boolean;
-  }): ApiResult<ScenarioTestState>;
+  beginScenario(options: BeginScenarioOptions): ApiResult<ScenarioTestState>;
 
   /** Crea de forma atómica una unidad controlada por el escenario de test. */
   spawnTestUnit(options: {
@@ -472,6 +481,7 @@ function notImplemented(method: keyof GameTestApi): never {
 export function createGameTestApi(
   getManager: () => GameManager | null,
   isGameReady: () => boolean,
+  runtime?: GameTestRuntimePort,
 ): GameTestApi {
   let ready = false;
 
@@ -887,11 +897,11 @@ export function createGameTestApi(
     },
 
     getBootSnapshot(): BootTestSnapshot {
-      return notImplemented("getBootSnapshot");
+      return runtime?.getBootSnapshot() ?? notImplemented("getBootSnapshot");
     },
 
-    beginScenario(_options): ApiResult<ScenarioTestState> {
-      return notImplemented("beginScenario");
+    beginScenario(options): ApiResult<ScenarioTestState> {
+      return runtime?.beginScenario(options) ?? notImplemented("beginScenario");
     },
 
     spawnTestUnit(_options): ApiResult<TestUnitSnapshot> {
@@ -902,8 +912,8 @@ export function createGameTestApi(
       return notImplemented("issueTestOrder");
     },
 
-    getScenarioSnapshot(_scenarioId): ScenarioTestSnapshot {
-      return notImplemented("getScenarioSnapshot");
+    getScenarioSnapshot(scenarioId): ScenarioTestSnapshot {
+      return runtime?.getScenarioSnapshot(scenarioId) ?? notImplemented("getScenarioSnapshot");
     },
 
     advanceTestSimulation(_options): ApiResult<AdvanceTestResult> {
@@ -936,8 +946,8 @@ export function createGameTestApi(
       return notImplemented("resolveTestCombatFrame");
     },
 
-    cleanupScenario(_scenarioId): ApiResult<CleanupScenarioResult> {
-      return notImplemented("cleanupScenario");
+    cleanupScenario(scenarioId): ApiResult<CleanupScenarioResult> {
+      return runtime?.cleanupScenario(scenarioId) ?? notImplemented("cleanupScenario");
     },
   };
 
