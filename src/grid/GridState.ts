@@ -4,6 +4,7 @@ export interface CellState {
   type: CellType;
   occupied: boolean;
   occupantId?: string;
+  reservedBy?: string;
   walkCost: number;
 }
 
@@ -47,8 +48,23 @@ export class GridState {
     const cell = this.getCell(coord);
     if (!cell) return false;
     if (cell.occupied && cell.occupantId !== ignoredOccupantId) return false;
+    if (cell.reservedBy && cell.reservedBy !== ignoredOccupantId) return false;
     if (cell.type === "blocked") return false;
     return true;
+  }
+
+  reserveCell(coord: CellCoord, occupantId: string): boolean {
+    const cell = this.getCell(coord);
+    if (!cell || !this.isWalkable(coord, occupantId)) return false;
+    if (cell.reservedBy === occupantId) return true;
+    this.setCell(coord, { ...cell, reservedBy: occupantId });
+    return true;
+  }
+
+  releaseReservation(coord: CellCoord, occupantId: string): void {
+    const cell = this.getCell(coord);
+    if (!cell || cell.reservedBy !== occupantId) return;
+    this.setCell(coord, { ...cell, reservedBy: undefined });
   }
 
   /**
@@ -59,7 +75,8 @@ export class GridState {
     const cell = this.getCell(coord);
     if (!cell) return;
     if (cell.occupied) return;
-    this.setCell(coord, { ...cell, occupied: true, occupantId });
+    if (cell.reservedBy && cell.reservedBy !== occupantId) return;
+    this.setCell(coord, { ...cell, occupied: true, occupantId, reservedBy: undefined });
   }
 
   /**

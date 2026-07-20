@@ -99,6 +99,7 @@ export class Unit extends Container {
   private tileMovement?: TileMovement;
   private commandContext?: CommandContext;
   public currentCommand?: IUnitCommand;
+  private lastCommandMovement?: TileWalkResult;
   private readonly stableId?: string;
 
   public animatedSprite?: AnimatedSprite;
@@ -398,7 +399,7 @@ export class Unit extends Container {
   public setCommandCellRoute(cells: CellCoord[], loop = false): void {
     if (!this.targetFollower || !this.commandContext || !this.tileMovement) return;
     this.tileMovement.setReleaseOccupationOnDestination(false);
-    this.tileMovement.resetStepProgress();
+    this.tileMovement.cancelStep(this);
     this.targetFollower.setRouteFromCells({
       cells,
       gridConfig: this.commandContext.gridConfig,
@@ -413,7 +414,12 @@ export class Unit extends Container {
   }
 
   public updateCommandMovement(ticker: Ticker): TileWalkResult {
-    return this.updateMovement(ticker);
+    this.lastCommandMovement = this.updateMovement(ticker);
+    return this.lastCommandMovement;
+  }
+
+  public getLastCommandMovementResult(): TileWalkResult | undefined {
+    return this.lastCommandMovement;
   }
 
   public isCommandMovementFinished(): boolean {
@@ -453,6 +459,7 @@ export class Unit extends Container {
   public update(_time: Ticker) {
     if (!this.active || !this.animatedSprite || !this.animatedSprite.visible) return;
 
+    this.lastCommandMovement = undefined;
     this.model.state = "idle";
 
     if (this.currentCommand && this.commandContext) {

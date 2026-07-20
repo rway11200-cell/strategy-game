@@ -45,6 +45,7 @@ export const defaultCommandPathfinder: CommandPathfinder = {
       gridConfig,
       entityType,
       ignoredOccupantId,
+      true,
     );
   },
 };
@@ -108,10 +109,10 @@ export class MoveCommand extends BaseCommand {
     if (!this.pathTo(unit, context, this.destination)) this.status = "failed";
   }
 
-  update(unit: Unit, _context: CommandContext, ticker: Ticker): CommandStatus {
+  update(unit: Unit, context: CommandContext, ticker: Ticker): CommandStatus {
     if (this.status !== "running") return this.status;
     const movement = unit.updateCommandMovement(ticker);
-    if (movement.blocked) this.status = "failed";
+    if (movement.blocked) this.pathTo(unit, context, this.destination);
     else if (unit.isCommandMovementFinished()) this.status = "completed";
     return this.status;
   }
@@ -226,6 +227,7 @@ export class StopCommand extends BaseCommand {
 export class PatrolCommand extends BaseCommand {
   readonly type = "patrol" as const;
   private approachingStart = false;
+  private destination?: CellCoord;
 
   constructor(public readonly cells: CellCoord[]) {
     super();
@@ -247,50 +249,39 @@ export class PatrolCommand extends BaseCommand {
     }
     if (!sameCell(current, this.cells[0])) {
       this.approachingStart = true;
-      if (!this.pathTo(unit, context, this.cells[0])) this.status = "failed";
+      this.destination = this.cells[0];
+      if (!this.pathTo(unit, context, this.destination)) this.status = "failed";
       return;
     }
-    if (!this.startLoop(unit, context)) this.status = "failed";
+    this.destination = this.cells[1];
+    if (!this.pathTo(unit, context, this.destination)) this.status = "failed";
   }
 
   update(unit: Unit, context: CommandContext, ticker: Ticker): CommandStatus {
     if (this.status !== "running") return this.status;
     const movement = unit.updateCommandMovement(ticker);
     if (movement.blocked) {
-      this.status = "failed";
-      return this.status;
+      if (this.destination) this.pathTo(unit, context, this.destination);
+      return "running";
     }
-    if (this.approachingStart && unit.isCommandMovementFinished()) {
-      this.approachingStart = false;
-      if (!this.startLoop(unit, context)) {
-        this.status = "failed";
-        return this.status;
-      }
-    }
-    return "running";
-  }
+    if (!unit.isCommandMovementFinished()) return "running";
 
-  private startLoop(unit: Unit, context: CommandContext): boolean {
-    const [start, end] = this.cells;
-    const outward = context.pathfinder.findPath(
-      start,
-      end,
-      context.gridState,
-      context.gridConfig,
-      context.entityType,
-      context.occupantId,
-    );
-    const returning = context.pathfinder.findPath(
-      end,
-      start,
-      context.gridState,
-      context.gridConfig,
-      context.entityType,
-      context.occupantId,
-    );
-    if (outward.length === 0 || returning.length === 0) return false;
-    unit.setCommandCellRoute([...outward, ...returning], true);
-    return true;
+    const current = unit.getGridCell(context.gridConfig);
+    if (!current || !this.destination || !sameCell(current, this.destination)) {
+      if (this.destination) this.pathTo(unit, context, this.destination);
+      return "running";
+    }
+
+    if (this.approachingStart) {
+      this.approachingStart = false;
+      this.destination = this.cells[1];
+    } else if (this.destination && sameCell(this.destination, this.cells[1])) {
+      this.destination = this.cells[0];
+    } else {
+      this.destination = this.cells[1];
+    }
+    this.pathTo(unit, context, this.destination);
+    return "running";
   }
 }
 

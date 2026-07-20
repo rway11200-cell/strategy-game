@@ -14,10 +14,9 @@ export function interpolatePosition(
   progress: number,
 ): void {
   const clampedProgress = Math.max(0, Math.min(1, progress));
-  const easedProgress = clampedProgress * clampedProgress * (3 - 2 * clampedProgress);
   obj.position.set(
-    from.x + (to.x - from.x) * easedProgress,
-    from.y + (to.y - from.y) * easedProgress,
+    from.x + (to.x - from.x) * clampedProgress,
+    from.y + (to.y - from.y) * clampedProgress,
   );
 }
 

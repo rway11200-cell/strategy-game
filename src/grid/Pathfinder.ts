@@ -1,6 +1,10 @@
 import { type CellCoord, type GridConfig } from "./GridConfig";
 import { GridState } from "./GridState";
-import { getEntityFootprint, isFootprintWalkable } from "./EntityFootprint";
+import {
+  getEntityFootprint,
+  getFootprintCellsForPos,
+  isFootprintWalkable,
+} from "./EntityFootprint";
 
 interface AStarNode {
   col: number;
@@ -115,6 +119,7 @@ export function findPathWithFootprint(
   config: GridConfig,
   entityType: string,
   ignoredOccupantId?: string,
+  allowOccupiedEnd = false,
 ): CellCoord[] {
   const footprint = getEntityFootprint(entityType);
 
@@ -131,6 +136,7 @@ export function findPathWithFootprint(
     return [];
   }
   if (
+    !allowOccupiedEnd &&
     !isFootprintWalkable(
       end,
       footprint.width,
@@ -183,15 +189,24 @@ export function findPathWithFootprint(
       const nKey = nodeKey(neighbor);
 
       if (closed.has(nKey)) continue;
+      const isEnd = neighbor.col === end.col && neighbor.row === end.row;
       if (
-        !isFootprintWalkable(
-          neighbor,
-          footprint.width,
-          footprint.height,
-          gridState,
-          config,
-          ignoredOccupantId,
-        )
+        !(isEnd && allowOccupiedEnd
+          ? isFootprintTerrainWalkable(
+              neighbor,
+              footprint.width,
+              footprint.height,
+              gridState,
+              config,
+            )
+          : isFootprintWalkable(
+              neighbor,
+              footprint.width,
+              footprint.height,
+              gridState,
+              config,
+              ignoredOccupantId,
+            ))
       )
         continue;
 
@@ -223,4 +238,24 @@ export function findPathWithFootprint(
   }
 
   return [];
+}
+
+function isFootprintTerrainWalkable(
+  anchor: CellCoord,
+  width: number,
+  height: number,
+  gridState: GridState,
+  config: GridConfig,
+): boolean {
+  return getFootprintCellsForPos(anchor, width, height).every((coord) => {
+    if (
+      coord.col < 0 ||
+      coord.col >= config.gridWidth ||
+      coord.row < 0 ||
+      coord.row >= config.gridHeight
+    ) {
+      return false;
+    }
+    return gridState.getCell(coord)?.type !== "blocked";
+  });
 }

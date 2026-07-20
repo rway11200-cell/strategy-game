@@ -1,6 +1,11 @@
 import type { GameTestApi, TestScenarioPreset } from "./GameTestApi";
 
-const PRESETS = ["three-cell-patrol-corridor", "long-movement-corridor", "tower-placement"];
+const PRESETS = [
+  "three-cell-patrol-corridor",
+  "long-movement-corridor",
+  "five-unit-contended-patrol",
+  "tower-placement",
+];
 
 interface PanelState {
   scenarioId: string | null;

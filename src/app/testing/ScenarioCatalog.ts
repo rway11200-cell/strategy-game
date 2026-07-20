@@ -67,6 +67,28 @@ const scenarios = new Map<TestScenarioPreset, TestScenarioDefinition>([
       economy: { coins: 500 },
     },
   ],
+  [
+    "five-unit-contended-patrol",
+    {
+      preset: "five-unit-contended-patrol",
+      grid: { columns: 9, rows: 7, tileSize: 64 },
+      landmarks: {
+        pointA: { col: 2, row: 3 },
+        pointB: { col: 6, row: 3 },
+      },
+      groups: {
+        spawnCells: [
+          { col: 0, row: 1 },
+          { col: 0, row: 2 },
+          { col: 0, row: 3 },
+          { col: 0, row: 4 },
+          { col: 0, row: 5 },
+        ],
+      },
+      path: [],
+      economy: { coins: 0 },
+    },
+  ],
 ]);
 
 export function getTestScenarioDefinition(

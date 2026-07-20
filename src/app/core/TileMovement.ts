@@ -32,6 +32,8 @@ export class TileMovement {
   private readonly entityType: string;
   private readonly occupantId: string;
   private currentCell?: CellCoord;
+  private reservedAnchor?: CellCoord;
+  private reservedCells: CellCoord[] = [];
   private elapsedTicks = 0;
   private releaseOccupationOnDestination: boolean;
 
@@ -57,12 +59,9 @@ export class TileMovement {
     this.releaseOccupationOnDestination = release;
   }
 
-  resetStepProgress(): void {
-    this.elapsedTicks = 0;
-  }
-
   cancelStep(obj: Container): void {
     this.elapsedTicks = 0;
+    this.releaseReservations();
     if (!this.currentCell) return;
     const world = gridToWorld(this.currentCell.col, this.currentCell.row, this.gridConfig);
     obj.position.set(world.x, world.y);
@@ -91,7 +90,8 @@ export class TileMovement {
     const target = gridToWorld(targetCell.col, targetCell.row, this.gridConfig);
     const direction = this.getDirection(obj.position.x, target.x);
 
-    if (!this.canOccupy(targetCell)) {
+    if (!this.hasReservation(targetCell)) this.releaseReservations();
+    if (!this.hasReservation(targetCell) && !this.reserve(targetCell)) {
       this.elapsedTicks = 0;
       const current = this.currentCell
         ? gridToWorld(this.currentCell.col, this.currentCell.row, this.gridConfig)
@@ -114,9 +114,11 @@ export class TileMovement {
     }
     this.elapsedTicks = 0;
 
-    this.releaseOccupation();
+    this.releaseCurrentOccupation();
     this.currentCell = { ...targetCell };
     this.occupy(targetCell);
+    this.reservedAnchor = undefined;
+    this.reservedCells = [];
 
     const destinationReached = targetFollower.advanceToNextTarget();
     if (destinationReached && targetFollower.finished && this.releaseOccupationOnDestination) {
@@ -128,6 +130,11 @@ export class TileMovement {
   }
 
   releaseOccupation(): void {
+    this.releaseCurrentOccupation();
+    this.releaseReservations();
+  }
+
+  private releaseCurrentOccupation(): void {
     for (const cell of this.getCurrentFootprintCells()) {
       if (this.gridState.getCell(cell)?.occupantId === this.occupantId) {
         this.gridState.liberateCell(cell);
@@ -142,11 +149,47 @@ export class TileMovement {
     return cells.every((coord) => {
       const cell = this.gridState.getCell(coord);
       return Boolean(
-        cell &&
+          cell &&
           cell.type !== "blocked" &&
-          (!cell.occupied || cell.occupantId === this.occupantId),
+          (!cell.occupied || cell.occupantId === this.occupantId) &&
+          (!cell.reservedBy || cell.reservedBy === this.occupantId),
       );
     });
+  }
+
+  private reserve(anchor: CellCoord): boolean {
+    if (!this.canOccupy(anchor)) return false;
+    const footprint = getEntityFootprint(this.entityType);
+    const cells = getFootprintCellsForPos(anchor, footprint.width, footprint.height);
+    const reserved: CellCoord[] = [];
+    for (const cell of cells) {
+      if (!this.gridState.reserveCell(cell, this.occupantId)) {
+        for (const previous of reserved) {
+          this.gridState.releaseReservation(previous, this.occupantId);
+        }
+        return false;
+      }
+      reserved.push(cell);
+    }
+    this.reservedAnchor = { ...anchor };
+    this.reservedCells = reserved;
+    return true;
+  }
+
+  private releaseReservations(): void {
+    for (const cell of this.reservedCells) {
+      this.gridState.releaseReservation(cell, this.occupantId);
+    }
+    this.reservedAnchor = undefined;
+    this.reservedCells = [];
+  }
+
+  private hasReservation(anchor: CellCoord): boolean {
+    return Boolean(
+      this.reservedAnchor &&
+        this.reservedAnchor.col === anchor.col &&
+        this.reservedAnchor.row === anchor.row,
+    );
   }
 
   private occupy(anchor: CellCoord): void {

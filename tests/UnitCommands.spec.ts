@@ -80,6 +80,25 @@ describe("unit commands", () => {
     expect(unit.currentCommand).toBeUndefined();
   });
 
+  it("keeps constant velocity through an intermediate cell", () => {
+    const unit = createUnit(container, gridState, 0, 0, undefined, 4);
+    const positions = [unit.position.x];
+    let intermediateCell: ReturnType<Unit["getGridCell"]> = undefined;
+
+    unit.issueCommand(new MoveCommand({ col: 2, row: 0 }));
+    for (let frame = 1; frame <= 8; frame++) {
+      unit.update(ticker(frame));
+      positions.push(unit.position.x);
+      if (frame === 4) intermediateCell = unit.getGridCell(gridConfig);
+    }
+
+    const deltas = positions.slice(1).map((position, index) => position - positions[index]);
+    for (const delta of deltas) expect(delta).toBeCloseTo(gridConfig.cellSize / 4);
+    expect(intermediateCell).toEqual({ col: 1, row: 0 });
+    expect(unit.getGridCell(gridConfig)).toEqual({ col: 2, row: 0 });
+    expect(unit.currentCommand).toBeUndefined();
+  });
+
   it("cancels partial movement immediately when stopped", () => {
     const unit = createUnit(container, gridState, 0, 0, undefined, 2);
     const origin = gridToWorld(0, 0, gridConfig);
@@ -106,7 +125,7 @@ describe("unit commands", () => {
     expect(gridState.getCell({ col: 0, row: 0 })?.occupantId).toBe(unit.getId());
   });
 
-  it("fails a move command when its next cell becomes blocked", () => {
+  it("waits and resumes a move command after a temporary block", () => {
     const unit = createUnit(container, gridState, 0, 0);
     const command = new MoveCommand({ col: 2, row: 0 });
     unit.issueCommand(command);
@@ -114,9 +133,17 @@ describe("unit commands", () => {
 
     unit.update(ticker(1));
 
-    expect(command.status).toBe("failed");
-    expect(unit.currentCommand).toBeUndefined();
+    expect(command.status).toBe("running");
+    expect(unit.currentCommand).toBe(command);
     expect(unit.getGridCell(gridConfig)).toEqual({ col: 0, row: 0 });
+
+    gridState.liberateCell({ col: 1, row: 0 });
+    for (let frame = 2; frame <= 10 && command.status === "running"; frame++) {
+      unit.update(ticker(frame));
+    }
+
+    expect(command.status).toBe("completed");
+    expect(unit.getGridCell(gridConfig)).toEqual({ col: 2, row: 0 });
   });
 
   it("patrols continuously between two cells", () => {

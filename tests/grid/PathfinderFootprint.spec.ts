@@ -72,4 +72,25 @@ describe("findPathWithFootprint", () => {
     const path = findPathWithFootprint({ col: 0, row: 0 }, { col: 2, row: 0 }, state, smallConfig, "goblin");
     expect(path.length).toBe(0);
   });
+
+  it("plans around units toward an occupied endpoint when requested", () => {
+    const config = createGridConfig({ gridWidth: 9, gridHeight: 7 });
+    const state = new GridState(config);
+    state.occupyCell({ col: 6, row: 3 }, "moving-unit");
+    state.occupyCell({ col: 5, row: 3 }, "blocking-unit");
+
+    const path = findPathWithFootprint(
+      { col: 2, row: 3 },
+      { col: 6, row: 3 },
+      state,
+      config,
+      "goblin",
+      "patrol-5",
+      true,
+    );
+
+    expect(path.length).toBeGreaterThan(0);
+    expect(path[path.length - 1]).toEqual({ col: 6, row: 3 });
+    expect(path).not.toContainEqual({ col: 5, row: 3 });
+  });
 });

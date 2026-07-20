@@ -63,6 +63,14 @@ describe("GridState", () => {
       expect(gs.isWalkable({ col: 1, row: 1 })).toBe(false);
     });
 
+    it("returns false for cells reserved by another unit", () => {
+      const gs = smallGrid();
+      const coord = { col: 1, row: 1 };
+      expect(gs.reserveCell(coord, "unit-a")).toBe(true);
+      expect(gs.isWalkable(coord, "unit-a")).toBe(true);
+      expect(gs.isWalkable(coord, "unit-b")).toBe(false);
+    });
+
     it("returns false for out-of-bounds", () => {
       const gs = smallGrid();
       expect(gs.isWalkable({ col: -1, row: 0 })).toBe(false);
@@ -89,6 +97,36 @@ describe("GridState", () => {
     it("does nothing if the coordinates are out of bounds", () => {
       const gs = smallGrid();
       expect(() => gs.occupyCell({ col: 99, row: 99 }, "x")).not.toThrow();
+    });
+  });
+
+  describe("reservations", () => {
+    it("allows only the owner to occupy and release a reservation", () => {
+      const gs = smallGrid();
+      const coord = { col: 2, row: 1 };
+
+      expect(gs.reserveCell(coord, "unit-a")).toBe(true);
+      expect(gs.reserveCell(coord, "unit-b")).toBe(false);
+      gs.occupyCell(coord, "unit-b");
+      expect(gs.getCell(coord)?.occupied).toBe(false);
+
+      gs.occupyCell(coord, "unit-a");
+      expect(gs.getCell(coord)).toMatchObject({
+        occupied: true,
+        occupantId: "unit-a",
+        reservedBy: undefined,
+      });
+    });
+
+    it("releases only a reservation owned by the caller", () => {
+      const gs = smallGrid();
+      const coord = { col: 0, row: 1 };
+      gs.reserveCell(coord, "unit-a");
+
+      gs.releaseReservation(coord, "unit-b");
+      expect(gs.getCell(coord)?.reservedBy).toBe("unit-a");
+      gs.releaseReservation(coord, "unit-a");
+      expect(gs.getCell(coord)?.reservedBy).toBeUndefined();
     });
   });
 

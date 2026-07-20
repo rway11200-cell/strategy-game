@@ -52,6 +52,7 @@ interface ManagedUnit {
   activeOrderId?: string;
   activeCommand?: IUnitCommand;
   movementMode: TestUnitSnapshot["movement"]["mode"];
+  wasBlocked: boolean;
 }
 
 interface ActiveScenario {
@@ -212,6 +213,7 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
       previousCell: { ...options.cell },
       completedCycles: 0,
       movementMode: "idle",
+      wasBlocked: false,
     };
     scenario.units.push(managed);
 
@@ -285,10 +287,29 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
     }
 
     if (!matchedEvent) {
+      const snapshot = this.buildSnapshot(options.afterSequence);
       return this.failure(
         "CONDITION_NOT_MET",
         `Condition not met after ${elapsedFrames} frames (max: ${maxFrames})`,
-        { elapsedFrames, condition: options.condition },
+        {
+          elapsedFrames,
+          condition: options.condition,
+          units: snapshot.units.map((unit) => ({
+            id: unit.id,
+            cell: unit.cell,
+            targetCell: unit.movement.targetCell,
+            stepProgress: unit.movement.stepProgress,
+            transitions: snapshot.events.filter(
+              (event) => event.type === "unit.entered-cell" && event.unitId === unit.id,
+            ).length,
+            blocked: snapshot.events.filter(
+              (event) => event.type === "movement.blocked" && event.unitId === unit.id,
+            ).length,
+            resumed: snapshot.events.filter(
+              (event) => event.type === "movement.resumed" && event.unitId === unit.id,
+            ).length,
+          })),
+        },
       );
     }
 
@@ -421,6 +442,25 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
       if (unit.enemy.active && unit.enemy.animatedSprite?.visible !== false) {
         unit.enemy.update(ticker);
       }
+      const movement = unit.enemy.getLastCommandMovementResult();
+      if (movement?.blocked && !unit.wasBlocked) {
+        scenario.events.push({
+          sequence: scenario.nextSequence++,
+          frame: scenario.frame,
+          scenarioId: scenario.scenarioId,
+          type: "movement.blocked",
+          unitId: unit.id,
+        });
+      } else if (movement && !movement.blocked && unit.wasBlocked) {
+        scenario.events.push({
+          sequence: scenario.nextSequence++,
+          frame: scenario.frame,
+          scenarioId: scenario.scenarioId,
+          type: "movement.resumed",
+          unitId: unit.id,
+        });
+      }
+      unit.wasBlocked = movement?.blocked ?? false;
       this.syncActiveOrder(scenario, unit);
     }
 
@@ -434,7 +474,7 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
           sequence: scenario.nextSequence++,
           frame: scenario.frame,
           scenarioId: scenario.scenarioId,
-          type: "unit.enteredCell",
+          type: "unit.entered-cell",
           unitId: unit.id,
           from: { ...unit.previousCell },
           to: { ...currentCell },
@@ -469,13 +509,31 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
     events: TestEventSnapshot[],
     condition: AdvanceTestSimulationOptions["condition"],
   ): TestEventSnapshot | undefined {
+    if (condition.type === "all-units-progressed") {
+      const progressed = condition.unitIds.every((unitId) => {
+        return events.filter((event) => event.type === "unit.entered-cell" && event.unitId === unitId)
+          .length >= condition.minimumTransitions;
+      });
+      const recovered = condition.unitIds.every((unitId) => {
+        const unit = this.activeScenario?.units.find((candidate) => candidate.id === unitId);
+        const blocked = events.filter(
+          (event) => event.type === "movement.blocked" && event.unitId === unitId,
+        ).length;
+        const resumed = events.filter(
+          (event) => event.type === "movement.resumed" && event.unitId === unitId,
+        ).length;
+        return !unit?.wasBlocked && resumed >= blocked;
+      });
+      return progressed && recovered ? events[events.length - 1] : undefined;
+    }
+
     return events.find((ev) => {
       switch (condition.type) {
         case "event":
           return ev.type === condition.eventType;
         case "unit-entered-cell":
           return (
-            ev.type === "unit.enteredCell" &&
+            ev.type === "unit.entered-cell" &&
             ev.unitId === condition.unitId &&
             (!condition.cell || (ev.to && sameCell(ev.to, condition.cell)))
           );
