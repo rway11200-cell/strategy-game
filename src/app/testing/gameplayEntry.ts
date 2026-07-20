@@ -5,6 +5,8 @@ import { setEngine } from "../getEngine";
 import { CreationEngine } from "../../engine/engine";
 import { createGameTestApi } from "./GameTestApi";
 import { GameplayTestRuntime } from "./GameplayTestRuntime";
+import { ScenarioVisualHost } from "./ScenarioVisualHost";
+import { createGameplayDebugPanel } from "./gameplayDebugPanel";
 
 const rootElement = document.querySelector<HTMLElement>("[data-testid='game-test-root']");
 if (!rootElement) throw new Error("Gameplay test root was not found");
@@ -14,13 +16,19 @@ const engine = new CreationEngine();
 setEngine(engine);
 let ready = false;
 
-const runtime = new GameplayTestRuntime(APP_VERSION, () => ({
-  ready,
-  surfaceCount: root.querySelectorAll("canvas").length,
-  width: engine.canvas?.width ?? 0,
-  height: engine.canvas?.height ?? 0,
-  errors: [],
-}));
+const visualHost = new ScenarioVisualHost(engine.stage);
+
+const runtime = new GameplayTestRuntime(
+  APP_VERSION,
+  () => ({
+    ready,
+    surfaceCount: root.querySelectorAll("canvas").length,
+    width: engine.canvas?.width ?? 0,
+    height: engine.canvas?.height ?? 0,
+    errors: [],
+  }),
+  visualHost,
+);
 
 async function bootstrapGameplayHarness(): Promise<void> {
   try {
@@ -34,11 +42,16 @@ async function bootstrapGameplayHarness(): Promise<void> {
     await Assets.loadBundle("main");
 
     ready = true;
-    window.__GAME_TEST__ = createGameTestApi(
+    const api = createGameTestApi(
       () => null,
       () => ready,
       runtime,
     );
+    window.__GAME_TEST__ = api;
+
+    const panel = createGameplayDebugPanel(api);
+    root.appendChild(panel);
+
     root.dataset.harness = "strategy-game-playwright";
     root.dataset.state = "ready";
 

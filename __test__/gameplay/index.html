@@ -6,6 +6,108 @@
     <base href="/" />
     <link rel="stylesheet" href="/style.css" />
     <title>Strategy Game - Gameplay Test Harness</title>
+    <style>
+      #game-test-root {
+        display: flex;
+        flex-direction: row;
+        width: 100%;
+        height: 100vh;
+        overflow: hidden;
+      }
+      #pixi-container {
+        flex: 1;
+        position: relative;
+        overflow: hidden;
+      }
+      #debug-panel {
+        width: 320px;
+        min-width: 320px;
+        background: #1a1a1a;
+        color: #ccc;
+        font-size: 13px;
+        font-family: system-ui, sans-serif;
+        padding: 12px;
+        overflow-y: auto;
+        border-left: 1px solid #333;
+        box-sizing: border-box;
+      }
+      #debug-panel h3 {
+        margin: 0 0 6px 0;
+        font-size: 11px;
+        text-transform: uppercase;
+        color: #888;
+        letter-spacing: 1px;
+      }
+      #debug-panel .debug-section {
+        margin-bottom: 14px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #2a2a2a;
+      }
+      #debug-panel .debug-section:last-child {
+        border-bottom: none;
+      }
+      #debug-panel select {
+        width: 100%;
+        padding: 4px 6px;
+        background: #111;
+        color: #ccc;
+        border: 1px solid #444;
+        border-radius: 3px;
+        font-size: 12px;
+        margin-bottom: 6px;
+      }
+      #debug-panel button {
+        padding: 5px 10px;
+        margin: 2px;
+        background: #333;
+        color: #ddd;
+        border: 1px solid #555;
+        border-radius: 3px;
+        cursor: pointer;
+        font-size: 12px;
+      }
+      #debug-panel button:hover {
+        background: #444;
+      }
+      #debug-panel button:disabled {
+        opacity: 0.4;
+        cursor: default;
+      }
+      #debug-panel button#play-btn {
+        background: #1b5e20;
+        border-color: #2e7d32;
+      }
+      #debug-panel button#play-btn:hover {
+        background: #2e7d32;
+      }
+      #hud {
+        background: #111;
+        padding: 8px;
+        border-radius: 3px;
+        font-size: 11px;
+        line-height: 1.5;
+        margin: 0;
+        min-height: 40px;
+        white-space: pre-wrap;
+      }
+      #event-log {
+        background: #111;
+        padding: 6px 8px;
+        border-radius: 3px;
+      }
+      @media (max-width: 700px) {
+        #game-test-root {
+          flex-direction: column;
+        }
+        #debug-panel {
+          width: 100%;
+          min-width: unset;
+          max-height: 40vh;
+          border-left: none;
+          border-top: 1px solid #333;
+        }
+      }
+    </style>
   </head>
   <body>
     <div

@@ -30,6 +30,7 @@ import type {
   TestOrderInput,
 } from "./GameTestApi";
 import { getTestScenarioDefinition } from "./ScenarioCatalog";
+import { ScenarioVisualHost } from "./ScenarioVisualHost";
 
 export interface GameplayHarnessBootState {
   ready: boolean;
@@ -76,6 +77,7 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
   constructor(
     private readonly version: string,
     private readonly getBootState: () => GameplayHarnessBootState,
+    private readonly visualHost?: ScenarioVisualHost,
   ) {}
 
   getBootSnapshot(): BootTestSnapshot {
@@ -135,9 +137,12 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
       type: "scenario.started",
     };
 
+    const unitContainer = new Container();
+    unitContainer.label = "test-units";
+
     this.activeScenario = {
       state,
-      container: new Container(),
+      container: unitContainer,
       gridConfig,
       gridState,
       units: [],
@@ -147,6 +152,9 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
       scenarioId,
       preset: definition.preset,
     };
+
+    this.visualHost?.mount(gridConfig, unitContainer);
+    this.visualHost?.updateGrid(gridState);
 
     return { ok: true, value: clone(state) };
   }
@@ -191,6 +199,8 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
       completedCycles: 0,
     };
     scenario.units.push(managed);
+
+    this.visualHost?.updateGrid(scenario.gridState);
 
     const snapshot = this.buildUnitSnapshot(managed, options.archetype, options.team, scenario.gridConfig);
     return { ok: true, value: snapshot };
@@ -318,6 +328,7 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
       }
     }
 
+    this.visualHost?.unmount();
     this.activeScenario = null;
     this.cleanedScenarioIds.add(scenarioId);
 
@@ -387,6 +398,8 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
         unit.enemy.update(ticker);
       }
     }
+
+    this.visualHost?.updateGrid(scenario.gridState);
 
     for (const unit of scenario.units) {
       const currentCell = unit.enemy.getGridCell(scenario.gridConfig);
