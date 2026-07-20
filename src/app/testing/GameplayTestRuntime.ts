@@ -6,6 +6,7 @@ import {
   MoveCommand,
   StopCommand,
   HoldPositionCommand,
+  type IUnitCommand,
 } from "../core/UnitCommands";
 import { Enemy, EnemyType } from "../core/unidades/Enemy";
 import type { CellCoord } from "../../grid/GridConfig";
@@ -28,6 +29,7 @@ import type {
   TestOrderSnapshot,
   TestUnitSnapshot,
   TestOrderInput,
+  TestUnitTeam,
 } from "./GameTestApi";
 import { getTestScenarioDefinition } from "./ScenarioCatalog";
 import { ScenarioVisualHost } from "./ScenarioVisualHost";
@@ -43,9 +45,14 @@ export interface GameplayHarnessBootState {
 interface ManagedUnit {
   enemy: Enemy;
   id: string;
+  archetype: string;
+  team: TestUnitTeam;
   previousCell: CellCoord | null;
   patrolEndpoints?: readonly [CellCoord, CellCoord];
   completedCycles: number;
+  activeOrderId?: string;
+  activeCommand?: IUnitCommand;
+  movementMode: TestUnitSnapshot["movement"]["mode"];
 }
 
 interface ActiveScenario {
@@ -57,6 +64,8 @@ interface ActiveScenario {
   frame: number;
   nextSequence: number;
   events: TestEventSnapshot[];
+  orders: TestOrderSnapshot[];
+  nextOrderNumber: number;
   scenarioId: string;
   preset: string;
 }
@@ -149,6 +158,8 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
       frame: 0,
       nextSequence: 2,
       events: [started],
+      orders: [],
+      nextOrderNumber: 1,
       scenarioId,
       preset: definition.preset,
     };
@@ -195,14 +206,17 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
     const managed: ManagedUnit = {
       enemy,
       id: options.id,
+      archetype: options.archetype,
+      team: options.team,
       previousCell: { ...options.cell },
       completedCycles: 0,
+      movementMode: "idle",
     };
     scenario.units.push(managed);
 
     this.visualHost?.updateGrid(scenario.gridState);
 
-    const snapshot = this.buildUnitSnapshot(managed, options.archetype, options.team, scenario.gridConfig);
+    const snapshot = this.buildUnitSnapshot(managed, scenario);
     return { ok: true, value: snapshot };
   }
 
@@ -222,6 +236,7 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
       return this.failure("INVALID_ORDER", `Unsupported order type: ${options.order.type}`);
     }
 
+    this.cancelActiveOrder(scenario, unit);
     unit.enemy.issueCommand(command);
 
     if (options.order.type === "patrol") {
@@ -229,8 +244,16 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
       unit.completedCycles = 0;
     }
 
-    const snapshot = this.buildOrderSnapshot(unit, options.order);
-    return { ok: true, value: snapshot };
+    const snapshot = this.createOrderSnapshot(scenario, unit, options.order, command);
+    scenario.orders.push(snapshot);
+    unit.movementMode = movementModeFor(options.order.type);
+
+    if (snapshot.status === "running") {
+      unit.activeOrderId = snapshot.id;
+      unit.activeCommand = command;
+    }
+
+    return { ok: true, value: clone(snapshot) };
   }
 
   getScenarioSnapshot(scenarioId: string): ScenarioTestSnapshot {
@@ -397,6 +420,7 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
       if (unit.enemy.active && unit.enemy.animatedSprite?.visible !== false) {
         unit.enemy.update(ticker);
       }
+      this.syncActiveOrder(scenario, unit);
     }
 
     this.visualHost?.updateGrid(scenario.gridState);
@@ -422,6 +446,8 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
           !sameCell(unit.previousCell, ep[0])
         ) {
           unit.completedCycles++;
+          const order = scenario.orders.find((candidate) => candidate.id === unit.activeOrderId);
+          if (order) order.completedCycles = unit.completedCycles;
         }
       }
 
@@ -462,27 +488,7 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
     if (!this.activeScenario) throw new Error("No active scenario");
     const scenario = this.activeScenario;
 
-    const units = scenario.units.map((u) =>
-      this.buildUnitSnapshot(u, u.enemy.enemyType ?? "goblin", "enemy", scenario.gridConfig),
-    );
-
-    const orders = scenario.units
-      .filter((u) => u.enemy.currentCommand)
-      .map((u) => {
-        const cmd = u.enemy.currentCommand!;
-        const snapshot: TestOrderSnapshot = {
-          id: u.id,
-          unitId: u.id,
-          type: mapCommandType(cmd.type),
-          status: cmd.status,
-          issuedAtFrame: 0,
-          finishedAtFrame: null,
-        };
-        if (cmd instanceof PatrolCommand) {
-          snapshot.completedCycles = u.completedCycles;
-        }
-        return snapshot;
-      });
+    const units = scenario.units.map((unit) => this.buildUnitSnapshot(unit, scenario));
 
     const cells: ObservedCellTestState[] = [];
     for (let row = 0; row < scenario.gridConfig.gridHeight; row++) {
@@ -507,7 +513,7 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
       eventSequence: filteredEvents.length > 0 ? filteredEvents[filteredEvents.length - 1].sequence : 0,
       economy: { coins: 0 },
       units,
-      orders,
+      orders: clone(scenario.orders),
       cells,
       events: clone(filteredEvents),
       wave: null,
@@ -518,18 +524,20 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
 
   private buildUnitSnapshot(
     unit: ManagedUnit,
-    archetype: string,
-    team: string,
-    gridConfig: GridConfig,
+    scenario: ActiveScenario,
   ): TestUnitSnapshot {
+    const { gridConfig } = scenario;
     const cell = unit.enemy.getGridCell(gridConfig);
     const movementState = unit.enemy.getCommandMovementState();
     const cellCoord = cell ?? null;
+    const activeOrder = unit.activeOrderId
+      ? scenario.orders.find((order) => order.id === unit.activeOrderId) ?? null
+      : null;
 
     return {
       id: unit.id,
-      archetype,
-      team: team as "enemy",
+      archetype: unit.archetype,
+      team: unit.team,
       lifecycle: "alive",
       active: unit.enemy.active,
       cell: cellCoord,
@@ -540,7 +548,7 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
       hp: unit.enemy.hp,
       maxHp: unit.enemy.maxHp,
       movement: {
-        mode: unit.enemy.currentCommand ? "patrolling" : "idle",
+        mode: unit.movementMode,
         route: movementState.route,
         targetCell: movementState.targetCell,
         stepProgress: movementState.stepProgress,
@@ -551,42 +559,64 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
         damage: unit.enemy.attackDamage,
         rangeCells: unit.enemy.range,
       },
-      order: unit.enemy.currentCommand
-        ? {
-            id: unit.id,
-            unitId: unit.id,
-            type: mapCommandType(unit.enemy.currentCommand.type),
-            status: unit.enemy.currentCommand.status,
-            issuedAtFrame: 0,
-            finishedAtFrame: null,
-            completedCycles: unit.enemy.currentCommand instanceof PatrolCommand
-              ? unit.completedCycles
-              : undefined,
-          }
-        : null,
+      order: activeOrder ? clone(activeOrder) : null,
     };
   }
 
-  private buildOrderSnapshot(
+  private createOrderSnapshot(
+    scenario: ActiveScenario,
     unit: ManagedUnit,
-    _input: TestOrderInput,
+    input: TestOrderInput,
+    command: IUnitCommand,
   ): TestOrderSnapshot {
-    const cmd = unit.enemy.currentCommand!;
     const order: TestOrderSnapshot = {
-      id: unit.id,
+      id: `${unit.id}-order-${scenario.nextOrderNumber++}`,
       unitId: unit.id,
-      type: mapCommandType(cmd.type),
-      status: cmd.status,
-      issuedAtFrame: this.activeScenario?.frame ?? 0,
-      finishedAtFrame: null,
+      type: mapCommandType(command.type),
+      status: command.status,
+      issuedAtFrame: scenario.frame,
+      finishedAtFrame: command.status === "running" ? null : scenario.frame,
     };
 
-    if (cmd instanceof PatrolCommand) {
-      order.endpoints = [cmd.cells[0], cmd.cells[1]] as const;
-      order.completedCycles = unit.completedCycles;
+    switch (input.type) {
+      case "move":
+        order.destination = { ...input.destination };
+        break;
+      case "patrol":
+        order.endpoints = [{ ...input.endpoints[0] }, { ...input.endpoints[1] }];
+        order.completedCycles = unit.completedCycles;
+        break;
+      case "attack":
+        order.targetId = input.targetId;
+        break;
     }
 
     return order;
+  }
+
+  private cancelActiveOrder(scenario: ActiveScenario, unit: ManagedUnit): void {
+    if (!unit.activeOrderId) return;
+    const order = scenario.orders.find((candidate) => candidate.id === unit.activeOrderId);
+    if (order?.status === "running") {
+      order.status = "cancelled";
+      order.finishedAtFrame = scenario.frame;
+    }
+    unit.activeOrderId = undefined;
+    unit.activeCommand = undefined;
+  }
+
+  private syncActiveOrder(scenario: ActiveScenario, unit: ManagedUnit): void {
+    if (!unit.activeOrderId || !unit.activeCommand) return;
+    if (unit.activeCommand.status === "running") return;
+
+    const order = scenario.orders.find((candidate) => candidate.id === unit.activeOrderId);
+    if (order) {
+      order.status = unit.activeCommand.status;
+      order.finishedAtFrame = scenario.frame;
+    }
+    unit.activeOrderId = undefined;
+    unit.activeCommand = undefined;
+    unit.movementMode = "idle";
   }
 
   private emptyCleanup(): CleanupScenarioResult {
@@ -619,5 +649,20 @@ function mapCommandType(type: string): import("./GameTestApi").TestOrderType {
       return type;
     default:
       return "stop";
+  }
+}
+
+function movementModeFor(type: TestOrderInput["type"]): TestUnitSnapshot["movement"]["mode"] {
+  switch (type) {
+    case "move":
+      return "moving";
+    case "stop":
+      return "stopped";
+    case "hold-position":
+      return "holding";
+    case "patrol":
+      return "patrolling";
+    case "attack":
+      return "idle";
   }
 }
