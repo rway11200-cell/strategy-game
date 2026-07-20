@@ -4,6 +4,7 @@ export type UnitTeam = "player" | "enemy" | "neutral";
 export type UnitFaction = UnitTeam;
 export type UnitState = "idle" | "moving" | "attacking" | "dead";
 export type UnitController = "player" | "ai";
+export type AttackMode = "none" | "melee" | "projectile";
 
 export interface UnitSystemOptions {
   hp?: number;
@@ -16,6 +17,8 @@ export interface UnitSystemOptions {
   state?: UnitState;
   controller?: UnitController;
   position?: PointData;
+  attackMode?: AttackMode;
+  cooldown?: number;
 }
 
 export interface UnitStats {
@@ -35,6 +38,8 @@ export class UnitSystem {
   public team: UnitTeam;
   public state: UnitState;
   public controller: UnitController;
+  public attackMode: AttackMode;
+  public cooldown: number;
   public readonly position: PointData;
 
   constructor(options: UnitSystemOptions = {}) {
@@ -47,6 +52,8 @@ export class UnitSystem {
     this.team = options.team ?? options.faction ?? "player";
     this.state = options.state ?? "idle";
     this.controller = options.controller ?? (this.team === "enemy" ? "ai" : "player");
+    this.attackMode = options.attackMode ?? "none";
+    this.cooldown = Math.max(0, options.cooldown ?? 0);
     this.position = options.position ?? { x: 0, y: 0 };
   }
 
@@ -68,6 +75,10 @@ export class UnitSystem {
     };
   }
 
+  get canAttack(): boolean {
+    return this.attackMode !== "none" && this.damage > 0;
+  }
+
   configure(options: UnitSystemOptions): void {
     if (options.maxHp !== undefined || options.hp !== undefined) {
       this.maxHp = Math.max(0, options.maxHp ?? options.hp ?? this.maxHp);
@@ -81,6 +92,8 @@ export class UnitSystem {
     }
     if (options.state !== undefined) this.state = options.state;
     if (options.controller !== undefined) this.controller = options.controller;
+    if (options.attackMode !== undefined) this.attackMode = options.attackMode;
+    if (options.cooldown !== undefined) this.cooldown = Math.max(0, options.cooldown);
   }
 
   reset(): void {

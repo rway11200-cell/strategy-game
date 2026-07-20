@@ -92,6 +92,35 @@ const scenarios = new Map<TestScenarioPreset, TestScenarioDefinition>([
     },
   ],
   [
+    "hold-fire-stationary",
+    {
+      preset: "hold-fire-stationary",
+      grid: { columns: 5, rows: 5, tileSize: 64 },
+      landmarks: {
+        attacker: { col: 1, row: 2 },
+        target: { col: 3, row: 2 },
+      },
+      groups: {},
+      path: [],
+      economy: { coins: 0 },
+    },
+  ],
+  [
+    "hold-fire-patrol",
+    {
+      preset: "hold-fire-patrol",
+      grid: { columns: 7, rows: 3, tileSize: 64 },
+      landmarks: {
+        defender: { col: 3, row: 1 },
+        patrolStart: { col: 0, row: 0 },
+        patrolEnd: { col: 6, row: 0 },
+      },
+      groups: {},
+      path: [],
+      economy: { coins: 0 },
+    },
+  ],
+  [
     "five-unit-contended-patrol",
     {
       preset: "five-unit-contended-patrol",

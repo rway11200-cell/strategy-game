@@ -17,6 +17,7 @@ import {
 } from "../UnitCommands";
 import { Projectile } from "./Projectile";
 import {
+  type AttackMode,
   UnitSystem,
   type UnitController,
   type UnitFaction,
@@ -584,13 +585,25 @@ export class Unit extends Container {
       onDeathAction();
     }, frames.totalMs);
   }
-  private updateShooting(_time: Ticker) {
-    if (this.shootingMode === "disabled") return;
+  public onTargetAcquired: ((targetId: string) => void) | null = null;
+  public onAttackCommitted: ((targetId: string, mode: string) => void) | null = null;
+  public onDamageApplied: ((targetId: string, amount: number, hpBefore: number, hpAfter: number) => void) | null = null;
 
-    const shootOptions = this.shootOptions;
+  private isInRange(a: CellCoord, b: CellCoord): boolean {
+    return this.model.attackMode === "melee"
+      ? Math.max(Math.abs(a.col - b.col), Math.abs(a.row - b.row)) <= Math.max(1, this.model.range)
+      : Math.hypot(a.col - b.col, a.row - b.row) <= (this.model.range || 0);
+  }
+
+  private updateShooting(_time: Ticker) {
+    if (this.shootingMode === "disabled" || !this.model.canAttack) return;
+
     const gridConfig = this.combatGridConfig;
-    const towerCell = this.getGridCell();
-    if (!shootOptions?.range || !gridConfig || !towerCell) return;
+    const unitCell = this.getGridCell();
+    if (!gridConfig || !unitCell) return;
+
+    const range = this.model.range;
+    const targets = this.shootOptions?.targets ?? [];
 
     if (this.shootingMode === "forced") {
       const target = this.forcedShootingTarget;
@@ -599,37 +612,53 @@ export class Unit extends Container {
         target?.active &&
         target.canBeProjectileTarget &&
         targetCell &&
-        getCellDistance(towerCell, targetCell) <= shootOptions.range
+        this.isInRange(unitCell, targetCell)
           ? target
           : undefined;
     } else {
       this.targetToShoot = getCurrentOrClosestGridTarget(
-        towerCell,
-        shootOptions.targets ?? [],
-        shootOptions.range,
+        unitCell,
+        targets,
+        range,
         gridConfig,
         this.targetToShoot,
+        this.model.attackMode,
       );
     }
 
     if (!this.targetToShoot) return;
     this.model.state = "attacking";
 
-    const timeSinceLastShot = _time.lastTime - this.lastShotTime;
-    const fireRateInMilliseconds = shootOptions.fireRate * 1000;
-
-    if (timeSinceLastShot < fireRateInMilliseconds) return;
+    if (this.model.cooldown > 0 && this.lastShotTime > 0) {
+      const frameDelta = Math.round(_time.lastTime - this.lastShotTime);
+      if (frameDelta < this.model.cooldown) return;
+    }
 
     this.lastShotTime = _time.lastTime;
+    this.onTargetAcquired?.(this.targetToShoot.getId());
 
     const target = this.targetToShoot;
     const targetCell = target.getGridCell(gridConfig);
     if (!targetCell) return;
 
+    if (this.model.attackMode === "melee") {
+      const hpBefore = target.hp;
+      target.damage(this.model.damage);
+      this.onAttackCommitted?.(target.getId(), "melee");
+      this.onDamageApplied?.(target.getId(), this.model.damage, hpBefore, target.hp);
+      if (target.isDead()) this.targetToShoot = undefined;
+      return;
+    }
+
+    const shootOptions = this.shootOptions;
+    if (!shootOptions?.projectileCreator) return;
+    this.onAttackCommitted?.(target.getId(), "projectile");
     const newProjectile = shootOptions.projectileCreator.get();
-    newProjectile.launchAtCell(towerCell, targetCell, gridConfig, target, () => {
+    newProjectile.launchAtCell(unitCell, targetCell, gridConfig, target, () => {
       if (target.canBeProjectileTarget) {
+        const hpBefore = target.hp;
         target.damage(shootOptions.damage);
+        this.onDamageApplied?.(target.getId(), shootOptions.damage, hpBefore, target.hp);
       }
       if (target.isDead() && this.targetToShoot === target) {
         this.targetToShoot = undefined;
@@ -748,27 +777,32 @@ export function getCurrentOrClosestGridTarget(
   range: number,
   gridConfig: GridConfig,
   currentTarget: Unit | undefined,
+  attackMode: AttackMode = "projectile",
 ): Unit | undefined {
+  const isMelee = attackMode === "melee";
+  const effectiveRange = isMelee ? Math.max(1, range) : range;
+  const distanceFn = isMelee
+    ? (a: CellCoord, b: CellCoord) => Math.max(Math.abs(a.col - b.col), Math.abs(a.row - b.row))
+    : getCellDistance;
+
   let closestTarget: Unit | undefined;
   let closestTargetDistance = Number.POSITIVE_INFINITY;
 
   if (currentTarget && currentTarget.canBeProjectileTarget) {
     const currentTargetCell = currentTarget.getGridCell(gridConfig);
-    if (currentTargetCell && getCellDistance(position, currentTargetCell) <= range) {
+    if (currentTargetCell && distanceFn(position, currentTargetCell) <= effectiveRange) {
       return currentTarget;
     }
   }
 
   targets
-    .filter((o) => {
-      return o.canBeProjectileTarget;
-    })
+    .filter((o) => o.canBeProjectileTarget)
     .forEach((target) => {
       if (target.active && target.canBeProjectileTarget) {
         const targetCell = target.getGridCell(gridConfig);
         if (!targetCell) return;
-        const currentDistance = getCellDistance(position, targetCell);
-        if (currentDistance < closestTargetDistance && currentDistance <= range) {
+        const currentDistance = distanceFn(position, targetCell);
+        if (currentDistance < closestTargetDistance && currentDistance <= effectiveRange) {
           closestTargetDistance = currentDistance;
           closestTarget = target;
         }

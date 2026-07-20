@@ -9,6 +9,8 @@ import {
   type IUnitCommand,
 } from "../core/UnitCommands";
 import { Enemy, EnemyType } from "../core/unidades/Enemy";
+import { Projectile } from "../core/unidades/Projectile";
+import { UnitCreator } from "../core/UnitCreator";
 import type { CellCoord } from "../../grid/GridConfig";
 import type {
   ApiError,
@@ -61,6 +63,8 @@ interface ActiveScenario {
   gridConfig: GridConfig;
   gridState: GridState;
   units: ManagedUnit[];
+  projectileCreator: UnitCreator<Projectile>;
+  friendlyFire: boolean;
   frame: number;
   nextSequence: number;
   events: TestEventSnapshot[];
@@ -149,12 +153,20 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
     const unitContainer = new Container();
     unitContainer.label = "test-units";
 
+    const projectileCreator = new UnitCreator<Projectile>({
+      container: unitContainer,
+      initialPoolSize: 0,
+      factory: () => new Projectile(unitContainer),
+    });
+
     this.activeScenario = {
       state,
       container: unitContainer,
       gridConfig,
       gridState,
       units: [],
+      projectileCreator,
+      friendlyFire: options.friendlyFire ?? false,
       frame: 0,
       nextSequence: 2,
       events: [started],
@@ -183,12 +195,23 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
     const enemy = new Enemy(scenario.container, { id: options.id });
     enemy.initializeEnemy(EnemyType.Goblin);
 
+    const hasCombat = options.stats && (options.stats.damage ?? 0) > 0;
+    const attackMode = options.stats?.rangeCells && options.stats.rangeCells > 1 ? "projectile" : "melee";
+
     if (options.stats) {
       if (options.stats.movementFramesPerCell !== undefined) {
         enemy.initializeSpeed(scenario.gridConfig.cellSize / options.stats.movementFramesPerCell);
       }
       if (options.stats.hp !== undefined) {
         enemy.initializeHealthBar(options.stats.hp);
+      }
+      if (hasCombat) {
+        enemy.model.configure({
+          damage: options.stats.damage,
+          range: options.stats.rangeCells ?? 1,
+          attackMode,
+          cooldown: options.stats.fireCooldownFrames ?? 1,
+        });
       }
     }
 
@@ -203,6 +226,51 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
         : {}),
     });
 
+    if (hasCombat) {
+      enemy.initializeShootingRange({
+        range: options.stats!.rangeCells ?? 1,
+        fireRate: (options.stats!.fireCooldownFrames ?? 1) / 60,
+        projectileCreator: scenario.projectileCreator,
+        damage: options.stats!.damage!,
+        targets: [],
+      });
+    }
+
+    enemy.onTargetAcquired = (targetId) => {
+      scenario.events.push({
+        sequence: scenario.nextSequence++,
+        frame: scenario.frame,
+        scenarioId: scenario.scenarioId,
+        type: "target.acquired",
+        unitId: options.id,
+        targetId,
+      });
+    };
+    enemy.onAttackCommitted = (targetId, mode) => {
+      scenario.events.push({
+        sequence: scenario.nextSequence++,
+        frame: scenario.frame,
+        scenarioId: scenario.scenarioId,
+        type: "attack.committed",
+        unitId: options.id,
+        targetId,
+        reason: mode,
+      });
+    };
+    enemy.onDamageApplied = (targetId, amount, hpBefore, hpAfter) => {
+      scenario.events.push({
+        sequence: scenario.nextSequence++,
+        frame: scenario.frame,
+        scenarioId: scenario.scenarioId,
+        type: "damage.applied",
+        sourceId: options.id,
+        targetId,
+        amount,
+        hpBefore,
+        hpAfter,
+      });
+    };
+
     enemy.spawn();
 
     const managed: ManagedUnit = {
@@ -216,6 +284,8 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
       wasBlocked: false,
     };
     scenario.units.push(managed);
+
+    this.refreshTargets(scenario);
 
     this.visualHost?.updateGrid(scenario.gridState);
 
@@ -438,9 +508,20 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
       elapsedMS: 16.667,
     } as unknown as Ticker;
 
+    this.refreshTargets(scenario);
+
     for (const unit of scenario.units) {
       if (unit.enemy.active && unit.enemy.animatedSprite?.visible !== false) {
         unit.enemy.update(ticker);
+      }
+      if (unit.enemy.isDead() && unit.enemy.active) {
+        scenario.events.push({
+          sequence: scenario.nextSequence++,
+          frame: scenario.frame,
+          scenarioId: scenario.scenarioId,
+          type: "unit.died",
+          unitId: unit.id,
+        });
       }
       const movement = unit.enemy.getLastCommandMovementResult();
       if (movement?.blocked && !unit.wasBlocked) {
@@ -463,6 +544,8 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
       unit.wasBlocked = movement?.blocked ?? false;
       this.syncActiveOrder(scenario, unit);
     }
+
+    scenario.projectileCreator.update(ticker);
 
     this.visualHost?.updateGrid(scenario.gridState);
 
@@ -612,7 +695,7 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
       },
       combat: {
         mode: unit.enemy.getShootingMode(),
-        targetId: null,
+        targetId: unit.enemy.targetToShoot?.getId() ?? null,
         damage: unit.enemy.attackDamage,
         rangeCells: unit.enemy.range,
       },
@@ -674,6 +757,26 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
     unit.activeOrderId = undefined;
     unit.activeCommand = undefined;
     unit.movementMode = "idle";
+  }
+
+  private refreshTargets(scenario: ActiveScenario): void {
+    const activeUnits = scenario.units.filter(
+      (u) => u.enemy.active && !u.enemy.isDead() && u.enemy.canBeProjectileTarget,
+    );
+
+    for (const unit of scenario.units) {
+      const enemy = unit.enemy;
+      if (!enemy.model.canAttack || !enemy.active || enemy.isDead()) continue;
+
+      const targets = activeUnits.filter(
+        (other) =>
+          other.id !== unit.id &&
+          enemy.isHostileTo(other.enemy) &&
+          (!scenario.friendlyFire || (unit.team !== other.team)),
+      );
+
+      enemy.setShootingTargets(targets.map((t) => t.enemy));
+    }
   }
 
   private emptyCleanup(): CleanupScenarioResult {
