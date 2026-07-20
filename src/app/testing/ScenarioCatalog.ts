@@ -36,6 +36,27 @@ const scenarios = new Map<TestScenarioPreset, TestScenarioDefinition>([
     },
   ],
   [
+    "long-movement-corridor",
+    {
+      preset: "long-movement-corridor",
+      grid: { columns: 5, rows: 1, tileSize: 64 },
+      landmarks: {
+        origin: { col: 0, row: 0 },
+        checkpoint: { col: 2, row: 0 },
+        destination: { col: 4, row: 0 },
+      },
+      groups: {},
+      path: [
+        { col: 0, row: 0 },
+        { col: 1, row: 0 },
+        { col: 2, row: 0 },
+        { col: 3, row: 0 },
+        { col: 4, row: 0 },
+      ],
+      economy: { coins: 0 },
+    },
+  ],
+  [
     "tower-placement",
     {
       preset: "tower-placement",

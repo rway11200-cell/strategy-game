@@ -43,6 +43,8 @@ interface ManagedUnit {
   enemy: Enemy;
   id: string;
   previousCell: CellCoord | null;
+  patrolEndpoints?: readonly [CellCoord, CellCoord];
+  completedCycles: number;
 }
 
 interface ActiveScenario {
@@ -186,6 +188,7 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
       enemy,
       id: options.id,
       previousCell: { ...options.cell },
+      completedCycles: 0,
     };
     scenario.units.push(managed);
 
@@ -210,6 +213,11 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
     }
 
     unit.enemy.issueCommand(command);
+
+    if (options.order.type === "patrol") {
+      unit.patrolEndpoints = options.order.endpoints;
+      unit.completedCycles = 0;
+    }
 
     const snapshot = this.buildOrderSnapshot(unit, options.order);
     return { ok: true, value: snapshot };
@@ -289,11 +297,11 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
     for (const unit of this.activeScenario.units) {
       removedUnitIds.push(unit.id);
 
+      unit.enemy.despawnImmediately();
+
       if (unit.enemy.currentCommand) {
         pendingOrderIds.push(unit.id);
       }
-
-      unit.enemy.despawnImmediately();
     }
 
     for (let row = 0; row < this.activeScenario.gridConfig.gridHeight; row++) {
@@ -393,6 +401,15 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
           from: { ...unit.previousCell },
           to: { ...currentCell },
         });
+
+        const ep = unit.patrolEndpoints;
+        if (
+          ep &&
+          sameCell(currentCell, ep[0]) &&
+          !sameCell(unit.previousCell, ep[0])
+        ) {
+          unit.completedCycles++;
+        }
       }
 
       if (unit.previousCell === null && currentCell) {
@@ -448,6 +465,9 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
           issuedAtFrame: 0,
           finishedAtFrame: null,
         };
+        if (cmd instanceof PatrolCommand) {
+          snapshot.completedCycles = u.completedCycles;
+        }
         return snapshot;
       });
 
@@ -465,7 +485,7 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
     }
 
     const filteredEvents = afterSequence !== undefined
-      ? scenario.events.filter((ev) => ev.sequence <= afterSequence)
+      ? scenario.events.filter((ev) => ev.sequence > afterSequence)
       : scenario.events;
 
     return {
@@ -526,6 +546,9 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
             status: unit.enemy.currentCommand.status,
             issuedAtFrame: 0,
             finishedAtFrame: null,
+            completedCycles: unit.enemy.currentCommand instanceof PatrolCommand
+              ? unit.completedCycles
+              : undefined,
           }
         : null,
     };
@@ -547,7 +570,7 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
 
     if (cmd instanceof PatrolCommand) {
       order.endpoints = [cmd.cells[0], cmd.cells[1]] as const;
-      order.completedCycles = 0;
+      order.completedCycles = unit.completedCycles;
     }
 
     return order;
