@@ -1,4 +1,9 @@
-import type { GameTestApi, TestScenarioPreset } from "./GameTestApi";
+import type {
+  ApiResult,
+  GameTestApi,
+  ScenarioTestState,
+  TestScenarioPreset,
+} from "./GameTestApi";
 
 const PRESETS = [
   "three-cell-patrol-corridor",
@@ -10,10 +15,17 @@ const PRESETS = [
 interface PanelState {
   scenarioId: string | null;
   playing: boolean;
+  primaryUnitId: string | null;
+  reloadDemo: (() => void) | null;
 }
 
 export function createGameplayDebugPanel(api: GameTestApi): HTMLDivElement {
-  const state: PanelState = { scenarioId: null, playing: false };
+  const state: PanelState = {
+    scenarioId: null,
+    playing: false,
+    primaryUnitId: null,
+    reloadDemo: null,
+  };
 
   const panel = document.createElement("div");
   panel.id = "debug-panel";
@@ -37,8 +49,14 @@ export function createGameplayDebugPanel(api: GameTestApi): HTMLDivElement {
   panel.appendChild(scenarioSection);
 
   const demoSection = createSection("Demo");
-  const loadDemoBtn = createButton("Load patrol demo");
-  demoSection.appendChild(loadDemoBtn);
+  const loadPatrolBtn = createButton("Patrol A ↔ B");
+  const loadMoveBtn = createButton("Move + Stop");
+  const loadMultiBtn = createButton("Five-unit contention");
+  const loadEmptyBtn = createButton("Empty selected scenario");
+  demoSection.appendChild(loadPatrolBtn);
+  demoSection.appendChild(loadMoveBtn);
+  demoSection.appendChild(loadMultiBtn);
+  demoSection.appendChild(loadEmptyBtn);
   panel.appendChild(demoSection);
 
   const controlSection = createSection("Controls");
@@ -48,6 +66,8 @@ export function createGameplayDebugPanel(api: GameTestApi): HTMLDivElement {
   playBtn.id = "play-btn";
   const resetBtn = createButton("⟲ Reset");
   resetBtn.style.backgroundColor = "#444";
+  const stopBtn = createButton("■ Stop primary unit");
+  stopBtn.disabled = true;
   const speedSelect = document.createElement("select");
   speedSelect.id = "playback-speed";
   for (const [label, value] of [
@@ -67,6 +87,7 @@ export function createGameplayDebugPanel(api: GameTestApi): HTMLDivElement {
   controlSection.appendChild(step10Btn);
   controlSection.appendChild(playBtn);
   controlSection.appendChild(resetBtn);
+  controlSection.appendChild(stopBtn);
   controlSection.appendChild(speedSelect);
   panel.appendChild(controlSection);
 
@@ -106,6 +127,12 @@ export function createGameplayDebugPanel(api: GameTestApi): HTMLDivElement {
           `  ${unit.id} cell:${cell} world:${world} step:${progress}% hp:${unit.hp}/${unit.maxHp}${orderInfo}`,
         );
       }
+      if (snapshot.orders.length > 0) {
+        lines.push("Orders:");
+        for (const order of snapshot.orders.slice(-6)) {
+          lines.push(`  ${order.id} ${order.type} ${order.status}`);
+        }
+      }
       hud.textContent = lines.join("\n");
 
       const recent = snapshot.events.slice(-10);
@@ -122,61 +149,141 @@ export function createGameplayDebugPanel(api: GameTestApi): HTMLDivElement {
     }
   }
 
-  beginBtn.addEventListener("click", () => {
-    const preset = presetSelect.value as TestScenarioPreset;
-    const result = api.beginScenario({ preset, simulation: "manual" });
-    if (result.ok) {
-      state.scenarioId = result.value.id;
-      cleanupBtn.disabled = false;
-      refreshHUD();
-    } else {
-      hud.textContent = `Error: ${result.error.message}`;
+  let frameHandle: number | null = null;
+  let playbackAccumulator = 0;
+
+  function unwrap<T>(result: ApiResult<T>): T | null {
+    if (result.ok) return result.value;
+    hud.textContent = `Error: ${result.error.message}`;
+    return null;
+  }
+
+  function stopPlayback(): void {
+    state.playing = false;
+    playbackAccumulator = 0;
+    playBtn.textContent = "▶ Play";
+    if (frameHandle !== null) cancelAnimationFrame(frameHandle);
+    frameHandle = null;
+  }
+
+  function cleanupActiveScenario(): void {
+    stopPlayback();
+    if (state.scenarioId) api.cleanupScenario(state.scenarioId);
+    state.scenarioId = null;
+    state.primaryUnitId = null;
+    state.reloadDemo = null;
+    cleanupBtn.disabled = true;
+    stopBtn.disabled = true;
+  }
+
+  function beginScenario(preset: TestScenarioPreset): ScenarioTestState | null {
+    cleanupActiveScenario();
+    const scenario = unwrap(api.beginScenario({ preset, simulation: "manual" }));
+    if (!scenario) return null;
+    state.scenarioId = scenario.id;
+    cleanupBtn.disabled = false;
+    return scenario;
+  }
+
+  function setPrimaryUnit(unitId: string | null): void {
+    state.primaryUnitId = unitId;
+    stopBtn.disabled = unitId === null;
+  }
+
+  function loadPatrolDemo(): void {
+    const scenario = beginScenario("three-cell-patrol-corridor");
+    if (!scenario) return;
+    const unitId = "patrol-unit";
+    if (!unwrap(api.spawnTestUnit({
+      scenarioId: scenario.id,
+      id: unitId,
+      archetype: "goblin",
+      team: "enemy",
+      cell: scenario.landmarks.start,
+    }))) return;
+    if (!unwrap(api.issueTestOrder({
+      unitId,
+      order: {
+        type: "patrol",
+        endpoints: [scenario.landmarks.start, scenario.landmarks.end],
+      },
+    }))) return;
+    setPrimaryUnit(unitId);
+    state.reloadDemo = loadPatrolDemo;
+    refreshHUD();
+  }
+
+  function loadMoveDemo(): void {
+    const scenario = beginScenario("long-movement-corridor");
+    if (!scenario) return;
+    const unitId = "stoppable-unit";
+    if (!unwrap(api.spawnTestUnit({
+      scenarioId: scenario.id,
+      id: unitId,
+      archetype: "goblin",
+      team: "player",
+      cell: scenario.landmarks.origin,
+    }))) return;
+    if (!unwrap(api.issueTestOrder({
+      unitId,
+      order: { type: "move", destination: scenario.landmarks.destination },
+    }))) return;
+    setPrimaryUnit(unitId);
+    state.reloadDemo = loadMoveDemo;
+    refreshHUD();
+  }
+
+  function loadMultiUnitDemo(): void {
+    const scenario = beginScenario("five-unit-contended-patrol");
+    if (!scenario) return;
+    const unitIds = Array.from({ length: 5 }, (_, index) => `patrol-${index + 1}`);
+    for (const [index, unitId] of unitIds.entries()) {
+      const spawnCell = scenario.groups.spawnCells[index];
+      if (!spawnCell) {
+        hud.textContent = `Error: missing spawn cell for ${unitId}`;
+        return;
+      }
+      if (!unwrap(api.spawnTestUnit({
+        scenarioId: scenario.id,
+        id: unitId,
+        archetype: "goblin",
+        team: "enemy",
+        cell: spawnCell,
+      }))) return;
+      if (!unwrap(api.issueTestOrder({
+        unitId,
+        order: {
+          type: "patrol",
+          endpoints: [scenario.landmarks.pointA, scenario.landmarks.pointB],
+        },
+      }))) return;
     }
+    setPrimaryUnit(null);
+    state.reloadDemo = loadMultiUnitDemo;
+    refreshHUD();
+  }
+
+  function loadEmptyScenario(preset = presetSelect.value as TestScenarioPreset): void {
+    const scenario = beginScenario(preset);
+    if (!scenario) return;
+    state.reloadDemo = () => loadEmptyScenario(preset);
+    refreshHUD();
+  }
+
+  beginBtn.addEventListener("click", () => {
+    loadEmptyScenario();
   });
 
   cleanupBtn.addEventListener("click", () => {
-    if (!state.scenarioId) return;
-    api.cleanupScenario(state.scenarioId);
-    state.scenarioId = null;
-    cleanupBtn.disabled = true;
-    state.playing = false;
-    playBtn.textContent = "▶ Play";
+    cleanupActiveScenario();
+    state.reloadDemo = null;
     refreshHUD();
   });
 
-  loadDemoBtn.addEventListener("click", () => {
-    if (state.scenarioId) {
-      api.cleanupScenario(state.scenarioId);
-      state.scenarioId = null;
-    }
-    const result = api.beginScenario({ preset: "three-cell-patrol-corridor", simulation: "manual" });
-    if (!result.ok) {
-      hud.textContent = `Error: ${result.error.message}`;
-      return;
-    }
-    state.scenarioId = result.value.id;
-    cleanupBtn.disabled = false;
-
-    const scenario = result.value;
-    const pointA = scenario.landmarks.start;
-    const pointB = scenario.landmarks.end;
-    const spawnResult = api.spawnTestUnit({
-      scenarioId: scenario.id,
-      id: "patrol-unit",
-      archetype: "goblin",
-      team: "enemy",
-      cell: pointA,
-    });
-    if (!spawnResult.ok) {
-      hud.textContent = `Error: ${spawnResult.error.message}`;
-      return;
-    }
-    api.issueTestOrder({
-      unitId: "patrol-unit",
-      order: { type: "patrol", endpoints: [pointA, pointB] },
-    });
-    refreshHUD();
-  });
+  loadPatrolBtn.addEventListener("click", loadPatrolDemo);
+  loadMoveBtn.addEventListener("click", loadMoveDemo);
+  loadMultiBtn.addEventListener("click", loadMultiUnitDemo);
+  loadEmptyBtn.addEventListener("click", () => loadEmptyScenario());
 
   step1Btn.addEventListener("click", () => {
     if (!state.scenarioId) return;
@@ -191,18 +298,20 @@ export function createGameplayDebugPanel(api: GameTestApi): HTMLDivElement {
   });
 
   resetBtn.addEventListener("click", () => {
-    if (!state.scenarioId) return;
-    api.cleanupScenario(state.scenarioId);
-    state.scenarioId = null;
-    cleanupBtn.disabled = true;
-    state.playing = false;
-    playBtn.textContent = "▶ Play";
-    loadDemoBtn.click();
+    const reload = state.reloadDemo;
+    if (reload) reload();
+  });
+
+  stopBtn.addEventListener("click", () => {
+    if (!state.primaryUnitId) return;
+    stopPlayback();
+    unwrap(api.issueTestOrder({ unitId: state.primaryUnitId, order: { type: "stop" } }));
+    refreshHUD();
   });
 
   playBtn.addEventListener("click", () => {
     if (!state.scenarioId && !state.playing) {
-      loadDemoBtn.click();
+      loadPatrolDemo();
       if (state.scenarioId) togglePlay();
       return;
     }
@@ -210,14 +319,15 @@ export function createGameplayDebugPanel(api: GameTestApi): HTMLDivElement {
   });
 
   function togglePlay(): void {
+    if (state.playing) {
+      stopPlayback();
+      return;
+    }
     state.playing = !state.playing;
     playbackAccumulator = 0;
     playBtn.textContent = state.playing ? "⏸ Pause" : "▶ Play";
     if (state.playing) playLoop();
   }
-
-  let frameHandle: number | null = null;
-  let playbackAccumulator = 0;
 
   function playLoop(): void {
     if (!state.playing || !state.scenarioId) {
