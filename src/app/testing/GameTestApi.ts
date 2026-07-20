@@ -62,11 +62,24 @@ export interface TowerTestState {
 }
 
 export interface EnemyTestState {
+  id?: string;
   worldX: number;
   worldY: number;
   health?: number;
   active: boolean;
   type?: string;
+}
+
+export interface UnitTestState {
+  id: string;
+  col: number;
+  row: number;
+  team: string;
+  health: number;
+  maxHp: number;
+  active: boolean;
+  state: string;
+  type: "enemy" | "tower";
 }
 
 export interface SpawnEnemyResult {
@@ -141,6 +154,17 @@ export interface GameTestApi {
    * @returns true si el comando se emitió correctamente
    */
   patrolEnemy(fromCol: number, fromRow: number, toCol: number, toRow: number): boolean;
+
+  /**
+   * Obtiene todas las unidades activas con su estado y posición en el grid.
+   */
+  getUnits(): UnitTestState[];
+
+  /**
+   * Aplica daño a una unidad activa identificada por su ID.
+   * @returns true si la unidad fue encontrada y dañada
+   */
+  damageUnit(unitId: string, damage: number): boolean;
 }
 
 // ──────────────────────────────────────────────
@@ -316,12 +340,96 @@ export function createGameTestApi(
         const anyEnemy = e as any;
 
         return {
+          id: enemy.getId("test"),
           worldX: enemy.x,
           worldY: enemy.y,
           health: anyEnemy.currentHealth,
           active: enemy.active,
         };
       });
+    },
+
+    getUnits(): UnitTestState[] {
+      const mgr = getManager();
+      if (!mgr) return [];
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const mgrDebug = mgr as any as GameManagerDebug;
+      const ctx = mgrDebug.gameContext;
+      if (!ctx) return [];
+
+      const gi = ctx.gridIntegration;
+      const cfg = gi?.gridConfig;
+
+      const result: UnitTestState[] = [];
+
+      const activeEnemies = ctx.enemyCreator?.getUnits(true) ?? [];
+      for (const e of activeEnemies) {
+        const enemy = e as Enemy;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const anyEnemy = e as any;
+        const cell = cfg ? enemy.getGridCell(cfg) : undefined;
+        result.push({
+          id: enemy.getId("test"),
+          col: cell?.col ?? -1,
+          row: cell?.row ?? -1,
+          team: "enemy",
+          health: anyEnemy.currentHealth ?? 0,
+          maxHp: enemy.maxHp,
+          active: enemy.active,
+          state: enemy.state,
+          type: "enemy",
+        });
+      }
+
+      const activeTowers = ctx.towerCreator?.getUnits(true) ?? [];
+      for (const t of activeTowers) {
+        const tower = t as Tower;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const anyTower = t as any;
+        const cell = cfg ? tower.getGridCell(cfg) : undefined;
+        result.push({
+          id: tower.getId("test"),
+          col: cell?.col ?? -1,
+          row: cell?.row ?? -1,
+          team: "player",
+          health: anyTower.currentHealth ?? 0,
+          maxHp: tower.maxHp,
+          active: tower.active,
+          state: tower.state,
+          type: "tower",
+        });
+      }
+
+      return result;
+    },
+
+    damageUnit(unitId: string, damage: number): boolean {
+      const mgr = getManager();
+      if (!mgr) return false;
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const mgrDebug = mgr as any as GameManagerDebug;
+      const ctx = mgrDebug.gameContext;
+      if (!ctx) return false;
+
+      // Search in enemies first
+      const allEnemies = ctx.enemyCreator?.getUnits(false) ?? [];
+      const enemy = allEnemies.find((e: Enemy) => e.getId("test") === unitId);
+      if (enemy) {
+        enemy.takeDamage(damage);
+        return true;
+      }
+
+      // Search in towers
+      const allTowers = ctx.towerCreator?.getUnits(false) ?? [];
+      const tower = allTowers.find((t: Tower) => t.getId("test") === unitId);
+      if (tower) {
+        tower.takeDamage(damage);
+        return true;
+      }
+
+      return false;
     },
 
     placeTower(col: number, row: number): boolean {
