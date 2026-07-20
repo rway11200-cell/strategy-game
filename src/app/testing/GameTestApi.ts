@@ -11,13 +11,14 @@
  * Nunca es una dependencia obligatoria de producción.
  */
 
-import type { GridConfig } from "../../grid/GridConfig";
+import type { GridConfig, CellCoord } from "../../grid/GridConfig";
 import type { GridIntegration } from "../../grid/GridIntegration";
 import type { GameManager } from "../core/GameManager";
 import type { LevelContext } from "../core/niveles/cargador/LevelContext";
 import { EnemyType } from "../core/unidades/Enemy";
 import type { Enemy } from "../core/unidades/Enemy";
 import type { Tower } from "../core/unidades/Tower";
+import { PatrolCommand } from "../core/UnitCommands";
 
 // ──────────────────────────────────────────────
 // Tipos públicos de la API de testing
@@ -129,6 +130,17 @@ export interface GameTestApi {
    * @returns Resultado con success, enemyId y error en caso de fallo
    */
   spawnEnemy(cellX: number, cellY: number, enemyType: string): SpawnEnemyResult;
+
+  /**
+   * Ordena a un enemigo patrullar entre dos celdas.
+   * Busca al enemigo por su posición de spawn (fromCol, fromRow).
+   * @param fromCol Columna donde se spawneó el enemigo
+   * @param fromRow Fila donde se spawneó el enemigo
+   * @param toCol Columna de destino del patrol
+   * @param toRow Fila de destino del patrol
+   * @returns true si el comando se emitió correctamente
+   */
+  patrolEnemy(fromCol: number, fromRow: number, toCol: number, toRow: number): boolean;
 }
 
 // ──────────────────────────────────────────────
@@ -435,6 +447,43 @@ export function createGameTestApi(
       gi.gridState.occupyCell({ col: cellX, row: cellY }, enemyId);
 
       return { success: true, enemyId };
+    },
+
+    patrolEnemy(fromCol: number, fromRow: number, toCol: number, toRow: number): boolean {
+      const mgr = getManager();
+      if (!mgr) return false;
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const mgrDebug = mgr as any as GameManagerDebug;
+      const ctx = mgrDebug.gameContext;
+      const gi = ctx?.gridIntegration;
+      if (!gi) return false;
+
+      // Find the enemy by its spawn cell position
+      const activeEnemies = ctx.enemyCreator?.getUnits(true) ?? [];
+      const enemy = activeEnemies.find((e: Enemy) => {
+        const cellCoord = e.getGridCell(gi.gridConfig);
+        return cellCoord && cellCoord.col === fromCol && cellCoord.row === fromRow;
+      });
+      if (!enemy) return false;
+
+      const from: CellCoord = { col: fromCol, row: fromRow };
+      const to: CellCoord = { col: toCol, row: toRow };
+
+      // Set up tile movement for the enemy
+      enemy.initializeTileMovement({
+        cells: [from, to],
+        gridConfig: gi.gridConfig,
+        gridState: gi.gridState,
+        start: { col: fromCol, row: fromRow },
+        entityType: "goblin",
+      });
+
+      // Issue the patrol command
+      const patrolCmd = new PatrolCommand([from, to]);
+      enemy.issueCommand(patrolCmd);
+
+      return true;
     },
   };
 
