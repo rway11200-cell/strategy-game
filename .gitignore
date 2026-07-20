@@ -33,6 +33,9 @@ dist-ssr
 # Playwright visual test snapshots
 tests/playwright/**/__snapshots__/
 
+# Playwright test artifacts
+test-results/
+
 #public/assets
 #.assetpack
 #src/manifest.json
