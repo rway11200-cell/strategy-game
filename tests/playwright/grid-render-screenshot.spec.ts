@@ -24,7 +24,8 @@ const fixture: GridVisualFixture = {
 test("el renderer dibuja todos los tipos de celda y overlays en capas", async ({ page }) => {
   await test.step("Dado un fixture visual fijo", async () => {
     await page.setViewportSize({ width: fixture.viewport.width, height: fixture.viewport.height });
-    await page.goto("/__test__/grid-renderer");
+    await page.goto("/__test__/grid-renderer/");
+    await expect(page.getByTestId("grid-test-root")).toHaveAttribute("data-state", "ready");
     await page.evaluate((visualFixture) => {
       if (!window.__GRID_VISUAL_TEST__) throw new Error("GridVisualTestApi is not available");
       window.__GRID_VISUAL_TEST__.renderFixture(visualFixture);

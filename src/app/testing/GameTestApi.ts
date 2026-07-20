@@ -111,7 +111,8 @@ export type TestScenarioPreset =
   | "single-wave-path-to-base"
   | "five-unit-contended-patrol"
   | "single-unit-death"
-  | "friendly-fire-selection";
+  | "friendly-fire-selection"
+  | "simultaneous-combat-3v3";
 
 export type TestUnitTeam = "player" | "enemy" | "neutral";
 export type TestUnitLifecycle = "alive" | "dying" | "dead" | "despawned";
@@ -126,12 +127,6 @@ export interface BootTestSnapshot {
     width: number;
     height: number;
   };
-  grid: {
-    columns: number;
-    rows: number;
-    tileSize: number;
-    cells: CellTestState[][];
-  };
   errors: ApiError[];
 }
 
@@ -140,6 +135,11 @@ export interface ScenarioTestState {
   preset: TestScenarioPreset;
   simulation: "manual";
   frame: number;
+  grid: {
+    columns: number;
+    rows: number;
+    tileSize: number;
+  };
   landmarks: Record<string, CellCoord>;
   groups: Record<string, CellCoord[]>;
   path: CellCoord[];
@@ -197,6 +197,7 @@ export interface ObservedCellTestState {
 export interface TestEventSnapshot {
   sequence: number;
   frame: number;
+  scenarioId: string;
   type: string;
   unitId?: string;
   sourceId?: string;
@@ -355,6 +356,7 @@ export interface GameTestApi {
     stats?: {
       hp?: number;
       damage?: number;
+      defense?: number;
       rangeCells?: number;
       movementFramesPerCell?: number;
       fireCooldownFrames?: number;
@@ -407,6 +409,12 @@ export interface GameTestApi {
     targetId: string;
     amount: number;
   }): ApiResult<{ event: TestEventSnapshot; snapshot: ScenarioTestSnapshot }>;
+
+  /** Resuelve ataques declarados contra el mismo snapshot inicial del frame. */
+  resolveTestCombatFrame(options: {
+    scenarioId: string;
+    attacks: Array<{ attackerId: string; targetId: string }>;
+  }): ApiResult<{ events: TestEventSnapshot[]; snapshot: ScenarioTestSnapshot }>;
 
   /** Elimina las entidades del escenario y comprueba que no queden ocupaciones. */
   cleanupScenario(scenarioId: string): ApiResult<CleanupScenarioResult>;
@@ -919,6 +927,13 @@ export function createGameTestApi(
       snapshot: ScenarioTestSnapshot;
     }> {
       return notImplemented("applyTestDamage");
+    },
+
+    resolveTestCombatFrame(_options): ApiResult<{
+      events: TestEventSnapshot[];
+      snapshot: ScenarioTestSnapshot;
+    }> {
+      return notImplemented("resolveTestCombatFrame");
     },
 
     cleanupScenario(_scenarioId): ApiResult<CleanupScenarioResult> {

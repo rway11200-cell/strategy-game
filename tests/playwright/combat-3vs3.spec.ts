@@ -1,124 +1,63 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./support/GameTestFixture";
+import { getUnit } from "./support/GameTestDriver";
 
-type Team = "player" | "enemy";
-type Cell = { col: number; row: number; type: string; occupied: boolean };
-type CombatUnitState = {
-  id: string;
-  col: number;
-  row: number;
-  team: Team;
-  health: number;
-  state?: string;
-  active?: boolean;
-};
-type CombatUnitConfig = {
-  id: string;
-  team: Team;
-  health: number;
-  attack: number;
-  defense: number;
-};
+const combatants = [
+  { id: "team-a-1", team: "player", hp: 30, damage: 40, defense: 5 },
+  { id: "team-a-2", team: "player", hp: 100, damage: 30, defense: 10 },
+  { id: "team-a-3", team: "player", hp: 100, damage: 20, defense: 0 },
+  { id: "team-b-1", team: "enemy", hp: 30, damage: 50, defense: 5 },
+  { id: "team-b-2", team: "enemy", hp: 100, damage: 25, defense: 10 },
+  { id: "team-b-3", team: "enemy", hp: 100, damage: 10, defense: 5 },
+] as const;
 
-interface CombatGameTestApi {
-  isReady(): boolean;
-  getGrid(): { cells: Cell[][] };
-  getState(): { units: CombatUnitState[]; errors: string[] };
-  spawnUnit(params: CombatUnitConfig & { col: number; row: number; type: string }): CombatUnitState;
-  resolveCombatTick(attacks: { attackerId: string; targetId: string }[]): void;
-}
+test("tres unidades por equipo resuelven sus ataques en el mismo frame", async ({ game }) => {
+  const setup =
+    await test.step("Dado dos equipos completos antes del frame de combate", async () => {
+      await game.open();
+      await game.waitUntilReady();
+      const scenario = await game.beginScenario("simultaneous-combat-3v3", {
+        friendlyFire: false,
+      });
+      const teamACells = game.group(scenario, "teamA");
+      const teamBCells = game.group(scenario, "teamB");
+      expect(teamACells).toHaveLength(3);
+      expect(teamBCells).toHaveLength(3);
 
-const unitConfigs: CombatUnitConfig[] = [
-  { id: "team-a-1", team: "player", health: 30, attack: 40, defense: 5 },
-  { id: "team-a-2", team: "player", health: 100, attack: 30, defense: 10 },
-  { id: "team-a-3", team: "player", health: 100, attack: 20, defense: 0 },
-  { id: "team-b-1", team: "enemy", health: 30, attack: 50, defense: 5 },
-  { id: "team-b-2", team: "enemy", health: 100, attack: 25, defense: 10 },
-  { id: "team-b-3", team: "enemy", health: 100, attack: 10, defense: 5 },
-];
+      for (const [index, unit] of combatants.entries()) {
+        const teamIndex = index % 3;
+        await game.spawnUnit({
+          scenarioId: scenario.id,
+          id: unit.id,
+          archetype: "test-combat-unit",
+          team: unit.team,
+          cell: unit.team === "player" ? teamACells[teamIndex] : teamBCells[teamIndex],
+          stats: { hp: unit.hp, damage: unit.damage, defense: unit.defense },
+        });
+      }
+      return scenario;
+    });
 
-test("three units per team resolve one combat tick simultaneously", async ({ page }) => {
-  await page.goto("/");
-
-  await expect
-    .poll(() => page.evaluate(() => window.__GAME_TEST__?.isReady() ?? false), {
-      timeout: 15_000,
-      message: "the game should become ready",
-    })
-    .toBe(true);
-
-  const supportsSimultaneousCombat = await page.evaluate(() => {
-    const api = window.__GAME_TEST__ as unknown as Partial<CombatGameTestApi>;
-    return ["spawnUnit", "resolveCombatTick"].every(
-      (method) => typeof api[method as keyof CombatGameTestApi] === "function",
-    );
-  });
-  expect(
-    supportsSimultaneousCombat,
-    "GameTestApi must expose simultaneous combat setup and resolution",
-  ).toBe(true);
-
-  const result = await page.evaluate((configs) => {
-    const api = window.__GAME_TEST__ as unknown as CombatGameTestApi;
-    const cells = api
-      .getGrid()
-      .cells.flat()
-      .filter((cell) => cell.type !== "blocked" && !cell.occupied)
-      .slice(0, configs.length);
-    if (cells.length < configs.length) throw new Error("the grid needs six distinct free cells");
-
-    const spawned = configs.map((config, index) =>
-      api.spawnUnit({
-        ...config,
-        col: cells[index].col,
-        row: cells[index].row,
-        type: config.team === "player" ? "tower" : "skeleton",
-      }),
-    );
-    const byConfiguredId = new Map(configs.map((config, index) => [config.id, spawned[index].id]));
+  await test.step("Cuando los seis ataques se comprometen simultáneamente", async () => {
     const attacks = [
-      ["team-a-1", "team-b-1"],
-      ["team-a-2", "team-b-2"],
-      ["team-a-3", "team-b-3"],
-      ["team-b-1", "team-a-1"],
-      ["team-b-2", "team-a-2"],
-      ["team-b-3", "team-a-3"],
-    ].map(([attacker, target]) => ({
-      attackerId: byConfiguredId.get(attacker)!,
-      targetId: byConfiguredId.get(target)!,
-    }));
+      { attackerId: "team-a-1", targetId: "team-b-1" },
+      { attackerId: "team-a-2", targetId: "team-b-2" },
+      { attackerId: "team-a-3", targetId: "team-b-3" },
+      { attackerId: "team-b-1", targetId: "team-a-1" },
+      { attackerId: "team-b-2", targetId: "team-a-2" },
+      { attackerId: "team-b-3", targetId: "team-a-3" },
+    ];
+    const result = await game.resolveCombatFrame(setup.id, attacks);
 
-    const before = api
-      .getState()
-      .units.filter((unit) => spawned.some((combatant) => combatant.id === unit.id));
-    api.resolveCombatTick(attacks);
-    const state = api.getState();
-
-    return {
-      ids: Object.fromEntries(byConfiguredId),
-      positions: spawned.map(({ col, row }) => `${col},${row}`),
-      before,
-      after: state.units.filter((unit) => spawned.some((combatant) => combatant.id === unit.id)),
-      errors: state.errors,
-    };
-  }, unitConfigs);
-
-  expect(new Set(result.positions).size).toBe(6);
-  expect(result.before).toHaveLength(6);
-  expect(result.before.filter((unit) => unit.team === "player")).toHaveLength(3);
-  expect(result.before.filter((unit) => unit.team === "enemy")).toHaveLength(3);
-
-  const afterById = new Map(result.after.map((unit) => [unit.id, unit]));
-  const isDead = (configuredId: string) => {
-    const unit = afterById.get(result.ids[configuredId]);
-    return !unit || unit.health <= 0 || unit.state === "dead" || unit.active === false;
-  };
-  const healthOf = (configuredId: string) => afterById.get(result.ids[configuredId])?.health;
-
-  expect(isDead("team-a-1")).toBe(true);
-  expect(isDead("team-b-1")).toBe(true);
-  expect(healthOf("team-a-2")).toBe(85);
-  expect(healthOf("team-b-2")).toBe(80);
-  expect(healthOf("team-a-3")).toBe(90);
-  expect(healthOf("team-b-3")).toBe(85);
-  expect(result.errors).toEqual([]);
+    expect(result.events.filter((event) => event.type === "damage.applied")).toHaveLength(6);
+    expect(getUnit(result.snapshot, "team-a-1")).toMatchObject({ hp: 0, lifecycle: "dead" });
+    expect(getUnit(result.snapshot, "team-b-1")).toMatchObject({ hp: 0, lifecycle: "dead" });
+    expect(getUnit(result.snapshot, "team-a-2").hp).toBe(85);
+    expect(getUnit(result.snapshot, "team-b-2").hp).toBe(80);
+    expect(getUnit(result.snapshot, "team-a-3").hp).toBe(90);
+    expect(getUnit(result.snapshot, "team-b-3").hp).toBe(85);
+    expect(new Set(result.events.map((event) => event.frame))).toEqual(
+      new Set([result.snapshot.frame]),
+    );
+    expect(result.snapshot.errors).toEqual([]);
+  });
 });

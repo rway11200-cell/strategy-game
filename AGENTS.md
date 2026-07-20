@@ -54,8 +54,11 @@ When creating or changing tests under `tests/playwright/`, design the desired pr
 ### Suite Boundaries
 
 - Gameplay tests use `GameTestApi`, `GameTestDriver`, isolated scenarios, snapshots, and domain events.
+- Gameplay specs enter through `GameTestDriver.open()` and the test-only `/__test__/gameplay/` harness. Do not navigate gameplay specs to `/` or boot `MainScreen` and the production timeline.
 - Visual tests use the dedicated `GridVisualTestApi` or another compiled visual harness, a fixed viewport/DPR, semantic render snapshots, and locator screenshots. Gameplay state APIs do not replace visual assertions.
+- Grid visual specs use the test-only `/__test__/grid-renderer/` harness and must not boot gameplay.
 - Production smoke tests must use public, read-only readiness signals such as `/health/ready` and stable DOM markers. Never require a mutable gameplay testing API in production.
+- Test harness entries and mutable globals must be served only by `vite.playwright.config.ts`; they must never be imported by `src/main.ts` or included in the production artifact.
 - Do not use broad console-error allowlists that hide missing assets, failed fetches, texture failures, or application exceptions. Capture page errors, first-party request failures, and HTTP errors explicitly.
 
 ### Verification

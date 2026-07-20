@@ -5,9 +5,10 @@
   "type": "module",
   "scripts": {
     "start": "vite preview --host 0.0.0.0 --port ${PORT:-4173}",
-    "build": "tsc && node scripts/generate-version-json.mjs && vite build",
+    "build": "tsc && node scripts/generate-version-json.mjs && vite build && node scripts/assert-production-artifact.mjs",
     "lint": "eslint .",
     "dev": "vite",
+    "playground": "vite --config vite.playwright.config.ts",
     "clear-assets": "rm -rf .assetpack public/assets",
     "test": "vitest run --reporter=verbose",
     "test:watch": "vitest --reporter=verbose",

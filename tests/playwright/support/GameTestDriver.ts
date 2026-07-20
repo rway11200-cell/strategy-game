@@ -30,7 +30,25 @@ export class GameTestDriver {
   constructor(private readonly page: Page) {}
 
   async open(): Promise<void> {
-    await this.page.goto("/");
+    await this.page.goto("/__test__/gameplay/");
+    await this.page.waitForFunction(() => {
+      const root = document.querySelector<HTMLElement>("[data-testid='game-test-root']");
+      return root?.dataset.state === "ready" || root?.dataset.state === "error";
+    });
+
+    const harness = await this.page.evaluate(() => {
+      const root = document.querySelector<HTMLElement>("[data-testid='game-test-root']");
+      return {
+        kind: root?.dataset.harness,
+        state: root?.dataset.state,
+        error: root?.dataset.error,
+      };
+    });
+    if (harness.kind !== "strategy-game-playwright" || harness.state !== "ready") {
+      throw new Error(
+        `Gameplay test harness failed to boot: ${harness.error ?? `state=${harness.state}`}`,
+      );
+    }
   }
 
   async waitUntilReady(timeout = 15_000): Promise<void> {
@@ -84,6 +102,7 @@ export class GameTestDriver {
     stats?: {
       hp?: number;
       damage?: number;
+      defense?: number;
       rangeCells?: number;
       movementFramesPerCell?: number;
       fireCooldownFrames?: number;
@@ -189,6 +208,21 @@ export class GameTestDriver {
       options,
     );
     return unwrap("applyTestDamage", result);
+  }
+
+  async resolveCombatFrame(
+    scenarioId: string,
+    attacks: Array<{ attackerId: string; targetId: string }>,
+  ): Promise<{ events: TestEventSnapshot[]; snapshot: ScenarioTestSnapshot }> {
+    const result = await this.page.evaluate(
+      ({ activeScenarioId, declaredAttacks }) =>
+        window.__GAME_TEST__!.resolveTestCombatFrame({
+          scenarioId: activeScenarioId,
+          attacks: declaredAttacks,
+        }),
+      { activeScenarioId: scenarioId, declaredAttacks: attacks },
+    );
+    return unwrap("resolveTestCombatFrame", result);
   }
 
   async cleanup(scenarioId: string): Promise<CleanupScenarioResult> {

@@ -7,7 +7,7 @@ test.describe("contrato público de GameTestApi", () => {
       await game.waitUntilReady();
     });
 
-    await test.step("Entonces renderer, versión y grid están listos en el mismo snapshot", async () => {
+    await test.step("Entonces renderer y versión están listos en el mismo snapshot", async () => {
       const boot = await game.getBootSnapshot();
       expect(boot).toMatchObject({
         lifecycle: "ready",
@@ -29,19 +29,20 @@ test.describe("contrato público de GameTestApi", () => {
   }) => {
     await game.open();
     await game.waitUntilReady();
-
-    const grid = (await game.getBootSnapshot()).grid;
+    const scenario = await game.beginScenario("three-cell-patrol-corridor");
+    const snapshot = await game.snapshot(scenario.id);
+    const grid = scenario.grid;
     expect(grid.columns).toBeGreaterThan(0);
     expect(grid.rows).toBeGreaterThan(0);
     expect(grid.tileSize).toBeGreaterThan(0);
-    expect(grid.cells).toHaveLength(grid.rows);
+    expect(snapshot.cells).toHaveLength(grid.rows * grid.columns);
 
-    for (const [row, cells] of grid.cells.entries()) {
-      expect(cells, `row ${row} must contain every column`).toHaveLength(grid.columns);
-      for (const [col, cell] of cells.entries()) {
-        expect(cell).toMatchObject({ col, row, occupied: expect.any(Boolean) });
-        expect(cell.occupied || cell.occupantId === undefined).toBe(true);
-      }
+    for (const observed of snapshot.cells) {
+      expect(observed.cell.col).toBeGreaterThanOrEqual(0);
+      expect(observed.cell.col).toBeLessThan(grid.columns);
+      expect(observed.cell.row).toBeGreaterThanOrEqual(0);
+      expect(observed.cell.row).toBeLessThan(grid.rows);
+      expect(observed.occupied || observed.occupantId === null).toBe(true);
     }
   });
 

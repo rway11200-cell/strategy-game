@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <base href="/" />
+    <link rel="stylesheet" href="/style.css" />
+    <title>Strategy Game - Gameplay Test Harness</title>
+  </head>
+  <body>
+    <div
+      id="game-test-root"
+      data-testid="game-test-root"
+      data-harness="strategy-game-playwright"
+      data-state="booting"
+    >
+      <div id="pixi-container"></div>
+    </div>
+    <script type="module" src="/src/app/testing/gameplayEntry.ts"></script>
+  </body>
+</html>

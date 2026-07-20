@@ -8,10 +8,7 @@ GitHub Actions. No crea contenedores ni integra Hermes.
 1. En GitHub, abre **Settings > Secrets and variables > Actions**.
 2. Crea el repository secret `PRODUCTION_URL` con la URL publica de Railway,
    por ejemplo `https://example.up.railway.app`, sin rutas adicionales.
-3. En el servicio de Railway, configura `VITE_ENABLE_GAME_TEST_API=true` y
-   vuelve a desplegar. Vite incorpora esta variable durante el build; sin ella
-   `window.__GAME_TEST__` no se publica en produccion.
-4. Confirma que Railway proporciona `RAILWAY_GIT_COMMIT_SHA` durante el build.
+3. Confirma que Railway proporciona `RAILWAY_GIT_COMMIT_SHA` durante el build.
    El Dockerfile declara esta variable y el plugin de Vite usa su valor para
    escribir `dist/version.json`.
 
@@ -62,6 +59,5 @@ La seccion **Artifacts** de la ejecucion contiene un archivo
 - Para abrir un trace, ejecuta `npx playwright show-trace <archivo-trace.zip>`.
 
 Si la espera agota el timeout, comprueba el estado del deploy en Railway y el
-contenido publico de `/version.json`. Si el smoke no encuentra la API, verifica
-que `VITE_ENABLE_GAME_TEST_API=true` estuviera definido antes del build, no solo
-en tiempo de ejecucion.
+contenido publico de `/version.json`. La API mutable de gameplay se sirve solo
+desde el harness local de Playwright y no forma parte del artefacto productivo.

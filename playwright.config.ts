@@ -33,10 +33,9 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command:
-      "VITE_ENABLE_GAME_TEST_API=true VITE_SKIP_ASSETPACK=true npx vite --host 127.0.0.1 --port 4173",
-    url: "http://127.0.0.1:4173",
-    reuseExistingServer: !process.env.CI,
+    command: "npx vite --config vite.playwright.config.ts",
+    url: "http://127.0.0.1:4173/__test__/health",
+    reuseExistingServer: false,
     timeout: 120_000,
   },
 });
