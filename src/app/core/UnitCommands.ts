@@ -94,9 +94,8 @@ abstract class BaseCommand implements IUnitCommand {
 export class MoveCommand extends BaseCommand {
   readonly type = "move" as const;
 
-  static readonly MAX_BLOCKED_FRAMES = 300;
-  static readonly BEST_DISTANCE_THRESHOLD = 2;
-  private consecutiveBlockedFrames = 0;
+  static readonly MAX_FRAMES_WITHOUT_PROGRESS = 300;
+  private framesWithoutProgress = 0;
   private bestDistance = Infinity;
 
   constructor(public readonly destination: CellCoord) {
@@ -104,7 +103,7 @@ export class MoveCommand extends BaseCommand {
   }
 
   execute(unit: Unit, context: CommandContext): void {
-    this.consecutiveBlockedFrames = 0;
+    this.framesWithoutProgress = 0;
     this.bestDistance = Infinity;
     this.status = "running";
     unit.setCommandShooting("auto");
@@ -134,24 +133,15 @@ export class MoveCommand extends BaseCommand {
       const distance = cellDistance(current, this.destination);
       if (distance < this.bestDistance) {
         this.bestDistance = distance;
+        this.framesWithoutProgress = 0;
       }
     }
 
-    if (movement.blocked) {
-      this.consecutiveBlockedFrames++;
-      if (this.consecutiveBlockedFrames >= MoveCommand.MAX_BLOCKED_FRAMES) {
-        if (this.bestDistance <= MoveCommand.BEST_DISTANCE_THRESHOLD) {
-          unit.clearCommandMovement();
-          this.status = "completed";
-          return this.status;
-        }
-        unit.clearCommandMovement();
-        unit.setCommandShooting("auto");
-        this.status = "failed";
-        return this.status;
-      }
-    } else {
-      this.consecutiveBlockedFrames = Math.max(0, this.consecutiveBlockedFrames - 1);
+    this.framesWithoutProgress++;
+    if (this.framesWithoutProgress >= MoveCommand.MAX_FRAMES_WITHOUT_PROGRESS) {
+      unit.clearCommandMovement();
+      this.status = "completed";
+      return this.status;
     }
 
     if (movement.blocked || unit.isCommandMovementFinished()) {
