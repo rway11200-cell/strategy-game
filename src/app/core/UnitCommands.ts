@@ -2,6 +2,7 @@ import type { Ticker } from "pixi.js";
 import type { CellCoord, GridConfig } from "../../grid/GridConfig";
 import type { GridState } from "../../grid/GridState";
 import { findPathWithFootprint } from "../../grid/Pathfinder";
+import { isFootprintWalkable } from "../../grid/EntityFootprint";
 import type { TileWalkResult } from "./TileMovement";
 import type { Unit } from "./unidades/Unit";
 
@@ -126,23 +127,9 @@ export class MoveCommand extends BaseCommand {
       return this.status;
     }
 
-    if (current && isAdjacent(current, this.destination)) {
-      const destCell = context.gridState.getCell(this.destination);
-      if (destCell?.occupied && destCell.occupantId !== context.occupantId) {
-        unit.clearCommandMovement();
-        this.status = "completed";
-        return this.status;
-      }
-    }
-
     if (movement.blocked) {
       this.consecutiveBlockedFrames++;
       if (this.consecutiveBlockedFrames >= MoveCommand.MAX_BLOCKED_FRAMES) {
-        const outcome = this.resolveStuck(unit, context);
-        if (outcome === "completed") {
-          this.status = "completed";
-          return this.status;
-        }
         unit.clearCommandMovement();
         unit.setCommandShooting("auto");
         this.status = "failed";
@@ -159,35 +146,75 @@ export class MoveCommand extends BaseCommand {
     return this.status;
   }
 
-  private resolveStuck(unit: Unit, context: CommandContext): "completed" | "failed" {
-    const current = unit.getGridCell(context.gridConfig);
-    if (!current) return "failed";
+  protected pathTo(unit: Unit, context: CommandContext, destination: CellCoord): boolean {
+    const start = unit.getGridCell(context.gridConfig);
+    if (!start) return false;
+
+    if (sameCell(start, destination)) {
+      unit.clearCommandMovement();
+      return true;
+    }
 
     const path = context.pathfinder.findPath(
-      current,
-      this.destination,
+      start,
+      destination,
       context.gridState,
       context.gridConfig,
       context.entityType,
       context.occupantId,
     );
-    if (path.length > 0) return "failed";
+    if (path.length > 0) {
+      unit.setCommandCellRoute(path);
+      return true;
+    }
 
-    const blocked = getCellsBetween(current, this.destination);
-    if (blocked.length === 0) return "completed";
+    const fallback = this.findClosestFreeCell(context);
+    if (fallback && !sameCell(start, fallback)) {
+      const fallbackPath = context.pathfinder.findPath(
+        start,
+        fallback,
+        context.gridState,
+        context.gridConfig,
+        context.entityType,
+        context.occupantId,
+      );
+      if (fallbackPath.length > 0) {
+        unit.setCommandCellRoute(fallbackPath);
+        return true;
+      }
+    }
 
-    const allStuck = blocked.every((cell) => {
-      const state = context.gridState.getCell(cell);
-      if (!state?.occupied || !state.occupantId) return false;
-      if (state.occupantId === context.occupantId) return true;
-      if (state.type === "blocked") return false;
-      const blocker = context.enemies.find((e) => e.getId() === state.occupantId);
-      if (!blocker) return false;
-      const cmd = blocker.currentCommand;
-      return !cmd || cmd.status !== "running";
-    });
+    return false;
+  }
 
-    return allStuck ? "completed" : "failed";
+  private findClosestFreeCell(context: CommandContext): CellCoord | null {
+    const { gridState, gridConfig, occupantId } = context;
+    const visited = new Set<string>();
+    const queue: CellCoord[] = [this.destination];
+    visited.add(`${this.destination.col},${this.destination.row}`);
+
+    while (queue.length > 0) {
+      const cell = queue.shift()!;
+      if (isFootprintWalkable(cell, 1, 1, gridState, gridConfig, occupantId)) {
+        return cell;
+      }
+      for (const [dc, dr] of [
+        [0, -1], [0, 1], [-1, 0], [1, 0],
+        [-1, -1], [-1, 1], [1, -1], [1, 1],
+      ]) {
+        const next: CellCoord = { col: cell.col + dc, row: cell.row + dr };
+        const key = `${next.col},${next.row}`;
+        if (
+          !visited.has(key) &&
+          next.col >= 0 && next.col < gridConfig.gridWidth &&
+          next.row >= 0 && next.row < gridConfig.gridHeight
+        ) {
+          visited.add(key);
+          queue.push(next);
+        }
+      }
+    }
+    return null;
   }
 }
 
@@ -376,26 +403,8 @@ function sameCell(a: CellCoord, b: CellCoord): boolean {
   return a.col === b.col && a.row === b.row;
 }
 
-function isAdjacent(a: CellCoord, b: CellCoord): boolean {
-  return Math.abs(a.col - b.col) <= 1 && Math.abs(a.row - b.row) <= 1 && !sameCell(a, b);
-}
-
 function isInRange(a: CellCoord, b: CellCoord, range: number): boolean {
   return Math.hypot(a.col - b.col, a.row - b.row) <= range;
-}
-
-function getCellsBetween(from: CellCoord, to: CellCoord): CellCoord[] {
-  const cells: CellCoord[] = [];
-  const steps = Math.max(Math.abs(to.col - from.col), Math.abs(to.row - from.row));
-  if (steps === 0) return cells;
-  for (let i = 1; i <= steps; i++) {
-    const t = i / steps;
-    cells.push({
-      col: Math.round(from.col + (to.col - from.col) * t),
-      row: Math.round(from.row + (to.row - from.row) * t),
-    });
-  }
-  return cells;
 }
 
 export type CommandMovementResult = TileWalkResult;
