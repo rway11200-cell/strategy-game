@@ -93,11 +93,15 @@ abstract class BaseCommand implements IUnitCommand {
 export class MoveCommand extends BaseCommand {
   readonly type = "move" as const;
 
+  static readonly MAX_BLOCKED_FRAMES = 120;
+  private consecutiveBlockedFrames = 0;
+
   constructor(public readonly destination: CellCoord) {
     super();
   }
 
   execute(unit: Unit, context: CommandContext): void {
+    this.consecutiveBlockedFrames = 0;
     this.status = "running";
     unit.setCommandShooting("auto");
     const current = unit.getGridCell(context.gridConfig);
@@ -120,6 +124,18 @@ export class MoveCommand extends BaseCommand {
       unit.clearCommandMovement();
       this.status = "completed";
       return this.status;
+    }
+
+    if (movement.blocked) {
+      this.consecutiveBlockedFrames++;
+      if (this.consecutiveBlockedFrames >= MoveCommand.MAX_BLOCKED_FRAMES) {
+        unit.clearCommandMovement();
+        unit.setCommandShooting("auto");
+        this.status = "failed";
+        return this.status;
+      }
+    } else {
+      this.consecutiveBlockedFrames = Math.max(0, this.consecutiveBlockedFrames - 1);
     }
 
     if (movement.blocked || unit.isCommandMovementFinished()) {
