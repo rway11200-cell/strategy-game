@@ -475,6 +475,15 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
     };
   }
 
+  getActiveScenarioId(): string | null {
+    return this.activeScenario?.scenarioId ?? null;
+  }
+
+  getActiveScenarioSnapshot(): ScenarioTestSnapshot {
+    if (!this.activeScenario) throw new Error("No active scenario");
+    return this.buildSnapshot(undefined);
+  }
+
   // ── Private ──
 
   /** Busca la celda solicitada; si está ocupada, hace BFS por la celda libre más cercana */

@@ -312,6 +312,8 @@ export interface GameTestRuntimePort {
   advanceTestSimulation(options: AdvanceTestSimulationOptions): ApiResult<AdvanceTestResult>;
   advanceTestFrames(scenarioId: string, frames: number): ApiResult<ScenarioTestSnapshot>;
   cleanupScenario(scenarioId: string): ApiResult<CleanupScenarioResult>;
+  getActiveScenarioId(): string | null;
+  getActiveScenarioSnapshot(): ScenarioTestSnapshot;
 }
 
 export interface GameTestApi {
@@ -446,6 +448,12 @@ export interface GameTestApi {
 
   /** Elimina las entidades del escenario y comprueba que no queden ocupaciones. */
   cleanupScenario(scenarioId: string): ApiResult<CleanupScenarioResult>;
+
+  /** Devuelve el ID del escenario activo, o null si no hay ninguno. */
+  getActiveScenarioId(): string | null;
+
+  /** Devuelve el snapshot completo del escenario activo sin necesitar el ID. */
+  getActiveScenarioSnapshot(): ScenarioTestSnapshot;
 }
 
 // ──────────────────────────────────────────────
@@ -967,6 +975,14 @@ export function createGameTestApi(
 
     cleanupScenario(scenarioId): ApiResult<CleanupScenarioResult> {
       return runtime?.cleanupScenario(scenarioId) ?? notImplemented("cleanupScenario");
+    },
+
+    getActiveScenarioId(): string | null {
+      return runtime?.getActiveScenarioId() ?? null;
+    },
+
+    getActiveScenarioSnapshot(): ScenarioTestSnapshot {
+      return runtime?.getActiveScenarioSnapshot() ?? notImplemented("getActiveScenarioSnapshot");
     },
   };
 
