@@ -2,6 +2,7 @@ import { Container, Ticker } from "pixi.js";
 import { createGridConfig, type GridConfig } from "../../grid/GridConfig";
 import { GridState } from "../../grid/GridState";
 import { getEntityFootprint, getFootprintCellsForPos } from "../../grid/EntityFootprint";
+import { getOccupantCells } from "../../grid/OccupationFootprint";
 import {
   PatrolCommand,
   MoveCommand,
@@ -722,13 +723,14 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
     unit: ManagedUnit,
     scenario: ActiveScenario,
   ): TestUnitSnapshot {
-    const { gridConfig } = scenario;
+    const { gridConfig, gridState } = scenario;
     const cell = unit.enemy.getGridCell(gridConfig);
     const movementState = unit.enemy.getCommandMovementState();
     const cellCoord = cell ?? null;
     const activeOrder = unit.activeOrderId
       ? scenario.orders.find((order) => order.id === unit.activeOrderId) ?? null
       : null;
+    const unitId = unit.enemy.getId();
 
     return {
       id: unit.id,
@@ -738,7 +740,7 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
       active: unit.enemy.active,
       cell: cellCoord,
       world: { x: unit.enemy.position.x, y: unit.enemy.position.y },
-      occupiedCells: cellCoord ? [cellCoord] : [],
+      occupiedCells: getOccupantCells(unitId, gridState, gridConfig),
       hp: unit.enemy.hp,
       maxHp: unit.enemy.maxHp,
       movement: {

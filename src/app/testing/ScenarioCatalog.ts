@@ -193,6 +193,20 @@ const scenarios = new Map<TestScenarioPreset, TestScenarioDefinition>([
       economy: { coins: 0 },
     },
   ],
+  [
+    "dense-occupation",
+    {
+      preset: "dense-occupation",
+      grid: { columns: 5, rows: 5, tileSize: 64 },
+      landmarks: {
+        spawnA: { col: 0, row: 0 },
+        destination: { col: 4, row: 2 },
+      },
+      groups: {},
+      path: [],
+      economy: { coins: 0 },
+    },
+  ],
 ]);
 
 export function getTestScenarioDefinition(
