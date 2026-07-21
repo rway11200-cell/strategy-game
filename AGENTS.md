@@ -2,6 +2,11 @@
 
 Project instructions for coding agents.
 
+## Workflow
+
+- El desarrollo se realiza en la rama `develop`.
+- Al iniciar cada nueva feature, hacer `git pull origin main` en `develop` para mantenerla actualizada con `main`.
+
 ## Playwright Tests
 
 When creating or changing tests under `tests/playwright/`, design the desired product behavior first. Do not limit the test to methods or observability that happen to exist in the current implementation.
