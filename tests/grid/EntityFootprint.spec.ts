@@ -12,8 +12,8 @@ describe("getEntityFootprint", () => {
     expect(getEntityFootprint("goblin")).toEqual({ width: 1, height: 1 });
   });
 
-  it("returns 1x2 for skeleton", () => {
-    expect(getEntityFootprint("skeleton")).toEqual({ width: 1, height: 2 });
+  it("returns 1x1 for skeleton", () => {
+    expect(getEntityFootprint("skeleton")).toEqual({ width: 1, height: 1 });
   });
 
   it("returns 1x1 for ghost", () => {

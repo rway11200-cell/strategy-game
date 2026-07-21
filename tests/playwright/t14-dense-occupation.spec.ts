@@ -2,9 +2,9 @@ import { expect, test } from "./support/GameTestFixture";
 
 const SKELETON_A = "skeleton-a";
 const SKELETON_B = "skeleton-b";
-const FOOTPRINT_SIZE = 2;
+const FOOTPRINT_SIZE = 1;
 
-test("esqueleto ocupa 2 celdas al spawnear", async ({ game }) => {
+test("esqueleto ocupa 1 celda al spawnear", async ({ game }) => {
   const setup = await test.step("Dado un grid con espacio para skeleton", async () => {
     await game.open();
     await game.waitUntilReady();
@@ -29,23 +29,19 @@ test("esqueleto ocupa 2 celdas al spawnear", async ({ game }) => {
     });
     expect(unit.occupiedCells).toHaveLength(FOOTPRINT_SIZE);
     expect(unit.occupiedCells).toContainEqual(setup.spawnA);
-    expect(unit.occupiedCells).toContainEqual({ col: setup.spawnA.col, row: setup.spawnA.row + 1 });
   });
 
-  await test.step("Entonces el grid reporta exactamente 2 celdas ocupadas por el skeleton", async () => {
+  await test.step("Entonces el grid reporta exactamente 1 celda ocupada por el skeleton", async () => {
     const snapshot = await game.snapshot(setup.scenario.id);
     const skeletonCells = snapshot.cells.filter(
       (c) => c.occupantId === SKELETON_A,
     );
     expect(skeletonCells).toHaveLength(FOOTPRINT_SIZE);
-    expect(skeletonCells.map((c) => c.cell).sort(byColThenRow)).toEqual([
-      setup.spawnA,
-      { col: setup.spawnA.col, row: setup.spawnA.row + 1 },
-    ]);
+    expect(skeletonCells[0].cell).toEqual(setup.spawnA);
   });
 });
 
-test("dos skeletons spawnean en el mismo punto y ocupan 4 celdas sin solaparse", async ({ game }) => {
+test("dos skeletons spawnean en el mismo punto y ocupan 2 celdas sin solaparse", async ({ game }) => {
   const setup = await test.step("Dado un grid con un punto de spawn", async () => {
     await game.open();
     await game.waitUntilReady();
@@ -137,7 +133,7 @@ test("dos skeletons se mueven manteniendo ocupación densa sin solaparse", async
     }
   });
 
-  await test.step("Entonces cada una ocupa exactamente 2 celdas en cada frame y nunca se solapan", async () => {
+  await test.step("Entonces cada una ocupa exactamente 1 celda en cada frame y nunca se solapan", async () => {
     let snapshot = await game.snapshot(setup.scenario.id);
 
     for (let frame = 0; frame < 60; frame++) {
@@ -182,6 +178,4 @@ function coordKey(cell: { col: number; row: number }): string {
   return `${cell.col},${cell.row}`;
 }
 
-function byColThenRow(a: { col: number; row: number }, b: { col: number; row: number }): number {
-  return a.col - b.col || a.row - b.row;
-}
+

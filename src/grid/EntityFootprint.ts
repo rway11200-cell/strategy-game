@@ -8,7 +8,7 @@ export interface EntityFootprintDef {
 
 export const ENTITY_FOOTPRINTS: Record<string, EntityFootprintDef> = {
   goblin: { width: 1, height: 1 },
-  skeleton: { width: 1, height: 2 },
+  skeleton: { width: 1, height: 1 },
   ghost: { width: 1, height: 1 },
   tower: { width: 2, height: 2 },
   mine: { width: 3, height: 3 },
