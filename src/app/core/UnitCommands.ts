@@ -95,7 +95,9 @@ export class MoveCommand extends BaseCommand {
   readonly type = "move" as const;
 
   static readonly MAX_BLOCKED_FRAMES = 300;
+  static readonly BEST_DISTANCE_THRESHOLD = 2;
   private consecutiveBlockedFrames = 0;
+  private bestDistance = Infinity;
 
   constructor(public readonly destination: CellCoord) {
     super();
@@ -103,6 +105,7 @@ export class MoveCommand extends BaseCommand {
 
   execute(unit: Unit, context: CommandContext): void {
     this.consecutiveBlockedFrames = 0;
+    this.bestDistance = Infinity;
     this.status = "running";
     unit.setCommandShooting("auto");
     const current = unit.getGridCell(context.gridConfig);
@@ -127,9 +130,21 @@ export class MoveCommand extends BaseCommand {
       return this.status;
     }
 
+    if (current) {
+      const distance = cellDistance(current, this.destination);
+      if (distance < this.bestDistance) {
+        this.bestDistance = distance;
+      }
+    }
+
     if (movement.blocked) {
       this.consecutiveBlockedFrames++;
       if (this.consecutiveBlockedFrames >= MoveCommand.MAX_BLOCKED_FRAMES) {
+        if (this.bestDistance <= MoveCommand.BEST_DISTANCE_THRESHOLD) {
+          unit.clearCommandMovement();
+          this.status = "completed";
+          return this.status;
+        }
         unit.clearCommandMovement();
         unit.setCommandShooting("auto");
         this.status = "failed";
@@ -405,6 +420,10 @@ export class HoldPositionCommand extends BaseCommand {
 
 function sameCell(a: CellCoord, b: CellCoord): boolean {
   return a.col === b.col && a.row === b.row;
+}
+
+function cellDistance(a: CellCoord, b: CellCoord): number {
+  return Math.max(Math.abs(a.col - b.col), Math.abs(a.row - b.row));
 }
 
 function isInRange(a: CellCoord, b: CellCoord, range: number): boolean {
