@@ -39,7 +39,9 @@ describe("TileMovement", () => {
 
     expect(movement.walk(unit, follower).moved).toBe(true);
     expect(unit.position).toMatchObject({ x: 64, y: 32 });
-    expect(gridState.getCell({ col: 0, row: 0 })?.occupantId).toBe("enemy-1");
+    expect(gridState.getCell({ col: 0, row: 0 })?.occupied).toBe(false);
+    expect(gridState.getCell({ col: 1, row: 0 })?.occupied).toBe(false);
+    expect(gridState.getCell({ col: 1, row: 0 })?.reservedBy).toBe("enemy-1");
 
     expect(movement.walk(unit, follower).moved).toBe(true);
     expect(unit.position).toMatchObject({ x: 96, y: 32 });

@@ -63,6 +63,10 @@ export class TileMovement {
     this.elapsedTicks = 0;
     this.releaseReservations();
     if (!this.currentCell) return;
+    const cell = this.gridState.getCell(this.currentCell);
+    if (cell && !cell.occupied) {
+      this.occupy(this.currentCell);
+    }
     const world = gridToWorld(this.currentCell.col, this.currentCell.row, this.gridConfig);
     obj.position.set(world.x, world.y);
   }
@@ -100,6 +104,8 @@ export class TileMovement {
       return { moved: false, destinationReached: false, blocked: true, direction };
     }
 
+    this.releaseCurrentOccupation();
+
     const current = this.currentCell
       ? gridToWorld(this.currentCell.col, this.currentCell.row, this.gridConfig)
       : obj.position;
@@ -114,7 +120,6 @@ export class TileMovement {
     }
     this.elapsedTicks = 0;
 
-    this.releaseCurrentOccupation();
     this.currentCell = { ...targetCell };
     this.occupy(targetCell);
     this.reservedAnchor = undefined;
