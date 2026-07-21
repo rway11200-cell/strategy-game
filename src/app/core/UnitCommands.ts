@@ -139,7 +139,7 @@ export class MoveCommand extends BaseCommand {
 
     this.framesWithoutProgress++;
     if (this.framesWithoutProgress >= MoveCommand.MAX_FRAMES_WITHOUT_PROGRESS) {
-      unit.clearCommandMovement();
+      unit.freezeMovement();
       this.status = "completed";
       return this.status;
     }

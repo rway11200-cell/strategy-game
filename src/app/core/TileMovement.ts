@@ -181,7 +181,7 @@ export class TileMovement {
     return true;
   }
 
-  private releaseReservations(): void {
+  public releaseReservations(): void {
     for (const cell of this.reservedCells) {
       this.gridState.releaseReservation(cell, this.occupantId);
     }

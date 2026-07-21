@@ -418,6 +418,15 @@ export class Unit extends Container {
     this.setAnimationIdle();
   }
 
+  public freezeMovement(): void {
+    this.targetFollower?.clear();
+    if (this.tileMovement) {
+      this.tileMovement.active = false;
+      this.tileMovement.releaseReservations();
+    }
+    this.setAnimationIdle();
+  }
+
   public updateCommandMovement(ticker: Ticker): TileWalkResult {
     this.lastCommandMovement = this.updateMovement(ticker);
     return this.lastCommandMovement;
