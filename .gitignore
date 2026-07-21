@@ -36,7 +36,7 @@ tests/playwright/**/__snapshots__/
 # Playwright test artifacts
 test-results/
 
-#public/assets
-#.assetpack
-#src/manifest.json
+.assetpack
+public/assets
+src/manifest.json
 public/version.json
