@@ -1,6 +1,7 @@
 import { Container, Ticker } from "pixi.js";
 import { createGridConfig, type GridConfig } from "../../grid/GridConfig";
 import { GridState } from "../../grid/GridState";
+import { getEntityFootprint, getFootprintCellsForPos } from "../../grid/EntityFootprint";
 import {
   PatrolCommand,
   MoveCommand,
@@ -192,6 +193,15 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
       return this.failure("UNIT_ID_CONFLICT", `Unit "${options.id}" already exists`);
     }
 
+    const spawnCell = this.resolveSpawnCell(scenario, options.cell, options.archetype);
+    if (!spawnCell) {
+      return this.failure(
+        "SPAWN_CELL_OCCUPIED",
+        `Cell (${options.cell.col}, ${options.cell.row}) is occupied and no free cell found nearby`,
+      );
+    }
+    const finalCell: CellCoord = spawnCell;
+
     const enemy = new Enemy(scenario.container, { id: options.id });
     enemy.initializeEnemy(EnemyType.Goblin);
 
@@ -216,10 +226,10 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
     }
 
     enemy.initializeTileMovement({
-      cells: [options.cell],
+      cells: [finalCell],
       gridConfig: scenario.gridConfig,
       gridState: scenario.gridState,
-      start: options.cell,
+      start: finalCell,
       entityType: options.archetype,
       ...(options.stats?.movementFramesPerCell !== undefined
         ? { ticksPerCell: options.stats.movementFramesPerCell }
@@ -278,7 +288,7 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
       id: options.id,
       archetype: options.archetype,
       team: options.team,
-      previousCell: { ...options.cell },
+      previousCell: { ...finalCell },
       completedCycles: 0,
       movementMode: "idle",
       wasBlocked: false,
@@ -460,6 +470,50 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
   }
 
   // ── Private ──
+
+  /** Busca la celda solicitada; si está ocupada, hace BFS por la celda libre más cercana */
+  private resolveSpawnCell(
+    scenario: ActiveScenario,
+    requested: CellCoord,
+    archetype: string,
+  ): CellCoord | null {
+    const { gridConfig, gridState } = scenario;
+    const footprint = getEntityFootprint(archetype);
+    const isFree = (anchor: CellCoord): boolean => {
+      const cells = getFootprintCellsForPos(anchor, footprint.width, footprint.height);
+      return cells.every((c) => {
+        if (c.col < 0 || c.col >= gridConfig.gridWidth) return false;
+        if (c.row < 0 || c.row >= gridConfig.gridHeight) return false;
+        const cell = gridState.getCell(c);
+        return Boolean(cell && cell.type !== "blocked" && !cell.occupied);
+      });
+    };
+
+    if (isFree(requested)) return requested;
+
+    const visited = new Set<string>();
+    const key = (c: CellCoord) => `${c.col},${c.row}`;
+    const queue: CellCoord[] = [requested];
+    visited.add(key(requested));
+
+    while (queue.length > 0) {
+      const current = queue.shift()!;
+      for (const [dc, dr] of [[0, -1], [0, 1], [-1, 0], [1, 0]]) {
+        const next: CellCoord = { col: current.col + dc, row: current.row + dr };
+        const k = key(next);
+        if (visited.has(k)) continue;
+        visited.add(k);
+        if (
+          next.col < 0 || next.col >= gridConfig.gridWidth ||
+          next.row < 0 || next.row >= gridConfig.gridHeight
+        ) continue;
+        if (isFree(next)) return next;
+        queue.push(next);
+      }
+    }
+
+    return null;
+  }
 
   private requireScenario(scenarioId: string): ActiveScenario | null {
     if (!this.activeScenario || this.activeScenario.scenarioId !== scenarioId) return null;

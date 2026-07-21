@@ -112,7 +112,9 @@ export type TestScenarioPreset =
   | "five-unit-contended-patrol"
   | "single-unit-death"
   | "friendly-fire-selection"
-  | "simultaneous-combat-3v3";
+  | "simultaneous-combat-3v3"
+  | "spawn-collision-grid"
+  | "two-unit-convoy";
 
 export type TestUnitTeam = "player" | "enemy" | "neutral";
 export type TestUnitLifecycle = "alive" | "dying" | "dead" | "despawned";

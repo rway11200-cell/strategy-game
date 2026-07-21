@@ -142,6 +142,36 @@ const scenarios = new Map<TestScenarioPreset, TestScenarioDefinition>([
       economy: { coins: 0 },
     },
   ],
+  [
+    "spawn-collision-grid",
+    {
+      preset: "spawn-collision-grid",
+      grid: { columns: 4, rows: 4, tileSize: 64 },
+      landmarks: {
+        cellA: { col: 0, row: 0 },
+        cellB: { col: 1, row: 0 },
+        cellC: { col: 2, row: 0 },
+      },
+      groups: {},
+      path: [],
+      economy: { coins: 0 },
+    },
+  ],
+  [
+    "two-unit-convoy",
+    {
+      preset: "two-unit-convoy",
+      grid: { columns: 5, rows: 3, tileSize: 64 },
+      landmarks: {
+        leadStart: { col: 0, row: 1 },
+        trailStart: { col: 1, row: 1 },
+        destination: { col: 4, row: 1 },
+      },
+      groups: {},
+      path: [],
+      economy: { coins: 0 },
+    },
+  ],
 ]);
 
 export function getTestScenarioDefinition(
