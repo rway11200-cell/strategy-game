@@ -16,14 +16,20 @@ interface AStarNode {
 }
 
 const DIRS: readonly [number, number][] = [
-  [0, -1],
-  [0, 1],
-  [-1, 0],
-  [1, 0],
+  [0, -1], [0, 1], [-1, 0], [1, 0],
+  [-1, -1], [-1, 1], [1, -1], [1, 1],
 ];
 
+const DIAGONAL_COST = 1.5;
+
+function isDiagonal(dc: number, dr: number): boolean {
+  return dc !== 0 && dr !== 0;
+}
+
 function heuristic(a: CellCoord, b: CellCoord): number {
-  return Math.abs(a.col - b.col) + Math.abs(a.row - b.row);
+  const dx = Math.abs(a.col - b.col);
+  const dy = Math.abs(a.row - b.row);
+  return Math.max(dx, dy);
 }
 
 function nodeKey(n: CellCoord): string {
@@ -85,7 +91,8 @@ export function findPath(
       if (!cell) continue;
       if (!gridState.isWalkable(neighbor, ignoredOccupantId)) continue;
 
-      const g = current.g + cell.walkCost;
+      const moveCost = isDiagonal(dc, dr) ? DIAGONAL_COST : 1;
+      const g = current.g + cell.walkCost * moveCost;
       const h = heuristic(neighbor, end);
       const f = g + h;
 
@@ -213,7 +220,8 @@ export function findPathWithFootprint(
       const cell = gridState.getCell(neighbor);
       if (!cell) continue;
 
-      const g = current.g + cell.walkCost;
+      const moveCost = isDiagonal(dc, dr) ? DIAGONAL_COST : 1;
+      const g = current.g + cell.walkCost * moveCost;
       const h = heuristic(neighbor, end);
       const f = g + h;
 

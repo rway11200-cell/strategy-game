@@ -25,7 +25,7 @@ export function isContiguous(footprint: Footprint): boolean {
     const curr = footprint.cells[i];
     const dx = Math.abs(curr.col - prev.col);
     const dy = Math.abs(curr.row - prev.row);
-    if (dx + dy !== 1) return false;
+    if (dx > 1 || dy > 1 || (dx === 0 && dy === 0)) return false;
   }
   return true;
 }

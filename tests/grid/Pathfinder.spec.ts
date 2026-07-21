@@ -82,6 +82,6 @@ describe("findPath", () => {
   it("finds shortest path in an open grid", () => {
     const state = buildState(4, 4);
     const path = findPath({ col: 0, row: 0 }, { col: 3, row: 3 }, state);
-    expect(path.length).toBeGreaterThanOrEqual(6);
+    expect(path.length).toBe(3);
   });
 });
