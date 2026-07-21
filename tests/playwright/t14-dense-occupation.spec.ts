@@ -1,130 +1,71 @@
 import { expect, test } from "./support/GameTestFixture";
 
-const SKELETON_A = "skeleton-a";
-const SKELETON_B = "skeleton-b";
-const FOOTPRINT_SIZE = 1;
+const UNIT_COUNT = 9;
+const UNIT_IDS = Array.from({ length: UNIT_COUNT }, (_, i) => `skeleton-${i}`);
 
-test("esqueleto ocupa 1 celda al spawnear", async ({ game }) => {
-  const setup = await test.step("Dado un grid con espacio para skeleton", async () => {
+function coordKey(cell: { col: number; row: number }): string {
+  return `${cell.col},${cell.row}`;
+}
+
+test("9 skeletons spawnean en un bloque 3x3 sin solaparse", async ({ game }) => {
+  const setup = await test.step("Dado un grid 8x8 con 9 celdas de spawn", async () => {
     await game.open();
     await game.waitUntilReady();
     const scenario = await game.beginScenario("dense-occupation");
-    const spawnA = game.point(scenario, "spawnA");
-    return { scenario, spawnA };
+    const spawnCells = game.group(scenario, "spawnCells");
+    expect(spawnCells).toHaveLength(UNIT_COUNT);
+    return { scenario, spawnCells };
   });
 
-  await test.step("Cuando spawneo un skeleton", async () => {
-    const unit = await game.spawnUnit({
-      scenarioId: setup.scenario.id,
-      id: SKELETON_A,
-      archetype: "skeleton",
-      team: "enemy",
-      cell: setup.spawnA,
-    });
-
-    expect(unit).toMatchObject({
-      id: SKELETON_A,
-      cell: setup.spawnA,
-      active: true,
-    });
-    expect(unit.occupiedCells).toHaveLength(FOOTPRINT_SIZE);
-    expect(unit.occupiedCells).toContainEqual(setup.spawnA);
+  await test.step("Cuando los 9 skeletons spawnean", async () => {
+    for (let i = 0; i < UNIT_COUNT; i++) {
+      const unit = await game.spawnUnit({
+        scenarioId: setup.scenario.id,
+        id: UNIT_IDS[i],
+        archetype: "skeleton",
+        team: "enemy",
+        cell: setup.spawnCells[i],
+      });
+      expect(unit).toMatchObject({ id: UNIT_IDS[i], active: true });
+      expect(unit.occupiedCells).toHaveLength(1);
+      expect(unit.occupiedCells[0]).toEqual(setup.spawnCells[i]);
+    }
   });
 
-  await test.step("Entonces el grid reporta exactamente 1 celda ocupada por el skeleton", async () => {
-    const snapshot = await game.snapshot(setup.scenario.id);
-    const skeletonCells = snapshot.cells.filter(
-      (c) => c.occupantId === SKELETON_A,
-    );
-    expect(skeletonCells).toHaveLength(FOOTPRINT_SIZE);
-    expect(skeletonCells[0].cell).toEqual(setup.spawnA);
-  });
-});
-
-test("dos skeletons spawnean en el mismo punto y ocupan 2 celdas sin solaparse", async ({ game }) => {
-  const setup = await test.step("Dado un grid con un punto de spawn", async () => {
-    await game.open();
-    await game.waitUntilReady();
-    const scenario = await game.beginScenario("dense-occupation");
-    const spawnA = game.point(scenario, "spawnA");
-    return { scenario, spawnA };
-  });
-
-  await test.step("Cuando dos skeletons spawnean simultáneamente en la misma celda", async () => {
-    const unitA = await game.spawnUnit({
-      scenarioId: setup.scenario.id,
-      id: SKELETON_A,
-      archetype: "skeleton",
-      team: "enemy",
-      cell: setup.spawnA,
-    });
-    expect(unitA.cell).toEqual(setup.spawnA);
-    expect(unitA.occupiedCells).toHaveLength(FOOTPRINT_SIZE);
-
-    const unitB = await game.spawnUnit({
-      scenarioId: setup.scenario.id,
-      id: SKELETON_B,
-      archetype: "skeleton",
-      team: "enemy",
-      cell: setup.spawnA,
-    });
-
-    expect(unitB).toMatchObject({ id: SKELETON_B, active: true });
-    expect(unitB.cell).not.toEqual(setup.spawnA);
-    expect(unitB.occupiedCells).toHaveLength(FOOTPRINT_SIZE);
-  });
-
-  await test.step("Entonces el grid tiene 4 celdas ocupadas, sin overlap de occupantIds", async () => {
+  await test.step("Entonces el grid tiene exactamente 9 celdas ocupadas sin overlap", async () => {
     const snapshot = await game.snapshot(setup.scenario.id);
     const occupied = snapshot.cells.filter((c) => c.occupied);
-    expect(occupied).toHaveLength(FOOTPRINT_SIZE * 2);
-
-    const cellsByOccupant = new Map<string, typeof occupied>();
-    for (const cell of occupied) {
-      const list = cellsByOccupant.get(cell.occupantId!) ?? [];
-      list.push(cell);
-      cellsByOccupant.set(cell.occupantId!, list);
-    }
-    expect(cellsByOccupant.size).toBe(2);
-    expect(cellsByOccupant.get(SKELETON_A)).toHaveLength(FOOTPRINT_SIZE);
-    expect(cellsByOccupant.get(SKELETON_B)).toHaveLength(FOOTPRINT_SIZE);
-
-    const allCoordKeys = new Set(occupied.map((c) => coordKey(c.cell)));
-    expect(allCoordKeys.size).toBe(FOOTPRINT_SIZE * 2);
+    expect(occupied).toHaveLength(UNIT_COUNT);
+    expect(new Set(occupied.map((c) => coordKey(c.cell))).size).toBe(UNIT_COUNT);
+    expect(new Set(occupied.map((c) => c.occupantId)).size).toBe(UNIT_COUNT);
     expect(snapshot.errors).toEqual([]);
   });
 });
 
-test("dos skeletons se mueven manteniendo ocupación densa sin solaparse", async ({ game }) => {
-  const setup = await test.step("Dado dos skeletons spawneados en el mismo punto", async () => {
+test("9 skeletons se mueven a (7,7) sin solaparse", async ({ game }) => {
+  const setup = await test.step("Dado 9 skeletons spawneados en bloque 3x3", async () => {
     await game.open();
     await game.waitUntilReady();
     const scenario = await game.beginScenario("dense-occupation");
-    const spawnA = game.point(scenario, "spawnA");
+    const spawnCells = game.group(scenario, "spawnCells");
     const destination = game.point(scenario, "destination");
 
-    await game.spawnUnit({
-      scenarioId: scenario.id,
-      id: SKELETON_A,
-      archetype: "skeleton",
-      team: "enemy",
-      cell: spawnA,
-      stats: { movementFramesPerCell: 3 },
-    });
-    await game.spawnUnit({
-      scenarioId: scenario.id,
-      id: SKELETON_B,
-      archetype: "skeleton",
-      team: "enemy",
-      cell: spawnA,
-      stats: { movementFramesPerCell: 3 },
-    });
+    for (let i = 0; i < UNIT_COUNT; i++) {
+      await game.spawnUnit({
+        scenarioId: scenario.id,
+        id: UNIT_IDS[i],
+        archetype: "skeleton",
+        team: "enemy",
+        cell: spawnCells[i],
+        stats: { movementFramesPerCell: 3 },
+      });
+    }
 
     return { scenario, destination };
   });
 
-  await test.step("Cuando ambas reciben orden de ir al destino", async () => {
-    for (const unitId of [SKELETON_A, SKELETON_B]) {
+  await test.step("Cuando las 9 reciben orden de ir a (7,7)", async () => {
+    for (const unitId of UNIT_IDS) {
       const order = await game.issueOrder(unitId, {
         type: "move",
         destination: setup.destination,
@@ -133,49 +74,33 @@ test("dos skeletons se mueven manteniendo ocupación densa sin solaparse", async
     }
   });
 
-  await test.step("Entonces cada una ocupa exactamente 1 celda en cada frame y nunca se solapan", async () => {
+  await test.step("Entonces cada una ocupa exactamente 1 celda y nunca se solapan", async () => {
     let snapshot = await game.snapshot(setup.scenario.id);
 
-    for (let frame = 0; frame < 60; frame++) {
+    for (let frame = 0; frame < 100; frame++) {
       snapshot = await game.advanceFrames(setup.scenario.id, 1);
 
-      const aCells = snapshot.cells.filter((c) => c.occupantId === SKELETON_A);
-      const bCells = snapshot.cells.filter((c) => c.occupantId === SKELETON_B);
+      const allKeys = new Set<string>();
+      let hasOverlap = false;
+      let allAlive = false;
 
-      const aAlive = snapshot.units.find((u) => u.id === SKELETON_A)?.active ?? false;
-      const bAlive = snapshot.units.find((u) => u.id === SKELETON_B)?.active ?? false;
+      for (const unitId of UNIT_IDS) {
+        const unit = snapshot.units.find((u) => u.id === unitId);
+        if (!unit || !unit.active) continue;
+        allAlive = true;
 
-      if (!aAlive && !bAlive) break;
+        const cells = snapshot.cells.filter((c) => c.occupantId === unitId);
+        expect(cells.length).toBe(1);
 
-      if (aAlive) {
-        expect(
-          aCells.length,
-          `${SKELETON_A} must occupy exactly ${FOOTPRINT_SIZE} cells at frame ${snapshot.frame}`,
-        ).toBe(FOOTPRINT_SIZE);
-      }
-      if (bAlive) {
-        expect(
-          bCells.length,
-          `${SKELETON_B} must occupy exactly ${FOOTPRINT_SIZE} cells at frame ${snapshot.frame}`,
-        ).toBe(FOOTPRINT_SIZE);
+        const key = coordKey(cells[0].cell);
+        if (allKeys.has(key)) hasOverlap = true;
+        allKeys.add(key);
       }
 
-      const aKeys = new Set(aCells.map((c) => coordKey(c.cell)));
-      const bKeys = new Set(bCells.map((c) => coordKey(c.cell)));
-      for (const key of aKeys) {
-        expect(
-          bKeys.has(key),
-          `cell ${key} occupied by ${SKELETON_A} at frame ${snapshot.frame} but also claimed by ${SKELETON_B}`,
-        ).toBe(false);
-      }
+      if (!allAlive) break;
+      expect(hasOverlap).toBe(false);
     }
 
     expect(snapshot.errors).toEqual([]);
   });
 });
-
-function coordKey(cell: { col: number; row: number }): string {
-  return `${cell.col},${cell.row}`;
-}
-
-

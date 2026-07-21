@@ -197,12 +197,17 @@ const scenarios = new Map<TestScenarioPreset, TestScenarioDefinition>([
     "dense-occupation",
     {
       preset: "dense-occupation",
-      grid: { columns: 5, rows: 5, tileSize: 64 },
+      grid: { columns: 8, rows: 8, tileSize: 64 },
       landmarks: {
-        spawnA: { col: 0, row: 0 },
-        destination: { col: 4, row: 2 },
+        destination: { col: 7, row: 7 },
       },
-      groups: {},
+      groups: {
+        spawnCells: [
+          { col: 0, row: 0 }, { col: 1, row: 0 }, { col: 2, row: 0 },
+          { col: 0, row: 1 }, { col: 1, row: 1 }, { col: 2, row: 1 },
+          { col: 0, row: 2 }, { col: 1, row: 2 }, { col: 2, row: 2 },
+        ],
+      },
       path: [],
       economy: { coins: 0 },
     },

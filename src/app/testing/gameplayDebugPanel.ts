@@ -304,31 +304,25 @@ export function createGameplayDebugPanel(api: GameTestApi): HTMLDivElement {
   function loadDenseDemo(): void {
     const scenario = beginScenario("dense-occupation");
     if (!scenario) return;
-    const unitA = "skeleton-a";
-    const unitB = "skeleton-b";
-    if (!unwrap(api.spawnTestUnit({
-      scenarioId: scenario.id,
-      id: unitA,
-      archetype: "skeleton",
-      team: "enemy",
-      cell: scenario.landmarks.spawnA,
-    }))) return;
-    if (!unwrap(api.spawnTestUnit({
-      scenarioId: scenario.id,
-      id: unitB,
-      archetype: "skeleton",
-      team: "enemy",
-      cell: scenario.landmarks.spawnA,
-    }))) return;
-    if (!unwrap(api.issueTestOrder({
-      unitId: unitA,
-      order: { type: "move", destination: scenario.landmarks.destination },
-    }))) return;
-    if (!unwrap(api.issueTestOrder({
-      unitId: unitB,
-      order: { type: "move", destination: scenario.landmarks.destination },
-    }))) return;
-    setPrimaryUnit(unitA);
+    const spawnCells = scenario.groups.spawnCells;
+    if (!spawnCells || spawnCells.length < 9) return;
+    for (let i = 0; i < 9; i++) {
+      const unitId = `skeleton-${i}`;
+      if (!unwrap(api.spawnTestUnit({
+        scenarioId: scenario.id,
+        id: unitId,
+        archetype: "skeleton",
+        team: "enemy",
+        cell: spawnCells[i],
+      }))) return;
+    }
+    for (let i = 0; i < 9; i++) {
+      if (!unwrap(api.issueTestOrder({
+        unitId: `skeleton-${i}`,
+        order: { type: "move", destination: scenario.landmarks.destination },
+      }))) return;
+    }
+    setPrimaryUnit("skeleton-0");
     state.reloadDemo = loadDenseDemo;
     refreshHUD();
   }
