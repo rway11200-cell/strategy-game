@@ -212,6 +212,20 @@ const scenarios = new Map<TestScenarioPreset, TestScenarioDefinition>([
       economy: { coins: 0 },
     },
   ],
+  [
+    "follow-the-leader",
+    {
+      preset: "follow-the-leader",
+      grid: { columns: 5, rows: 5, tileSize: 32 },
+      landmarks: {
+        start: { col: 0, row: 2 },
+        destination: { col: 4, row: 2 },
+      },
+      groups: {},
+      path: [],
+      economy: { coins: 0 },
+    },
+  ],
 ]);
 
 export function getTestScenarioDefinition(

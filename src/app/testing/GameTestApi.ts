@@ -116,7 +116,8 @@ export type TestScenarioPreset =
   | "spawn-collision-grid"
   | "two-unit-convoy"
   | "five-unit-march"
-  | "dense-occupation";
+  | "dense-occupation"
+  | "follow-the-leader";
 
 export type TestUnitTeam = "player" | "enemy" | "neutral";
 export type TestUnitLifecycle = "alive" | "dying" | "dead" | "despawned";

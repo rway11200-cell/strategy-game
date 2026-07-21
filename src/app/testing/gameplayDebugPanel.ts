@@ -12,6 +12,7 @@ const PRESETS = [
   "five-unit-contended-patrol",
   "tower-placement",
   "dense-occupation",
+  "follow-the-leader",
 ];
 
 interface PanelState {
@@ -57,11 +58,13 @@ export function createGameplayDebugPanel(api: GameTestApi): HTMLDivElement {
   const loadMultiBtn = createButton("Five-unit contention");
   const loadDenseBtn = createButton("Dense skeleton pair");
   const loadEmptyBtn = createButton("Empty selected scenario");
+  const loadFollowBtn = createButton("Follow the leader");
   demoSection.appendChild(loadPatrolBtn);
   demoSection.appendChild(loadMoveBtn);
   demoSection.appendChild(loadHoldBtn);
   demoSection.appendChild(loadMultiBtn);
   demoSection.appendChild(loadDenseBtn);
+  demoSection.appendChild(loadFollowBtn);
   demoSection.appendChild(loadEmptyBtn);
   panel.appendChild(demoSection);
 
@@ -327,6 +330,32 @@ export function createGameplayDebugPanel(api: GameTestApi): HTMLDivElement {
     refreshHUD();
   }
 
+  function loadFollowDemo(): void {
+    const scenario = beginScenario("follow-the-leader");
+    if (!scenario) return;
+    const start = scenario.landmarks.start;
+    for (let i = 0; i < 3; i++) {
+      const unitId = `follower-${i}`;
+      if (!unwrap(api.spawnTestUnit({
+        scenarioId: scenario.id,
+        id: unitId,
+        archetype: "skeleton",
+        team: "enemy",
+        cell: start,
+        stats: { movementFramesPerCell: 4 },
+      }))) return;
+    }
+    for (let i = 0; i < 3; i++) {
+      if (!unwrap(api.issueTestOrder({
+        unitId: `follower-${i}`,
+        order: { type: "move", destination: scenario.landmarks.destination },
+      }))) return;
+    }
+    setPrimaryUnit("follower-0");
+    state.reloadDemo = loadFollowDemo;
+    refreshHUD();
+  }
+
   function loadEmptyScenario(preset = presetSelect.value as TestScenarioPreset): void {
     const scenario = beginScenario(preset);
     if (!scenario) return;
@@ -349,6 +378,7 @@ export function createGameplayDebugPanel(api: GameTestApi): HTMLDivElement {
   loadHoldBtn.addEventListener("click", loadHoldDemo);
   loadMultiBtn.addEventListener("click", loadMultiUnitDemo);
   loadDenseBtn.addEventListener("click", loadDenseDemo);
+  loadFollowBtn.addEventListener("click", loadFollowDemo);
   loadEmptyBtn.addEventListener("click", () => loadEmptyScenario());
 
   step1Btn.addEventListener("click", () => {
