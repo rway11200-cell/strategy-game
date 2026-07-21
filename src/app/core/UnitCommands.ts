@@ -106,14 +106,26 @@ export class MoveCommand extends BaseCommand {
       this.status = "completed";
       return;
     }
-    if (!this.pathTo(unit, context, this.destination)) this.status = "failed";
+    unit.clearCommandMovement();
+    this.pathTo(unit, context, this.destination);
   }
 
   update(unit: Unit, context: CommandContext, ticker: Ticker): CommandStatus {
     if (this.status !== "running") return this.status;
+
     const movement = unit.updateCommandMovement(ticker);
-    if (movement.blocked) this.pathTo(unit, context, this.destination);
-    else if (unit.isCommandMovementFinished()) this.status = "completed";
+    const current = unit.getGridCell(context.gridConfig);
+
+    if (current && sameCell(current, this.destination)) {
+      unit.clearCommandMovement();
+      this.status = "completed";
+      return this.status;
+    }
+
+    if (movement.blocked || unit.isCommandMovementFinished()) {
+      this.pathTo(unit, context, this.destination);
+    }
+
     return this.status;
   }
 }

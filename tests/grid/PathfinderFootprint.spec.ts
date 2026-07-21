@@ -39,23 +39,24 @@ describe("findPathWithFootprint", () => {
     }
   });
 
-  it("returns empty if skeleton's 1x2 footprint cannot fit at start", () => {
+  it("skeleton 1x1 fits at any cell on a 3x3 grid", () => {
     const config = createGridConfig({ gridWidth: 3, gridHeight: 3 });
     const state = new GridState(config);
     const path = findPathWithFootprint({ col: 2, row: 2 }, { col: 0, row: 0 }, state, config, "skeleton");
-    expect(path).toEqual([]);
+    expect(path.length).toBeGreaterThan(0);
   });
 
-  it("skeleton cannot pass through a 1-cell-wide gap", () => {
-    const config = createGridConfig({ gridWidth: 3, gridHeight: 4 });
+  it("tower 2x2 cannot pass through a 1-cell-wide gap", () => {
+    const config = createGridConfig({ gridWidth: 4, gridHeight: 5 });
     const state = new GridState(config);
     state.occupyCell({ col: 1, row: 0 }, "blocker");
     state.occupyCell({ col: 1, row: 2 }, "blocker");
-    const path = findPathWithFootprint({ col: 0, row: 0 }, { col: 2, row: 3 }, state, config, "skeleton");
+    state.occupyCell({ col: 1, row: 3 }, "blocker");
+    const path = findPathWithFootprint({ col: 0, row: 0 }, { col: 3, row: 4 }, state, config, "tower");
     expect(path.length).toBe(0);
   });
 
-  it("goblin can pass where skeleton cannot", () => {
+  it("goblin 1x1 can pass through a 1-cell-wide gap", () => {
     const config = createGridConfig({ gridWidth: 3, gridHeight: 4 });
     const state = new GridState(config);
     state.occupyCell({ col: 1, row: 0 }, "blocker");

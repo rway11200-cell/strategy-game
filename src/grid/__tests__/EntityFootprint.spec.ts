@@ -13,7 +13,7 @@ describe("ENTITY_FOOTPRINTS", () => {
   it("contains every game entity footprint", () => {
     expect(ENTITY_FOOTPRINTS).toEqual({
       goblin: { width: 1, height: 1 },
-      skeleton: { width: 1, height: 2 },
+      skeleton: { width: 1, height: 1 },
       ghost: { width: 1, height: 1 },
       tower: { width: 2, height: 2 },
       mine: { width: 3, height: 3 },
@@ -45,14 +45,13 @@ describe("getFootprintCellsForPos", () => {
 });
 
 describe("rectangular occupation footprints", () => {
-  it("places every cell in the skeleton 1x2 footprint", () => {
+  it("places every cell in the skeleton 1x1 footprint", () => {
     const config = createDefaultGridConfig({ gridWidth: 4, gridHeight: 4 });
     const state = new GridState(config);
     const skeleton = getEntityFootprint("skeleton");
 
     expect(placeFootprint({ col: 1, row: 1 }, skeleton, "skeleton-1", state, config)).toBe(true);
     expect(state.getCell({ col: 1, row: 1 })?.occupantId).toBe("skeleton-1");
-    expect(state.getCell({ col: 1, row: 2 })?.occupantId).toBe("skeleton-1");
   });
 
   it("validates rectangular footprints against grid limits", () => {
@@ -60,8 +59,8 @@ describe("rectangular occupation footprints", () => {
     const skeleton = getEntityFootprint("skeleton");
 
     expect(getAllFootprintCells({ col: 3, row: 3 }, skeleton, config)).toEqual({
-      valid: false,
-      blockedCells: [{ col: 3, row: 4 }],
+      valid: true,
+      blockedCells: [],
     });
   });
 });

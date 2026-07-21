@@ -75,14 +75,11 @@ describe("TileMovement", () => {
     const { follower, gridState, movement, unit } = setup("skeleton");
 
     expect(gridState.getCell({ col: 0, row: 0 })?.occupantId).toBe("enemy-1");
-    expect(gridState.getCell({ col: 0, row: 1 })?.occupantId).toBe("enemy-1");
 
     movement.walk(unit, follower);
 
     expect(gridState.getCell({ col: 0, row: 0 })?.occupied).toBe(false);
-    expect(gridState.getCell({ col: 0, row: 1 })?.occupied).toBe(false);
     expect(gridState.getCell({ col: 1, row: 0 })?.occupantId).toBe("enemy-1");
-    expect(gridState.getCell({ col: 1, row: 1 })?.occupantId).toBe("enemy-1");
   });
 
   it("stays in place when the next footprint is occupied", () => {
