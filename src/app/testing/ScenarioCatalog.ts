@@ -197,7 +197,7 @@ const scenarios = new Map<TestScenarioPreset, TestScenarioDefinition>([
     "dense-occupation",
     {
       preset: "dense-occupation",
-      grid: { columns: 8, rows: 8, tileSize: 64 },
+      grid: { columns: 9, rows: 9, tileSize: 64 },
       landmarks: {
         destination: { col: 7, row: 7 },
       },
