@@ -422,7 +422,7 @@ export class Unit extends Container {
     this.targetFollower?.clear();
     if (this.tileMovement) {
       this.tileMovement.active = false;
-      this.tileMovement.releaseReservations();
+      this.tileMovement.completeStep(this);
     }
     this.setAnimationIdle();
   }

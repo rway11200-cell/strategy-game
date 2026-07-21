@@ -71,6 +71,13 @@ export class TileMovement {
     obj.position.set(world.x, world.y);
   }
 
+  completeStep(obj: Container): void {
+    this.releaseReservations();
+    if (!this.currentCell) return;
+    const world = gridToWorld(this.currentCell.col, this.currentCell.row, this.gridConfig);
+    obj.position.set(world.x, world.y);
+  }
+
   spawn(obj: Container): void {
     this.releaseOccupation();
     this.currentCell = { ...this.start };
