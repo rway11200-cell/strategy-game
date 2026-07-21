@@ -93,7 +93,7 @@ abstract class BaseCommand implements IUnitCommand {
 export class MoveCommand extends BaseCommand {
   readonly type = "move" as const;
 
-  static readonly MAX_BLOCKED_FRAMES = 120;
+  static readonly MAX_BLOCKED_FRAMES = 300;
   private consecutiveBlockedFrames = 0;
 
   constructor(public readonly destination: CellCoord) {
@@ -126,9 +126,23 @@ export class MoveCommand extends BaseCommand {
       return this.status;
     }
 
+    if (current && isAdjacent(current, this.destination)) {
+      const destCell = context.gridState.getCell(this.destination);
+      if (destCell?.occupied && destCell.occupantId !== context.occupantId) {
+        unit.clearCommandMovement();
+        this.status = "completed";
+        return this.status;
+      }
+    }
+
     if (movement.blocked) {
       this.consecutiveBlockedFrames++;
       if (this.consecutiveBlockedFrames >= MoveCommand.MAX_BLOCKED_FRAMES) {
+        const outcome = this.resolveStuck(unit, context);
+        if (outcome === "completed") {
+          this.status = "completed";
+          return this.status;
+        }
         unit.clearCommandMovement();
         unit.setCommandShooting("auto");
         this.status = "failed";
@@ -143,6 +157,37 @@ export class MoveCommand extends BaseCommand {
     }
 
     return this.status;
+  }
+
+  private resolveStuck(unit: Unit, context: CommandContext): "completed" | "failed" {
+    const current = unit.getGridCell(context.gridConfig);
+    if (!current) return "failed";
+
+    const path = context.pathfinder.findPath(
+      current,
+      this.destination,
+      context.gridState,
+      context.gridConfig,
+      context.entityType,
+      context.occupantId,
+    );
+    if (path.length > 0) return "failed";
+
+    const blocked = getCellsBetween(current, this.destination);
+    if (blocked.length === 0) return "completed";
+
+    const allStuck = blocked.every((cell) => {
+      const state = context.gridState.getCell(cell);
+      if (!state?.occupied || !state.occupantId) return false;
+      if (state.occupantId === context.occupantId) return true;
+      if (state.type === "blocked") return false;
+      const blocker = context.enemies.find((e) => e.getId() === state.occupantId);
+      if (!blocker) return false;
+      const cmd = blocker.currentCommand;
+      return !cmd || cmd.status !== "running";
+    });
+
+    return allStuck ? "completed" : "failed";
   }
 }
 
@@ -331,8 +376,26 @@ function sameCell(a: CellCoord, b: CellCoord): boolean {
   return a.col === b.col && a.row === b.row;
 }
 
+function isAdjacent(a: CellCoord, b: CellCoord): boolean {
+  return Math.abs(a.col - b.col) <= 1 && Math.abs(a.row - b.row) <= 1 && !sameCell(a, b);
+}
+
 function isInRange(a: CellCoord, b: CellCoord, range: number): boolean {
   return Math.hypot(a.col - b.col, a.row - b.row) <= range;
+}
+
+function getCellsBetween(from: CellCoord, to: CellCoord): CellCoord[] {
+  const cells: CellCoord[] = [];
+  const steps = Math.max(Math.abs(to.col - from.col), Math.abs(to.row - from.row));
+  if (steps === 0) return cells;
+  for (let i = 1; i <= steps; i++) {
+    const t = i / steps;
+    cells.push({
+      col: Math.round(from.col + (to.col - from.col) * t),
+      row: Math.round(from.row + (to.row - from.row) * t),
+    });
+  }
+  return cells;
 }
 
 export type CommandMovementResult = TileWalkResult;
