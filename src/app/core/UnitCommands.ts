@@ -168,7 +168,7 @@ export class MoveCommand extends BaseCommand {
       return true;
     }
 
-    const fallback = this.findClosestFreeCell(context);
+    const fallback = this.findBestFallback(start, context);
     if (fallback && !sameCell(start, fallback)) {
       const fallbackPath = context.pathfinder.findPath(
         start,
@@ -187,17 +187,21 @@ export class MoveCommand extends BaseCommand {
     return false;
   }
 
-  private findClosestFreeCell(context: CommandContext): CellCoord | null {
-    const { gridState, gridConfig, occupantId } = context;
+  private findBestFallback(start: CellCoord, context: CommandContext): CellCoord | null {
+    const { gridState, gridConfig, occupantId, entityType } = context;
     const visited = new Set<string>();
     const queue: CellCoord[] = [this.destination];
     visited.add(`${this.destination.col},${this.destination.row}`);
 
     while (queue.length > 0) {
       const cell = queue.shift()!;
+      if (Math.abs(cell.col - this.destination.col) > 6 || Math.abs(cell.row - this.destination.row) > 6) continue;
+
       if (isFootprintWalkable(cell, 1, 1, gridState, gridConfig, occupantId)) {
-        return cell;
+        const path = findPathWithFootprint(start, cell, gridState, gridConfig, entityType, occupantId);
+        if (path.length > 0) return cell;
       }
+
       for (const [dc, dr] of [
         [0, -1], [0, 1], [-1, 0], [1, 0],
         [-1, -1], [-1, 1], [1, -1], [1, 1],
