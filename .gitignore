@@ -38,5 +38,4 @@ test-results/
 
 .assetpack
 public/assets
-src/manifest.json
 public/version.json
