@@ -11,6 +11,7 @@ const PRESETS = [
   "hold-position-lane",
   "five-unit-contended-patrol",
   "tower-placement",
+  "dense-occupation",
 ];
 
 interface PanelState {
@@ -54,11 +55,13 @@ export function createGameplayDebugPanel(api: GameTestApi): HTMLDivElement {
   const loadMoveBtn = createButton("Move + Stop");
   const loadHoldBtn = createButton("Hold Position lane");
   const loadMultiBtn = createButton("Five-unit contention");
+  const loadDenseBtn = createButton("Dense skeleton pair");
   const loadEmptyBtn = createButton("Empty selected scenario");
   demoSection.appendChild(loadPatrolBtn);
   demoSection.appendChild(loadMoveBtn);
   demoSection.appendChild(loadHoldBtn);
   demoSection.appendChild(loadMultiBtn);
+  demoSection.appendChild(loadDenseBtn);
   demoSection.appendChild(loadEmptyBtn);
   panel.appendChild(demoSection);
 
@@ -123,11 +126,12 @@ export function createGameplayDebugPanel(api: GameTestApi): HTMLDivElement {
         const cell = unit.cell ? `(${unit.cell.col},${unit.cell.row})` : "?";
         const progress = Math.round(unit.movement.stepProgress * 100);
         const world = `(${unit.world.x.toFixed(1)},${unit.world.y.toFixed(1)})`;
+        const occupied = unit.occupiedCells.map((c) => `(${c.col},${c.row})`).join(" ");
         const orderInfo = unit.order
           ? ` [${unit.order.type}] ${unit.order.status}${unit.order.completedCycles !== undefined ? ` cycles:${unit.order.completedCycles}` : ""}`
           : "";
         lines.push(
-          `  ${unit.id} cell:${cell} world:${world} step:${progress}% hp:${unit.hp}/${unit.maxHp}${orderInfo}`,
+          `  ${unit.id} cell:${cell} world:${world} step:${progress}% hp:${unit.hp}/${unit.maxHp} occ:[${occupied}]${orderInfo}`,
         );
       }
       if (snapshot.orders.length > 0) {
@@ -297,6 +301,40 @@ export function createGameplayDebugPanel(api: GameTestApi): HTMLDivElement {
     refreshHUD();
   }
 
+  function loadDenseDemo(): void {
+    const scenario = beginScenario("dense-occupation");
+    if (!scenario) return;
+    const unitA = "skeleton-a";
+    const unitB = "skeleton-b";
+    if (!unwrap(api.spawnTestUnit({
+      scenarioId: scenario.id,
+      id: unitA,
+      archetype: "skeleton",
+      team: "enemy",
+      cell: scenario.landmarks.spawnA,
+      stats: { movementFramesPerCell: 4 },
+    }))) return;
+    if (!unwrap(api.spawnTestUnit({
+      scenarioId: scenario.id,
+      id: unitB,
+      archetype: "skeleton",
+      team: "enemy",
+      cell: scenario.landmarks.spawnA,
+      stats: { movementFramesPerCell: 4 },
+    }))) return;
+    if (!unwrap(api.issueTestOrder({
+      unitId: unitA,
+      order: { type: "move", destination: scenario.landmarks.destination },
+    }))) return;
+    if (!unwrap(api.issueTestOrder({
+      unitId: unitB,
+      order: { type: "move", destination: scenario.landmarks.destination },
+    }))) return;
+    setPrimaryUnit(unitA);
+    state.reloadDemo = loadDenseDemo;
+    refreshHUD();
+  }
+
   function loadEmptyScenario(preset = presetSelect.value as TestScenarioPreset): void {
     const scenario = beginScenario(preset);
     if (!scenario) return;
@@ -318,6 +356,7 @@ export function createGameplayDebugPanel(api: GameTestApi): HTMLDivElement {
   loadMoveBtn.addEventListener("click", loadMoveDemo);
   loadHoldBtn.addEventListener("click", loadHoldDemo);
   loadMultiBtn.addEventListener("click", loadMultiUnitDemo);
+  loadDenseBtn.addEventListener("click", loadDenseDemo);
   loadEmptyBtn.addEventListener("click", () => loadEmptyScenario());
 
   step1Btn.addEventListener("click", () => {
