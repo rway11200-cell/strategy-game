@@ -172,6 +172,27 @@ const scenarios = new Map<TestScenarioPreset, TestScenarioDefinition>([
       economy: { coins: 0 },
     },
   ],
+  [
+    "five-unit-march",
+    {
+      preset: "five-unit-march",
+      grid: { columns: 10, rows: 5, tileSize: 64 },
+      landmarks: {
+        destination: { col: 9, row: 2 },
+      },
+      groups: {
+        spawnCells: [
+          { col: 0, row: 0 },
+          { col: 0, row: 1 },
+          { col: 0, row: 2 },
+          { col: 0, row: 3 },
+          { col: 0, row: 4 },
+        ],
+      },
+      path: [],
+      economy: { coins: 0 },
+    },
+  ],
 ]);
 
 export function getTestScenarioDefinition(
