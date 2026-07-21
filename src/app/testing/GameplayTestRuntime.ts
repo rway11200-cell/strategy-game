@@ -203,8 +203,13 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
     }
     const finalCell: CellCoord = spawnCell;
 
+    const ARCHETYPE_TO_ENEMY: Record<string, EnemyType> = {
+      goblin: EnemyType.Goblin,
+      skeleton: EnemyType.Skeleton,
+      ghost: EnemyType.Ghost,
+    };
     const enemy = new Enemy(scenario.container, { id: options.id });
-    enemy.initializeEnemy(EnemyType.Goblin);
+    enemy.initializeEnemy(ARCHETYPE_TO_ENEMY[options.archetype] ?? EnemyType.Goblin);
 
     const hasCombat = options.stats && (options.stats.damage ?? 0) > 0;
     const attackMode = options.stats?.rangeCells && options.stats.rangeCells > 1 ? "projectile" : "melee";

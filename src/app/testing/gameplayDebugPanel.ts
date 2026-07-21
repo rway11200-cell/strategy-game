@@ -312,7 +312,6 @@ export function createGameplayDebugPanel(api: GameTestApi): HTMLDivElement {
       archetype: "skeleton",
       team: "enemy",
       cell: scenario.landmarks.spawnA,
-      stats: { movementFramesPerCell: 4 },
     }))) return;
     if (!unwrap(api.spawnTestUnit({
       scenarioId: scenario.id,
@@ -320,7 +319,6 @@ export function createGameplayDebugPanel(api: GameTestApi): HTMLDivElement {
       archetype: "skeleton",
       team: "enemy",
       cell: scenario.landmarks.spawnA,
-      stats: { movementFramesPerCell: 4 },
     }))) return;
     if (!unwrap(api.issueTestOrder({
       unitId: unitA,
