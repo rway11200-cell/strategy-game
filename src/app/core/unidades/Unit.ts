@@ -70,6 +70,8 @@ export interface UnitProps {
   faction?: UnitFaction;
   state?: UnitState;
   controller?: UnitController;
+  attackMode?: AttackMode;
+  cooldown?: number;
 }
 
 function isArrayOfUnits(targets: PointData[] | Unit[]): targets is Unit[] {
@@ -124,6 +126,8 @@ export class Unit extends Container {
       faction: options?.faction,
       state: options?.state,
       controller: options?.controller,
+      attackMode: options?.attackMode ?? (options?.shootOptions ? "projectile" : undefined),
+      cooldown: options?.cooldown,
       position: this.position,
     });
     this.unitSystem = this.model;

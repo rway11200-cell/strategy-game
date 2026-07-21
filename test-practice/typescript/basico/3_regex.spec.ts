@@ -52,7 +52,7 @@ describe("🔍 Expresiones Regulares — ejemplos (AAA)", () => {
   it("lookahead: números seguidos de 'kg'", () => {
     // Organizar
     const texto = "10kg 20g 5kg";
-    const regex = /\b(\d+)(?=kg)\b/g;
+    const regex = /\b(\d+)(?=kg)/g;
 
     // Acción
     const resultado = [...texto.matchAll(regex)].map((m) => m[1]);
