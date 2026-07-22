@@ -146,6 +146,61 @@ describe("unit commands", () => {
     expect(unit.getGridCell(gridConfig)).toEqual({ col: 2, row: 0 });
   });
 
+  it("waits near an occupied destination instead of taking a retreating fallback", () => {
+    const unit = createUnit(container, gridState, 6, 0);
+    const destination = { col: 7, row: 0 };
+    gridState.occupyCell(destination, "unit-at-destination");
+    unit.setCommandPathfinder({
+      findPath: (_start, end) => {
+        if (end.col === destination.col && end.row === destination.row) return [];
+        return [
+          { col: 5, row: 0 },
+          { col: 6, row: 1 },
+          end,
+        ];
+      },
+    });
+
+    const command = new MoveCommand(destination);
+    unit.issueCommand(command);
+    unit.update(ticker(1));
+
+    expect(command.status).toBe("running");
+    expect(unit.getGridCell(gridConfig)).toEqual({ col: 6, row: 0 });
+    expect(unit.position).toMatchObject(gridToWorld(6, 0, gridConfig));
+  });
+
+  it("finishes the current cell transition before timing out without progress", () => {
+    const unit = createUnit(container, gridState, 0, 0, undefined, 64);
+    const command = new MoveCommand({ col: 7, row: 0 });
+    unit.setCommandPathfinder({
+      findPath: (start) => [{ col: 0, row: start.row === 0 ? 1 : 0 }],
+    });
+    unit.issueCommand(command);
+
+    for (let frame = 1; frame <= MoveCommand.MAX_FRAMES_WITHOUT_PROGRESS; frame++) {
+      unit.update(ticker(frame));
+    }
+
+    expect(command.status).toBe("running");
+    expect(unit.getCommandMovementState().stepProgress).toBeGreaterThan(0);
+    expect(unit.position.y).toBeGreaterThan(gridToWorld(0, 0, gridConfig).y);
+    expect(unit.position.y).toBeLessThan(gridToWorld(0, 1, gridConfig).y);
+
+    for (
+      let frame = MoveCommand.MAX_FRAMES_WITHOUT_PROGRESS + 1;
+      frame <= 320 && command.status === "running";
+      frame++
+    ) {
+      unit.update(ticker(frame));
+    }
+
+    expect(command.status).toBe("completed");
+    expect(unit.position).toMatchObject(gridToWorld(0, 1, gridConfig));
+    expect(unit.getCommandMovementState().stepProgress).toBe(0);
+    expect(gridState.getCell({ col: 0, row: 1 })?.occupantId).toBe(unit.getId());
+  });
+
   it("patrols continuously between two cells", () => {
     const unit = createUnit(container, gridState, 0, 0);
     unit.issueCommand(

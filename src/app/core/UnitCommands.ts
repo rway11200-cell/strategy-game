@@ -138,7 +138,11 @@ export class MoveCommand extends BaseCommand {
     }
 
     this.framesWithoutProgress++;
-    if (this.framesWithoutProgress >= MoveCommand.MAX_FRAMES_WITHOUT_PROGRESS) {
+    const stepInProgress = unit.getCommandMovementState().stepProgress > 0;
+    if (
+      this.framesWithoutProgress >= MoveCommand.MAX_FRAMES_WITHOUT_PROGRESS &&
+      !stepInProgress
+    ) {
       unit.freezeMovement();
       this.status = "completed";
       return this.status;
@@ -173,26 +177,16 @@ export class MoveCommand extends BaseCommand {
       return true;
     }
 
-    const fallback = this.findBestFallback(start, context);
-    if (fallback && !sameCell(start, fallback)) {
-      const fallbackPath = context.pathfinder.findPath(
-        start,
-        fallback,
-        context.gridState,
-        context.gridConfig,
-        context.entityType,
-        context.occupantId,
-      );
-      if (fallbackPath.length > 0) {
-        unit.setCommandCellRoute(fallbackPath);
-        return true;
-      }
+    const fallbackPath = this.findBestFallbackPath(start, context);
+    if (fallbackPath.length > 0) {
+      unit.setCommandCellRoute(fallbackPath);
+      return true;
     }
 
     return false;
   }
 
-  private findBestFallback(start: CellCoord, context: CommandContext): CellCoord | null {
+  private findBestFallbackPath(start: CellCoord, context: CommandContext): CellCoord[] {
     const { gridState, gridConfig, occupantId, entityType } = context;
     const visited = new Set<string>();
     const queue: CellCoord[] = [this.destination];
@@ -203,8 +197,22 @@ export class MoveCommand extends BaseCommand {
       if (Math.abs(cell.col - this.destination.col) > 6 || Math.abs(cell.row - this.destination.row) > 6) continue;
 
       if (isFootprintWalkable(cell, 1, 1, gridState, gridConfig, occupantId)) {
-        const path = findPathWithFootprint(start, cell, gridState, gridConfig, entityType, occupantId);
-        if (path.length > 0) return cell;
+        const path = context.pathfinder.findPath(
+          start,
+          cell,
+          gridState,
+          gridConfig,
+          entityType,
+          occupantId,
+        );
+        let previousDistance = cellDistance(start, this.destination);
+        const keepsApproaching = path.every((pathCell) => {
+          const distance = cellDistance(pathCell, this.destination);
+          if (distance > previousDistance) return false;
+          previousDistance = distance;
+          return true;
+        });
+        if (path.length > 0 && keepsApproaching) return path;
       }
 
       for (const [dc, dr] of [
@@ -223,7 +231,7 @@ export class MoveCommand extends BaseCommand {
         }
       }
     }
-    return null;
+    return [];
   }
 }
 
