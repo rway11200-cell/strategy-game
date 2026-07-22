@@ -13,6 +13,7 @@ export default defineConfig({
       "tower-defence-pixi-production.up.railway.app",
       "strategy-game-production-0277.up.railway.app",
       "localhost",
+      "strategy-game-dev",
     ],
   },
   build: {
