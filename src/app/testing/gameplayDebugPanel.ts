@@ -342,7 +342,6 @@ export function createGameplayDebugPanel(api: GameTestApi): HTMLDivElement {
         archetype: "skeleton",
         team: "enemy",
         cell: start,
-        stats: { movementFramesPerCell: 4 },
       }))) return;
     }
     for (let i = 0; i < 3; i++) {
