@@ -6,6 +6,7 @@ Project instructions for coding agents.
 
 - El desarrollo se realiza en la rama `develop`.
 - Al iniciar cada nueva feature, hacer `git pull origin main` en `develop` para mantenerla actualizada con `main`.
+- Usar `codebase-memory-mcp` para explorar, comprender y analizar el impacto de los cambios en el código antes de modificarlo.
 
 ## Playwright Tests
 
