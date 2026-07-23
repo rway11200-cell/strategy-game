@@ -148,6 +148,7 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
       if (cell) gridState.setCell({ col, row }, { ...cell, type });
     }
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -155,6 +156,9 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
 >>>>>>> 53ab434 (Stabilize Spawn Point production)
 =======
 >>>>>>> 8390130 (Add obstacle detour movement demo)
+=======
+
+>>>>>>> aee573a (Stabilize Spawn Point production)
     const structures: ManagedStructure[] = (definition.structures ?? []).map((structure) => ({
       ...clone(structure),
       nextProductionFrame: structure.production ? 1 : null,
