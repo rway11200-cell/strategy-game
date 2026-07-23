@@ -261,6 +261,34 @@ const scenarios = new Map<TestScenarioPreset, TestScenarioDefinition>([
     },
   ],
   [
+    "warrior-march",
+    {
+      preset: "warrior-march",
+      grid: { columns: 5, rows: 1, tileSize: 64 },
+      landmarks: {
+        origin: { col: 0, row: 0 },
+        destination: { col: 4, row: 0 },
+      },
+      groups: {},
+      path: [],
+      economy: { coins: 0 },
+    },
+  ],
+  [
+    "warrior-duel",
+    {
+      preset: "warrior-duel",
+      grid: { columns: 3, rows: 1, tileSize: 64 },
+      landmarks: {
+        attacker: { col: 0, row: 0 },
+        defender: { col: 1, row: 0 },
+      },
+      groups: {},
+      path: [],
+      economy: { coins: 0 },
+    },
+  ],
+  [
     "blocked-route-detour",
     {
       preset: "blocked-route-detour",

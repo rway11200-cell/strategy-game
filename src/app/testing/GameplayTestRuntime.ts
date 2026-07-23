@@ -60,6 +60,7 @@ interface ManagedUnit {
   activeCommand?: IUnitCommand;
   movementMode: TestUnitSnapshot["movement"]["mode"];
   wasBlocked: boolean;
+  deathRecorded: boolean;
 }
 
 interface ManagedStructure extends TestScenarioStructure {
@@ -238,9 +239,12 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
       goblin: EnemyType.Goblin,
       skeleton: EnemyType.Skeleton,
       ghost: EnemyType.Ghost,
+      warrior: EnemyType.Warrior,
     };
     const enemy = new Enemy(scenario.container, { id: options.id });
     enemy.initializeEnemy(ARCHETYPE_TO_ENEMY[options.archetype] ?? EnemyType.Goblin);
+    if (options.archetype === "warrior") enemy.scale.set(1 / 3);
+    enemy.team = options.team;
 
     const hasCombat = options.stats && (options.stats.damage ?? 0) > 0;
     const attackMode = options.stats?.rangeCells && options.stats.rangeCells > 1 ? "projectile" : "melee";
@@ -257,7 +261,7 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
           damage: options.stats.damage,
           range: options.stats.rangeCells ?? 1,
           attackMode,
-          cooldown: options.stats.fireCooldownFrames ?? 1,
+          cooldown: ((options.stats.fireCooldownFrames ?? 1) * 1000) / 60,
         });
       }
     }
@@ -334,6 +338,7 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
       completedCycles: 0,
       movementMode: "idle",
       wasBlocked: false,
+      deathRecorded: false,
     };
     scenario.units.push(managed);
 
@@ -630,7 +635,7 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
       if (unit.enemy.active && unit.enemy.animatedSprite?.visible !== false) {
         unit.enemy.update(ticker);
       }
-      if (unit.enemy.isDead() && unit.enemy.active) {
+      if (unit.enemy.isDead() && !unit.deathRecorded) {
         scenario.events.push({
           sequence: scenario.nextSequence++,
           frame: scenario.frame,
@@ -638,6 +643,7 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
           type: "unit.died",
           unitId: unit.id,
         });
+        unit.deathRecorded = true;
       }
       const movement = unit.enemy.getLastCommandMovementResult();
       if (movement?.blocked && !unit.wasBlocked) {
@@ -887,7 +893,7 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
       id: unit.id,
       archetype: unit.archetype,
       team: unit.team,
-      lifecycle: "alive",
+      lifecycle: unit.enemy.isDead() ? "dead" : "alive",
       active: unit.enemy.active,
       cell: cellCoord,
       world: { x: unit.enemy.position.x, y: unit.enemy.position.y },

@@ -119,7 +119,9 @@ export type TestScenarioPreset =
   | "dense-occupation"
   | "follow-the-leader"
   | "blocked-route-detour"
-  | "spawn-point-demo";
+  | "spawn-point-demo"
+  | "warrior-march"
+  | "warrior-duel";
 
 export type TestUnitTeam = "player" | "enemy" | "neutral";
 export type TestUnitLifecycle = "alive" | "dying" | "dead" | "despawned";

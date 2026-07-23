@@ -2,7 +2,11 @@ import { Texture } from "pixi.js";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 
 vi.mock("../src/app/utils/sprite", () => ({
-  getFramesAseprite: () => ({ textures: [Texture.EMPTY], totalMs: 0, frameMs: [0] }),
+  getFramesAseprite: () => ({
+    textures: [Texture.EMPTY, Texture.EMPTY, Texture.EMPTY, Texture.EMPTY],
+    totalMs: 400,
+    frameMs: [100, 100, 100, 100],
+  }),
 }));
 
 import { GameplayTestRuntime } from "../src/app/testing/GameplayTestRuntime";
@@ -153,5 +157,119 @@ describe("GameplayTestRuntime", () => {
       ok: true,
       value: { leakedOccupations: [] },
     });
+  });
+
+  it("spawns a player Warrior with the configured visual archetype", () => {
+    const runtime = createRuntime();
+    const started = runtime.beginScenario({ preset: "warrior-march", simulation: "manual" });
+    expect(started.ok).toBe(true);
+    if (!started.ok) return;
+
+    expect(runtime.spawnTestUnit({
+      scenarioId: started.value.id,
+      id: "blue-warrior",
+      archetype: "warrior",
+      team: "player",
+      cell: started.value.landmarks.origin,
+    })).toMatchObject({
+      ok: true,
+      value: { id: "blue-warrior", archetype: "warrior", team: "player", active: true },
+    });
+  });
+
+  it("applies Warrior melee damage at Attack1's impact and not before", () => {
+    const runtime = createRuntime();
+    const started = runtime.beginScenario({ preset: "warrior-duel", simulation: "manual" });
+    expect(started.ok).toBe(true);
+    if (!started.ok) return;
+
+    expect(runtime.spawnTestUnit({
+      scenarioId: started.value.id,
+      id: "attacker",
+      archetype: "warrior",
+      team: "player",
+      cell: started.value.landmarks.attacker,
+      stats: { hp: 100, damage: 10, rangeCells: 1, fireCooldownFrames: 1 },
+    })).toMatchObject({ ok: true });
+    expect(runtime.spawnTestUnit({
+      scenarioId: started.value.id,
+      id: "target",
+      archetype: "warrior",
+      team: "enemy",
+      cell: started.value.landmarks.defender,
+      stats: { hp: 100 },
+    })).toMatchObject({ ok: true });
+
+    const beforeImpact = runtime.advanceTestFrames(started.value.id, 12);
+    expect(beforeImpact).toMatchObject({ ok: true });
+    if (!beforeImpact.ok) return;
+    expect(beforeImpact.value.events.filter((event) => event.type === "damage.applied")).toHaveLength(0);
+    expect(beforeImpact.value.units.find((unit) => unit.id === "attacker")).toMatchObject({
+      combat: { targetId: "target" },
+    });
+
+    const firstImpact = runtime.advanceTestFrames(started.value.id, 1);
+    expect(firstImpact).toMatchObject({ ok: true });
+    if (!firstImpact.ok) return;
+    expect(firstImpact.value.events.filter((event) => event.type === "damage.applied")).toHaveLength(1);
+
+    const beforeNextAnimation = runtime.advanceTestFrames(started.value.id, 24);
+    expect(beforeNextAnimation).toMatchObject({ ok: true });
+    if (!beforeNextAnimation.ok) return;
+    expect(
+      beforeNextAnimation.value.events
+        .filter((event) => event.type === "damage.applied")
+        .map((event) => event.frame),
+    ).toEqual([13]);
+  });
+
+  it("releases a defeated Warrior cell before the deterministic death pof finishes", () => {
+    const runtime = createRuntime();
+    const started = runtime.beginScenario({ preset: "warrior-duel", simulation: "manual" });
+    expect(started.ok).toBe(true);
+    if (!started.ok) return;
+
+    expect(runtime.spawnTestUnit({
+      scenarioId: started.value.id,
+      id: "attacker",
+      archetype: "warrior",
+      team: "player",
+      cell: started.value.landmarks.attacker,
+      stats: { hp: 100, damage: 10, rangeCells: 1, fireCooldownFrames: 30 },
+    })).toMatchObject({ ok: true });
+    expect(runtime.spawnTestUnit({
+      scenarioId: started.value.id,
+      id: "defender",
+      archetype: "warrior",
+      team: "enemy",
+      cell: started.value.landmarks.defender,
+      stats: { hp: 20 },
+    })).toMatchObject({ ok: true });
+
+    const fatalHit = runtime.advanceTestFrames(started.value.id, 43);
+    expect(fatalHit).toMatchObject({ ok: true });
+    if (!fatalHit.ok) return;
+    expect(fatalHit.value.events.filter((event) => event.type === "unit.died")).toEqual([
+      expect.objectContaining({ unitId: "defender", frame: 43 }),
+    ]);
+    expect(fatalHit.value.cells.find((cell) => cell.cell.col === 1 && cell.cell.row === 0)).toMatchObject({
+      occupied: false,
+      occupantId: null,
+    });
+    expect(fatalHit.value.units.find((unit) => unit.id === "defender")).toMatchObject({
+      lifecycle: "dead",
+      active: true,
+      hp: 0,
+      occupiedCells: [],
+    });
+
+    const pofCompleted = runtime.advanceTestFrames(started.value.id, 14);
+    expect(pofCompleted).toMatchObject({ ok: true });
+    if (!pofCompleted.ok) return;
+    expect(pofCompleted.value.units.find((unit) => unit.id === "defender")).toMatchObject({
+      lifecycle: "dead",
+      active: false,
+    });
+    expect(pofCompleted.value.events.filter((event) => event.type === "unit.died")).toHaveLength(1);
   });
 });
