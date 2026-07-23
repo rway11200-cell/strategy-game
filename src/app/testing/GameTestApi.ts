@@ -118,7 +118,8 @@ export type TestScenarioPreset =
   | "five-unit-march"
   | "dense-occupation"
   | "follow-the-leader"
-  | "blocked-route-detour";
+  | "blocked-route-detour"
+  | "barracks-spawn-demo";
 
 export type TestUnitTeam = "player" | "enemy" | "neutral";
 export type TestUnitLifecycle = "alive" | "dying" | "dead" | "despawned";
@@ -295,6 +296,22 @@ export type TestOrderInput =
   | { type: "patrol"; endpoints: readonly [CellCoord, CellCoord] }
   | { type: "attack"; targetId: string };
 
+export interface SpawnUnitAroundOptions {
+  scenarioId: string;
+  id: string;
+  archetype: string;
+  team: TestUnitTeam;
+  buildingCell: CellCoord;
+  stats?: {
+    hp?: number;
+    damage?: number;
+    defense?: number;
+    rangeCells?: number;
+    movementFramesPerCell?: number;
+    fireCooldownFrames?: number;
+  };
+}
+
 export interface IssueTestOrderOptions {
   unitId: string;
   order: TestOrderInput;
@@ -311,6 +328,7 @@ export interface GameTestRuntimePort {
   getBootSnapshot(): BootTestSnapshot;
   beginScenario(options: BeginScenarioOptions): ApiResult<ScenarioTestState>;
   spawnTestUnit(options: SpawnTestUnitOptions): ApiResult<TestUnitSnapshot>;
+  spawnUnitAroundBuilding(options: SpawnUnitAroundOptions): ApiResult<TestUnitSnapshot>;
   issueTestOrder(options: IssueTestOrderOptions): ApiResult<TestOrderSnapshot>;
   getScenarioSnapshot(scenarioId: string): ScenarioTestSnapshot;
   advanceTestSimulation(options: AdvanceTestSimulationOptions): ApiResult<AdvanceTestResult>;
@@ -405,6 +423,8 @@ export interface GameTestApi {
   beginScenario(options: BeginScenarioOptions): ApiResult<ScenarioTestState>;
 
   spawnTestUnit(options: SpawnTestUnitOptions): ApiResult<TestUnitSnapshot>;
+
+  spawnUnitAroundBuilding(options: SpawnUnitAroundOptions): ApiResult<TestUnitSnapshot>;
 
   issueTestOrder(options: IssueTestOrderOptions): ApiResult<TestOrderSnapshot>;
 
@@ -937,6 +957,10 @@ export function createGameTestApi(
 
     spawnTestUnit(options): ApiResult<TestUnitSnapshot> {
       return runtime?.spawnTestUnit(options) ?? notImplemented("spawnTestUnit");
+    },
+
+    spawnUnitAroundBuilding(options): ApiResult<TestUnitSnapshot> {
+      return runtime?.spawnUnitAroundBuilding(options) ?? notImplemented("spawnUnitAroundBuilding");
     },
 
     issueTestOrder(options): ApiResult<TestOrderSnapshot> {

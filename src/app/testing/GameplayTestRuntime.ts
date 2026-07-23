@@ -1,7 +1,7 @@
 import { Container, Ticker } from "pixi.js";
 import { createGridConfig, type GridConfig } from "../../grid/GridConfig";
 import { GridState } from "../../grid/GridState";
-import { getEntityFootprint, getFootprintCellsForPos } from "../../grid/EntityFootprint";
+import { getEntityFootprint, getFootprintCellsForPos, isFootprintWalkable } from "../../grid/EntityFootprint";
 import { getOccupantCells } from "../../grid/OccupationFootprint";
 import {
   PatrolCommand,
@@ -28,6 +28,7 @@ import type {
   ScenarioTestSnapshot,
   ScenarioTestState,
   SpawnTestUnitOptions,
+  SpawnUnitAroundOptions,
   TestEventSnapshot,
   TestOrderSnapshot,
   TestUnitSnapshot,
@@ -137,6 +138,15 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
       const [col, row] = key.split(",").map(Number);
       const cell = gridState.getCell({ col, row });
       if (cell) gridState.setCell({ col, row }, { ...cell, type });
+    }
+
+    const barracksAnchor = definition.landmarks.barracks;
+    if (barracksAnchor) {
+      const footprint = getEntityFootprint("barracks");
+      const cells = getFootprintCellsForPos(barracksAnchor, footprint.width, footprint.height);
+      for (const c of cells) {
+        gridState.occupyCell(c, `barracks-${barracksAnchor.col}-${barracksAnchor.row}`);
+      }
     }
 
     const state: ScenarioTestState = {
@@ -308,6 +318,161 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
 
     this.refreshTargets(scenario);
 
+    this.visualHost?.updateGrid(scenario.gridState);
+
+    const snapshot = this.buildUnitSnapshot(managed, scenario);
+    return { ok: true, value: snapshot };
+  }
+
+  spawnUnitAroundBuilding(options: SpawnUnitAroundOptions): ApiResult<TestUnitSnapshot> {
+    const scenario = this.requireScenario(options.scenarioId);
+    if (!scenario) {
+      return this.failure("SCENARIO_NOT_FOUND", `Test scenario "${options.scenarioId}" is not active`);
+    }
+
+    if (scenario.units.some((u) => u.id === options.id)) {
+      return this.failure("UNIT_ID_CONFLICT", `Unit "${options.id}" already exists`);
+    }
+
+    const buildingFootprint = getEntityFootprint("barracks");
+    const unitFootprint = getEntityFootprint(options.archetype);
+
+    const minCol = options.buildingCell.col - 1;
+    const minRow = options.buildingCell.row - 1;
+    const maxCol = options.buildingCell.col + buildingFootprint.width;
+    const maxRow = options.buildingCell.row + buildingFootprint.height;
+
+    const adjacentCells: CellCoord[] = [];
+    for (let c = minCol; c <= maxCol; c++) {
+      for (let r = minRow; r <= maxRow; r++) {
+        const inside = c >= options.buildingCell.col &&
+          c < options.buildingCell.col + buildingFootprint.width &&
+          r >= options.buildingCell.row &&
+          r < options.buildingCell.row + buildingFootprint.height;
+        if (inside) continue;
+        adjacentCells.push({ col: c, row: r });
+      }
+    }
+
+    const freeCell = adjacentCells.find((cell) =>
+      isFootprintWalkable(
+        cell,
+        unitFootprint.width,
+        unitFootprint.height,
+        scenario.gridState,
+        scenario.gridConfig,
+      ),
+    );
+
+    if (!freeCell) {
+      return this.failure(
+        "NO_ADJACENT_CELL_FREE",
+        `No free adjacent cell around barracks at (${options.buildingCell.col}, ${options.buildingCell.row})`,
+      );
+    }
+
+    const finalCell: CellCoord = freeCell;
+
+    const ARCHETYPE_TO_ENEMY: Record<string, EnemyType> = {
+      goblin: EnemyType.Goblin,
+      skeleton: EnemyType.Skeleton,
+      ghost: EnemyType.Ghost,
+      soldier: EnemyType.Goblin,
+    };
+    const enemy = new Enemy(scenario.container, { id: options.id });
+    enemy.initializeEnemy(ARCHETYPE_TO_ENEMY[options.archetype] ?? EnemyType.Goblin);
+
+    const hasCombat = options.stats && (options.stats.damage ?? 0) > 0;
+    const attackMode = options.stats?.rangeCells && options.stats.rangeCells > 1 ? "projectile" : "melee";
+
+    if (options.stats) {
+      if (options.stats.movementFramesPerCell !== undefined) {
+        enemy.initializeSpeed(scenario.gridConfig.cellSize / options.stats.movementFramesPerCell);
+      }
+      if (options.stats.hp !== undefined) {
+        enemy.initializeHealthBar(options.stats.hp);
+      }
+      if (hasCombat) {
+        enemy.model.configure({
+          damage: options.stats.damage,
+          range: options.stats.rangeCells ?? 1,
+          attackMode,
+          cooldown: options.stats.fireCooldownFrames ?? 1,
+        });
+      }
+    }
+
+    enemy.initializeTileMovement({
+      cells: [finalCell],
+      gridConfig: scenario.gridConfig,
+      gridState: scenario.gridState,
+      start: finalCell,
+      entityType: options.archetype,
+      ...(options.stats?.movementFramesPerCell !== undefined
+        ? { ticksPerCell: options.stats.movementFramesPerCell }
+        : {}),
+    });
+
+    if (hasCombat) {
+      enemy.initializeShootingRange({
+        range: options.stats!.rangeCells ?? 1,
+        fireRate: (options.stats!.fireCooldownFrames ?? 1) / 60,
+        projectileCreator: scenario.projectileCreator,
+        damage: options.stats!.damage!,
+        targets: [],
+      });
+    }
+
+    enemy.onTargetAcquired = (targetId) => {
+      scenario.events.push({
+        sequence: scenario.nextSequence++,
+        frame: scenario.frame,
+        scenarioId: scenario.scenarioId,
+        type: "target.acquired",
+        unitId: options.id,
+        targetId,
+      });
+    };
+    enemy.onAttackCommitted = (targetId, mode) => {
+      scenario.events.push({
+        sequence: scenario.nextSequence++,
+        frame: scenario.frame,
+        scenarioId: scenario.scenarioId,
+        type: "attack.committed",
+        unitId: options.id,
+        targetId,
+        reason: mode,
+      });
+    };
+    enemy.onDamageApplied = (targetId, amount, hpBefore, hpAfter) => {
+      scenario.events.push({
+        sequence: scenario.nextSequence++,
+        frame: scenario.frame,
+        scenarioId: scenario.scenarioId,
+        type: "damage.applied",
+        sourceId: options.id,
+        targetId,
+        amount,
+        hpBefore,
+        hpAfter,
+      });
+    };
+
+    enemy.spawn();
+
+    const managed: ManagedUnit = {
+      enemy,
+      id: options.id,
+      archetype: options.archetype,
+      team: options.team,
+      previousCell: { ...finalCell },
+      completedCycles: 0,
+      movementMode: "idle",
+      wasBlocked: false,
+    };
+    scenario.units.push(managed);
+
+    this.refreshTargets(scenario);
     this.visualHost?.updateGrid(scenario.gridState);
 
     const snapshot = this.buildUnitSnapshot(managed, scenario);

@@ -1,3 +1,4 @@
+import type { CellCoord } from "../../grid/GridConfig";
 import type {
   ApiResult,
   GameTestApi,
@@ -21,6 +22,8 @@ interface PanelState {
   playing: boolean;
   primaryUnitId: string | null;
   reloadDemo: (() => void) | null;
+  barracksSpawnCount: number;
+  barracksCell: CellCoord | null;
 }
 
 export function createGameplayDebugPanel(api: GameTestApi): HTMLDivElement {
@@ -29,6 +32,8 @@ export function createGameplayDebugPanel(api: GameTestApi): HTMLDivElement {
     playing: false,
     primaryUnitId: null,
     reloadDemo: null,
+    barracksSpawnCount: 0,
+    barracksCell: null,
   };
 
   const panel = document.createElement("div");
@@ -61,6 +66,7 @@ export function createGameplayDebugPanel(api: GameTestApi): HTMLDivElement {
   const loadEmptyBtn = createButton("Empty selected scenario");
   const loadFollowBtn = createButton("Follow the leader");
   const loadDetourBtn = createButton("Obstacle detour");
+  const loadBarracksBtn = createButton("Barracks Spawn");
   demoSection.appendChild(loadPatrolBtn);
   demoSection.appendChild(loadMoveBtn);
   demoSection.appendChild(loadHoldBtn);
@@ -68,6 +74,7 @@ export function createGameplayDebugPanel(api: GameTestApi): HTMLDivElement {
   demoSection.appendChild(loadDenseBtn);
   demoSection.appendChild(loadFollowBtn);
   demoSection.appendChild(loadDetourBtn);
+  demoSection.appendChild(loadBarracksBtn);
   demoSection.appendChild(loadEmptyBtn);
   panel.appendChild(demoSection);
 
@@ -185,6 +192,8 @@ export function createGameplayDebugPanel(api: GameTestApi): HTMLDivElement {
     state.scenarioId = null;
     state.primaryUnitId = null;
     state.reloadDemo = null;
+    state.barracksSpawnCount = 0;
+    state.barracksCell = null;
     cleanupBtn.disabled = true;
     stopBtn.disabled = true;
   }
@@ -379,6 +388,52 @@ export function createGameplayDebugPanel(api: GameTestApi): HTMLDivElement {
     refreshHUD();
   }
 
+  function loadBarracksSpawnDemo(): void {
+    if (state.scenarioId && state.barracksCell) {
+      state.barracksSpawnCount++;
+      const unitId = `soldier-${state.barracksSpawnCount}`;
+      const result = api.spawnUnitAroundBuilding({
+        scenarioId: state.scenarioId,
+        id: unitId,
+        archetype: "soldier",
+        team: "player",
+        buildingCell: state.barracksCell,
+      });
+      if (!result.ok) {
+        hud.textContent = `Error: ${result.error.message} (spawned ${state.barracksSpawnCount - 1} soldiers)`;
+        state.barracksSpawnCount--;
+      } else {
+        setPrimaryUnit(unitId);
+      }
+      refreshHUD();
+      return;
+    }
+    const scenario = beginScenario("barracks-spawn-demo");
+    if (!scenario) return;
+    state.barracksCell = scenario.landmarks.barracks;
+    state.barracksSpawnCount = 1;
+    const unitId = "soldier-1";
+    const result = api.spawnUnitAroundBuilding({
+      scenarioId: scenario.id,
+      id: unitId,
+      archetype: "soldier",
+      team: "player",
+      buildingCell: state.barracksCell,
+    });
+    if (!result.ok) {
+      hud.textContent = `Error: ${result.error.message}`;
+      state.barracksSpawnCount = 0;
+    } else {
+      setPrimaryUnit(unitId);
+    }
+    state.reloadDemo = () => {
+      state.barracksSpawnCount = 0;
+      state.barracksCell = null;
+      loadBarracksSpawnDemo();
+    };
+    refreshHUD();
+  }
+
   function loadEmptyScenario(preset = presetSelect.value as TestScenarioPreset): void {
     const scenario = beginScenario(preset);
     if (!scenario) return;
@@ -403,6 +458,7 @@ export function createGameplayDebugPanel(api: GameTestApi): HTMLDivElement {
   loadDenseBtn.addEventListener("click", loadDenseDemo);
   loadFollowBtn.addEventListener("click", loadFollowDemo);
   loadDetourBtn.addEventListener("click", loadDetourDemo);
+  loadBarracksBtn.addEventListener("click", loadBarracksSpawnDemo);
   loadEmptyBtn.addEventListener("click", () => loadEmptyScenario());
 
   step1Btn.addEventListener("click", () => {
