@@ -7,7 +7,7 @@ Project instructions for coding agents.
 - El desarrollo se realiza en la rama `develop`.
 - Al iniciar cada nueva feature, hacer `git pull origin main` en `develop` para mantenerla actualizada con `main`.
 - Usar `codebase-memory-mcp` para explorar, comprender y analizar el impacto de los cambios en el código antes de modificarlo.
-- Para publicar cambios con rutas explícitas: `npm run git:publish -- "Mensaje del commit" ruta/archivo`. El comando exige un índice vacío, hace rebase desde `main` y `develop`, y publica en `origin/develop`.
+- Para publicar el desarrollo actual desde OpenCode, usar `/publish` o `/publish Mensaje del commit`. El comando crea el commit, hace rebase desde `main` y `develop`, publica en `origin/develop` y actualiza CodeGraph.
 
 ## Local Game Access
 
