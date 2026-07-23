@@ -78,18 +78,20 @@ export class TileMovement {
     obj.position.set(world.x, world.y);
   }
 
-  spawn(obj: Container): void {
+  spawn(obj: Container): boolean {
     this.releaseOccupation();
-    this.currentCell = { ...this.start };
     this.elapsedTicks = 0;
 
+    if (!this.canOccupy(this.start)) {
+      this.currentCell = undefined;
+      return false;
+    }
+
+    this.currentCell = { ...this.start };
     const world = gridToWorld(this.start.col, this.start.row, this.gridConfig);
     obj.position.set(world.x, world.y);
-    if (this.canOccupy(this.start)) {
-      this.occupy(this.start);
-    } else {
-      this.currentCell = undefined;
-    }
+    this.occupy(this.start);
+    return true;
   }
 
   walk(obj: Container, targetFollower: TargetFollower, ticker?: Ticker): TileWalkResult {

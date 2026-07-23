@@ -104,4 +104,21 @@ describe("TileMovement", () => {
     expect(unit.position).toMatchObject({ x: 32, y: 32 });
     expect(gridState.getCell({ col: 0, row: 0 })?.occupantId).toBe("enemy-1");
   });
+
+  it("rejects a spawn that cannot occupy its starting footprint", () => {
+    const gridConfig = createGridConfig({ gridWidth: 2, gridHeight: 2, cellSize: 64 });
+    const gridState = new GridState(gridConfig);
+    gridState.occupyCell({ col: 0, row: 0 }, "existing-unit");
+    const movement = new TileMovement({
+      gridConfig,
+      gridState,
+      start: { col: 0, row: 0 },
+      entityType: "goblin",
+      occupantId: "new-unit",
+    });
+
+    expect(movement.spawn(new Container())).toBe(false);
+    expect(movement.cell).toBeUndefined();
+    expect(gridState.getCell({ col: 0, row: 0 })?.occupantId).toBe("existing-unit");
+  });
 });

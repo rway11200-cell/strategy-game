@@ -28,14 +28,16 @@ import type {
   ScenarioTestSnapshot,
   ScenarioTestState,
   SpawnTestUnitOptions,
-  SpawnUnitAroundOptions,
   TestEventSnapshot,
   TestOrderSnapshot,
   TestUnitSnapshot,
   TestOrderInput,
   TestUnitTeam,
 } from "./GameTestApi";
-import { getTestScenarioDefinition } from "./ScenarioCatalog";
+import {
+  getTestScenarioDefinition,
+  type TestScenarioStructure,
+} from "./ScenarioCatalog";
 import { ScenarioVisualHost } from "./ScenarioVisualHost";
 
 export interface GameplayHarnessBootState {
@@ -60,12 +62,18 @@ interface ManagedUnit {
   wasBlocked: boolean;
 }
 
+interface ManagedStructure extends TestScenarioStructure {
+  nextProductionFrame: number | null;
+  producedUnitIds: string[];
+}
+
 interface ActiveScenario {
   state: ScenarioTestState;
   container: Container;
   gridConfig: GridConfig;
   gridState: GridState;
   units: ManagedUnit[];
+  structures: ManagedStructure[];
   projectileCreator: UnitCreator<Projectile>;
   friendlyFire: boolean;
   frame: number;
@@ -140,12 +148,19 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
       if (cell) gridState.setCell({ col, row }, { ...cell, type });
     }
 
-    const barracksAnchor = definition.landmarks.barracks;
-    if (barracksAnchor) {
-      const footprint = getEntityFootprint("barracks");
-      const cells = getFootprintCellsForPos(barracksAnchor, footprint.width, footprint.height);
+    const structures: ManagedStructure[] = (definition.structures ?? []).map((structure) => ({
+      ...clone(structure),
+      nextProductionFrame: structure.production ? 1 : null,
+      producedUnitIds: [],
+    }));
+    for (const structure of structures) {
+      const cells = getFootprintCellsForPos(
+        structure.cell,
+        structure.footprint.width,
+        structure.footprint.height,
+      );
       for (const c of cells) {
-        gridState.occupyCell(c, `barracks-${barracksAnchor.col}-${barracksAnchor.row}`);
+        gridState.occupyCell(c, `structure:${structure.id}`);
       }
     }
 
@@ -182,6 +197,7 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
       gridConfig,
       gridState,
       units: [],
+      structures,
       projectileCreator,
       friendlyFire: options.friendlyFire ?? false,
       frame: 0,
@@ -247,7 +263,7 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
     }
 
     enemy.initializeTileMovement({
-      cells: [finalCell],
+      cells: [],
       gridConfig: scenario.gridConfig,
       gridState: scenario.gridState,
       start: finalCell,
@@ -302,164 +318,13 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
       });
     };
 
-    enemy.spawn();
-
-    const managed: ManagedUnit = {
-      enemy,
-      id: options.id,
-      archetype: options.archetype,
-      team: options.team,
-      previousCell: { ...finalCell },
-      completedCycles: 0,
-      movementMode: "idle",
-      wasBlocked: false,
-    };
-    scenario.units.push(managed);
-
-    this.refreshTargets(scenario);
-
-    this.visualHost?.updateGrid(scenario.gridState);
-
-    const snapshot = this.buildUnitSnapshot(managed, scenario);
-    return { ok: true, value: snapshot };
-  }
-
-  spawnUnitAroundBuilding(options: SpawnUnitAroundOptions): ApiResult<TestUnitSnapshot> {
-    const scenario = this.requireScenario(options.scenarioId);
-    if (!scenario) {
-      return this.failure("SCENARIO_NOT_FOUND", `Test scenario "${options.scenarioId}" is not active`);
-    }
-
-    if (scenario.units.some((u) => u.id === options.id)) {
-      return this.failure("UNIT_ID_CONFLICT", `Unit "${options.id}" already exists`);
-    }
-
-    const buildingFootprint = getEntityFootprint("barracks");
-    const unitFootprint = getEntityFootprint(options.archetype);
-
-    const minCol = options.buildingCell.col - 1;
-    const minRow = options.buildingCell.row - 1;
-    const maxCol = options.buildingCell.col + buildingFootprint.width;
-    const maxRow = options.buildingCell.row + buildingFootprint.height;
-
-    const adjacentCells: CellCoord[] = [];
-    for (let c = minCol; c <= maxCol; c++) {
-      for (let r = minRow; r <= maxRow; r++) {
-        const inside = c >= options.buildingCell.col &&
-          c < options.buildingCell.col + buildingFootprint.width &&
-          r >= options.buildingCell.row &&
-          r < options.buildingCell.row + buildingFootprint.height;
-        if (inside) continue;
-        adjacentCells.push({ col: c, row: r });
-      }
-    }
-
-    const freeCell = adjacentCells.find((cell) =>
-      isFootprintWalkable(
-        cell,
-        unitFootprint.width,
-        unitFootprint.height,
-        scenario.gridState,
-        scenario.gridConfig,
-      ),
-    );
-
-    if (!freeCell) {
+    if (!enemy.spawn()) {
       return this.failure(
-        "NO_ADJACENT_CELL_FREE",
-        `No free adjacent cell around barracks at (${options.buildingCell.col}, ${options.buildingCell.row})`,
+        "SPAWN_OCCUPATION_FAILED",
+        `Unit "${options.id}" could not occupy cell (${finalCell.col}, ${finalCell.row})`,
       );
     }
 
-    const finalCell: CellCoord = freeCell;
-
-    const ARCHETYPE_TO_ENEMY: Record<string, EnemyType> = {
-      goblin: EnemyType.Goblin,
-      skeleton: EnemyType.Skeleton,
-      ghost: EnemyType.Ghost,
-      soldier: EnemyType.Goblin,
-    };
-    const enemy = new Enemy(scenario.container, { id: options.id });
-    enemy.initializeEnemy(ARCHETYPE_TO_ENEMY[options.archetype] ?? EnemyType.Goblin);
-
-    const hasCombat = options.stats && (options.stats.damage ?? 0) > 0;
-    const attackMode = options.stats?.rangeCells && options.stats.rangeCells > 1 ? "projectile" : "melee";
-
-    if (options.stats) {
-      if (options.stats.movementFramesPerCell !== undefined) {
-        enemy.initializeSpeed(scenario.gridConfig.cellSize / options.stats.movementFramesPerCell);
-      }
-      if (options.stats.hp !== undefined) {
-        enemy.initializeHealthBar(options.stats.hp);
-      }
-      if (hasCombat) {
-        enemy.model.configure({
-          damage: options.stats.damage,
-          range: options.stats.rangeCells ?? 1,
-          attackMode,
-          cooldown: options.stats.fireCooldownFrames ?? 1,
-        });
-      }
-    }
-
-    enemy.initializeTileMovement({
-      cells: [finalCell],
-      gridConfig: scenario.gridConfig,
-      gridState: scenario.gridState,
-      start: finalCell,
-      entityType: options.archetype,
-      ...(options.stats?.movementFramesPerCell !== undefined
-        ? { ticksPerCell: options.stats.movementFramesPerCell }
-        : {}),
-    });
-
-    if (hasCombat) {
-      enemy.initializeShootingRange({
-        range: options.stats!.rangeCells ?? 1,
-        fireRate: (options.stats!.fireCooldownFrames ?? 1) / 60,
-        projectileCreator: scenario.projectileCreator,
-        damage: options.stats!.damage!,
-        targets: [],
-      });
-    }
-
-    enemy.onTargetAcquired = (targetId) => {
-      scenario.events.push({
-        sequence: scenario.nextSequence++,
-        frame: scenario.frame,
-        scenarioId: scenario.scenarioId,
-        type: "target.acquired",
-        unitId: options.id,
-        targetId,
-      });
-    };
-    enemy.onAttackCommitted = (targetId, mode) => {
-      scenario.events.push({
-        sequence: scenario.nextSequence++,
-        frame: scenario.frame,
-        scenarioId: scenario.scenarioId,
-        type: "attack.committed",
-        unitId: options.id,
-        targetId,
-        reason: mode,
-      });
-    };
-    enemy.onDamageApplied = (targetId, amount, hpBefore, hpAfter) => {
-      scenario.events.push({
-        sequence: scenario.nextSequence++,
-        frame: scenario.frame,
-        scenarioId: scenario.scenarioId,
-        type: "damage.applied",
-        sourceId: options.id,
-        targetId,
-        amount,
-        hpBefore,
-        hpAfter,
-      });
-    };
-
-    enemy.spawn();
-
     const managed: ManagedUnit = {
       enemy,
       id: options.id,
@@ -473,6 +338,7 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
     scenario.units.push(managed);
 
     this.refreshTargets(scenario);
+
     this.visualHost?.updateGrid(scenario.gridState);
 
     const snapshot = this.buildUnitSnapshot(managed, scenario);
@@ -619,6 +485,15 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
     for (let row = 0; row < this.activeScenario.gridConfig.gridHeight; row++) {
       for (let col = 0; col < this.activeScenario.gridConfig.gridWidth; col++) {
         const cell = this.activeScenario.gridState.getCell({ col, row });
+        if (cell?.occupantId?.startsWith("structure:")) {
+          this.activeScenario.gridState.liberateCell({ col, row });
+        }
+      }
+    }
+
+    for (let row = 0; row < this.activeScenario.gridConfig.gridHeight; row++) {
+      for (let col = 0; col < this.activeScenario.gridConfig.gridWidth; col++) {
+        const cell = this.activeScenario.gridState.getCell({ col, row });
         if (cell?.occupied) {
           leakedCells.push({
             cell: { col, row },
@@ -735,6 +610,7 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
 
   private tickOneFrame(scenario: ActiveScenario): void {
     scenario.frame++;
+    this.produceUnits(scenario);
 
     for (const unit of scenario.units) {
       unit.previousCell = unit.enemy.getGridCell(scenario.gridConfig)
@@ -826,6 +702,96 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
         });
       }
     }
+  }
+
+  private produceUnits(scenario: ActiveScenario): void {
+    for (const structure of scenario.structures) {
+      const production = structure.production;
+      if (!production || structure.nextProductionFrame === null) continue;
+      if (scenario.frame < structure.nextProductionFrame) continue;
+
+      structure.nextProductionFrame = scenario.frame + production.intervalFrames;
+      const unitId = `${structure.id}-unit-${structure.producedUnitIds.length + 1}`;
+      const cell = this.findFreeAdjacentCell(scenario, structure, production.archetype);
+      if (!cell) {
+        scenario.events.push({
+          sequence: scenario.nextSequence++,
+          frame: scenario.frame,
+          scenarioId: scenario.scenarioId,
+          type: "production.blocked",
+          sourceId: structure.id,
+          reason: "no-adjacent-cell-free",
+        });
+        continue;
+      }
+
+      const result = this.spawnTestUnit({
+        scenarioId: scenario.scenarioId,
+        id: unitId,
+        archetype: production.archetype,
+        team: production.team,
+        cell,
+      });
+      if (!result.ok) {
+        scenario.events.push({
+          sequence: scenario.nextSequence++,
+          frame: scenario.frame,
+          scenarioId: scenario.scenarioId,
+          type: "production.blocked",
+          sourceId: structure.id,
+          reason: result.error.code,
+        });
+        continue;
+      }
+
+      structure.producedUnitIds.push(unitId);
+      scenario.events.push({
+        sequence: scenario.nextSequence++,
+        frame: scenario.frame,
+        scenarioId: scenario.scenarioId,
+        type: "unit.produced",
+        sourceId: structure.id,
+        unitId,
+        to: { ...cell },
+      });
+    }
+  }
+
+  private findFreeAdjacentCell(
+    scenario: ActiveScenario,
+    structure: ManagedStructure,
+    archetype: string,
+  ): CellCoord | undefined {
+    const footprint = getEntityFootprint(archetype);
+    const minCol = structure.cell.col - 1;
+    const minRow = structure.cell.row - 1;
+    const maxCol = structure.cell.col + structure.footprint.width;
+    const maxRow = structure.cell.row + structure.footprint.height;
+
+    for (let row = minRow; row <= maxRow; row++) {
+      for (let col = minCol; col <= maxCol; col++) {
+        const inside = col >= structure.cell.col &&
+          col < structure.cell.col + structure.footprint.width &&
+          row >= structure.cell.row &&
+          row < structure.cell.row + structure.footprint.height;
+        if (inside) continue;
+
+        const cell = { col, row };
+        if (
+          isFootprintWalkable(
+            cell,
+            footprint.width,
+            footprint.height,
+            scenario.gridState,
+            scenario.gridConfig,
+          )
+        ) {
+          return cell;
+        }
+      }
+    }
+
+    return undefined;
   }
 
   private findMatchingEvent(
