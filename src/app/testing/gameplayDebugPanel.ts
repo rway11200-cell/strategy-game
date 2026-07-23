@@ -166,7 +166,7 @@ export function createGameplayDebugPanel(api: GameTestApi): HTMLDivElement {
           ? ` [${unit.order.type}] ${unit.order.status}${unit.order.completedCycles !== undefined ? ` cycles:${unit.order.completedCycles}` : ""}`
           : "";
         lines.push(
-          `  ${unit.id} cell:${cell} world:${world} step:${progress}% hp:${unit.hp}/${unit.maxHp} occ:[${occupied}]${orderInfo}`,
+          `  ${unit.id} activity:${unit.activity} cell:${cell} world:${world} step:${progress}% hp:${unit.hp}/${unit.maxHp} target:${unit.combat.targetId ?? "-"} occ:[${occupied}]${orderInfo}`,
         );
       }
       if (snapshot.orders.length > 0) {
@@ -483,11 +483,11 @@ export function createGameplayDebugPanel(api: GameTestApi): HTMLDivElement {
     }))) return;
     if (!unwrap(api.issueTestOrder({
       unitId: "marching-player",
-      order: { type: "move", destination: scenario.landmarks.playerDestination },
+      order: { type: "attack-move", destination: scenario.landmarks.playerDestination },
     }))) return;
     if (!unwrap(api.issueTestOrder({
       unitId: "marching-enemy",
-      order: { type: "move", destination: scenario.landmarks.enemyDestination },
+      order: { type: "attack-move", destination: scenario.landmarks.enemyDestination },
     }))) return;
     setPrimaryUnit("marching-player");
     state.reloadDemo = loadAutoMarchDemo;

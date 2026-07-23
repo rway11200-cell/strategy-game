@@ -6,7 +6,7 @@ import { isFootprintWalkable } from "../../grid/EntityFootprint";
 import type { TileWalkResult } from "./TileMovement";
 import type { Unit } from "./unidades/Unit";
 
-export type UnitCommandType = "move" | "attack" | "stop" | "patrol" | "hold";
+export type UnitCommandType = "move" | "attack" | "attack-move" | "stop" | "patrol" | "hold";
 export type CommandStatus = "running" | "completed" | "failed";
 
 export interface CommandPathfinder {
@@ -37,7 +37,7 @@ export interface IUnitCommand {
   cancel(unit: Unit): void;
 }
 
-export type MoveCompletionReason = "destination-reached" | "fallback-reached";
+export type MoveCompletionReason = "destination-reached" | "fallback-reached" | "blocked";
 
 export const defaultCommandPathfinder: CommandPathfinder = {
   findPath(start, end, gridState, gridConfig, entityType, ignoredOccupantId) {
@@ -96,7 +96,7 @@ abstract class BaseCommand implements IUnitCommand {
 export class MoveCommand extends BaseCommand {
   readonly type = "move" as const;
 
-  static readonly MAX_FRAMES_WITHOUT_PROGRESS = 300;
+  static readonly MAX_FRAMES_WITHOUT_PROGRESS = 30;
   private framesWithoutProgress = 0;
   private bestDistance = Infinity;
   private resolvedDestination?: CellCoord;
@@ -113,6 +113,7 @@ export class MoveCommand extends BaseCommand {
     this.completionReason = undefined;
     this.status = "running";
     unit.setCommandShooting("auto");
+    unit.setActivity("moving");
     const current = unit.getGridCell(context.gridConfig);
     if (current && sameCell(current, this.destination)) {
       unit.clearCommandMovement();
@@ -122,7 +123,7 @@ export class MoveCommand extends BaseCommand {
       return;
     }
     unit.clearCommandMovement();
-    this.pathTo(unit, context);
+    if (!this.pathTo(unit, context)) this.completeBlocked(unit);
   }
 
   update(unit: Unit, context: CommandContext, ticker: Ticker): CommandStatus {
@@ -155,13 +156,12 @@ export class MoveCommand extends BaseCommand {
       this.framesWithoutProgress >= MoveCommand.MAX_FRAMES_WITHOUT_PROGRESS &&
       !stepInProgress
     ) {
-      unit.freezeMovement();
-      this.status = "completed";
+      this.completeBlocked(unit);
       return this.status;
     }
 
     if (movement.blocked || unit.isCommandMovementFinished()) {
-      this.pathTo(unit, context);
+      if (!this.pathTo(unit, context)) this.completeBlocked(unit);
     }
 
     return this.status;
@@ -173,6 +173,12 @@ export class MoveCommand extends BaseCommand {
 
   getCompletionReason(): MoveCompletionReason | undefined {
     return this.completionReason;
+  }
+
+  private completeBlocked(unit: Unit): void {
+    unit.freezeMovement();
+    this.completionReason ??= "blocked";
+    this.status = "completed";
   }
 
   protected pathTo(unit: Unit, context: CommandContext): boolean {
@@ -269,7 +275,6 @@ export class MoveCommand extends BaseCommand {
 
 export class AttackCommand extends BaseCommand {
   readonly type = "attack" as const;
-  private lastTargetCell?: CellCoord;
 
   constructor(public readonly target: Unit) {
     super();
@@ -277,7 +282,6 @@ export class AttackCommand extends BaseCommand {
 
   execute(unit: Unit, context: CommandContext): void {
     this.status = "running";
-    this.lastTargetCell = undefined;
     if (!this.target.active || !this.target.canBeProjectileTarget || unit.getShootingRange() === undefined) {
       this.status = "failed";
       return;
@@ -304,12 +308,8 @@ export class AttackCommand extends BaseCommand {
 
     if (isInRange(unitCell, targetCell, unit.getShootingRange() ?? 0)) {
       unit.clearCommandMovement();
-      this.lastTargetCell = { ...targetCell };
+      unit.setActivity("attacking");
       return "running";
-    }
-
-    if (!this.lastTargetCell || !sameCell(this.lastTargetCell, targetCell)) {
-      this.updateRoute(unit, context);
     }
 
     const movement = unit.updateCommandMovement(ticker);
@@ -325,7 +325,6 @@ export class AttackCommand extends BaseCommand {
     const range = unit.getShootingRange();
     if (!start || !targetCell || range === undefined) return;
 
-    this.lastTargetCell = { ...targetCell };
     if (isInRange(start, targetCell, range)) {
       unit.clearCommandMovement();
       return;
@@ -350,6 +349,79 @@ export class AttackCommand extends BaseCommand {
 
     if (bestPath) unit.setCommandCellRoute(bestPath);
     else unit.clearCommandMovement();
+    unit.setActivity(bestPath ? "pursuing" : "blocked");
+  }
+}
+
+export class AttackMoveCommand extends BaseCommand {
+  readonly type = "attack-move" as const;
+  private readonly march: MoveCommand;
+  private pursuit?: AttackCommand;
+
+  constructor(destination: CellCoord) {
+    super();
+    this.march = new MoveCommand(destination);
+  }
+
+  execute(unit: Unit, context: CommandContext): void {
+    this.status = "running";
+    this.pursuit = undefined;
+    this.march.execute(unit, context);
+  }
+
+  update(unit: Unit, context: CommandContext, ticker: Ticker): CommandStatus {
+    if (this.status !== "running") return this.status;
+
+    const target = this.findVisibleTarget(unit, context);
+    if (target) {
+      if (this.pursuit?.target !== target) {
+        this.pursuit = new AttackCommand(target);
+        this.pursuit.execute(unit, context);
+      }
+      this.pursuit.update(unit, context, ticker);
+      return this.status;
+    }
+
+    if (this.pursuit) {
+      this.pursuit.cancel(unit);
+      this.pursuit = undefined;
+      this.march.execute(unit, context);
+    }
+    this.march.update(unit, context, ticker);
+    this.status = this.march.status;
+    return this.status;
+  }
+
+  cancel(unit: Unit): void {
+    this.pursuit?.cancel(unit);
+    this.march.cancel(unit);
+    super.cancel(unit);
+  }
+
+  getResolvedDestination(): CellCoord | undefined {
+    return this.march.getResolvedDestination();
+  }
+
+  getCompletionReason(): MoveCompletionReason | undefined {
+    return this.march.getCompletionReason();
+  }
+
+  private findVisibleTarget(unit: Unit, context: CommandContext): Unit | undefined {
+    const unitCell = unit.getGridCell(context.gridConfig);
+    if (!unitCell) return undefined;
+    let closest: Unit | undefined;
+    let closestDistance = Infinity;
+    for (const candidate of context.enemies) {
+      if (!candidate.active || !candidate.canBeProjectileTarget || !unit.canSee(candidate)) continue;
+      const cell = candidate.getGridCell(context.gridConfig);
+      if (!cell) continue;
+      const distance = Math.hypot(cell.col - unitCell.col, cell.row - unitCell.row);
+      if (distance < closestDistance) {
+        closest = candidate;
+        closestDistance = distance;
+      }
+    }
+    return closest;
   }
 }
 
@@ -455,6 +527,7 @@ export class HoldPositionCommand extends BaseCommand {
     this.status = "running";
     unit.clearCommandMovement();
     unit.setCommandShooting("auto");
+    unit.setActivity("holding");
   }
 
   update(_unit: Unit, _context: CommandContext, _ticker: Ticker): CommandStatus {

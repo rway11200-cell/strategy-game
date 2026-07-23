@@ -6,6 +6,7 @@ import { getOccupantCells } from "../../grid/OccupationFootprint";
 import {
   PatrolCommand,
   MoveCommand,
+  AttackMoveCommand,
   StopCommand,
   HoldPositionCommand,
   type IUnitCommand,
@@ -260,6 +261,7 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
         enemy.model.configure({
           damage: options.stats.damage,
           range: options.stats.rangeCells ?? 1,
+          vision: options.stats.visionCells,
           attackMode,
           cooldown: ((options.stats.fireCooldownFrames ?? 1) * 1000) / 60,
         });
@@ -602,6 +604,8 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
       }
       case "move":
         return new MoveCommand({ ...order.destination });
+      case "attack-move":
+        return new AttackMoveCommand({ ...order.destination });
       case "stop":
         return new StopCommand();
       case "hold-position":
@@ -906,11 +910,13 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
         targetCell: movementState.targetCell,
         stepProgress: movementState.stepProgress,
       },
+      activity: unit.enemy.activity,
       combat: {
         mode: unit.enemy.getShootingMode(),
         targetId: unit.enemy.targetToShoot?.getId() ?? null,
         damage: unit.enemy.attackDamage,
         rangeCells: unit.enemy.range,
+        visionCells: unit.enemy.vision,
       },
       order: activeOrder ? clone(activeOrder) : null,
     };
@@ -933,8 +939,9 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
 
     switch (input.type) {
       case "move":
+      case "attack-move":
         order.destination = { ...input.destination };
-        if (command instanceof MoveCommand) {
+        if (command instanceof MoveCommand || command instanceof AttackMoveCommand) {
           const resolvedDestination = command.getResolvedDestination();
           if (resolvedDestination) order.resolvedDestination = resolvedDestination;
           const completionReason = command.getCompletionReason();
@@ -984,7 +991,7 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
     order: TestOrderSnapshot,
     command: IUnitCommand,
   ): void {
-    if (!(command instanceof MoveCommand)) return;
+    if (!(command instanceof MoveCommand || command instanceof AttackMoveCommand)) return;
 
     const resolvedDestination = command.getResolvedDestination();
     if (resolvedDestination) order.resolvedDestination = resolvedDestination;
@@ -1056,6 +1063,7 @@ function mapCommandType(type: string): import("./GameTestApi").TestOrderType {
     case "hold":
       return "hold-position";
     case "move":
+    case "attack-move":
     case "stop":
     case "patrol":
     case "attack":
@@ -1068,6 +1076,7 @@ function mapCommandType(type: string): import("./GameTestApi").TestOrderType {
 function movementModeFor(type: TestOrderInput["type"]): TestUnitSnapshot["movement"]["mode"] {
   switch (type) {
     case "move":
+    case "attack-move":
       return "moving";
     case "stop":
       return "stopped";

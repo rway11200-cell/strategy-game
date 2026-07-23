@@ -132,7 +132,7 @@ export type TestScenarioPreset =
 export type TestUnitTeam = "player" | "enemy" | "neutral";
 export type TestUnitLifecycle = "alive" | "dying" | "dead" | "despawned";
 export type TestOrderStatus = "running" | "completed" | "failed" | "cancelled" | "rejected";
-export type TestOrderType = "move" | "stop" | "hold-position" | "patrol" | "attack";
+export type TestOrderType = "move" | "attack-move" | "stop" | "hold-position" | "patrol" | "attack";
 
 export interface BootTestSnapshot {
   lifecycle: "ready";
@@ -170,7 +170,7 @@ export interface TestOrderSnapshot {
   finishedAtFrame: number | null;
   destination?: CellCoord;
   resolvedDestination?: CellCoord;
-  completionReason?: "destination-reached" | "fallback-reached";
+  completionReason?: "destination-reached" | "fallback-reached" | "blocked";
   endpoints?: readonly [CellCoord, CellCoord];
   targetId?: string;
   phase?: "approaching-start" | "outbound" | "returning";
@@ -195,11 +195,13 @@ export interface TestUnitSnapshot {
     targetCell: CellCoord | null;
     stepProgress: number;
   };
+  activity: "idle" | "moving" | "pursuing" | "attacking" | "holding" | "blocked" | "dead";
   combat: {
     mode: "auto" | "forced" | "disabled";
     targetId: string | null;
     damage: number;
     rangeCells: number;
+    visionCells: number;
   };
   order: TestOrderSnapshot | null;
 }
@@ -292,6 +294,7 @@ export interface SpawnTestUnitOptions {
     damage?: number;
     defense?: number;
     rangeCells?: number;
+    visionCells?: number;
     movementFramesPerCell?: number;
     fireCooldownFrames?: number;
   };
@@ -299,6 +302,7 @@ export interface SpawnTestUnitOptions {
 
 export type TestOrderInput =
   | { type: "move"; destination: CellCoord }
+  | { type: "attack-move"; destination: CellCoord }
   | { type: "stop" }
   | { type: "hold-position" }
   | { type: "patrol"; endpoints: readonly [CellCoord, CellCoord] }

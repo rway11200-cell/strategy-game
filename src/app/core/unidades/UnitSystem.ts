@@ -2,7 +2,7 @@ import type { PointData } from "pixi.js";
 
 export type UnitTeam = "player" | "enemy" | "neutral";
 export type UnitFaction = UnitTeam;
-export type UnitState = "idle" | "moving" | "attacking" | "dead";
+export type UnitState = "idle" | "moving" | "pursuing" | "attacking" | "holding" | "blocked" | "dead";
 export type UnitController = "player" | "ai";
 export type AttackMode = "none" | "melee" | "projectile";
 
@@ -12,6 +12,7 @@ export interface UnitSystemOptions {
   damage?: number;
   speed?: number;
   range?: number;
+  vision?: number;
   team?: UnitTeam;
   faction?: UnitFaction;
   state?: UnitState;
@@ -27,6 +28,7 @@ export interface UnitStats {
   damage: number;
   speed: number;
   range: number;
+  vision: number;
 }
 
 export class UnitSystem {
@@ -35,6 +37,7 @@ export class UnitSystem {
   public damage: number;
   public speed: number;
   public range: number;
+  public vision: number;
   public team: UnitTeam;
   public state: UnitState;
   public controller: UnitController;
@@ -49,6 +52,7 @@ export class UnitSystem {
     this.damage = Math.max(0, options.damage ?? 0);
     this.speed = Math.max(0, options.speed ?? 1);
     this.range = Math.max(0, options.range ?? 0);
+    this.vision = Math.max(0, options.vision ?? 6);
     this.team = options.team ?? options.faction ?? "player";
     this.state = options.state ?? "idle";
     this.controller = options.controller ?? (this.team === "enemy" ? "ai" : "player");
@@ -72,6 +76,7 @@ export class UnitSystem {
       damage: this.damage,
       speed: this.speed,
       range: this.range,
+      vision: this.vision,
     };
   }
 
@@ -87,6 +92,7 @@ export class UnitSystem {
     if (options.damage !== undefined) this.damage = Math.max(0, options.damage);
     if (options.speed !== undefined) this.speed = Math.max(0, options.speed);
     if (options.range !== undefined) this.range = Math.max(0, options.range);
+    if (options.vision !== undefined) this.vision = Math.max(0, options.vision);
     if (options.team !== undefined || options.faction !== undefined) {
       this.team = options.team ?? options.faction ?? this.team;
     }
