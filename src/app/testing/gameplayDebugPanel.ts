@@ -13,6 +13,7 @@ const PRESETS = [
   "tower-placement",
   "dense-occupation",
   "follow-the-leader",
+  "blocked-route-detour",
 ];
 
 interface PanelState {
@@ -59,12 +60,14 @@ export function createGameplayDebugPanel(api: GameTestApi): HTMLDivElement {
   const loadDenseBtn = createButton("Dense skeleton pair");
   const loadEmptyBtn = createButton("Empty selected scenario");
   const loadFollowBtn = createButton("Follow the leader");
+  const loadDetourBtn = createButton("Obstacle detour");
   demoSection.appendChild(loadPatrolBtn);
   demoSection.appendChild(loadMoveBtn);
   demoSection.appendChild(loadHoldBtn);
   demoSection.appendChild(loadMultiBtn);
   demoSection.appendChild(loadDenseBtn);
   demoSection.appendChild(loadFollowBtn);
+  demoSection.appendChild(loadDetourBtn);
   demoSection.appendChild(loadEmptyBtn);
   panel.appendChild(demoSection);
 
@@ -355,6 +358,27 @@ export function createGameplayDebugPanel(api: GameTestApi): HTMLDivElement {
     refreshHUD();
   }
 
+  function loadDetourDemo(): void {
+    const scenario = beginScenario("blocked-route-detour");
+    if (!scenario) return;
+    const unitId = "detour-unit";
+    if (!unwrap(api.spawnTestUnit({
+      scenarioId: scenario.id,
+      id: unitId,
+      archetype: "goblin",
+      team: "player",
+      cell: scenario.landmarks.origin,
+      stats: { movementFramesPerCell: 140 },
+    }))) return;
+    if (!unwrap(api.issueTestOrder({
+      unitId,
+      order: { type: "move", destination: scenario.landmarks.destination },
+    }))) return;
+    setPrimaryUnit(unitId);
+    state.reloadDemo = loadDetourDemo;
+    refreshHUD();
+  }
+
   function loadEmptyScenario(preset = presetSelect.value as TestScenarioPreset): void {
     const scenario = beginScenario(preset);
     if (!scenario) return;
@@ -378,6 +402,7 @@ export function createGameplayDebugPanel(api: GameTestApi): HTMLDivElement {
   loadMultiBtn.addEventListener("click", loadMultiUnitDemo);
   loadDenseBtn.addEventListener("click", loadDenseDemo);
   loadFollowBtn.addEventListener("click", loadFollowDemo);
+  loadDetourBtn.addEventListener("click", loadDetourDemo);
   loadEmptyBtn.addEventListener("click", () => loadEmptyScenario());
 
   step1Btn.addEventListener("click", () => {

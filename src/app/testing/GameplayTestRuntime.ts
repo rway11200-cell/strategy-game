@@ -133,6 +133,11 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
       cellSize: definition.grid.tileSize,
     });
     const gridState = new GridState(gridConfig);
+    for (const [key, type] of Object.entries(definition.cellTypes ?? {})) {
+      const [col, row] = key.split(",").map(Number);
+      const cell = gridState.getCell({ col, row });
+      if (cell) gridState.setCell({ col, row }, { ...cell, type });
+    }
 
     const state: ScenarioTestState = {
       id: scenarioId,
@@ -335,6 +340,7 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
 
     const snapshot = this.createOrderSnapshot(scenario, unit, options.order, command);
     scenario.orders.push(snapshot);
+    this.recordMoveResolution(scenario, snapshot, command);
     unit.movementMode = movementModeFor(options.order.type);
 
     if (snapshot.status === "running") {
@@ -791,6 +797,12 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
     switch (input.type) {
       case "move":
         order.destination = { ...input.destination };
+        if (command instanceof MoveCommand) {
+          const resolvedDestination = command.getResolvedDestination();
+          if (resolvedDestination) order.resolvedDestination = resolvedDestination;
+          const completionReason = command.getCompletionReason();
+          if (completionReason) order.completionReason = completionReason;
+        }
         break;
       case "patrol":
         order.endpoints = [{ ...input.endpoints[0] }, { ...input.endpoints[1] }];
@@ -821,12 +833,46 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
 
     const order = scenario.orders.find((candidate) => candidate.id === unit.activeOrderId);
     if (order) {
+      this.recordMoveResolution(scenario, order, unit.activeCommand);
       order.status = unit.activeCommand.status;
       order.finishedAtFrame = scenario.frame;
     }
     unit.activeOrderId = undefined;
     unit.activeCommand = undefined;
     unit.movementMode = "idle";
+  }
+
+  private recordMoveResolution(
+    scenario: ActiveScenario,
+    order: TestOrderSnapshot,
+    command: IUnitCommand,
+  ): void {
+    if (!(command instanceof MoveCommand)) return;
+
+    const resolvedDestination = command.getResolvedDestination();
+    if (resolvedDestination) order.resolvedDestination = resolvedDestination;
+    const completionReason = command.getCompletionReason();
+    if (completionReason) order.completionReason = completionReason;
+
+    if (
+      completionReason === "fallback-reached" &&
+      order.destination &&
+      resolvedDestination &&
+      !sameCell(order.destination, resolvedDestination) &&
+      !scenario.events.some((event) => event.orderId === order.id && event.type === "movement.destination-adjusted")
+    ) {
+      scenario.events.push({
+        sequence: scenario.nextSequence++,
+        frame: scenario.frame,
+        scenarioId: scenario.scenarioId,
+        type: "movement.destination-adjusted",
+        unitId: order.unitId,
+        orderId: order.id,
+        from: { ...order.destination },
+        to: { ...resolvedDestination },
+        reason: completionReason,
+      });
+    }
   }
 
   private refreshTargets(scenario: ActiveScenario): void {

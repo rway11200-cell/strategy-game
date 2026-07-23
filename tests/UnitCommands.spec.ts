@@ -170,6 +170,46 @@ describe("unit commands", () => {
     expect(unit.position).toMatchObject(gridToWorld(6, 0, gridConfig));
   });
 
+  it("detours around blocked terrain without occupying a blocked cell", () => {
+    const unit = createUnit(container, gridState, 0, 1);
+    for (const blocked of [{ col: 2, row: 0 }, { col: 2, row: 1 }, { col: 2, row: 2 }]) {
+      const cell = gridState.getCell(blocked)!;
+      gridState.setCell(blocked, { ...cell, type: "blocked" });
+    }
+
+    const command = new MoveCommand({ col: 4, row: 1 });
+    unit.issueCommand(command);
+    for (let frame = 1; frame <= 20 && command.status === "running"; frame++) {
+      unit.update(ticker(frame));
+    }
+
+    expect(command.status).toBe("completed");
+    expect(command.getCompletionReason()).toBe("destination-reached");
+    expect(unit.getGridCell(gridConfig)).toEqual({ col: 4, row: 1 });
+    expect(gridState.getCell({ col: 2, row: 0 })?.occupied).toBe(false);
+    expect(gridState.getCell({ col: 2, row: 1 })?.occupied).toBe(false);
+    expect(gridState.getCell({ col: 2, row: 2 })?.occupied).toBe(false);
+  });
+
+  it("moves to the closest reachable fallback when the requested terrain is blocked", () => {
+    const unit = createUnit(container, gridState, 0, 0);
+    const requestedDestination = { col: 2, row: 0 };
+    const blockedCell = gridState.getCell(requestedDestination)!;
+    gridState.setCell(requestedDestination, { ...blockedCell, type: "blocked" });
+
+    const command = new MoveCommand(requestedDestination);
+    unit.issueCommand(command);
+    for (let frame = 1; frame <= 20 && command.status === "running"; frame++) {
+      unit.update(ticker(frame));
+    }
+
+    expect(command.status).toBe("completed");
+    expect(command.getCompletionReason()).toBe("fallback-reached");
+    expect(command.getResolvedDestination()).toEqual({ col: 2, row: 1 });
+    expect(unit.getGridCell(gridConfig)).toEqual({ col: 2, row: 1 });
+    expect(gridState.getCell(requestedDestination)?.occupied).toBe(false);
+  });
+
   it("finishes the current cell transition before timing out without progress", () => {
     const unit = createUnit(container, gridState, 0, 0, undefined, 64);
     const command = new MoveCommand({ col: 7, row: 0 });

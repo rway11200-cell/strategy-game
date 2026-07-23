@@ -37,6 +37,8 @@ export interface IUnitCommand {
   cancel(unit: Unit): void;
 }
 
+export type MoveCompletionReason = "destination-reached" | "fallback-reached";
+
 export const defaultCommandPathfinder: CommandPathfinder = {
   findPath(start, end, gridState, gridConfig, entityType, ignoredOccupantId) {
     return findPathWithFootprint(
@@ -97,6 +99,8 @@ export class MoveCommand extends BaseCommand {
   static readonly MAX_FRAMES_WITHOUT_PROGRESS = 300;
   private framesWithoutProgress = 0;
   private bestDistance = Infinity;
+  private resolvedDestination?: CellCoord;
+  private completionReason?: MoveCompletionReason;
 
   constructor(public readonly destination: CellCoord) {
     super();
@@ -105,16 +109,20 @@ export class MoveCommand extends BaseCommand {
   execute(unit: Unit, context: CommandContext): void {
     this.framesWithoutProgress = 0;
     this.bestDistance = Infinity;
+    this.resolvedDestination = undefined;
+    this.completionReason = undefined;
     this.status = "running";
     unit.setCommandShooting("auto");
     const current = unit.getGridCell(context.gridConfig);
     if (current && sameCell(current, this.destination)) {
       unit.clearCommandMovement();
+      this.resolvedDestination = { ...this.destination };
+      this.completionReason = "destination-reached";
       this.status = "completed";
       return;
     }
     unit.clearCommandMovement();
-    this.pathTo(unit, context, this.destination);
+    this.pathTo(unit, context);
   }
 
   update(unit: Unit, context: CommandContext, ticker: Ticker): CommandStatus {
@@ -123,14 +131,18 @@ export class MoveCommand extends BaseCommand {
     const movement = unit.updateCommandMovement(ticker);
     const current = unit.getGridCell(context.gridConfig);
 
-    if (current && sameCell(current, this.destination)) {
+    const target = this.resolvedDestination ?? this.destination;
+    if (current && sameCell(current, target)) {
       unit.clearCommandMovement();
+      this.completionReason ??= sameCell(target, this.destination)
+        ? "destination-reached"
+        : "fallback-reached";
       this.status = "completed";
       return this.status;
     }
 
     if (current) {
-      const distance = cellDistance(current, this.destination);
+      const distance = cellDistance(current, target);
       if (distance < this.bestDistance) {
         this.bestDistance = distance;
         this.framesWithoutProgress = 0;
@@ -149,44 +161,64 @@ export class MoveCommand extends BaseCommand {
     }
 
     if (movement.blocked || unit.isCommandMovementFinished()) {
-      this.pathTo(unit, context, this.destination);
+      this.pathTo(unit, context);
     }
 
     return this.status;
   }
 
-  protected pathTo(unit: Unit, context: CommandContext, destination: CellCoord): boolean {
+  getResolvedDestination(): CellCoord | undefined {
+    return this.resolvedDestination && { ...this.resolvedDestination };
+  }
+
+  getCompletionReason(): MoveCompletionReason | undefined {
+    return this.completionReason;
+  }
+
+  protected pathTo(unit: Unit, context: CommandContext): boolean {
     const start = unit.getGridCell(context.gridConfig);
     if (!start) return false;
+    const destination = this.resolvedDestination ?? this.destination;
 
     if (sameCell(start, destination)) {
       unit.clearCommandMovement();
       return true;
     }
 
-    const path = context.pathfinder.findPath(
-      start,
-      destination,
-      context.gridState,
-      context.gridConfig,
-      context.entityType,
-      context.occupantId,
-    );
-    if (path.length > 0) {
-      unit.setCommandCellRoute(path);
-      return true;
+    // A blocked terrain destination cannot be occupied, so select a reachable
+    // adjacent fallback rather than repeatedly routing into the obstacle.
+    if (context.gridState.getCell(destination)?.type !== "blocked") {
+      const path = context.pathfinder.findPath(
+        start,
+        destination,
+        context.gridState,
+        context.gridConfig,
+        context.entityType,
+        context.occupantId,
+      );
+      if (path.length > 0) {
+        unit.setCommandCellRoute(path);
+        return true;
+      }
     }
 
-    const fallbackPath = this.findBestFallbackPath(start, context);
-    if (fallbackPath.length > 0) {
-      unit.setCommandCellRoute(fallbackPath);
+    if (this.resolvedDestination) return false;
+
+    const fallback = this.findBestFallbackPath(start, context);
+    if (fallback) {
+      this.resolvedDestination = fallback.destination;
+      this.completionReason = "fallback-reached";
+      unit.setCommandCellRoute(fallback.path);
       return true;
     }
 
     return false;
   }
 
-  private findBestFallbackPath(start: CellCoord, context: CommandContext): CellCoord[] {
+  private findBestFallbackPath(
+    start: CellCoord,
+    context: CommandContext,
+  ): { destination: CellCoord; path: CellCoord[] } | undefined {
     const { gridState, gridConfig, occupantId, entityType } = context;
     const visited = new Set<string>();
     const queue: CellCoord[] = [this.destination];
@@ -212,7 +244,7 @@ export class MoveCommand extends BaseCommand {
           previousDistance = distance;
           return true;
         });
-        if (path.length > 0 && keepsApproaching) return path;
+        if (path.length > 0 && keepsApproaching) return { destination: cell, path };
       }
 
       for (const [dc, dr] of [
@@ -231,7 +263,7 @@ export class MoveCommand extends BaseCommand {
         }
       }
     }
-    return [];
+    return undefined;
   }
 }
 

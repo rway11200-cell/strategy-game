@@ -117,7 +117,8 @@ export type TestScenarioPreset =
   | "two-unit-convoy"
   | "five-unit-march"
   | "dense-occupation"
-  | "follow-the-leader";
+  | "follow-the-leader"
+  | "blocked-route-detour";
 
 export type TestUnitTeam = "player" | "enemy" | "neutral";
 export type TestUnitLifecycle = "alive" | "dying" | "dead" | "despawned";
@@ -159,6 +160,8 @@ export interface TestOrderSnapshot {
   issuedAtFrame: number;
   finishedAtFrame: number | null;
   destination?: CellCoord;
+  resolvedDestination?: CellCoord;
+  completionReason?: "destination-reached" | "fallback-reached";
   endpoints?: readonly [CellCoord, CellCoord];
   targetId?: string;
   phase?: "approaching-start" | "outbound" | "returning";
