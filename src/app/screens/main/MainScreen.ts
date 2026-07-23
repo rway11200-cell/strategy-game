@@ -12,6 +12,8 @@ import { PauseResumeOption } from "../../../engine/navigation/navigation";
 import { GameManager } from "../../core/GameManager";
 import { CoinsUI } from "../../ui/game/CoinsUI";
 import { NotificationsUI } from "../../ui/game/NotificationsUI";
+import { SelectedUnitUI } from "../../ui/game/SelectedUnitUI";
+import { Unit } from "../../core/unidades/Unit";
 import { createGridConfig } from "../../../grid/GridConfig";
 import { GridDebugOverlay } from "../../../grid/GridDebugOverlay";
 
@@ -28,6 +30,8 @@ export class MainScreen extends Container {
   private pauseButton: FancyButton;
   private settingsButton: FancyButton;
   private coinsContainer: CoinsUI;
+  private selectedUnitUI: SelectedUnitUI;
+  private selectedUnit?: Unit;
   private cameraX = 0;
   private cameraY = 0;
   private viewportWidth = 0;
@@ -103,6 +107,9 @@ export class MainScreen extends Container {
     this.coinsContainer = new CoinsUI();
     this.addChild(this.coinsContainer);
 
+    this.selectedUnitUI = new SelectedUnitUI();
+    this.addChild(this.selectedUnitUI);
+
     this.notifications = new NotificationsUI(this.mainContainer);
 
     this.gameManager = new GameManager(
@@ -169,6 +176,10 @@ export class MainScreen extends Container {
     if (!this.gameManager) return;
 
     this.gameManager.update(_time);
+    const activeUnits = this.gameManager.getActiveUnits();
+    activeUnits.forEach((unit) => unit.setSelectionHandler(this.selectUnit));
+    if (this.selectedUnit && !activeUnits.includes(this.selectedUnit)) this.selectUnit();
+    this.selectedUnitUI.showUnit(this.selectedUnit);
   }
 
   public async pause({ ignoreInteractiveChildren = false }: PauseResumeOption = {}) {
@@ -208,11 +219,20 @@ export class MainScreen extends Container {
     this.settingsButton.y = 30;
     this.coinsContainer.x = width - this.coinsContainer.width - 50;
     this.coinsContainer.y = 60;
+    this.selectedUnitUI.position.set(20, height - 134);
     this.editMapButton.x = width - 30;
     this.editMapButton.y = 90;
 
     this.notifications.resize(centerX, centerY);
   }
+
+  private selectUnit = (unit?: Unit): void => {
+    if (this.selectedUnit === unit) return;
+    this.selectedUnit?.setSelected(false);
+    this.selectedUnit = unit;
+    this.selectedUnit?.setSelected(true);
+    this.selectedUnitUI.showUnit(unit);
+  };
 
   public async show(): Promise<void> {
     engine().audio.bgm.play("main/sounds/bgm-main.mp3", { volume: 0.6 });

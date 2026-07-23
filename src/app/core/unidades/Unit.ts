@@ -1,4 +1,4 @@
-import { AnimatedSprite, Container, Graphics, PointData, Ticker } from "pixi.js";
+import { AnimatedSprite, Circle, Container, type FederatedPointerEvent, Graphics, PointData, Ticker } from "pixi.js";
 import type { CellCoord, GridConfig } from "../../../grid/GridConfig";
 import { worldToGrid } from "../../../grid/GridConfig";
 import type { GridState } from "../../../grid/GridState";
@@ -118,6 +118,8 @@ export class Unit extends Container {
   private forcedShootingTarget?: Unit;
 
   private rangeGraph?: Graphics;
+  private selectionIndicator: Graphics;
+  private selectionHandler?: (unit: Unit) => void;
 
   private movement?: Movement;
   private tileMovement?: TileMovement;
@@ -159,6 +161,11 @@ export class Unit extends Container {
     this.stableId = options?.id;
     this.mainContainer = mainContainer;
     this.mainContainer.addChild(this);
+    this.selectionIndicator = new Graphics()
+      .circle(0, 16, 25)
+      .stroke({ color: 0xffd54f, width: 2 });
+    this.selectionIndicator.visible = false;
+    this.addChild(this.selectionIndicator);
 
     if (!options) {
       return;
@@ -219,9 +226,29 @@ export class Unit extends Container {
     return this.model.state;
   }
 
+  public setSelectionHandler(handler?: (unit: Unit) => void): void {
+    if (this.selectionHandler === handler) return;
+    this.off("pointerdown", this.handleSelection);
+    this.selectionHandler = handler;
+    this.eventMode = handler ? "static" : "none";
+    this.cursor = handler ? "pointer" : "default";
+    this.hitArea = handler ? new Circle(0, 0, 28) : undefined;
+    if (handler) this.on("pointerdown", this.handleSelection);
+  }
+
+  public setSelected(selected: boolean): void {
+    this.selectionIndicator.visible = selected;
+    if (this.rangeGraph) this.rangeGraph.visible = selected;
+  }
+
   public setActivity(activity: Exclude<UnitState, "dead">): void {
     if (this.model.state !== "dead") this.model.state = activity;
   }
+
+  private handleSelection = (event: FederatedPointerEvent): void => {
+    event.stopPropagation();
+    this.selectionHandler?.(this);
+  };
 
   public get team(): UnitTeam {
     return this.model.team;
@@ -978,6 +1005,7 @@ export class Unit extends Container {
     if (this.rangeGraph) {
       this.rangeGraph.visible = false;
     }
+    this.selectionIndicator.visible = false;
 
     if (this.health !== undefined) {
       this.updateHealth();
@@ -992,6 +1020,7 @@ export class Unit extends Container {
     this.canBeProjectileTarget = false;
     this.model.state = "dead";
     if (this.healthBar) this.healthBar.visible = false;
+    this.selectionIndicator.visible = false;
     if (this.movement) this.movement.active = false;
     if (this.tileMovement) {
       this.tileMovement.active = false;

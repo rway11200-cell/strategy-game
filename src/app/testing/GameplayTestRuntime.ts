@@ -330,6 +330,7 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
         `Unit "${options.id}" could not occupy cell (${finalCell.col}, ${finalCell.row})`,
       );
     }
+    this.visualHost?.registerUnit(enemy);
 
     const managed: ManagedUnit = {
       enemy,
@@ -385,6 +386,7 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
       unit.activeOrderId = snapshot.id;
       unit.activeCommand = command;
     }
+    this.visualHost?.refreshSelection();
 
     return { ok: true, value: clone(snapshot) };
   }

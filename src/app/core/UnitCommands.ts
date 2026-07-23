@@ -123,7 +123,7 @@ export class MoveCommand extends BaseCommand {
       return;
     }
     unit.clearCommandMovement();
-    if (!this.pathTo(unit, context)) this.completeBlocked(unit);
+    this.pathTo(unit, context);
   }
 
   update(unit: Unit, context: CommandContext, ticker: Ticker): CommandStatus {
@@ -161,7 +161,7 @@ export class MoveCommand extends BaseCommand {
     }
 
     if (movement.blocked || unit.isCommandMovementFinished()) {
-      if (!this.pathTo(unit, context)) this.completeBlocked(unit);
+      this.pathTo(unit, context);
     }
 
     return this.status;
@@ -406,6 +406,14 @@ export class AttackMoveCommand extends BaseCommand {
     return this.march.getCompletionReason();
   }
 
+  getDestination(): CellCoord {
+    return { ...this.march.destination };
+  }
+
+  getPursuitTarget(): Unit | undefined {
+    return this.pursuit?.target;
+  }
+
   private findVisibleTarget(unit: Unit, context: CommandContext): Unit | undefined {
     const unitCell = unit.getGridCell(context.gridConfig);
     if (!unitCell) return undefined;
@@ -517,6 +525,10 @@ export class PatrolCommand extends BaseCommand {
     }
     this.pathTo(unit, context, this.destination);
     return "running";
+  }
+
+  getDestination(): CellCoord | undefined {
+    return this.destination && { ...this.destination };
   }
 }
 
