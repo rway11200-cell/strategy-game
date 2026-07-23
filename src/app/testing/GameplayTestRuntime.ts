@@ -1,7 +1,7 @@
 import { Container, Ticker } from "pixi.js";
 import { createGridConfig, type GridConfig } from "../../grid/GridConfig";
 import { GridState } from "../../grid/GridState";
-import { getEntityFootprint, getFootprintCellsForPos } from "../../grid/EntityFootprint";
+import { getEntityFootprint, getFootprintCellsForPos, isFootprintWalkable } from "../../grid/EntityFootprint";
 import { getOccupantCells } from "../../grid/OccupationFootprint";
 import {
   PatrolCommand,
@@ -34,7 +34,10 @@ import type {
   TestOrderInput,
   TestUnitTeam,
 } from "./GameTestApi";
-import { getTestScenarioDefinition } from "./ScenarioCatalog";
+import {
+  getTestScenarioDefinition,
+  type TestScenarioStructure,
+} from "./ScenarioCatalog";
 import { ScenarioVisualHost } from "./ScenarioVisualHost";
 
 export interface GameplayHarnessBootState {
@@ -59,12 +62,18 @@ interface ManagedUnit {
   wasBlocked: boolean;
 }
 
+interface ManagedStructure extends TestScenarioStructure {
+  nextProductionFrame: number | null;
+  producedUnitIds: string[];
+}
+
 interface ActiveScenario {
   state: ScenarioTestState;
   container: Container;
   gridConfig: GridConfig;
   gridState: GridState;
   units: ManagedUnit[];
+  structures: ManagedStructure[];
   projectileCreator: UnitCreator<Projectile>;
   friendlyFire: boolean;
   frame: number;
@@ -133,6 +142,27 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
       cellSize: definition.grid.tileSize,
     });
     const gridState = new GridState(gridConfig);
+    for (const [key, type] of Object.entries(definition.cellTypes ?? {})) {
+      const [col, row] = key.split(",").map(Number);
+      const cell = gridState.getCell({ col, row });
+      if (cell) gridState.setCell({ col, row }, { ...cell, type });
+    }
+
+    const structures: ManagedStructure[] = (definition.structures ?? []).map((structure) => ({
+      ...clone(structure),
+      nextProductionFrame: structure.production ? 1 : null,
+      producedUnitIds: [],
+    }));
+    for (const structure of structures) {
+      const cells = getFootprintCellsForPos(
+        structure.cell,
+        structure.footprint.width,
+        structure.footprint.height,
+      );
+      for (const c of cells) {
+        gridState.occupyCell(c, `structure:${structure.id}`);
+      }
+    }
 
     const state: ScenarioTestState = {
       id: scenarioId,
@@ -167,6 +197,7 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
       gridConfig,
       gridState,
       units: [],
+      structures,
       projectileCreator,
       friendlyFire: options.friendlyFire ?? false,
       frame: 0,
@@ -232,7 +263,7 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
     }
 
     enemy.initializeTileMovement({
-      cells: [finalCell],
+      cells: [],
       gridConfig: scenario.gridConfig,
       gridState: scenario.gridState,
       start: finalCell,
@@ -287,7 +318,12 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
       });
     };
 
-    enemy.spawn();
+    if (!enemy.spawn()) {
+      return this.failure(
+        "SPAWN_OCCUPATION_FAILED",
+        `Unit "${options.id}" could not occupy cell (${finalCell.col}, ${finalCell.row})`,
+      );
+    }
 
     const managed: ManagedUnit = {
       enemy,
@@ -335,6 +371,7 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
 
     const snapshot = this.createOrderSnapshot(scenario, unit, options.order, command);
     scenario.orders.push(snapshot);
+    this.recordMoveResolution(scenario, snapshot, command);
     unit.movementMode = movementModeFor(options.order.type);
 
     if (snapshot.status === "running") {
@@ -442,6 +479,15 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
 
       if (unit.enemy.currentCommand) {
         pendingOrderIds.push(unit.id);
+      }
+    }
+
+    for (let row = 0; row < this.activeScenario.gridConfig.gridHeight; row++) {
+      for (let col = 0; col < this.activeScenario.gridConfig.gridWidth; col++) {
+        const cell = this.activeScenario.gridState.getCell({ col, row });
+        if (cell?.occupantId?.startsWith("structure:")) {
+          this.activeScenario.gridState.liberateCell({ col, row });
+        }
       }
     }
 
@@ -564,6 +610,7 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
 
   private tickOneFrame(scenario: ActiveScenario): void {
     scenario.frame++;
+    this.produceUnits(scenario);
 
     for (const unit of scenario.units) {
       unit.previousCell = unit.enemy.getGridCell(scenario.gridConfig)
@@ -655,6 +702,96 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
         });
       }
     }
+  }
+
+  private produceUnits(scenario: ActiveScenario): void {
+    for (const structure of scenario.structures) {
+      const production = structure.production;
+      if (!production || structure.nextProductionFrame === null) continue;
+      if (scenario.frame < structure.nextProductionFrame) continue;
+
+      structure.nextProductionFrame = scenario.frame + production.intervalFrames;
+      const unitId = `${structure.id}-unit-${structure.producedUnitIds.length + 1}`;
+      const cell = this.findFreeAdjacentCell(scenario, structure, production.archetype);
+      if (!cell) {
+        scenario.events.push({
+          sequence: scenario.nextSequence++,
+          frame: scenario.frame,
+          scenarioId: scenario.scenarioId,
+          type: "production.blocked",
+          sourceId: structure.id,
+          reason: "no-adjacent-cell-free",
+        });
+        continue;
+      }
+
+      const result = this.spawnTestUnit({
+        scenarioId: scenario.scenarioId,
+        id: unitId,
+        archetype: production.archetype,
+        team: production.team,
+        cell,
+      });
+      if (!result.ok) {
+        scenario.events.push({
+          sequence: scenario.nextSequence++,
+          frame: scenario.frame,
+          scenarioId: scenario.scenarioId,
+          type: "production.blocked",
+          sourceId: structure.id,
+          reason: result.error.code,
+        });
+        continue;
+      }
+
+      structure.producedUnitIds.push(unitId);
+      scenario.events.push({
+        sequence: scenario.nextSequence++,
+        frame: scenario.frame,
+        scenarioId: scenario.scenarioId,
+        type: "unit.produced",
+        sourceId: structure.id,
+        unitId,
+        to: { ...cell },
+      });
+    }
+  }
+
+  private findFreeAdjacentCell(
+    scenario: ActiveScenario,
+    structure: ManagedStructure,
+    archetype: string,
+  ): CellCoord | undefined {
+    const footprint = getEntityFootprint(archetype);
+    const minCol = structure.cell.col - 1;
+    const minRow = structure.cell.row - 1;
+    const maxCol = structure.cell.col + structure.footprint.width;
+    const maxRow = structure.cell.row + structure.footprint.height;
+
+    for (let row = minRow; row <= maxRow; row++) {
+      for (let col = minCol; col <= maxCol; col++) {
+        const inside = col >= structure.cell.col &&
+          col < structure.cell.col + structure.footprint.width &&
+          row >= structure.cell.row &&
+          row < structure.cell.row + structure.footprint.height;
+        if (inside) continue;
+
+        const cell = { col, row };
+        if (
+          isFootprintWalkable(
+            cell,
+            footprint.width,
+            footprint.height,
+            scenario.gridState,
+            scenario.gridConfig,
+          )
+        ) {
+          return cell;
+        }
+      }
+    }
+
+    return undefined;
   }
 
   private findMatchingEvent(
@@ -791,6 +928,12 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
     switch (input.type) {
       case "move":
         order.destination = { ...input.destination };
+        if (command instanceof MoveCommand) {
+          const resolvedDestination = command.getResolvedDestination();
+          if (resolvedDestination) order.resolvedDestination = resolvedDestination;
+          const completionReason = command.getCompletionReason();
+          if (completionReason) order.completionReason = completionReason;
+        }
         break;
       case "patrol":
         order.endpoints = [{ ...input.endpoints[0] }, { ...input.endpoints[1] }];
@@ -821,12 +964,46 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
 
     const order = scenario.orders.find((candidate) => candidate.id === unit.activeOrderId);
     if (order) {
+      this.recordMoveResolution(scenario, order, unit.activeCommand);
       order.status = unit.activeCommand.status;
       order.finishedAtFrame = scenario.frame;
     }
     unit.activeOrderId = undefined;
     unit.activeCommand = undefined;
     unit.movementMode = "idle";
+  }
+
+  private recordMoveResolution(
+    scenario: ActiveScenario,
+    order: TestOrderSnapshot,
+    command: IUnitCommand,
+  ): void {
+    if (!(command instanceof MoveCommand)) return;
+
+    const resolvedDestination = command.getResolvedDestination();
+    if (resolvedDestination) order.resolvedDestination = resolvedDestination;
+    const completionReason = command.getCompletionReason();
+    if (completionReason) order.completionReason = completionReason;
+
+    if (
+      completionReason === "fallback-reached" &&
+      order.destination &&
+      resolvedDestination &&
+      !sameCell(order.destination, resolvedDestination) &&
+      !scenario.events.some((event) => event.orderId === order.id && event.type === "movement.destination-adjusted")
+    ) {
+      scenario.events.push({
+        sequence: scenario.nextSequence++,
+        frame: scenario.frame,
+        scenarioId: scenario.scenarioId,
+        type: "movement.destination-adjusted",
+        unitId: order.unitId,
+        orderId: order.id,
+        from: { ...order.destination },
+        to: { ...resolvedDestination },
+        reason: completionReason,
+      });
+    }
   }
 
   private refreshTargets(scenario: ActiveScenario): void {

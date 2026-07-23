@@ -1,4 +1,10 @@
-import { describe, expect, it } from "vitest";
+import { Texture } from "pixi.js";
+import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
+
+vi.mock("../src/app/utils/sprite", () => ({
+  getFramesAseprite: () => ({ textures: [Texture.EMPTY], totalMs: 0, frameMs: [0] }),
+}));
+
 import { GameplayTestRuntime } from "../src/app/testing/GameplayTestRuntime";
 
 function createRuntime(): GameplayTestRuntime {
@@ -12,6 +18,15 @@ function createRuntime(): GameplayTestRuntime {
 }
 
 describe("GameplayTestRuntime", () => {
+  beforeAll(() => {
+    vi.stubGlobal("requestAnimationFrame", () => 1);
+    vi.stubGlobal("cancelAnimationFrame", () => undefined);
+  });
+
+  afterAll(() => {
+    vi.unstubAllGlobals();
+  });
+
   it("exposes the ready renderer without creating a gameplay scenario", () => {
     expect(createRuntime().getBootSnapshot()).toEqual({
       lifecycle: "ready",
@@ -92,5 +107,51 @@ describe("GameplayTestRuntime", () => {
     expect(
       runtime.beginScenario({ preset: "three-cell-patrol-corridor", simulation: "manual" }),
     ).toMatchObject({ ok: true });
+  });
+
+  it("produces units from a Spawn Point as its manual frames advance", () => {
+    const runtime = createRuntime();
+    const started = runtime.beginScenario({ preset: "spawn-point-demo", simulation: "manual" });
+    expect(started.ok).toBe(true);
+    if (!started.ok) return;
+
+    const completed = runtime.advanceTestFrames(started.value.id, 1 + 90 * 15);
+    expect(completed).toMatchObject({ ok: true });
+    if (!completed.ok) return;
+
+    expect(completed.value.units).toHaveLength(15);
+    expect(completed.value.events).toContainEqual(expect.objectContaining({
+      type: "unit.produced",
+      sourceId: "spawn-point",
+      unitId: "spawn-point-unit-1",
+    }));
+    expect(completed.value.events).toContainEqual(expect.objectContaining({
+      type: "production.blocked",
+      sourceId: "spawn-point",
+      reason: "no-adjacent-cell-free",
+    }));
+    expect(completed.value.cells.find((cell) => cell.cell.col === 0 && cell.cell.row === 0)).toMatchObject({
+      type: "blocked",
+      occupied: false,
+    });
+
+    const structureCells = completed.value.cells.filter(
+      (cell) => cell.occupantId === "structure:spawn-point",
+    );
+    expect(structureCells).toHaveLength(9);
+    const occupiedUnitCells = completed.value.cells.filter(
+      (cell) => cell.occupantId?.startsWith("spawn-point-unit-"),
+    );
+    expect(occupiedUnitCells).toHaveLength(15);
+    expect(new Set(occupiedUnitCells.map((cell) => cell.occupantId)).size).toBe(15);
+    expect(new Set(occupiedUnitCells.map((cell) => `${cell.cell.col},${cell.cell.row}`)).size).toBe(15);
+    for (const unit of completed.value.units) {
+      expect(unit.occupiedCells).toEqual([unit.cell]);
+    }
+
+    expect(runtime.cleanupScenario(started.value.id)).toMatchObject({
+      ok: true,
+      value: { leakedOccupations: [] },
+    });
   });
 });
