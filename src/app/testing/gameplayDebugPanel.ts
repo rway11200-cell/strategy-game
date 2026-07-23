@@ -17,7 +17,15 @@ const PRESETS = [
   "spawn-point-demo",
   "warrior-march",
   "warrior-duel",
+  "warrior-auto-march",
+  "warrior-auto-move",
+  "warrior-hold-attack",
+  "warrior-hold-square",
+  "warrior-pursuit-square",
+  "warrior-patrol-square",
 ];
+
+const WARRIOR_DEMO_MOVEMENT_FRAMES_PER_CELL = 60;
 
 interface PanelState {
   scenarioId: string | null;
@@ -67,6 +75,12 @@ export function createGameplayDebugPanel(api: GameTestApi): HTMLDivElement {
   const loadSpawnPointBtn = createButton("Spawn Point");
   const loadWarriorBtn = createButton("Warrior march");
   const loadWarriorDuelBtn = createButton("Warrior duel");
+  const loadAutoMarchBtn = createButton("Auto attack march");
+  const loadAutoMoveBtn = createButton("Auto attack move");
+  const loadHoldAttackBtn = createButton("Hold position attack");
+  const loadHoldSquareBtn = createButton("Hold square attack");
+  const loadPursuitBtn = createButton("Auto pursuit square");
+  const loadPatrolAttackBtn = createButton("Patrol square attack");
   demoSection.appendChild(loadPatrolBtn);
   demoSection.appendChild(loadMoveBtn);
   demoSection.appendChild(loadHoldBtn);
@@ -77,6 +91,12 @@ export function createGameplayDebugPanel(api: GameTestApi): HTMLDivElement {
   demoSection.appendChild(loadSpawnPointBtn);
   demoSection.appendChild(loadWarriorBtn);
   demoSection.appendChild(loadWarriorDuelBtn);
+  demoSection.appendChild(loadAutoMarchBtn);
+  demoSection.appendChild(loadAutoMoveBtn);
+  demoSection.appendChild(loadHoldAttackBtn);
+  demoSection.appendChild(loadHoldSquareBtn);
+  demoSection.appendChild(loadPursuitBtn);
+  demoSection.appendChild(loadPatrolAttackBtn);
   demoSection.appendChild(loadEmptyBtn);
   panel.appendChild(demoSection);
 
@@ -406,7 +426,7 @@ export function createGameplayDebugPanel(api: GameTestApi): HTMLDivElement {
       archetype: "warrior",
       team: "player",
       cell: scenario.landmarks.origin,
-      stats: { movementFramesPerCell: 90 },
+      stats: { movementFramesPerCell: WARRIOR_DEMO_MOVEMENT_FRAMES_PER_CELL },
     }))) return;
     if (!unwrap(api.issueTestOrder({
       unitId,
@@ -441,6 +461,183 @@ export function createGameplayDebugPanel(api: GameTestApi): HTMLDivElement {
     refreshHUD();
   }
 
+  function loadAutoMarchDemo(): void {
+    const scenario = beginScenario("warrior-auto-march");
+    if (!scenario) return;
+    const stats = { hp: 200, damage: 10, rangeCells: 1, fireCooldownFrames: 30, movementFramesPerCell: WARRIOR_DEMO_MOVEMENT_FRAMES_PER_CELL };
+    if (!unwrap(api.spawnTestUnit({
+      scenarioId: scenario.id,
+      id: "marching-player",
+      archetype: "warrior",
+      team: "player",
+      cell: scenario.landmarks.playerStart,
+      stats,
+    }))) return;
+    if (!unwrap(api.spawnTestUnit({
+      scenarioId: scenario.id,
+      id: "marching-enemy",
+      archetype: "warrior",
+      team: "enemy",
+      cell: scenario.landmarks.enemyStart,
+      stats: { ...stats, damage: 4, fireCooldownFrames: 60 },
+    }))) return;
+    if (!unwrap(api.issueTestOrder({
+      unitId: "marching-player",
+      order: { type: "move", destination: scenario.landmarks.playerDestination },
+    }))) return;
+    if (!unwrap(api.issueTestOrder({
+      unitId: "marching-enemy",
+      order: { type: "move", destination: scenario.landmarks.enemyDestination },
+    }))) return;
+    setPrimaryUnit("marching-player");
+    state.reloadDemo = loadAutoMarchDemo;
+    refreshHUD();
+  }
+
+  function loadAutoMoveDemo(): void {
+    const scenario = beginScenario("warrior-auto-move");
+    if (!scenario) return;
+    if (!unwrap(api.spawnTestUnit({
+      scenarioId: scenario.id,
+      id: "moving-attacker",
+      archetype: "warrior",
+      team: "player",
+      cell: scenario.landmarks.attackerStart,
+      stats: { hp: 200, damage: 10, rangeCells: 1, fireCooldownFrames: 30, movementFramesPerCell: WARRIOR_DEMO_MOVEMENT_FRAMES_PER_CELL },
+    }))) return;
+    if (!unwrap(api.spawnTestUnit({
+      scenarioId: scenario.id,
+      id: "stationary-defender",
+      archetype: "warrior",
+      team: "enemy",
+      cell: scenario.landmarks.defender,
+      stats: { hp: 200 },
+    }))) return;
+    if (!unwrap(api.issueTestOrder({
+      unitId: "moving-attacker",
+      order: { type: "move", destination: scenario.landmarks.destination },
+    }))) return;
+    setPrimaryUnit("moving-attacker");
+    state.reloadDemo = loadAutoMoveDemo;
+    refreshHUD();
+  }
+
+  function loadHoldAttackDemo(): void {
+    const scenario = beginScenario("warrior-hold-attack");
+    if (!scenario) return;
+    if (!unwrap(api.spawnTestUnit({
+      scenarioId: scenario.id,
+      id: "holding-defender",
+      archetype: "warrior",
+      team: "player",
+      cell: scenario.landmarks.defender,
+      stats: { hp: 200, damage: 10, rangeCells: 1, fireCooldownFrames: 30 },
+    }))) return;
+    if (!unwrap(api.spawnTestUnit({
+      scenarioId: scenario.id,
+      id: "advancing-enemy",
+      archetype: "warrior",
+      team: "enemy",
+      cell: scenario.landmarks.attackerStart,
+      stats: { hp: 200, damage: 4, rangeCells: 1, fireCooldownFrames: 60, movementFramesPerCell: WARRIOR_DEMO_MOVEMENT_FRAMES_PER_CELL },
+    }))) return;
+    if (!unwrap(api.issueTestOrder({
+      unitId: "holding-defender",
+      order: { type: "hold-position" },
+    }))) return;
+    if (!unwrap(api.issueTestOrder({
+      unitId: "advancing-enemy",
+      order: { type: "move", destination: scenario.landmarks.attackerDestination },
+    }))) return;
+    setPrimaryUnit("holding-defender");
+    state.reloadDemo = loadHoldAttackDemo;
+    refreshHUD();
+  }
+
+  function loadHoldSquareDemo(): void {
+    const scenario = beginScenario("warrior-hold-square");
+    if (!scenario) return;
+    if (!unwrap(api.spawnTestUnit({
+      scenarioId: scenario.id,
+      id: "square-holder",
+      archetype: "warrior",
+      team: "player",
+      cell: scenario.landmarks.defender,
+      stats: { hp: 200, damage: 10, rangeCells: 1, fireCooldownFrames: 30 },
+    }))) return;
+    if (!unwrap(api.spawnTestUnit({
+      scenarioId: scenario.id,
+      id: "square-passer",
+      archetype: "warrior",
+      team: "enemy",
+      cell: scenario.landmarks.attackerStart,
+      stats: { hp: 200, damage: 4, rangeCells: 1, fireCooldownFrames: 60, movementFramesPerCell: WARRIOR_DEMO_MOVEMENT_FRAMES_PER_CELL },
+    }))) return;
+    if (!unwrap(api.issueTestOrder({
+      unitId: "square-holder",
+      order: { type: "hold-position" },
+    }))) return;
+    if (!unwrap(api.issueTestOrder({
+      unitId: "square-passer",
+      order: { type: "move", destination: scenario.landmarks.attackerDestination },
+    }))) return;
+    setPrimaryUnit("square-holder");
+    state.reloadDemo = loadHoldSquareDemo;
+    refreshHUD();
+  }
+
+  function loadPursuitDemo(): void {
+    const scenario = beginScenario("warrior-pursuit-square");
+    if (!scenario) return;
+    if (!unwrap(api.spawnTestUnit({
+      scenarioId: scenario.id,
+      id: "free-pursuer",
+      archetype: "warrior",
+      team: "player",
+      cell: scenario.landmarks.pursuer,
+      stats: { hp: 200, damage: 10, rangeCells: 1, fireCooldownFrames: 30, movementFramesPerCell: WARRIOR_DEMO_MOVEMENT_FRAMES_PER_CELL },
+    }))) return;
+    if (!unwrap(api.spawnTestUnit({
+      scenarioId: scenario.id,
+      id: "moving-runner",
+      archetype: "warrior",
+      team: "enemy",
+      cell: scenario.landmarks.runnerStart,
+      stats: { hp: 200 },
+    }))) return;
+    setPrimaryUnit("free-pursuer");
+    state.reloadDemo = loadPursuitDemo;
+    refreshHUD();
+  }
+
+  function loadPatrolAttackDemo(): void {
+    const scenario = beginScenario("warrior-patrol-square");
+    if (!scenario) return;
+    if (!unwrap(api.spawnTestUnit({
+      scenarioId: scenario.id,
+      id: "patrolling-warrior",
+      archetype: "warrior",
+      team: "player",
+      cell: scenario.landmarks.patrolStart,
+      stats: { hp: 200, damage: 10, rangeCells: 1, fireCooldownFrames: 30, movementFramesPerCell: WARRIOR_DEMO_MOVEMENT_FRAMES_PER_CELL },
+    }))) return;
+    if (!unwrap(api.spawnTestUnit({
+      scenarioId: scenario.id,
+      id: "patrol-target",
+      archetype: "warrior",
+      team: "enemy",
+      cell: scenario.landmarks.target,
+      stats: { hp: 200 },
+    }))) return;
+    if (!unwrap(api.issueTestOrder({
+      unitId: "patrolling-warrior",
+      order: { type: "patrol", endpoints: [scenario.landmarks.patrolStart, scenario.landmarks.patrolEnd] },
+    }))) return;
+    setPrimaryUnit("patrolling-warrior");
+    state.reloadDemo = loadPatrolAttackDemo;
+    refreshHUD();
+  }
+
   function loadEmptyScenario(preset = presetSelect.value as TestScenarioPreset): void {
     const scenario = beginScenario(preset);
     if (!scenario) return;
@@ -468,6 +665,12 @@ export function createGameplayDebugPanel(api: GameTestApi): HTMLDivElement {
   loadSpawnPointBtn.addEventListener("click", loadSpawnPointDemo);
   loadWarriorBtn.addEventListener("click", loadWarriorDemo);
   loadWarriorDuelBtn.addEventListener("click", loadWarriorDuelDemo);
+  loadAutoMarchBtn.addEventListener("click", loadAutoMarchDemo);
+  loadAutoMoveBtn.addEventListener("click", loadAutoMoveDemo);
+  loadHoldAttackBtn.addEventListener("click", loadHoldAttackDemo);
+  loadHoldSquareBtn.addEventListener("click", loadHoldSquareDemo);
+  loadPursuitBtn.addEventListener("click", loadPursuitDemo);
+  loadPatrolAttackBtn.addEventListener("click", loadPatrolAttackDemo);
   loadEmptyBtn.addEventListener("click", () => loadEmptyScenario());
 
   step1Btn.addEventListener("click", () => {

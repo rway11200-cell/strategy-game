@@ -278,10 +278,101 @@ const scenarios = new Map<TestScenarioPreset, TestScenarioDefinition>([
     "warrior-duel",
     {
       preset: "warrior-duel",
-      grid: { columns: 3, rows: 1, tileSize: 64 },
+      grid: { columns: 2, rows: 1, tileSize: 64 },
       landmarks: {
         attacker: { col: 0, row: 0 },
         defender: { col: 1, row: 0 },
+      },
+      groups: {},
+      path: [],
+      economy: { coins: 0 },
+    },
+  ],
+  [
+    "warrior-auto-march",
+    {
+      preset: "warrior-auto-march",
+      grid: { columns: 7, rows: 1, tileSize: 64 },
+      landmarks: {
+        playerStart: { col: 0, row: 0 },
+        playerDestination: { col: 6, row: 0 },
+        enemyStart: { col: 6, row: 0 },
+        enemyDestination: { col: 0, row: 0 },
+      },
+      groups: {},
+      path: [],
+      economy: { coins: 0 },
+    },
+  ],
+  [
+    "warrior-auto-move",
+    {
+      preset: "warrior-auto-move",
+      grid: { columns: 7, rows: 1, tileSize: 64 },
+      landmarks: {
+        attackerStart: { col: 0, row: 0 },
+        destination: { col: 6, row: 0 },
+        defender: { col: 4, row: 0 },
+      },
+      groups: {},
+      path: [],
+      economy: { coins: 0 },
+    },
+  ],
+  [
+    "warrior-hold-attack",
+    {
+      preset: "warrior-hold-attack",
+      grid: { columns: 7, rows: 1, tileSize: 64 },
+      landmarks: {
+        defender: { col: 3, row: 0 },
+        attackerStart: { col: 0, row: 0 },
+        attackerDestination: { col: 6, row: 0 },
+      },
+      groups: {},
+      path: [],
+      economy: { coins: 0 },
+    },
+  ],
+  [
+    "warrior-hold-square",
+    {
+      preset: "warrior-hold-square",
+      grid: { columns: 9, rows: 9, tileSize: 64 },
+      landmarks: {
+        defender: { col: 4, row: 4 },
+        attackerStart: { col: 0, row: 4 },
+        attackerDestination: { col: 8, row: 4 },
+      },
+      groups: {},
+      path: [],
+      economy: { coins: 0 },
+    },
+  ],
+  [
+    "warrior-pursuit-square",
+    {
+      preset: "warrior-pursuit-square",
+      grid: { columns: 9, rows: 9, tileSize: 64 },
+      landmarks: {
+        pursuer: { col: 4, row: 1 },
+        runnerStart: { col: 4, row: 6 },
+        runnerDestination: { col: 4, row: 6 },
+      },
+      groups: {},
+      path: [],
+      economy: { coins: 0 },
+    },
+  ],
+  [
+    "warrior-patrol-square",
+    {
+      preset: "warrior-patrol-square",
+      grid: { columns: 9, rows: 9, tileSize: 64 },
+      landmarks: {
+        patrolStart: { col: 2, row: 2 },
+        patrolEnd: { col: 6, row: 2 },
+        target: { col: 4, row: 3 },
       },
       groups: {},
       path: [],

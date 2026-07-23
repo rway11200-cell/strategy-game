@@ -110,6 +110,8 @@ export class Unit extends Container {
   private lastShotTime: number = 0;
   private pendingMeleeAttack?: PendingMeleeAttack;
   private deathPof?: DeathPof;
+  private autoPursuitTarget?: Unit;
+  private autoPursuitTargetCell?: CellCoord;
   public targetToShoot?: Unit;
   private shootingMode: "auto" | "forced" | "disabled" = "auto";
   private forcedShootingTarget?: Unit;
@@ -408,6 +410,8 @@ export class Unit extends Container {
   public issueCommand(command: IUnitCommand): void {
     this.currentCommand?.cancel(this);
     this.currentCommand = undefined;
+    this.autoPursuitTarget = undefined;
+    this.autoPursuitTargetCell = undefined;
     if (!this.commandContext) return;
 
     this.currentCommand = command;
@@ -503,10 +507,15 @@ export class Unit extends Container {
       const status = this.currentCommand.update(this, this.commandContext, _time);
       if (status !== "running") this.currentCommand = undefined;
     } else {
+      this.updateAutomaticPursuit();
       this.updateMovement(_time);
     }
     this.updateHealth();
-    this.updateShooting(_time);
+    if (!this.isMovementActionActive()) this.updateShooting(_time);
+  }
+
+  private isMovementActionActive(): boolean {
+    return this.targetFollower?.targetCell !== undefined || (this.tileMovement?.stepProgress ?? 0) > 0;
   }
 
   private updateHealth() {
@@ -552,6 +561,91 @@ export class Unit extends Container {
       }
     }
     return noMovement;
+  }
+
+  private updateAutomaticPursuit(): void {
+    if (
+      this.shootingMode !== "auto" ||
+      !this.shootOptions ||
+      !this.commandContext ||
+      !this.tileMovement
+    ) {
+      return;
+    }
+
+    const unitCell = this.getGridCell(this.commandContext.gridConfig);
+    if (!unitCell) return;
+
+    const target = this.getAutoPursuitTarget(unitCell);
+    const targetCell = target?.getGridCell(this.commandContext.gridConfig);
+    if (!target || !targetCell) {
+      if (this.autoPursuitTarget) this.clearCommandMovement();
+      this.autoPursuitTarget = undefined;
+      this.autoPursuitTargetCell = undefined;
+      return;
+    }
+
+    if (this.isInRange(unitCell, targetCell)) {
+      if (this.autoPursuitTarget) this.clearCommandMovement();
+      this.autoPursuitTarget = target;
+      this.autoPursuitTargetCell = { ...targetCell };
+      return;
+    }
+
+    const targetChanged = this.autoPursuitTarget !== target ||
+      !this.autoPursuitTargetCell ||
+      this.autoPursuitTargetCell.col !== targetCell.col ||
+      this.autoPursuitTargetCell.row !== targetCell.row ||
+      this.isCommandMovementFinished();
+    if (!targetChanged) return;
+
+    this.autoPursuitTarget = target;
+    this.autoPursuitTargetCell = { ...targetCell };
+    const path = this.findPathToAttackRange(unitCell, targetCell);
+    if (path) this.setCommandCellRoute(path);
+    else this.clearCommandMovement();
+  }
+
+  private getAutoPursuitTarget(unitCell: CellCoord): Unit | undefined {
+    const current = this.autoPursuitTarget;
+    if (current?.active && current.canBeProjectileTarget) return current;
+
+    let closest: Unit | undefined;
+    let closestDistance = Infinity;
+    for (const target of this.shootOptions?.targets ?? []) {
+      if (!target.active || !target.canBeProjectileTarget) continue;
+      const targetCell = target.getGridCell(this.commandContext!.gridConfig);
+      if (!targetCell) continue;
+      const distance = Math.hypot(targetCell.col - unitCell.col, targetCell.row - unitCell.row);
+      if (distance < closestDistance) {
+        closest = target;
+        closestDistance = distance;
+      }
+    }
+    return closest;
+  }
+
+  private findPathToAttackRange(start: CellCoord, target: CellCoord): CellCoord[] | undefined {
+    const context = this.commandContext;
+    if (!context) return;
+
+    let bestPath: CellCoord[] | undefined;
+    for (let row = 0; row < context.gridConfig.gridHeight; row++) {
+      for (let col = 0; col < context.gridConfig.gridWidth; col++) {
+        const destination = { col, row };
+        if (!this.isInRange(destination, target)) continue;
+        const path = context.pathfinder.findPath(
+          start,
+          destination,
+          context.gridState,
+          context.gridConfig,
+          context.entityType,
+          context.occupantId,
+        );
+        if (path.length > 0 && (!bestPath || path.length < bestPath.length)) bestPath = path;
+      }
+    }
+    return bestPath;
   }
 
   private setAnimationIdle() {

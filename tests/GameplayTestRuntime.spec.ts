@@ -272,4 +272,306 @@ describe("GameplayTestRuntime", () => {
     });
     expect(pofCompleted.value.events.filter((event) => event.type === "unit.died")).toHaveLength(1);
   });
+
+  it("makes moving Warriors ignore each other until their move orders finish or are blocked", () => {
+    const runtime = createRuntime();
+    const started = runtime.beginScenario({ preset: "warrior-auto-march", simulation: "manual" });
+    expect(started.ok).toBe(true);
+    if (!started.ok) return;
+
+    const movementStats = {
+      hp: 100,
+      damage: 10,
+      rangeCells: 1,
+      fireCooldownFrames: 30,
+      movementFramesPerCell: 10,
+    };
+    expect(runtime.spawnTestUnit({
+      scenarioId: started.value.id,
+      id: "marching-player",
+      archetype: "warrior",
+      team: "player",
+      cell: started.value.landmarks.playerStart,
+      stats: movementStats,
+    })).toMatchObject({ ok: true });
+    expect(runtime.spawnTestUnit({
+      scenarioId: started.value.id,
+      id: "marching-enemy",
+      archetype: "warrior",
+      team: "enemy",
+      cell: started.value.landmarks.enemyStart,
+      stats: { ...movementStats, damage: 4, fireCooldownFrames: 60 },
+    })).toMatchObject({ ok: true });
+    expect(runtime.issueTestOrder({
+      unitId: "marching-player",
+      order: { type: "move", destination: started.value.landmarks.playerDestination },
+    })).toMatchObject({ ok: true });
+    expect(runtime.issueTestOrder({
+      unitId: "marching-enemy",
+      order: { type: "move", destination: started.value.landmarks.enemyDestination },
+    })).toMatchObject({ ok: true });
+
+    const result = runtime.advanceTestFrames(started.value.id, 30);
+    expect(result).toMatchObject({ ok: true });
+    if (!result.ok) return;
+    expect(result.value.events).toContainEqual(expect.objectContaining({
+      type: "unit.entered-cell",
+      unitId: "marching-player",
+    }));
+    expect(result.value.events).toContainEqual(expect.objectContaining({
+      type: "unit.entered-cell",
+      unitId: "marching-enemy",
+    }));
+    expect(result.value.events.filter((event) => event.type === "attack.committed")).toHaveLength(0);
+    expect(result.value.events.filter((event) => event.type === "damage.applied")).toHaveLength(0);
+  });
+
+  it("makes a move order ignore an adjacent enemy while its route remains active", () => {
+    const runtime = createRuntime();
+    const started = runtime.beginScenario({ preset: "warrior-auto-move", simulation: "manual" });
+    expect(started.ok).toBe(true);
+    if (!started.ok) return;
+
+    expect(runtime.spawnTestUnit({
+      scenarioId: started.value.id,
+      id: "moving-attacker",
+      archetype: "warrior",
+      team: "player",
+      cell: started.value.landmarks.attackerStart,
+      stats: { hp: 100, damage: 10, rangeCells: 1, fireCooldownFrames: 30, movementFramesPerCell: 10 },
+    })).toMatchObject({ ok: true });
+    expect(runtime.spawnTestUnit({
+      scenarioId: started.value.id,
+      id: "stationary-defender",
+      archetype: "warrior",
+      team: "enemy",
+      cell: started.value.landmarks.defender,
+      stats: { hp: 100 },
+    })).toMatchObject({ ok: true });
+    const moveOrder = runtime.issueTestOrder({
+      unitId: "moving-attacker",
+      order: { type: "move", destination: started.value.landmarks.destination },
+    });
+    expect(moveOrder).toMatchObject({ ok: true, value: { type: "move", status: "running" } });
+
+    const result = runtime.advanceTestFrames(started.value.id, 30);
+    expect(result).toMatchObject({ ok: true });
+    if (!result.ok) return;
+    expect(result.value.events).toContainEqual(expect.objectContaining({
+      type: "unit.entered-cell",
+      unitId: "moving-attacker",
+      to: { col: 3, row: 0 },
+    }));
+    expect(result.value.events.filter((event) => event.type === "attack.committed")).toHaveLength(0);
+    expect(result.value.orders.find((order) => order.unitId === "moving-attacker")).toMatchObject({
+      type: "move",
+    });
+
+    const afterMove = runtime.advanceTestFrames(started.value.id, 30);
+    expect(afterMove).toMatchObject({ ok: true });
+    if (!afterMove.ok) return;
+    expect(afterMove.value.events).toContainEqual(expect.objectContaining({
+      type: "attack.committed",
+      unitId: "moving-attacker",
+      targetId: "stationary-defender",
+      reason: "melee",
+    }));
+  });
+
+  it("makes a holding Warrior attack an approaching enemy without changing cells", () => {
+    const runtime = createRuntime();
+    const started = runtime.beginScenario({ preset: "warrior-hold-attack", simulation: "manual" });
+    expect(started.ok).toBe(true);
+    if (!started.ok) return;
+
+    expect(runtime.spawnTestUnit({
+      scenarioId: started.value.id,
+      id: "holding-defender",
+      archetype: "warrior",
+      team: "player",
+      cell: started.value.landmarks.defender,
+      stats: { hp: 100, damage: 10, rangeCells: 1, fireCooldownFrames: 30 },
+    })).toMatchObject({ ok: true });
+    expect(runtime.spawnTestUnit({
+      scenarioId: started.value.id,
+      id: "advancing-enemy",
+      archetype: "warrior",
+      team: "enemy",
+      cell: started.value.landmarks.attackerStart,
+      stats: { hp: 100, damage: 4, rangeCells: 1, fireCooldownFrames: 60, movementFramesPerCell: 10 },
+    })).toMatchObject({ ok: true });
+    expect(runtime.issueTestOrder({
+      unitId: "holding-defender",
+      order: { type: "hold-position" },
+    })).toMatchObject({ ok: true });
+    expect(runtime.issueTestOrder({
+      unitId: "advancing-enemy",
+      order: { type: "move", destination: started.value.landmarks.attackerDestination },
+    })).toMatchObject({ ok: true });
+
+    const result = runtime.advanceTestFrames(started.value.id, 60);
+    expect(result).toMatchObject({ ok: true });
+    if (!result.ok) return;
+    expect(result.value.events.some((event) => (
+      event.type === "unit.entered-cell" && event.unitId === "holding-defender"
+    ))).toBe(false);
+    expect(result.value.events).toContainEqual(expect.objectContaining({
+      type: "unit.entered-cell",
+      unitId: "advancing-enemy",
+      to: { col: 2, row: 0 },
+    }));
+    expect(result.value.events).toContainEqual(expect.objectContaining({
+      type: "damage.applied",
+      sourceId: "holding-defender",
+      targetId: "advancing-enemy",
+    }));
+    expect(result.value.orders.find((order) => order.unitId === "holding-defender")).toMatchObject({
+      type: "hold-position",
+      status: "running",
+    });
+  });
+
+  it("keeps a holding Warrior in its square cell while it attacks a passing enemy", () => {
+    const runtime = createRuntime();
+    const started = runtime.beginScenario({ preset: "warrior-hold-square", simulation: "manual" });
+    expect(started.ok).toBe(true);
+    if (!started.ok) return;
+
+    expect(runtime.spawnTestUnit({
+      scenarioId: started.value.id,
+      id: "square-holder",
+      archetype: "warrior",
+      team: "player",
+      cell: started.value.landmarks.defender,
+      stats: { hp: 100, damage: 10, rangeCells: 1, fireCooldownFrames: 30 },
+    })).toMatchObject({ ok: true });
+    expect(runtime.spawnTestUnit({
+      scenarioId: started.value.id,
+      id: "square-passer",
+      archetype: "warrior",
+      team: "enemy",
+      cell: started.value.landmarks.attackerStart,
+      stats: { hp: 100, damage: 4, rangeCells: 1, fireCooldownFrames: 60, movementFramesPerCell: 10 },
+    })).toMatchObject({ ok: true });
+    expect(runtime.issueTestOrder({
+      unitId: "square-holder",
+      order: { type: "hold-position" },
+    })).toMatchObject({ ok: true });
+    expect(runtime.issueTestOrder({
+      unitId: "square-passer",
+      order: { type: "move", destination: started.value.landmarks.attackerDestination },
+    })).toMatchObject({ ok: true });
+
+    const result = runtime.advanceTestFrames(started.value.id, 80);
+    expect(result).toMatchObject({ ok: true });
+    if (!result.ok) return;
+    expect(result.value.events.some((event) => (
+      event.type === "unit.entered-cell" && event.unitId === "square-holder"
+    ))).toBe(false);
+    expect(result.value.events).toContainEqual(expect.objectContaining({
+      type: "unit.entered-cell",
+      unitId: "square-passer",
+      to: { col: 3, row: 4 },
+    }));
+    expect(result.value.events).toContainEqual(expect.objectContaining({
+      type: "damage.applied",
+      sourceId: "square-holder",
+      targetId: "square-passer",
+    }));
+    expect(result.value.units.find((unit) => unit.id === "square-holder")?.cell).toEqual(
+      started.value.landmarks.defender,
+    );
+  });
+
+  it("makes an unordered Warrior pursue and attack the closest enemy in a square scenario", () => {
+    const runtime = createRuntime();
+    const started = runtime.beginScenario({ preset: "warrior-pursuit-square", simulation: "manual" });
+    expect(started.ok).toBe(true);
+    if (!started.ok) return;
+
+    expect(runtime.spawnTestUnit({
+      scenarioId: started.value.id,
+      id: "free-pursuer",
+      archetype: "warrior",
+      team: "player",
+      cell: started.value.landmarks.pursuer,
+      stats: { hp: 100, damage: 10, rangeCells: 1, fireCooldownFrames: 30, movementFramesPerCell: 8 },
+    })).toMatchObject({ ok: true });
+    expect(runtime.spawnTestUnit({
+      scenarioId: started.value.id,
+      id: "stationary-target",
+      archetype: "warrior",
+      team: "enemy",
+      cell: started.value.landmarks.runnerStart,
+      stats: { hp: 100 },
+    })).toMatchObject({ ok: true });
+
+    const result = runtime.advanceTestFrames(started.value.id, 80);
+    expect(result).toMatchObject({ ok: true });
+    if (!result.ok) return;
+    expect(result.value.events).toContainEqual(expect.objectContaining({
+      type: "unit.entered-cell",
+      unitId: "free-pursuer",
+    }));
+    expect(result.value.events).toContainEqual(expect.objectContaining({
+      type: "target.acquired",
+      unitId: "free-pursuer",
+      targetId: "stationary-target",
+    }));
+    expect(result.value.events).toContainEqual(expect.objectContaining({
+      type: "damage.applied",
+      sourceId: "free-pursuer",
+      targetId: "stationary-target",
+    }));
+    expect(result.value.units.find((unit) => unit.id === "free-pursuer")?.order).toBeNull();
+  });
+
+  it("keeps a patrol order active while the Warrior automatically attacks a nearby target", () => {
+    const runtime = createRuntime();
+    const started = runtime.beginScenario({ preset: "warrior-patrol-square", simulation: "manual" });
+    expect(started.ok).toBe(true);
+    if (!started.ok) return;
+
+    expect(runtime.spawnTestUnit({
+      scenarioId: started.value.id,
+      id: "patrolling-warrior",
+      archetype: "warrior",
+      team: "player",
+      cell: started.value.landmarks.patrolStart,
+      stats: { hp: 100, damage: 10, rangeCells: 1, fireCooldownFrames: 30, movementFramesPerCell: 10 },
+    })).toMatchObject({ ok: true });
+    expect(runtime.spawnTestUnit({
+      scenarioId: started.value.id,
+      id: "patrol-target",
+      archetype: "warrior",
+      team: "enemy",
+      cell: started.value.landmarks.target,
+      stats: { hp: 100 },
+    })).toMatchObject({ ok: true });
+    expect(runtime.issueTestOrder({
+      unitId: "patrolling-warrior",
+      order: {
+        type: "patrol",
+        endpoints: [started.value.landmarks.patrolStart, started.value.landmarks.patrolEnd],
+      },
+    })).toMatchObject({ ok: true });
+
+    const result = runtime.advanceTestFrames(started.value.id, 80);
+    expect(result).toMatchObject({ ok: true });
+    if (!result.ok) return;
+    expect(result.value.events).toContainEqual(expect.objectContaining({
+      type: "unit.entered-cell",
+      unitId: "patrolling-warrior",
+      to: { col: 3, row: 2 },
+    }));
+    expect(result.value.events).toContainEqual(expect.objectContaining({
+      type: "damage.applied",
+      sourceId: "patrolling-warrior",
+      targetId: "patrol-target",
+    }));
+    expect(result.value.orders.find((order) => order.unitId === "patrolling-warrior")).toMatchObject({
+      type: "patrol",
+      status: "running",
+    });
+  });
 });

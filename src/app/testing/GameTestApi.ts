@@ -121,7 +121,13 @@ export type TestScenarioPreset =
   | "blocked-route-detour"
   | "spawn-point-demo"
   | "warrior-march"
-  | "warrior-duel";
+  | "warrior-duel"
+  | "warrior-auto-march"
+  | "warrior-auto-move"
+  | "warrior-hold-attack"
+  | "warrior-hold-square"
+  | "warrior-pursuit-square"
+  | "warrior-patrol-square";
 
 export type TestUnitTeam = "player" | "enemy" | "neutral";
 export type TestUnitLifecycle = "alive" | "dying" | "dead" | "despawned";
