@@ -13,6 +13,8 @@ const PRESETS = [
   "tower-placement",
   "dense-occupation",
   "follow-the-leader",
+  "blocked-route-detour",
+  "spawn-point-demo",
 ];
 
 interface PanelState {
@@ -59,12 +61,16 @@ export function createGameplayDebugPanel(api: GameTestApi): HTMLDivElement {
   const loadDenseBtn = createButton("Dense skeleton pair");
   const loadEmptyBtn = createButton("Empty selected scenario");
   const loadFollowBtn = createButton("Follow the leader");
+  const loadDetourBtn = createButton("Obstacle detour");
+  const loadSpawnPointBtn = createButton("Spawn Point");
   demoSection.appendChild(loadPatrolBtn);
   demoSection.appendChild(loadMoveBtn);
   demoSection.appendChild(loadHoldBtn);
   demoSection.appendChild(loadMultiBtn);
   demoSection.appendChild(loadDenseBtn);
   demoSection.appendChild(loadFollowBtn);
+  demoSection.appendChild(loadDetourBtn);
+  demoSection.appendChild(loadSpawnPointBtn);
   demoSection.appendChild(loadEmptyBtn);
   panel.appendChild(demoSection);
 
@@ -342,7 +348,6 @@ export function createGameplayDebugPanel(api: GameTestApi): HTMLDivElement {
         archetype: "skeleton",
         team: "enemy",
         cell: start,
-        stats: { movementFramesPerCell: 4 },
       }))) return;
     }
     for (let i = 0; i < 3; i++) {
@@ -353,6 +358,35 @@ export function createGameplayDebugPanel(api: GameTestApi): HTMLDivElement {
     }
     setPrimaryUnit("follower-0");
     state.reloadDemo = loadFollowDemo;
+    refreshHUD();
+  }
+
+  function loadDetourDemo(): void {
+    const scenario = beginScenario("blocked-route-detour");
+    if (!scenario) return;
+    const unitId = "detour-unit";
+    if (!unwrap(api.spawnTestUnit({
+      scenarioId: scenario.id,
+      id: unitId,
+      archetype: "goblin",
+      team: "player",
+      cell: scenario.landmarks.origin,
+      stats: { movementFramesPerCell: 140 },
+    }))) return;
+    if (!unwrap(api.issueTestOrder({
+      unitId,
+      order: { type: "move", destination: scenario.landmarks.destination },
+    }))) return;
+    setPrimaryUnit(unitId);
+    state.reloadDemo = loadDetourDemo;
+    refreshHUD();
+  }
+
+  function loadSpawnPointDemo(): void {
+    const scenario = beginScenario("spawn-point-demo");
+    if (!scenario) return;
+    setPrimaryUnit(null);
+    state.reloadDemo = loadSpawnPointDemo;
     refreshHUD();
   }
 
@@ -379,6 +413,8 @@ export function createGameplayDebugPanel(api: GameTestApi): HTMLDivElement {
   loadMultiBtn.addEventListener("click", loadMultiUnitDemo);
   loadDenseBtn.addEventListener("click", loadDenseDemo);
   loadFollowBtn.addEventListener("click", loadFollowDemo);
+  loadDetourBtn.addEventListener("click", loadDetourDemo);
+  loadSpawnPointBtn.addEventListener("click", loadSpawnPointDemo);
   loadEmptyBtn.addEventListener("click", () => loadEmptyScenario());
 
   step1Btn.addEventListener("click", () => {

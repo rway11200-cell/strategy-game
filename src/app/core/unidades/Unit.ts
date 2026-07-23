@@ -683,7 +683,7 @@ export class Unit extends Container {
     return this.model.state === "dead" || !this.active;
   }
 
-  public spawn() {
+  public spawn(): boolean {
     this.visible = true;
     this.active = true;
     this.canBeProjectileTarget = true;
@@ -695,7 +695,10 @@ export class Unit extends Container {
 
     if (!this.animatedSprite) {
       debugLogChanged(this.getId("this.animatedSprite not initialized"));
-      return;
+      this.active = false;
+      this.visible = false;
+      this.canBeProjectileTarget = false;
+      return false;
     }
 
     this.animatedSprite.visible = true;
@@ -704,7 +707,13 @@ export class Unit extends Container {
     if (this.targetFollower) {
       this.targetFollower.reset();
       if (this.tileMovement) {
-        this.tileMovement.spawn(this);
+        if (!this.tileMovement.spawn(this)) {
+          this.active = false;
+          this.visible = false;
+          this.canBeProjectileTarget = false;
+          this.animatedSprite.visible = false;
+          return false;
+        }
       } else {
         const origin = this.targetFollower.getOrigin();
         this.position.set(origin.x, origin.y);
@@ -718,6 +727,8 @@ export class Unit extends Container {
     if (this.health !== undefined) {
       this.updateHealth();
     }
+
+    return true;
   }
 
   public destroy() {

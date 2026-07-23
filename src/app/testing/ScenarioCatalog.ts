@@ -1,4 +1,4 @@
-import type { CellCoord } from "../../grid/GridConfig";
+import type { CellCoord, CellType } from "../../grid/GridConfig";
 import type { TestScenarioPreset } from "./GameTestApi";
 
 export interface TestScenarioDefinition {
@@ -12,7 +12,19 @@ export interface TestScenarioDefinition {
   groups: Record<string, CellCoord[]>;
   path: CellCoord[];
   economy: { coins: number };
-  cellTypes?: Record<string, string>;
+  cellTypes?: Record<string, CellType>;
+  structures?: TestScenarioStructure[];
+}
+
+export interface TestScenarioStructure {
+  id: string;
+  cell: CellCoord;
+  footprint: { width: number; height: number };
+  production?: {
+    archetype: string;
+    team: "player" | "enemy" | "neutral";
+    intervalFrames: number;
+  };
 }
 
 const scenarios = new Map<TestScenarioPreset, TestScenarioDefinition>([
@@ -224,6 +236,50 @@ const scenarios = new Map<TestScenarioPreset, TestScenarioDefinition>([
       groups: {},
       path: [],
       economy: { coins: 0 },
+    },
+  ],
+  [
+    "spawn-point-demo",
+    {
+      preset: "spawn-point-demo",
+      grid: { columns: 7, rows: 7, tileSize: 64 },
+      landmarks: {
+        spawnPoint: { col: 1, row: 1 },
+      },
+      groups: {},
+      path: [],
+      economy: { coins: 100 },
+      cellTypes: {
+        "0,0": "blocked",
+      },
+      structures: [{
+        id: "spawn-point",
+        cell: { col: 1, row: 1 },
+        footprint: { width: 3, height: 3 },
+        production: { archetype: "soldier", team: "player", intervalFrames: 90 },
+      }],
+    },
+  ],
+  [
+    "blocked-route-detour",
+    {
+      preset: "blocked-route-detour",
+      grid: { columns: 7, rows: 5, tileSize: 64 },
+      landmarks: {
+        origin: { col: 0, row: 2 },
+        destination: { col: 6, row: 2 },
+        detourGate: { col: 3, row: 0 },
+        fallback: { col: 6, row: 1 },
+      },
+      groups: {},
+      path: [],
+      economy: { coins: 0 },
+      cellTypes: {
+        "3,1": "blocked",
+        "3,2": "blocked",
+        "3,3": "blocked",
+        "3,4": "blocked",
+      },
     },
   ],
 ]);

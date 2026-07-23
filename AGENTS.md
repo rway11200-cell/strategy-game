@@ -6,6 +6,12 @@ Project instructions for coding agents.
 
 - El desarrollo se realiza en la rama `develop`.
 - Al iniciar cada nueva feature, hacer `git pull origin main` en `develop` para mantenerla actualizada con `main`.
+- Usar `codebase-memory-mcp` para explorar, comprender y analizar el impacto de los cambios en el código antes de modificarlo.
+- Para publicar el desarrollo actual desde OpenCode, usar `/publish` o `/publish Mensaje del commit`. El comando crea el commit, hace rebase desde `main` y `develop`, publica en `origin/develop` y actualiza CodeGraph.
+
+## Local Game Access
+
+- Desde otros contenedores de la red interna, el juego está disponible en `http://strategy-game-dev:8080/`.
 
 ## Playwright Tests
 

@@ -13,6 +13,7 @@ const CELL_COLORS: Record<string, number> = {
 
 const GRID_LINE_COLOR = 0xffffff;
 const GRID_LINE_ALPHA = 0.2;
+const STRUCTURE_COLOR = 0x1565c0;
 
 export interface VisualHostContext {
   renderNow(): void;
@@ -82,7 +83,9 @@ export class ScenarioVisualHost {
         const cell = gridState.getCell({ col, row });
         const x = col * config.cellSize;
         const y = row * config.cellSize;
-        const color = CELL_COLORS[cell?.type ?? "walkable"] ?? CELL_COLORS.walkable;
+        const color = cell?.occupantId?.startsWith("structure:")
+          ? STRUCTURE_COLOR
+          : (CELL_COLORS[cell?.type ?? "walkable"] ?? CELL_COLORS.walkable);
         g.rect(x, y, config.cellSize, config.cellSize).fill({ color, alpha: 0.3 });
       }
     }
