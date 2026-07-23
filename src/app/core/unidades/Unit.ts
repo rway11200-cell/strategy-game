@@ -52,7 +52,23 @@ export interface TileTargetFollowerOptions {
 export interface FramesJson {
   idle: string;
   run?: string;
+  attack?: string;
   dead?: string;
+}
+
+interface PendingMeleeAttack {
+  target: Unit;
+  impactAt: number;
+  completesAt: number;
+  damageApplied: boolean;
+}
+
+interface DeathPof {
+  framesRemaining: number;
+  initialScaleX: number;
+  initialScaleY: number;
+  initialAlpha: number;
+  onComplete: () => void;
 }
 export interface UnitProps {
   id?: string;
@@ -92,6 +108,8 @@ export class Unit extends Container {
   private shootOptions?: ShootOptions;
   private combatGridConfig?: GridConfig;
   private lastShotTime: number = 0;
+  private pendingMeleeAttack?: PendingMeleeAttack;
+  private deathPof?: DeathPof;
   public targetToShoot?: Unit;
   private shootingMode: "auto" | "forced" | "disabled" = "auto";
   private forcedShootingTarget?: Unit;
@@ -473,6 +491,11 @@ export class Unit extends Container {
   public update(_time: Ticker) {
     if (!this.active || !this.animatedSprite || !this.animatedSprite.visible) return;
 
+    if (this.model.state === "dead") {
+      this.updateDeathPof(_time);
+      return;
+    }
+
     this.lastCommandMovement = undefined;
     this.model.state = "idle";
 
@@ -533,6 +556,7 @@ export class Unit extends Container {
 
   private setAnimationIdle() {
     const animation = "idle";
+    if (this.lastAnimation === "attack" && this.animatedSprite?.playing) return;
     if (this.model.state !== "dead") this.model.state = "idle";
     if (this.lastAnimation === animation) return;
     this.lastAnimation = animation;
@@ -544,6 +568,7 @@ export class Unit extends Container {
   }
   private setAnimationRun(direction: MovementDirection | undefined) {
     const animation = "run";
+    if (this.lastAnimation === "attack" && this.animatedSprite?.playing) return;
     if (this.model.state !== "dead") this.model.state = "moving";
 
     this.changeFacingDirection(direction);
@@ -556,6 +581,25 @@ export class Unit extends Container {
       this.framesJson.run || this.framesJson.idle,
     ).textures;
     this.animatedSprite.play();
+  }
+
+  private setAnimationAttack(direction: MovementDirection | undefined): number {
+    const animation = "attack";
+    if (!this.animatedSprite || !this.framesJson?.attack) return 0;
+
+    this.model.state = "attacking";
+    this.changeFacingDirection(direction);
+    this.lastAnimation = animation;
+
+    const frames = getFramesAseprite(this.framesJson.attack);
+    this.animatedSprite.stop();
+    this.animatedSprite.loop = false;
+    this.animatedSprite.textures = frames.textures;
+    this.animatedSprite.onComplete = () => {
+      if (this.lastAnimation === animation) this.setAnimationIdle();
+    };
+    this.animatedSprite.play();
+    return frames.totalMs;
   }
 
   private changeFacingDirection(direction: MovementDirection | undefined) {
@@ -583,7 +627,7 @@ export class Unit extends Container {
     }
 
     if (!this.framesJson.dead) {
-      onDeathAction();
+      this.startDeathPof(onDeathAction);
       return;
     }
 
@@ -597,6 +641,36 @@ export class Unit extends Container {
     setTimeout(() => {
       onDeathAction();
     }, frames.totalMs);
+  }
+
+  private startDeathPof(onComplete: () => void): void {
+    if (!this.animatedSprite) {
+      onComplete();
+      return;
+    }
+    this.animatedSprite.stop();
+    this.deathPof = {
+      framesRemaining: 15,
+      initialScaleX: this.animatedSprite.scale.x,
+      initialScaleY: this.animatedSprite.scale.y,
+      initialAlpha: this.animatedSprite.alpha,
+      onComplete,
+    };
+  }
+
+  private updateDeathPof(ticker: Ticker): void {
+    const pof = this.deathPof;
+    if (!pof || !this.animatedSprite) return;
+
+    pof.framesRemaining -= Math.max(1, Math.round(ticker.deltaTime));
+    const progress = 1 - Math.max(0, pof.framesRemaining) / 15;
+    const scale = 1 - progress * 0.35;
+    this.animatedSprite.scale.set(pof.initialScaleX * scale, pof.initialScaleY * scale);
+    this.animatedSprite.alpha = pof.initialAlpha * (1 - progress);
+
+    if (pof.framesRemaining > 0) return;
+    this.deathPof = undefined;
+    pof.onComplete();
   }
   public onTargetAcquired: ((targetId: string) => void) | null = null;
   public onAttackCommitted: ((targetId: string, mode: string) => void) | null = null;
@@ -614,6 +688,12 @@ export class Unit extends Container {
     const gridConfig = this.combatGridConfig;
     const unitCell = this.getGridCell();
     if (!gridConfig || !unitCell) return;
+
+    if (this.pendingMeleeAttack) {
+      this.model.state = "attacking";
+      this.updatePendingMeleeAttack(_time.lastTime, unitCell, gridConfig);
+      return;
+    }
 
     const range = this.model.range;
     const targets = this.shootOptions?.targets ?? [];
@@ -653,18 +733,26 @@ export class Unit extends Container {
     const target = this.targetToShoot;
     const targetCell = target.getGridCell(gridConfig);
     if (!targetCell) return;
+    const direction = targetCell.col < unitCell.col ? "left" : "right";
 
     if (this.model.attackMode === "melee") {
-      const hpBefore = target.hp;
-      target.damage(this.model.damage);
-      this.onAttackCommitted?.(target.getId(), "melee");
-      this.onDamageApplied?.(target.getId(), this.model.damage, hpBefore, target.hp);
-      if (target.isDead()) this.targetToShoot = undefined;
+      const attackDuration = this.setAnimationAttack(direction);
+      if (attackDuration > 0) {
+        this.pendingMeleeAttack = {
+          target,
+          impactAt: _time.lastTime + attackDuration / 2,
+          completesAt: _time.lastTime + attackDuration,
+          damageApplied: false,
+        };
+        return;
+      }
+      this.applyMeleeDamage(target);
       return;
     }
 
     const shootOptions = this.shootOptions;
     if (!shootOptions?.projectileCreator) return;
+    this.setAnimationAttack(direction);
     this.onAttackCommitted?.(target.getId(), "projectile");
     const newProjectile = shootOptions.projectileCreator.get();
     newProjectile.launchAtCell(unitCell, targetCell, gridConfig, target, () => {
@@ -679,6 +767,34 @@ export class Unit extends Container {
     });
   }
 
+  private updatePendingMeleeAttack(time: number, unitCell: CellCoord, gridConfig: GridConfig): void {
+    const attack = this.pendingMeleeAttack;
+    if (!attack) return;
+
+    if (!attack.damageApplied && time >= attack.impactAt) {
+      attack.damageApplied = true;
+      const targetCell = attack.target.getGridCell(gridConfig);
+      if (
+        attack.target.active &&
+        attack.target.canBeProjectileTarget &&
+        targetCell &&
+        this.isInRange(unitCell, targetCell)
+      ) {
+        this.applyMeleeDamage(attack.target);
+      }
+    }
+
+    if (time >= attack.completesAt) this.pendingMeleeAttack = undefined;
+  }
+
+  private applyMeleeDamage(target: Unit): void {
+    const hpBefore = target.hp;
+    target.damage(this.model.damage);
+    this.onAttackCommitted?.(target.getId(), "melee");
+    this.onDamageApplied?.(target.getId(), this.model.damage, hpBefore, target.hp);
+    if (target.isDead()) this.targetToShoot = undefined;
+  }
+
   public isDead(): boolean {
     return this.model.state === "dead" || !this.active;
   }
@@ -690,6 +806,8 @@ export class Unit extends Container {
     this.model.reset();
     this.currentHealth = this.model.hp;
     this.lastAnimation = "idle";
+    this.pendingMeleeAttack = undefined;
+    this.deathPof = undefined;
     if (this.movement) this.movement.active = true;
     if (this.tileMovement) this.tileMovement.active = true;
 
@@ -702,6 +820,8 @@ export class Unit extends Container {
     }
 
     this.animatedSprite.visible = true;
+    this.animatedSprite.alpha = 1;
+    this.animatedSprite.scale.set(1);
     this.animatedSprite.play();
 
     if (this.targetFollower) {
@@ -721,7 +841,7 @@ export class Unit extends Container {
     }
 
     if (this.rangeGraph) {
-      this.rangeGraph.visible = true;
+      this.rangeGraph.visible = false;
     }
 
     if (this.health !== undefined) {
@@ -736,6 +856,7 @@ export class Unit extends Container {
     this.currentCommand = undefined;
     this.canBeProjectileTarget = false;
     this.model.state = "dead";
+    if (this.healthBar) this.healthBar.visible = false;
     if (this.movement) this.movement.active = false;
     if (this.tileMovement) {
       this.tileMovement.active = false;
@@ -768,6 +889,8 @@ export class Unit extends Container {
     }
     this.targetFollower?.clear();
     this.targetToShoot = undefined;
+    this.pendingMeleeAttack = undefined;
+    this.deathPof = undefined;
     this.shootingMode = "disabled";
     if (this.animatedSprite) {
       this.animatedSprite.stop();

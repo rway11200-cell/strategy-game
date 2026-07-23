@@ -15,6 +15,8 @@ const PRESETS = [
   "follow-the-leader",
   "blocked-route-detour",
   "spawn-point-demo",
+  "warrior-march",
+  "warrior-duel",
 ];
 
 interface PanelState {
@@ -65,12 +67,17 @@ export function createGameplayDebugPanel(api: GameTestApi): HTMLDivElement {
 <<<<<<< HEAD
 <<<<<<< HEAD
   const loadSpawnPointBtn = createButton("Spawn Point");
+<<<<<<< HEAD
 =======
   const loadBarracksBtn = createButton("Barracks Spawn");
 >>>>>>> 3b53fdd ([auto] Implementar spawnUnit() con busqueda de celda adyacente + demo)
 =======
   const loadSpawnPointBtn = createButton("Spawn Point");
 >>>>>>> 53ab434 (Stabilize Spawn Point production)
+=======
+  const loadWarriorBtn = createButton("Warrior march");
+  const loadWarriorDuelBtn = createButton("Warrior duel");
+>>>>>>> ec9dde9 (Restore Warrior duel and death effect)
   demoSection.appendChild(loadPatrolBtn);
   demoSection.appendChild(loadMoveBtn);
   demoSection.appendChild(loadHoldBtn);
@@ -81,12 +88,17 @@ export function createGameplayDebugPanel(api: GameTestApi): HTMLDivElement {
 <<<<<<< HEAD
 <<<<<<< HEAD
   demoSection.appendChild(loadSpawnPointBtn);
+<<<<<<< HEAD
 =======
   demoSection.appendChild(loadBarracksBtn);
 >>>>>>> 3b53fdd ([auto] Implementar spawnUnit() con busqueda de celda adyacente + demo)
 =======
   demoSection.appendChild(loadSpawnPointBtn);
 >>>>>>> 53ab434 (Stabilize Spawn Point production)
+=======
+  demoSection.appendChild(loadWarriorBtn);
+  demoSection.appendChild(loadWarriorDuelBtn);
+>>>>>>> ec9dde9 (Restore Warrior duel and death effect)
   demoSection.appendChild(loadEmptyBtn);
   panel.appendChild(demoSection);
 
@@ -460,6 +472,51 @@ export function createGameplayDebugPanel(api: GameTestApi): HTMLDivElement {
     refreshHUD();
   }
 
+  function loadWarriorDemo(): void {
+    const scenario = beginScenario("warrior-march");
+    if (!scenario) return;
+    const unitId = "blue-warrior";
+    if (!unwrap(api.spawnTestUnit({
+      scenarioId: scenario.id,
+      id: unitId,
+      archetype: "warrior",
+      team: "player",
+      cell: scenario.landmarks.origin,
+      stats: { movementFramesPerCell: 90 },
+    }))) return;
+    if (!unwrap(api.issueTestOrder({
+      unitId,
+      order: { type: "move", destination: scenario.landmarks.destination },
+    }))) return;
+    setPrimaryUnit(unitId);
+    state.reloadDemo = loadWarriorDemo;
+    refreshHUD();
+  }
+
+  function loadWarriorDuelDemo(): void {
+    const scenario = beginScenario("warrior-duel");
+    if (!scenario) return;
+    if (!unwrap(api.spawnTestUnit({
+      scenarioId: scenario.id,
+      id: "blue-attacker",
+      archetype: "warrior",
+      team: "player",
+      cell: scenario.landmarks.attacker,
+      stats: { hp: 200, damage: 10, rangeCells: 1, fireCooldownFrames: 30 },
+    }))) return;
+    if (!unwrap(api.spawnTestUnit({
+      scenarioId: scenario.id,
+      id: "blue-defender",
+      archetype: "warrior",
+      team: "enemy",
+      cell: scenario.landmarks.defender,
+      stats: { hp: 200, damage: 4, rangeCells: 1, fireCooldownFrames: 60 },
+    }))) return;
+    setPrimaryUnit("blue-attacker");
+    state.reloadDemo = loadWarriorDuelDemo;
+    refreshHUD();
+  }
+
   function loadEmptyScenario(preset = presetSelect.value as TestScenarioPreset): void {
     const scenario = beginScenario(preset);
     if (!scenario) return;
@@ -487,12 +544,17 @@ export function createGameplayDebugPanel(api: GameTestApi): HTMLDivElement {
 <<<<<<< HEAD
 <<<<<<< HEAD
   loadSpawnPointBtn.addEventListener("click", loadSpawnPointDemo);
+<<<<<<< HEAD
 =======
   loadBarracksBtn.addEventListener("click", loadBarracksSpawnDemo);
 >>>>>>> 3b53fdd ([auto] Implementar spawnUnit() con busqueda de celda adyacente + demo)
 =======
   loadSpawnPointBtn.addEventListener("click", loadSpawnPointDemo);
 >>>>>>> 53ab434 (Stabilize Spawn Point production)
+=======
+  loadWarriorBtn.addEventListener("click", loadWarriorDemo);
+  loadWarriorDuelBtn.addEventListener("click", loadWarriorDuelDemo);
+>>>>>>> ec9dde9 (Restore Warrior duel and death effect)
   loadEmptyBtn.addEventListener("click", () => loadEmptyScenario());
 
   step1Btn.addEventListener("click", () => {

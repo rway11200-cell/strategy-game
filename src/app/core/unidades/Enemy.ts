@@ -6,6 +6,7 @@ export enum EnemyType {
   Goblin = "goblin",
   Skeleton = "skeleton",
   Ghost = "ghost",
+  Warrior = "warrior",
 }
 
 type EnemyDefinition = {
@@ -60,6 +61,21 @@ const EnemyDefinitions = new Map<EnemyType, EnemyDefinition>([
         idle: "goblin scout - silhouette all animations-idle.json",
         run: "goblin scout - silhouette all animations-run.json",
         dead: "goblin scout - silhouette all animations-death 1.json",
+      },
+    },
+  ],
+  [
+    EnemyType.Warrior,
+    {
+      health: 100,
+      damage: 12,
+      speed: 0.7,
+      range: 1,
+      reward: 10,
+      framesJson: {
+        idle: "warrior-idle.json",
+        run: "warrior-run.json",
+        attack: "warrior-attack.json",
       },
     },
   ],

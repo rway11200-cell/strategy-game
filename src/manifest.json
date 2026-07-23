@@ -492,6 +492,99 @@
         },
         {
           "alias": [
+            "main/unidades/jugadores/warrior/warrior-attack.json",
+            "warrior-attack.json"
+          ],
+          "src": [
+            "main/unidades/jugadores/warrior/warrior-attack.json"
+          ],
+          "data": {
+            "tags": {
+              "m": true
+            }
+          }
+        },
+        {
+          "alias": [
+            "main/unidades/jugadores/warrior/warrior-attack.png",
+            "warrior-attack.png"
+          ],
+          "src": [
+            "main/unidades/jugadores/warrior/warrior-attack@0.5x.webp",
+            "main/unidades/jugadores/warrior/warrior-attack@0.5x.png",
+            "main/unidades/jugadores/warrior/warrior-attack.webp",
+            "main/unidades/jugadores/warrior/warrior-attack.png"
+          ],
+          "data": {
+            "tags": {
+              "m": true
+            }
+          }
+        },
+        {
+          "alias": [
+            "main/unidades/jugadores/warrior/warrior-idle.json",
+            "warrior-idle.json"
+          ],
+          "src": [
+            "main/unidades/jugadores/warrior/warrior-idle.json"
+          ],
+          "data": {
+            "tags": {
+              "m": true
+            }
+          }
+        },
+        {
+          "alias": [
+            "main/unidades/jugadores/warrior/warrior-idle.png",
+            "warrior-idle.png"
+          ],
+          "src": [
+            "main/unidades/jugadores/warrior/warrior-idle@0.5x.webp",
+            "main/unidades/jugadores/warrior/warrior-idle@0.5x.png",
+            "main/unidades/jugadores/warrior/warrior-idle.webp",
+            "main/unidades/jugadores/warrior/warrior-idle.png"
+          ],
+          "data": {
+            "tags": {
+              "m": true
+            }
+          }
+        },
+        {
+          "alias": [
+            "main/unidades/jugadores/warrior/warrior-run.json",
+            "warrior-run.json"
+          ],
+          "src": [
+            "main/unidades/jugadores/warrior/warrior-run.json"
+          ],
+          "data": {
+            "tags": {
+              "m": true
+            }
+          }
+        },
+        {
+          "alias": [
+            "main/unidades/jugadores/warrior/warrior-run.png",
+            "warrior-run.png"
+          ],
+          "src": [
+            "main/unidades/jugadores/warrior/warrior-run@0.5x.webp",
+            "main/unidades/jugadores/warrior/warrior-run@0.5x.png",
+            "main/unidades/jugadores/warrior/warrior-run.webp",
+            "main/unidades/jugadores/warrior/warrior-run.png"
+          ],
+          "data": {
+            "tags": {
+              "m": true
+            }
+          }
+        },
+        {
+          "alias": [
             "main/unidades/torres/Torre1.json",
             "Torre1.json"
           ],

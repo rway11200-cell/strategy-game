@@ -121,6 +121,7 @@ export type TestScenarioPreset =
   | "blocked-route-detour"
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   | "spawn-point-demo";
 =======
   | "barracks-spawn-demo";
@@ -128,6 +129,11 @@ export type TestScenarioPreset =
 =======
   | "spawn-point-demo";
 >>>>>>> 53ab434 (Stabilize Spawn Point production)
+=======
+  | "spawn-point-demo"
+  | "warrior-march"
+  | "warrior-duel";
+>>>>>>> ec9dde9 (Restore Warrior duel and death effect)
 
 export type TestUnitTeam = "player" | "enemy" | "neutral";
 export type TestUnitLifecycle = "alive" | "dying" | "dead" | "despawned";
