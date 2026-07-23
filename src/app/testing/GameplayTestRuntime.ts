@@ -147,7 +147,6 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
       const cell = gridState.getCell({ col, row });
       if (cell) gridState.setCell({ col, row }, { ...cell, type });
     }
-
     const structures: ManagedStructure[] = (definition.structures ?? []).map((structure) => ({
       ...clone(structure),
       nextProductionFrame: structure.production ? 1 : null,
