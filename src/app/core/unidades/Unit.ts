@@ -82,6 +82,7 @@ export interface UnitProps {
   damage?: number;
   speed?: number;
   range?: number;
+  vision?: number;
   team?: UnitTeam;
   faction?: UnitFaction;
   state?: UnitState;
@@ -142,6 +143,7 @@ export class Unit extends Container {
       damage: options?.damage ?? options?.shootOptions?.damage,
       speed: options?.speed ?? options?.targetFollowerOptions?.speed,
       range: options?.range ?? options?.shootOptions?.range,
+      vision: options?.vision,
       team: options?.team,
       faction: options?.faction,
       state: options?.state,
@@ -207,6 +209,18 @@ export class Unit extends Container {
 
   public get range(): number {
     return this.model.range;
+  }
+
+  public get vision(): number {
+    return this.model.vision;
+  }
+
+  public get activity(): UnitState {
+    return this.model.state;
+  }
+
+  public setActivity(activity: Exclude<UnitState, "dead">): void {
+    if (this.model.state !== "dead") this.model.state = activity;
   }
 
   public get team(): UnitTeam {
@@ -501,11 +515,13 @@ export class Unit extends Container {
     }
 
     this.lastCommandMovement = undefined;
-    this.model.state = "idle";
 
     if (this.currentCommand && this.commandContext) {
       const status = this.currentCommand.update(this, this.commandContext, _time);
-      if (status !== "running") this.currentCommand = undefined;
+      if (status !== "running") {
+        this.currentCommand = undefined;
+        if (!this.isMovementActionActive()) this.setActivity("idle");
+      }
     } else {
       this.updateAutomaticPursuit();
       this.updateMovement(_time);
@@ -540,7 +556,15 @@ export class Unit extends Container {
 
       const result = this.tileMovement.walk(this, this.targetFollower, _time);
       const { direction } = result;
-      if (result.moved && !this.targetFollower.finished) this.setAnimationRun(direction);
+      if (result.blocked) this.setActivity("blocked");
+      else if (result.moved && !this.targetFollower.finished) {
+        this.setActivity(
+          !this.currentCommand || this.currentCommand.type === "attack" || this.currentCommand.type === "attack-move"
+            ? "pursuing"
+            : "moving",
+        );
+        this.setAnimationRun(direction);
+      }
       else this.setAnimationIdle();
       return result;
     }
@@ -580,6 +604,7 @@ export class Unit extends Container {
     const targetCell = target?.getGridCell(this.commandContext.gridConfig);
     if (!target || !targetCell) {
       if (this.autoPursuitTarget) this.clearCommandMovement();
+      if (!this.isMovementActionActive()) this.setActivity("idle");
       this.autoPursuitTarget = undefined;
       this.autoPursuitTargetCell = undefined;
       return;
@@ -587,6 +612,7 @@ export class Unit extends Container {
 
     if (this.isInRange(unitCell, targetCell)) {
       if (this.autoPursuitTarget) this.clearCommandMovement();
+      this.setActivity("idle");
       this.autoPursuitTarget = target;
       this.autoPursuitTargetCell = { ...targetCell };
       return;
@@ -602,18 +628,22 @@ export class Unit extends Container {
     this.autoPursuitTarget = target;
     this.autoPursuitTargetCell = { ...targetCell };
     const path = this.findPathToAttackRange(unitCell, targetCell);
-    if (path) this.setCommandCellRoute(path);
+    if (path) {
+      this.setActivity("pursuing");
+      this.setCommandCellRoute(path);
+    }
     else this.clearCommandMovement();
   }
 
   private getAutoPursuitTarget(unitCell: CellCoord): Unit | undefined {
     const current = this.autoPursuitTarget;
-    if (current?.active && current.canBeProjectileTarget) return current;
+    if (current?.active && current.canBeProjectileTarget && this.canSee(current)) return current;
 
     let closest: Unit | undefined;
     let closestDistance = Infinity;
     for (const target of this.shootOptions?.targets ?? []) {
       if (!target.active || !target.canBeProjectileTarget) continue;
+      if (!this.canSee(target)) continue;
       const targetCell = target.getGridCell(this.commandContext!.gridConfig);
       if (!targetCell) continue;
       const distance = Math.hypot(targetCell.col - unitCell.col, targetCell.row - unitCell.row);
@@ -623,6 +653,17 @@ export class Unit extends Container {
       }
     }
     return closest;
+  }
+
+  public canSee(target: Unit): boolean {
+    const gridConfig = this.commandContext?.gridConfig ?? this.combatGridConfig;
+    const unitCell = gridConfig && this.getGridCell(gridConfig);
+    const targetCell = gridConfig && target.getGridCell(gridConfig);
+    return Boolean(
+      unitCell &&
+      targetCell &&
+      Math.hypot(targetCell.col - unitCell.col, targetCell.row - unitCell.row) <= this.vision,
+    );
   }
 
   private findPathToAttackRange(start: CellCoord, target: CellCoord): CellCoord[] | undefined {
@@ -784,7 +825,7 @@ export class Unit extends Container {
     if (!gridConfig || !unitCell) return;
 
     if (this.pendingMeleeAttack) {
-      this.model.state = "attacking";
+      this.setActivity("attacking");
       this.updatePendingMeleeAttack(_time.lastTime, unitCell, gridConfig);
       return;
     }
@@ -814,7 +855,7 @@ export class Unit extends Container {
     }
 
     if (!this.targetToShoot) return;
-    this.model.state = "attacking";
+    this.setActivity("attacking");
 
     if (this.model.cooldown > 0 && this.lastShotTime > 0) {
       const frameDelta = Math.round(_time.lastTime - this.lastShotTime);

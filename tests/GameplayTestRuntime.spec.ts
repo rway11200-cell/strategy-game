@@ -526,6 +526,91 @@ describe("GameplayTestRuntime", () => {
     expect(result.value.units.find((unit) => unit.id === "free-pursuer")?.order).toBeNull();
   });
 
+  it("pauses an attack-move order to defeat a visible enemy and then resumes its destination", () => {
+    const runtime = createRuntime();
+    const started = runtime.beginScenario({ preset: "warrior-pursuit-square", simulation: "manual" });
+    expect(started.ok).toBe(true);
+    if (!started.ok) return;
+
+    expect(runtime.spawnTestUnit({
+      scenarioId: started.value.id,
+      id: "attack-mover",
+      archetype: "warrior",
+      team: "player",
+      cell: started.value.landmarks.pursuer,
+      stats: { hp: 100, damage: 100, rangeCells: 1, fireCooldownFrames: 1, movementFramesPerCell: 8 },
+    })).toMatchObject({ ok: true });
+    expect(runtime.spawnTestUnit({
+      scenarioId: started.value.id,
+      id: "route-guard",
+      archetype: "warrior",
+      team: "enemy",
+      cell: started.value.landmarks.runnerStart,
+      stats: { hp: 100 },
+    })).toMatchObject({ ok: true });
+    expect(runtime.issueTestOrder({
+      unitId: "attack-mover",
+      order: { type: "attack-move", destination: started.value.landmarks.runnerDestination },
+    })).toMatchObject({ ok: true });
+
+    const result = runtime.advanceTestFrames(started.value.id, 160);
+    expect(result).toMatchObject({ ok: true });
+    if (!result.ok) return;
+    expect(result.value.events).toContainEqual(expect.objectContaining({
+      type: "damage.applied",
+      sourceId: "attack-mover",
+      targetId: "route-guard",
+    }));
+    expect(result.value.units.find((unit) => unit.id === "attack-mover")?.cell).toEqual(
+      started.value.landmarks.runnerDestination,
+    );
+    expect(result.value.orders.find((order) => order.unitId === "attack-mover")).toMatchObject({
+      type: "attack-move",
+      status: "completed",
+    });
+  });
+
+  it("keeps an attack-moving Warrior progressing forward while its target changes cells", () => {
+    const runtime = createRuntime();
+    const started = runtime.beginScenario({ preset: "warrior-auto-march", simulation: "manual" });
+    expect(started.ok).toBe(true);
+    if (!started.ok) return;
+
+    const stats = { hp: 200, damage: 10, rangeCells: 1, fireCooldownFrames: 30, movementFramesPerCell: 60 };
+    expect(runtime.spawnTestUnit({
+      scenarioId: started.value.id,
+      id: "forward-player",
+      archetype: "warrior",
+      team: "player",
+      cell: started.value.landmarks.playerStart,
+      stats,
+    })).toMatchObject({ ok: true });
+    expect(runtime.spawnTestUnit({
+      scenarioId: started.value.id,
+      id: "forward-enemy",
+      archetype: "warrior",
+      team: "enemy",
+      cell: started.value.landmarks.enemyStart,
+      stats,
+    })).toMatchObject({ ok: true });
+    expect(runtime.issueTestOrder({
+      unitId: "forward-player",
+      order: { type: "attack-move", destination: started.value.landmarks.playerDestination },
+    })).toMatchObject({ ok: true });
+    expect(runtime.issueTestOrder({
+      unitId: "forward-enemy",
+      order: { type: "attack-move", destination: started.value.landmarks.enemyDestination },
+    })).toMatchObject({ ok: true });
+
+    let previousX = -Infinity;
+    for (let frame = 0; frame < 180; frame += 1) {
+      expect(runtime.advanceTestFrames(started.value.id, 1)).toMatchObject({ ok: true });
+      const player = runtime.getScenarioSnapshot(started.value.id).units.find((unit) => unit.id === "forward-player");
+      expect(player?.world.x).toBeGreaterThanOrEqual(previousX);
+      previousX = player?.world.x ?? previousX;
+    }
+  });
+
   it("keeps a patrol order active while the Warrior automatically attacks a nearby target", () => {
     const runtime = createRuntime();
     const started = runtime.beginScenario({ preset: "warrior-patrol-square", simulation: "manual" });
