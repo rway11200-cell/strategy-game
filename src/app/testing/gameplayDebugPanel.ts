@@ -1,4 +1,3 @@
-import type { CellCoord } from "../../grid/GridConfig";
 import type {
   ApiResult,
   GameTestApi,
@@ -23,8 +22,6 @@ interface PanelState {
   playing: boolean;
   primaryUnitId: string | null;
   reloadDemo: (() => void) | null;
-  barracksSpawnCount: number;
-  barracksCell: CellCoord | null;
 }
 
 export function createGameplayDebugPanel(api: GameTestApi): HTMLDivElement {
@@ -33,8 +30,6 @@ export function createGameplayDebugPanel(api: GameTestApi): HTMLDivElement {
     playing: false,
     primaryUnitId: null,
     reloadDemo: null,
-    barracksSpawnCount: 0,
-    barracksCell: null,
   };
 
   const panel = document.createElement("div");
@@ -68,10 +63,14 @@ export function createGameplayDebugPanel(api: GameTestApi): HTMLDivElement {
   const loadFollowBtn = createButton("Follow the leader");
   const loadDetourBtn = createButton("Obstacle detour");
 <<<<<<< HEAD
+<<<<<<< HEAD
   const loadSpawnPointBtn = createButton("Spawn Point");
 =======
   const loadBarracksBtn = createButton("Barracks Spawn");
 >>>>>>> 3b53fdd ([auto] Implementar spawnUnit() con busqueda de celda adyacente + demo)
+=======
+  const loadSpawnPointBtn = createButton("Spawn Point");
+>>>>>>> 53ab434 (Stabilize Spawn Point production)
   demoSection.appendChild(loadPatrolBtn);
   demoSection.appendChild(loadMoveBtn);
   demoSection.appendChild(loadHoldBtn);
@@ -80,10 +79,14 @@ export function createGameplayDebugPanel(api: GameTestApi): HTMLDivElement {
   demoSection.appendChild(loadFollowBtn);
   demoSection.appendChild(loadDetourBtn);
 <<<<<<< HEAD
+<<<<<<< HEAD
   demoSection.appendChild(loadSpawnPointBtn);
 =======
   demoSection.appendChild(loadBarracksBtn);
 >>>>>>> 3b53fdd ([auto] Implementar spawnUnit() con busqueda de celda adyacente + demo)
+=======
+  demoSection.appendChild(loadSpawnPointBtn);
+>>>>>>> 53ab434 (Stabilize Spawn Point production)
   demoSection.appendChild(loadEmptyBtn);
   panel.appendChild(demoSection);
 
@@ -201,8 +204,6 @@ export function createGameplayDebugPanel(api: GameTestApi): HTMLDivElement {
     state.scenarioId = null;
     state.primaryUnitId = null;
     state.reloadDemo = null;
-    state.barracksSpawnCount = 0;
-    state.barracksCell = null;
     cleanupBtn.disabled = true;
     stopBtn.disabled = true;
   }
@@ -398,6 +399,7 @@ export function createGameplayDebugPanel(api: GameTestApi): HTMLDivElement {
   }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   function loadSpawnPointDemo(): void {
     const scenario = beginScenario("spawn-point-demo");
     if (!scenario) return;
@@ -448,6 +450,13 @@ export function createGameplayDebugPanel(api: GameTestApi): HTMLDivElement {
       loadBarracksSpawnDemo();
     };
 >>>>>>> 3b53fdd ([auto] Implementar spawnUnit() con busqueda de celda adyacente + demo)
+=======
+  function loadSpawnPointDemo(): void {
+    const scenario = beginScenario("spawn-point-demo");
+    if (!scenario) return;
+    setPrimaryUnit(null);
+    state.reloadDemo = loadSpawnPointDemo;
+>>>>>>> 53ab434 (Stabilize Spawn Point production)
     refreshHUD();
   }
 
@@ -476,10 +485,14 @@ export function createGameplayDebugPanel(api: GameTestApi): HTMLDivElement {
   loadFollowBtn.addEventListener("click", loadFollowDemo);
   loadDetourBtn.addEventListener("click", loadDetourDemo);
 <<<<<<< HEAD
+<<<<<<< HEAD
   loadSpawnPointBtn.addEventListener("click", loadSpawnPointDemo);
 =======
   loadBarracksBtn.addEventListener("click", loadBarracksSpawnDemo);
 >>>>>>> 3b53fdd ([auto] Implementar spawnUnit() con busqueda de celda adyacente + demo)
+=======
+  loadSpawnPointBtn.addEventListener("click", loadSpawnPointDemo);
+>>>>>>> 53ab434 (Stabilize Spawn Point production)
   loadEmptyBtn.addEventListener("click", () => loadEmptyScenario());
 
   step1Btn.addEventListener("click", () => {

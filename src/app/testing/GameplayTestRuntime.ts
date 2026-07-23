@@ -28,7 +28,6 @@ import type {
   ScenarioTestSnapshot,
   ScenarioTestState,
   SpawnTestUnitOptions,
-  SpawnUnitAroundOptions,
   TestEventSnapshot,
   TestOrderSnapshot,
   TestUnitSnapshot,
@@ -150,6 +149,9 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
     }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 53ab434 (Stabilize Spawn Point production)
     const structures: ManagedStructure[] = (definition.structures ?? []).map((structure) => ({
       ...clone(structure),
       nextProductionFrame: structure.production ? 1 : null,
@@ -161,6 +163,7 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
         structure.footprint.width,
         structure.footprint.height,
       );
+<<<<<<< HEAD
       for (const c of cells) {
         gridState.occupyCell(c, `structure:${structure.id}`);
 =======
@@ -171,6 +174,10 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
       for (const c of cells) {
         gridState.occupyCell(c, `barracks-${barracksAnchor.col}-${barracksAnchor.row}`);
 >>>>>>> 3b53fdd ([auto] Implementar spawnUnit() con busqueda de celda adyacente + demo)
+=======
+      for (const c of cells) {
+        gridState.occupyCell(c, `structure:${structure.id}`);
+>>>>>>> 53ab434 (Stabilize Spawn Point production)
       }
     }
 
@@ -329,6 +336,7 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
     };
 
     if (!enemy.spawn()) {
+<<<<<<< HEAD
       return this.failure(
         "SPAWN_OCCUPATION_FAILED",
         `Unit "${options.id}" could not occupy cell (${finalCell.col}, ${finalCell.row})`,
@@ -396,100 +404,13 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
     );
 
     if (!freeCell) {
+=======
+>>>>>>> 53ab434 (Stabilize Spawn Point production)
       return this.failure(
-        "NO_ADJACENT_CELL_FREE",
-        `No free adjacent cell around barracks at (${options.buildingCell.col}, ${options.buildingCell.row})`,
+        "SPAWN_OCCUPATION_FAILED",
+        `Unit "${options.id}" could not occupy cell (${finalCell.col}, ${finalCell.row})`,
       );
     }
-
-    const finalCell: CellCoord = freeCell;
-
-    const ARCHETYPE_TO_ENEMY: Record<string, EnemyType> = {
-      goblin: EnemyType.Goblin,
-      skeleton: EnemyType.Skeleton,
-      ghost: EnemyType.Ghost,
-      soldier: EnemyType.Goblin,
-    };
-    const enemy = new Enemy(scenario.container, { id: options.id });
-    enemy.initializeEnemy(ARCHETYPE_TO_ENEMY[options.archetype] ?? EnemyType.Goblin);
-
-    const hasCombat = options.stats && (options.stats.damage ?? 0) > 0;
-    const attackMode = options.stats?.rangeCells && options.stats.rangeCells > 1 ? "projectile" : "melee";
-
-    if (options.stats) {
-      if (options.stats.movementFramesPerCell !== undefined) {
-        enemy.initializeSpeed(scenario.gridConfig.cellSize / options.stats.movementFramesPerCell);
-      }
-      if (options.stats.hp !== undefined) {
-        enemy.initializeHealthBar(options.stats.hp);
-      }
-      if (hasCombat) {
-        enemy.model.configure({
-          damage: options.stats.damage,
-          range: options.stats.rangeCells ?? 1,
-          attackMode,
-          cooldown: options.stats.fireCooldownFrames ?? 1,
-        });
-      }
-    }
-
-    enemy.initializeTileMovement({
-      cells: [finalCell],
-      gridConfig: scenario.gridConfig,
-      gridState: scenario.gridState,
-      start: finalCell,
-      entityType: options.archetype,
-      ...(options.stats?.movementFramesPerCell !== undefined
-        ? { ticksPerCell: options.stats.movementFramesPerCell }
-        : {}),
-    });
-
-    if (hasCombat) {
-      enemy.initializeShootingRange({
-        range: options.stats!.rangeCells ?? 1,
-        fireRate: (options.stats!.fireCooldownFrames ?? 1) / 60,
-        projectileCreator: scenario.projectileCreator,
-        damage: options.stats!.damage!,
-        targets: [],
-      });
-    }
-
-    enemy.onTargetAcquired = (targetId) => {
-      scenario.events.push({
-        sequence: scenario.nextSequence++,
-        frame: scenario.frame,
-        scenarioId: scenario.scenarioId,
-        type: "target.acquired",
-        unitId: options.id,
-        targetId,
-      });
-    };
-    enemy.onAttackCommitted = (targetId, mode) => {
-      scenario.events.push({
-        sequence: scenario.nextSequence++,
-        frame: scenario.frame,
-        scenarioId: scenario.scenarioId,
-        type: "attack.committed",
-        unitId: options.id,
-        targetId,
-        reason: mode,
-      });
-    };
-    enemy.onDamageApplied = (targetId, amount, hpBefore, hpAfter) => {
-      scenario.events.push({
-        sequence: scenario.nextSequence++,
-        frame: scenario.frame,
-        scenarioId: scenario.scenarioId,
-        type: "damage.applied",
-        sourceId: options.id,
-        targetId,
-        amount,
-        hpBefore,
-        hpAfter,
-      });
-    };
-
-    enemy.spawn();
 
     const managed: ManagedUnit = {
       enemy,
@@ -504,6 +425,7 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
     scenario.units.push(managed);
 
     this.refreshTargets(scenario);
+
     this.visualHost?.updateGrid(scenario.gridState);
 
     const snapshot = this.buildUnitSnapshot(managed, scenario);
