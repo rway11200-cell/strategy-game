@@ -132,8 +132,18 @@ export type TestScenarioPreset =
 =======
   | "spawn-point-demo"
   | "warrior-march"
+<<<<<<< HEAD
   | "warrior-duel";
 >>>>>>> ec9dde9 (Restore Warrior duel and death effect)
+=======
+  | "warrior-duel"
+  | "warrior-auto-march"
+  | "warrior-auto-move"
+  | "warrior-hold-attack"
+  | "warrior-hold-square"
+  | "warrior-pursuit-square"
+  | "warrior-patrol-square";
+>>>>>>> 5a1e011 (Add automatic Warrior combat scenarios)
 
 export type TestUnitTeam = "player" | "enemy" | "neutral";
 export type TestUnitLifecycle = "alive" | "dying" | "dead" | "despawned";
