@@ -149,4 +149,8 @@ export class GameManager {
     this.gameContext.towerCreator.update(_time);
     this.gameContext.projectileCreator.update(_time);
   }
+
+  public getActiveUnits(): Unit[] {
+    return this.gameContext.enemyCreator.getUnits(true);
+  }
 }
