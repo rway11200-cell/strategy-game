@@ -1,10 +1,18 @@
 import { Container, Graphics, Ticker } from "pixi.js";
-import { createGridConfig, gridToWorld, type GridConfig } from "../../grid/GridConfig";
+import { createGridConfig, gridToWorld, type CellCoord, type GridConfig } from "../../grid/GridConfig";
 import { GridState } from "../../grid/GridState";
 import { UnitCreator } from "./UnitCreator";
 import { Enemy, EnemyType } from "./unidades/Enemy";
 import { Projectile } from "./unidades/Projectile";
 import { Unit } from "./unidades/Unit";
+import {
+  AttackCommand,
+  AttackMoveCommand,
+  HoldPositionCommand,
+  MoveCommand,
+  PatrolCommand,
+  StopCommand,
+} from "./UnitCommands";
 
 const GRID_COLS = 40;
 const GRID_ROWS = 24;
@@ -165,5 +173,37 @@ export class SandboxManager {
 
   getActiveUnits(): Unit[] {
     return this.allUnits.filter((u) => u.active && !u.isDead());
+  }
+
+  issueMove(unit: Unit, destination: CellCoord): void {
+    unit.issueCommand(new MoveCommand(destination));
+  }
+
+  issueAttackMove(unit: Unit, destination: CellCoord): void {
+    unit.issueCommand(new AttackMoveCommand(destination));
+  }
+
+  issueAttack(unit: Unit, target: Unit): void {
+    unit.issueCommand(new AttackCommand(target));
+  }
+
+  issueStop(unit: Unit): void {
+    unit.issueCommand(new StopCommand());
+  }
+
+  issueHold(unit: Unit): void {
+    unit.issueCommand(new HoldPositionCommand());
+  }
+
+  issuePatrol(unit: Unit, endpoints: [CellCoord, CellCoord]): void {
+    unit.issueCommand(new PatrolCommand(endpoints));
+  }
+
+  findUnitAt(cell: CellCoord): Unit | undefined {
+    return this.allUnits.find((u) => {
+      if (!u.active || u.isDead()) return false;
+      const uc = u.getGridCell(this.gridConfig);
+      return uc && uc.col === cell.col && uc.row === cell.row;
+    });
   }
 }
