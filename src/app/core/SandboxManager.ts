@@ -6,10 +6,10 @@ import { Enemy, EnemyType } from "./unidades/Enemy";
 import { Projectile } from "./unidades/Projectile";
 import { Unit } from "./unidades/Unit";
 
-const GRID_COLS = 12;
-const GRID_ROWS = 9;
+const GRID_COLS = 14;
+const GRID_ROWS = 11;
 const CELL_SIZE = 64;
-const BLOCK_COUNT = 5;
+const BLOCK_COUNT = 7;
 
 function randomCell(cols: number, rows: number): { col: number; row: number } {
   return {
@@ -27,7 +27,13 @@ export class SandboxManager {
   private readonly blockedCells: Set<string> = new Set();
 
   constructor(private readonly worldContainer: Container) {
-    this.gridConfig = createGridConfig({ gridWidth: GRID_COLS, gridHeight: GRID_ROWS, cellSize: CELL_SIZE });
+    this.gridConfig = createGridConfig({
+      gridWidth: GRID_COLS,
+      gridHeight: GRID_ROWS,
+      cellSize: CELL_SIZE,
+      offsetX: (1600 - GRID_COLS * CELL_SIZE) / 2,
+      offsetY: (1080 - GRID_ROWS * CELL_SIZE) / 2,
+    });
     this.gridState = new GridState(this.gridConfig);
 
     this.placeBlockedCells();
@@ -66,20 +72,22 @@ export class SandboxManager {
     const size = CELL_SIZE;
     const cols = GRID_COLS;
     const rows = GRID_ROWS;
+    const ox = this.gridConfig.offsetX;
+    const oy = this.gridConfig.offsetY;
 
     for (let row = 0; row < rows; row++) {
       for (let col = 0; col < cols; col++) {
         const cell = this.gridState.getCell({ col, row });
         const color = cell?.type === "blocked" ? 0x37474f : 0x2e7d32;
-        g.rect(col * size, row * size, size, size).fill({ color, alpha: 0.5 });
+        g.rect(ox + col * size, oy + row * size, size, size).fill({ color, alpha: 0.5 });
       }
     }
 
     for (let c = 0; c <= cols; c++) {
-      g.moveTo(c * size, 0).lineTo(c * size, rows * size);
+      g.moveTo(ox + c * size, oy).lineTo(ox + c * size, oy + rows * size);
     }
     for (let r = 0; r <= rows; r++) {
-      g.moveTo(0, r * size).lineTo(cols * size, r * size);
+      g.moveTo(ox, oy + r * size).lineTo(ox + cols * size, oy + r * size);
     }
     g.stroke({ width: 1, color: 0xffffff, alpha: 0.15 });
 
