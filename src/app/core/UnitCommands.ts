@@ -97,6 +97,8 @@ export class MoveCommand extends BaseCommand {
   readonly type = "move" as const;
 
   static readonly MAX_FRAMES_WITHOUT_PROGRESS = 30;
+  static readonly MAX_FRAMES_WITHOUT_PROGRESS_ENEMY_BLOCK = 20;
+  static readonly MAX_FRAMES_WITHOUT_PROGRESS_ALLY_BLOCK = 90;
   private framesWithoutProgress = 0;
   private bestDistance = Infinity;
   private resolvedDestination?: CellCoord;
@@ -153,8 +155,8 @@ export class MoveCommand extends BaseCommand {
     this.framesWithoutProgress++;
     const stepInProgress = unit.getCommandMovementState().stepProgress > 0;
     if (
-      this.framesWithoutProgress >= MoveCommand.MAX_FRAMES_WITHOUT_PROGRESS &&
-      !stepInProgress
+      !stepInProgress &&
+      this.framesWithoutProgress >= this.resolveMaxFramesWithoutProgress(unit, context)
     ) {
       this.completeBlocked(unit);
       return this.status;
@@ -179,6 +181,19 @@ export class MoveCommand extends BaseCommand {
     unit.freezeMovement();
     this.completionReason ??= "blocked";
     this.status = "completed";
+  }
+
+  private resolveMaxFramesWithoutProgress(unit: Unit, context: CommandContext): number {
+    const targetCell = unit.getCommandMovementState().targetCell;
+    if (!targetCell) return MoveCommand.MAX_FRAMES_WITHOUT_PROGRESS;
+    const cell = context.gridState.getCell(targetCell);
+    if (!cell?.occupied || cell.type === "blocked" || !cell.occupantId) {
+      return MoveCommand.MAX_FRAMES_WITHOUT_PROGRESS;
+    }
+    const blockedByEnemy = context.enemies.some((e) => e.getId() === cell.occupantId);
+    return blockedByEnemy
+      ? MoveCommand.MAX_FRAMES_WITHOUT_PROGRESS_ENEMY_BLOCK
+      : MoveCommand.MAX_FRAMES_WITHOUT_PROGRESS_ALLY_BLOCK;
   }
 
   protected pathTo(unit: Unit, context: CommandContext): boolean {
