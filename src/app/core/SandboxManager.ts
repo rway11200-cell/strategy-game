@@ -6,10 +6,10 @@ import { Enemy, EnemyType } from "./unidades/Enemy";
 import { Projectile } from "./unidades/Projectile";
 import { Unit } from "./unidades/Unit";
 
-const GRID_COLS = 14;
-const GRID_ROWS = 11;
-const CELL_SIZE = 64;
-const BLOCK_COUNT = 7;
+const GRID_COLS = 40;
+const GRID_ROWS = 24;
+const CELL_SIZE = 32;
+const BLOCK_COUNT = 12;
 
 function randomCell(cols: number, rows: number): { col: number; row: number } {
   return {
