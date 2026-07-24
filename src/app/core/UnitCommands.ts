@@ -185,15 +185,30 @@ export class MoveCommand extends BaseCommand {
 
   private resolveMaxFramesWithoutProgress(unit: Unit, context: CommandContext): number {
     const targetCell = unit.getCommandMovementState().targetCell;
-    if (!targetCell) return MoveCommand.MAX_FRAMES_WITHOUT_PROGRESS;
-    const cell = context.gridState.getCell(targetCell);
-    if (!cell?.occupied || cell.type === "blocked" || !cell.occupantId) {
+    if (targetCell) {
+      const cell = context.gridState.getCell(targetCell);
+      if (cell?.occupied && cell.type !== "blocked" && cell.occupantId) {
+        const blockedByEnemy = context.enemies.some((e) => e.getId() === cell.occupantId);
+        return blockedByEnemy
+          ? MoveCommand.MAX_FRAMES_WITHOUT_PROGRESS_ENEMY_BLOCK
+          : MoveCommand.MAX_FRAMES_WITHOUT_PROGRESS_ALLY_BLOCK;
+      }
       return MoveCommand.MAX_FRAMES_WITHOUT_PROGRESS;
     }
-    const blockedByEnemy = context.enemies.some((e) => e.getId() === cell.occupantId);
-    return blockedByEnemy
-      ? MoveCommand.MAX_FRAMES_WITHOUT_PROGRESS_ENEMY_BLOCK
-      : MoveCommand.MAX_FRAMES_WITHOUT_PROGRESS_ALLY_BLOCK;
+
+    const unitCell = unit.getGridCell(context.gridConfig);
+    if (!unitCell) return MoveCommand.MAX_FRAMES_WITHOUT_PROGRESS;
+    for (const [dc, dr] of [
+      [0, -1], [0, 1], [-1, 0], [1, 0],
+      [-1, -1], [-1, 1], [1, -1], [1, 1],
+    ]) {
+      const cell = context.gridState.getCell({ col: unitCell.col + dc, row: unitCell.row + dr });
+      if (cell?.occupied && cell.type !== "blocked" && cell.occupantId) {
+        const blockedByEnemy = context.enemies.some((e) => e.getId() === cell.occupantId);
+        if (!blockedByEnemy) return MoveCommand.MAX_FRAMES_WITHOUT_PROGRESS_ALLY_BLOCK;
+      }
+    }
+    return MoveCommand.MAX_FRAMES_WITHOUT_PROGRESS;
   }
 
   protected pathTo(unit: Unit, context: CommandContext): boolean {
