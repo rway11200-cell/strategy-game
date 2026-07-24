@@ -98,7 +98,7 @@ export class MoveCommand extends BaseCommand {
 
   static readonly MAX_FRAMES_WITHOUT_PROGRESS = 30;
   static readonly MAX_FRAMES_WITHOUT_PROGRESS_ENEMY_BLOCK = 20;
-  static readonly MAX_FRAMES_WITHOUT_PROGRESS_ALLY_BLOCK = 90;
+  static readonly MAX_FRAMES_WITHOUT_PROGRESS_ALLY_BLOCK = 180;
   private framesWithoutProgress = 0;
   private bestDistance = Infinity;
   private resolvedDestination?: CellCoord;
