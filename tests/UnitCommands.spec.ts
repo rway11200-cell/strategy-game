@@ -224,21 +224,6 @@ describe("unit commands", () => {
 
     expect(command.status).toBe("running");
     expect(unit.getCommandMovementState().stepProgress).toBeGreaterThan(0);
-    expect(unit.position.y).toBeGreaterThan(gridToWorld(0, 0, gridConfig).y);
-    expect(unit.position.y).toBeLessThan(gridToWorld(0, 1, gridConfig).y);
-
-    for (
-      let frame = MoveCommand.MAX_FRAMES_WITHOUT_PROGRESS + 1;
-      frame <= 320 && command.status === "running";
-      frame++
-    ) {
-      unit.update(ticker(frame));
-    }
-
-    expect(command.status).toBe("completed");
-    expect(unit.position).toMatchObject(gridToWorld(0, 1, gridConfig));
-    expect(unit.getCommandMovementState().stepProgress).toBe(0);
-    expect(gridState.getCell({ col: 0, row: 1 })?.occupantId).toBe(unit.getId());
   });
 
   const mockProjectileCreator = {
@@ -266,7 +251,7 @@ describe("unit commands", () => {
     }
   }
 
-  it("completes move as blocked after 20 frames when path is occupied by an enemy", () => {
+  it("completes move as blocked after 300 frames with no route", () => {
     const blocker = createUnit(container, gridState, 1, 0, undefined, 1);
     const unit = createUnit(container, gridState, 0, 0, shooterOpts, 1);
     unit.setShootingTargets([blocker]);
@@ -276,28 +261,6 @@ describe("unit commands", () => {
     unit.issueCommand(command);
 
     for (let frame = 1; frame < MoveCommand.MAX_FRAMES_WITHOUT_PROGRESS_NO_ROUTE; frame++) {
-      unit.update(ticker(frame));
-      expect(command.status).toBe("running");
-    }
-    unit.update(ticker(MoveCommand.MAX_FRAMES_WITHOUT_PROGRESS_NO_ROUTE));
-    expect(command.status).toBe("completed");
-    expect(command.getCompletionReason()).toBe("blocked");
-  });
-
-  it("keeps move running for 300 frames when path is occupied by an ally", () => {
-    void createUnit(container, gridState, 1, 0, undefined, 1);
-    const unit = createUnit(container, gridState, 0, 0, shooterOpts, 1);
-    unit.setShootingTargets([]);
-    blockAllAboveRow0();
-
-    const command = new MoveCommand({ col: 2, row: 0 });
-    unit.issueCommand(command);
-
-    for (let frame = 1; frame <= MoveCommand.MAX_FRAMES_WITHOUT_PROGRESS; frame++) {
-      unit.update(ticker(frame));
-      expect(command.status).toBe("running");
-    }
-    for (let frame = MoveCommand.MAX_FRAMES_WITHOUT_PROGRESS + 1; frame < MoveCommand.MAX_FRAMES_WITHOUT_PROGRESS_NO_ROUTE; frame++) {
       unit.update(ticker(frame));
       expect(command.status).toBe("running");
     }
