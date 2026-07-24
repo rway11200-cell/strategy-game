@@ -241,6 +241,71 @@ describe("unit commands", () => {
     expect(gridState.getCell({ col: 0, row: 1 })?.occupantId).toBe(unit.getId());
   });
 
+  const mockProjectileCreator = {
+    get: () => new Projectile(container),
+    getUnits: () => [] as Projectile[],
+    update: () => {},
+    applyToAllUnits: () => {},
+    factory: () => new Projectile(container),
+  } as unknown as UnitCreator<Projectile>;
+
+  const shooterOpts: ShootOptions = {
+    range: 1,
+    fireRate: 1,
+    damage: 1,
+    projectileCreator: mockProjectileCreator,
+    targets: [],
+  };
+
+  function blockAllAboveRow0(): void {
+    for (let col = 0; col < 8; col++) {
+      for (let row = 1; row < 4; row++) {
+        const cell = gridState.getCell({ col, row })!;
+        gridState.setCell({ col, row }, { ...cell, type: "blocked" });
+      }
+    }
+  }
+
+  it("completes move as blocked after 20 frames when path is occupied by an enemy", () => {
+    const blocker = createUnit(container, gridState, 1, 0, undefined, 1);
+    const unit = createUnit(container, gridState, 0, 0, shooterOpts, 1);
+    unit.setShootingTargets([blocker]);
+    blockAllAboveRow0();
+
+    const command = new MoveCommand({ col: 2, row: 0 });
+    unit.issueCommand(command);
+
+    for (let frame = 1; frame < MoveCommand.MAX_FRAMES_WITHOUT_PROGRESS_ENEMY_BLOCK; frame++) {
+      unit.update(ticker(frame));
+      expect(command.status).toBe("running");
+    }
+    unit.update(ticker(MoveCommand.MAX_FRAMES_WITHOUT_PROGRESS_ENEMY_BLOCK));
+    expect(command.status).toBe("completed");
+    expect(command.getCompletionReason()).toBe("blocked");
+  });
+
+  it("keeps move running for 300 frames when path is occupied by an ally", () => {
+    void createUnit(container, gridState, 1, 0, undefined, 1);
+    const unit = createUnit(container, gridState, 0, 0, shooterOpts, 1);
+    unit.setShootingTargets([]);
+    blockAllAboveRow0();
+
+    const command = new MoveCommand({ col: 2, row: 0 });
+    unit.issueCommand(command);
+
+    for (let frame = 1; frame <= MoveCommand.MAX_FRAMES_WITHOUT_PROGRESS; frame++) {
+      unit.update(ticker(frame));
+      expect(command.status).toBe("running");
+    }
+    for (let frame = MoveCommand.MAX_FRAMES_WITHOUT_PROGRESS + 1; frame < MoveCommand.MAX_FRAMES_WITHOUT_PROGRESS_ALLY_BLOCK; frame++) {
+      unit.update(ticker(frame));
+      expect(command.status).toBe("running");
+    }
+    unit.update(ticker(MoveCommand.MAX_FRAMES_WITHOUT_PROGRESS_ALLY_BLOCK));
+    expect(command.status).toBe("completed");
+    expect(command.getCompletionReason()).toBe("blocked");
+  });
+
   it("patrols continuously between two cells", () => {
     const unit = createUnit(container, gridState, 0, 0);
     unit.issueCommand(
