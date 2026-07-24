@@ -1,5 +1,6 @@
 import { Container } from "pixi.js";
 import { debugLogChanged } from "../../utils/debugLog";
+import { type ArmorType } from "./UnitSystem";
 import { FramesJson, Unit } from "./Unit";
 
 export enum EnemyType {
@@ -16,6 +17,7 @@ type EnemyDefinition = {
   range: number;
   framesJson: FramesJson;
   reward: number;
+  armorType: ArmorType;
 };
 
 const EnemyDefinitions = new Map<EnemyType, EnemyDefinition>([
@@ -27,6 +29,7 @@ const EnemyDefinitions = new Map<EnemyType, EnemyDefinition>([
       speed: 0.5,
       range: 1,
       reward: 50,
+      armorType: "heavy",
       framesJson: {
         idle: "esqueleton-idle.json",
         run: "esqueleton-run.json",
@@ -42,6 +45,7 @@ const EnemyDefinitions = new Map<EnemyType, EnemyDefinition>([
       speed: 1.2,
       range: 1,
       reward: 15,
+      armorType: "light",
       framesJson: {
         idle: "fantasma-idle.json",
         run: "fantasma-run.json",
@@ -57,6 +61,7 @@ const EnemyDefinitions = new Map<EnemyType, EnemyDefinition>([
       speed: 0.6,
       range: 1,
       reward: 6,
+      armorType: "unarmored",
       framesJson: {
         idle: "goblin scout - silhouette all animations-idle.json",
         run: "goblin scout - silhouette all animations-run.json",
@@ -72,6 +77,7 @@ const EnemyDefinitions = new Map<EnemyType, EnemyDefinition>([
       speed: 0.7,
       range: 1,
       reward: 10,
+      armorType: "light",
       framesJson: {
         idle: "warrior-idle.json",
         run: "warrior-run.json",
@@ -104,6 +110,7 @@ export class Enemy extends Unit {
       range: enemyDef.range,
       team: "enemy",
       controller: "ai",
+      armorType: enemyDef.armorType,
     });
     this.enemyType = nextEnemyType;
     this.reward = enemyDef.reward;

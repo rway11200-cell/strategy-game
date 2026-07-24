@@ -27,12 +27,15 @@ import {
   type UnitTeam,
 } from "./UnitSystem";
 
+import type { DamageType } from "./UnitSystem";
+
 export interface ShootOptions {
   range: number;
   fireRate: number;
   targets?: Unit[];
   projectileCreator: UnitCreator<Projectile>;
   damage: number;
+  damageType?: DamageType;
 }
 
 export interface TargetFollowerOptions {
@@ -90,6 +93,7 @@ export interface UnitProps {
   controller?: UnitController;
   attackMode?: AttackMode;
   cooldown?: number;
+  damageType?: DamageType;
 }
 
 function isArrayOfUnits(targets: PointData[] | Unit[]): targets is Unit[] {
@@ -157,6 +161,7 @@ export class Unit extends Container {
       controller: options?.controller,
       attackMode: options?.attackMode ?? (options?.shootOptions ? "projectile" : undefined),
       cooldown: options?.cooldown,
+      damageType: options?.damageType,
       position: this.position,
     });
     this.unitSystem = this.model;
@@ -348,7 +353,11 @@ export class Unit extends Container {
 
   public initializeShootingRange(shootOptions: ShootOptions) {
     this.shootOptions = { ...this.shootOptions, ...shootOptions };
-    this.model.configure({ damage: shootOptions.damage, range: shootOptions.range });
+    this.model.configure({
+      damage: shootOptions.damage,
+      range: shootOptions.range,
+      damageType: shootOptions.damageType ?? this.model.damageType,
+    });
 
     if (this.shootOptions?.range) {
       this.rangeGraph = devToolDrawPoints(
@@ -1085,7 +1094,8 @@ export class Unit extends Container {
   public takeDamage(amount?: number, attacker?: Unit): number {
     if (amount === undefined || amount <= 0 || this.model.state === "dead") return this.model.hp;
 
-    this.currentHealth = this.model.takeDamage(amount);
+    const attackerDamageType = attacker?.model.damageType;
+    this.currentHealth = this.model.takeDamage(amount, attackerDamageType);
     if (attacker) {
       this.underAttackTicks = 60;
       this.lastAttackerId = attacker.getId();

@@ -111,6 +111,7 @@ export class GameManager {
               range: 3,
               damage: 20,
               fireRate: 0.5,
+              damageType: "pierce",
               projectileCreator: projectileCreator,
             },
           });
