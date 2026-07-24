@@ -112,7 +112,8 @@ export class SandboxManager {
         unit.initializeEnemy(archetype);
         if (archetype === EnemyType.Warrior) unit.scale.set(1 / 3);
         unit.team = team;
-        unit.model.configure({ attackMode: "melee", cooldown: 500 });
+        const cooldown = archetype === EnemyType.Warrior ? 500 : 2000;
+        unit.model.configure({ attackMode: "melee", cooldown });
         unit.initializeShootingRange({
           range: 1,
           fireRate: 0.5,
