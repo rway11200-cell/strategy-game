@@ -226,6 +226,10 @@ export class Unit extends Container {
     return this.model.state;
   }
 
+  public get pursuitTarget(): Unit | undefined {
+    return this.autoPursuitTarget?.active ? this.autoPursuitTarget : undefined;
+  }
+
   public setSelectionHandler(handler?: (unit: Unit) => void): void {
     if (this.selectionHandler === handler) return;
     this.off("pointerdown", this.handleSelection);

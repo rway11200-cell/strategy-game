@@ -207,5 +207,6 @@ export class ScenarioVisualHost {
       return command.getPursuitTarget()?.getGridCell(gridConfig) ?? command.getDestination();
     }
     if (command instanceof PatrolCommand) return command.getDestination();
+    return unit.pursuitTarget?.getGridCell(gridConfig);
   }
 }
