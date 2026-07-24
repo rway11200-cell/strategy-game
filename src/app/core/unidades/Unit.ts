@@ -115,6 +115,8 @@ export class Unit extends Container {
   private combatGridConfig?: GridConfig;
   private pendingMeleeAttack?: PendingMeleeAttack;
   private deathPof?: DeathPof;
+  public lifecycle: "alive" | "dying" | "dead" | "despawned" = "alive";
+  private corpseTimer = 0;
   private autoPursuitTarget?: Unit;
   private autoPursuitTargetCell?: CellCoord;
   public targetToShoot?: Unit;
@@ -555,8 +557,22 @@ export class Unit extends Container {
   public update(_time: Ticker) {
     if (!this.active || !this.animatedSprite || !this.animatedSprite.visible) return;
 
-    if (this.model.state === "dead") {
+    if (this.lifecycle === "dying") {
       this.updateDeathPof(_time);
+      return;
+    }
+
+    if (this.lifecycle === "dead") {
+      this.corpseTimer--;
+      if (this.corpseTimer <= 0) {
+        this.lifecycle = "despawned";
+        this.visible = false;
+        this.active = false;
+        if (this.animatedSprite) {
+          this.animatedSprite.visible = false;
+          this.animatedSprite.stop();
+        }
+      }
       return;
     }
 
@@ -1066,6 +1082,9 @@ export class Unit extends Container {
   }
 
   public destroy() {
+    if (this.lifecycle !== "alive") return;
+    this.lifecycle = "dying";
+
     this.currentCommand?.cancel(this);
     this.currentCommand = undefined;
     this.canBeProjectileTarget = false;
@@ -1080,19 +1099,13 @@ export class Unit extends Container {
     this.onDestroy?.(this);
 
     this.setAnimationDead(() => {
-      this.visible = false;
-      this.active = false;
-
-      if (!this.animatedSprite) {
-        debugLogChanged(this.getId("this.animatedSprite not initialized"));
-        return;
-      }
-      this.animatedSprite.visible = false;
-      this.animatedSprite.stop();
+      this.lifecycle = "dead";
+      this.corpseTimer = 120;
     });
   }
 
   public despawnImmediately(): void {
+    this.lifecycle = "despawned";
     this.currentCommand?.cancel(this);
     this.currentCommand = undefined;
     this.canBeProjectileTarget = false;
@@ -1120,7 +1133,7 @@ export class Unit extends Container {
   }
 
   public takeDamage(amount?: number, attacker?: Unit): number {
-    if (amount === undefined || amount <= 0 || this.model.state === "dead") return this.model.hp;
+    if (amount === undefined || amount <= 0 || this.lifecycle !== "alive") return this.model.hp;
 
     const attackerDamageType = attacker?.model.damageType;
     this.currentHealth = this.model.takeDamage(amount, attackerDamageType);
