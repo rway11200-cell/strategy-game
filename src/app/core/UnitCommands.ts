@@ -96,10 +96,7 @@ abstract class BaseCommand implements IUnitCommand {
 export class MoveCommand extends BaseCommand {
   readonly type = "move" as const;
 
-  static readonly MAX_FRAMES_WITHOUT_PROGRESS = 30;
-  static readonly MAX_FRAMES_WITHOUT_PROGRESS_ENEMY_BLOCK = 20;
-  static readonly MAX_FRAMES_WITHOUT_PROGRESS_ALLY_BLOCK = 300;
-  static readonly MAX_FRAMES_WITHOUT_PROGRESS_NO_ROUTE = 300;
+  static readonly MAX_FRAMES_WITHOUT_PROGRESS = 300;
   private framesWithoutProgress = 0;
   private bestDistance = Infinity;
   private resolvedDestination?: CellCoord;
@@ -156,8 +153,8 @@ export class MoveCommand extends BaseCommand {
     this.framesWithoutProgress++;
     const stepInProgress = unit.getCommandMovementState().stepProgress > 0;
     if (
-      !stepInProgress &&
-      this.framesWithoutProgress >= this.resolveMaxFramesWithoutProgress(unit, context)
+      this.framesWithoutProgress >= MoveCommand.MAX_FRAMES_WITHOUT_PROGRESS &&
+      !stepInProgress
     ) {
       this.completeBlocked(unit);
       return this.status;
@@ -182,24 +179,6 @@ export class MoveCommand extends BaseCommand {
     unit.freezeMovement();
     this.completionReason ??= "blocked";
     this.status = "completed";
-  }
-
-  private resolveMaxFramesWithoutProgress(unit: Unit, context: CommandContext): number {
-    const targetCell = unit.getCommandMovementState().targetCell;
-    if (targetCell) {
-      const cell = context.gridState.getCell(targetCell);
-      const claimedBy = cell?.occupantId ?? cell?.reservedBy;
-      const isBlocked = cell?.occupied || (cell?.reservedBy && cell.reservedBy !== unit.getId());
-      if (isBlocked && cell.type !== "blocked" && claimedBy) {
-        const blockedByEnemy = context.enemies.some((e) => e.getId() === claimedBy);
-        return blockedByEnemy
-          ? MoveCommand.MAX_FRAMES_WITHOUT_PROGRESS_ENEMY_BLOCK
-          : MoveCommand.MAX_FRAMES_WITHOUT_PROGRESS_ALLY_BLOCK;
-      }
-      return MoveCommand.MAX_FRAMES_WITHOUT_PROGRESS;
-    }
-
-    return MoveCommand.MAX_FRAMES_WITHOUT_PROGRESS_NO_ROUTE;
   }
 
   protected pathTo(unit: Unit, context: CommandContext): boolean {
