@@ -1,4 +1,4 @@
-import { type Point } from "./GridConfig";
+import { type Point } from "../core/grid/GridConfig";
 
 export interface PathCell {
   col: number;

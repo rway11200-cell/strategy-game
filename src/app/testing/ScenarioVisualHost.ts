@@ -1,5 +1,5 @@
 import { Container, Graphics } from "pixi.js";
-import { gridToWorld, type GridConfig } from "../../grid/GridConfig";
+import { gridToWorld, type GridConfig } from "../../core/grid/GridConfig";
 import type { GridState } from "../../grid/GridState";
 import { AttackCommand, AttackMoveCommand, MoveCommand, PatrolCommand } from "../core/UnitCommands";
 import { Unit } from "../core/unidades/Unit";

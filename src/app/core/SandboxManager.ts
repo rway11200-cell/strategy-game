@@ -1,5 +1,5 @@
 import { Container, Graphics, Ticker } from "pixi.js";
-import { createGridConfig, gridToWorld, type CellCoord, type GridConfig } from "../../grid/GridConfig";
+import { createGridConfig, gridToWorld, type CellCoord, type GridConfig } from "../../core/grid/GridConfig";
 import { GridState } from "../../grid/GridState";
 import { UnitCreator } from "./UnitCreator";
 import { Enemy, EnemyType } from "./unidades/Enemy";

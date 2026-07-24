@@ -12,7 +12,7 @@ import { SandboxManager } from "../../core/SandboxManager";
 import { SelectedUnitUI } from "../../ui/game/SelectedUnitUI";
 import { CommandUI, type CommandAction } from "../../ui/game/CommandUI";
 import { Unit } from "../../core/unidades/Unit";
-import { worldToGrid } from "../../../grid/GridConfig";
+import { worldToGrid } from "../../../core/grid/GridConfig";
 
 export const MAP_WIDTH = 1600;
 export const MAP_HEIGHT = 1080;

@@ -1,5 +1,5 @@
 import type { Ticker } from "pixi.js";
-import type { CellCoord, GridConfig } from "../../grid/GridConfig";
+import type { CellCoord, GridConfig } from "../../core/grid/GridConfig";
 import type { GridState } from "../../grid/GridState";
 import { findPathWithFootprint } from "../../grid/Pathfinder";
 import { isFootprintWalkable } from "../../grid/EntityFootprint";

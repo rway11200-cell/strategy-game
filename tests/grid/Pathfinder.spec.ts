@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { createDefaultGridConfig } from "../../src/grid/GridConfig";
+import { createGridConfig } from "../../src/core/grid/GridConfig";
 import { GridState } from "../../src/grid/GridState";
 import { findPath } from "../../src/grid/Pathfinder";
 
@@ -8,7 +8,7 @@ function buildState(
   height: number,
   blocked: { col: number; row: number }[] = [],
 ): GridState {
-  const config = createDefaultGridConfig({ gridWidth: width, gridHeight: height });
+  const config = createGridConfig({ gridWidth: width, gridHeight: height });
   const state = new GridState(config);
   for (const b of blocked) {
     const cell = state.getCell(b);

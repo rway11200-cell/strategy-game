@@ -11,7 +11,7 @@
  * La ruta principal de producción no depende de esta API.
  */
 
-import type { GridConfig, CellCoord } from "../../grid/GridConfig";
+import type { GridConfig, CellCoord } from "../../core/grid/GridConfig";
 import type { GridIntegration } from "../../grid/GridIntegration";
 import type { GameManager } from "../core/GameManager";
 import { PatrolCommand, type CommandStatus, type UnitCommandType } from "../core/UnitCommands";

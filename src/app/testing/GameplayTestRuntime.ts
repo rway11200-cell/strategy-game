@@ -1,5 +1,5 @@
 import { Container, Ticker } from "pixi.js";
-import { createGridConfig, type GridConfig } from "../../grid/GridConfig";
+import { createGridConfig, type GridConfig } from "../../core/grid/GridConfig";
 import { GridState } from "../../grid/GridState";
 import { getEntityFootprint, getFootprintCellsForPos, isFootprintWalkable } from "../../grid/EntityFootprint";
 import { getOccupantCells } from "../../grid/OccupationFootprint";
@@ -14,7 +14,7 @@ import {
 import { Enemy, EnemyType } from "../core/unidades/Enemy";
 import { Projectile } from "../core/unidades/Projectile";
 import { UnitCreator } from "../core/UnitCreator";
-import type { CellCoord } from "../../grid/GridConfig";
+import type { CellCoord } from "../../core/grid/GridConfig";
 import type {
   ApiError,
   ApiResult,

@@ -4,7 +4,7 @@ import {
   gridToWorld,
   worldToGrid,
 } from "../../src/core/grid/GridConfig";
-import { createDefaultGridConfig } from "../../src/grid/GridConfig";
+import { createGridConfig } from "../../src/core/grid/GridConfig";
 
 describe("Coordinates", () => {
   describe("gridToWorld", () => {
@@ -103,10 +103,10 @@ describe("Coordinates", () => {
     });
   });
 
-  describe("createDefaultGridConfig (src/grid)", () => {
+  describe("createGridConfig (src/grid)", () => {
     it("has the same defaults as createGridConfig (src/core/grid)", () => {
       const coreConfig = createGridConfig();
-      const newConfig = createDefaultGridConfig();
+      const newConfig = createGridConfig();
       expect(newConfig.cellSize).toBe(coreConfig.cellSize);
       expect(newConfig.gridWidth).toBe(coreConfig.gridWidth);
       expect(newConfig.gridHeight).toBe(coreConfig.gridHeight);

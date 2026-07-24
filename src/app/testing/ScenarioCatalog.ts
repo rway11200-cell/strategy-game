@@ -1,4 +1,4 @@
-import type { CellCoord, CellType } from "../../grid/GridConfig";
+import type { CellCoord, CellType } from "../../core/grid/GridConfig";
 import type { TestScenarioPreset } from "./GameTestApi";
 
 export interface TestScenarioDefinition {

@@ -1,6 +1,6 @@
 import { PointData } from "pixi.js";
 import { randomFloat } from "../../engine/utils/random";
-import { type CellCoord, gridToWorld, type GridConfig } from "../../grid/GridConfig";
+import { type CellCoord, gridToWorld, type GridConfig } from "../../core/grid/GridConfig";
 import { Unit } from "./unidades/Unit";
 
 interface TargetFollowerFromPointsProps {

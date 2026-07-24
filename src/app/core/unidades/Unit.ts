@@ -1,6 +1,6 @@
 import { AnimatedSprite, Circle, Container, type FederatedPointerEvent, Graphics, PointData, Ticker } from "pixi.js";
-import type { CellCoord, GridConfig } from "../../../grid/GridConfig";
-import { worldToGrid } from "../../../grid/GridConfig";
+import type { CellCoord, GridConfig } from "../../../core/grid/GridConfig";
+import { worldToGrid } from "../../../core/grid/GridConfig";
 import type { GridState } from "../../../grid/GridState";
 import { debugLogChanged } from "../../utils/debugLog";
 import { devToolDrawPoints } from "../../utils/devTools";

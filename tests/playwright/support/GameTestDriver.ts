@@ -14,7 +14,7 @@ import type {
   TestUnitTeam,
   TestWaveSnapshot,
 } from "../../../src/app/testing/GameTestApi";
-import type { CellCoord } from "../../../src/grid/GridConfig";
+import type { CellCoord } from "../../../src/core/grid/GridConfig";
 
 function unwrap<T>(operation: string, result: ApiResult<T>): T {
   if (result.ok) return result.value;

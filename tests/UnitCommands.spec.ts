@@ -15,7 +15,7 @@ import {
 } from "../src/app/core/UnitCommands";
 import { Projectile } from "../src/app/core/unidades/Projectile";
 import { type ShootOptions, Unit } from "../src/app/core/unidades/Unit";
-import { createGridConfig, gridToWorld } from "../src/grid/GridConfig";
+import { createGridConfig, gridToWorld } from "../src/core/grid/GridConfig";
 import { GridState } from "../src/grid/GridState";
 
 const gridConfig = createGridConfig({ gridWidth: 8, gridHeight: 4, cellSize: 64 });

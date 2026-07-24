@@ -1,6 +1,5 @@
 import { Assets, Container, Ticker } from "pixi.js";
-import { createGridConfig } from "../../core/grid/GridConfig";
-import { type CellCoord } from "../../grid/GridConfig";
+import { type CellCoord, createGridConfig } from "../../core/grid/GridConfig";
 import { type GridIntegrationConfig, GridIntegration } from "../../grid/GridIntegration";
 import { CoinsUI } from "../ui/game/CoinsUI";
 import { NotificationsUI } from "../ui/game/NotificationsUI";

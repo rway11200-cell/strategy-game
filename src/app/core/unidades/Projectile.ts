@@ -1,5 +1,5 @@
 import { Container } from "pixi.js";
-import type { CellCoord, GridConfig } from "../../../grid/GridConfig";
+import type { CellCoord, GridConfig } from "../../../core/grid/GridConfig";
 import { Unit, UnitProps } from "./Unit";
 
 export class Projectile extends Unit {

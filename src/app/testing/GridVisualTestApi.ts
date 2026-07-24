@@ -1,4 +1,4 @@
-import type { CellCoord } from "../../grid/GridConfig";
+import type { CellCoord } from "../../core/grid/GridConfig";
 
 export interface GridVisualFixture {
   viewport: { width: number; height: number; deviceScaleFactor: number };

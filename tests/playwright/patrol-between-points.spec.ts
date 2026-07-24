@@ -1,4 +1,4 @@
-import type { CellCoord } from "../../src/grid/GridConfig";
+import type { CellCoord } from "../../src/core/grid/GridConfig";
 import { expect, test } from "./support/GameTestFixture";
 import { getUnit } from "./support/GameTestDriver";
 

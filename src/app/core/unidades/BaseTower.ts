@@ -1,6 +1,6 @@
 import { Container } from "pixi.js";
-import type { GridConfig } from "../../../grid/GridConfig";
-import { gridToWorld } from "../../../grid/GridConfig";
+import type { GridConfig } from "../../../core/grid/GridConfig";
+import { gridToWorld } from "../../../core/grid/GridConfig";
 import { Unit } from "./Unit";
 
 export class BaseTower extends Unit {

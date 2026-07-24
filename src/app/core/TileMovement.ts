@@ -1,6 +1,6 @@
 import type { Container, Ticker } from "pixi.js";
 import { getEntityFootprint, getFootprintCellsForPos } from "../../grid/EntityFootprint";
-import { type CellCoord, gridToWorld, type GridConfig } from "../../grid/GridConfig";
+import { type CellCoord, gridToWorld, type GridConfig } from "../../core/grid/GridConfig";
 import { GridState } from "../../grid/GridState";
 import { interpolatePosition, type MovementDirection } from "./Movement";
 import { TargetFollower } from "./PathFollower";

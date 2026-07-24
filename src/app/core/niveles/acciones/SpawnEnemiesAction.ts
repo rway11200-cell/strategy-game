@@ -1,5 +1,5 @@
 import { EnemyType } from "../../unidades/Enemy";
-import type { CellCoord } from "../../../../grid/GridConfig";
+import type { CellCoord } from "../../../../core/grid/GridConfig";
 import { LevelContext } from "../cargador/LevelContext";
 import { LevelAction } from "../cargador/LevelEventManager";
 import { PathDef } from "../cargador/LevelSchema";

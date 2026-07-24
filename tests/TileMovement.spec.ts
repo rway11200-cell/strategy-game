@@ -2,7 +2,7 @@ import { Container } from "pixi.js";
 import { describe, expect, it, vi } from "vitest";
 import { TargetFollower } from "../src/app/core/PathFollower";
 import { TileMovement } from "../src/app/core/TileMovement";
-import { createGridConfig } from "../src/grid/GridConfig";
+import { createGridConfig } from "../src/core/grid/GridConfig";
 import { GridState } from "../src/grid/GridState";
 
 function setup(entityType = "goblin", ticksPerCell = 1) {

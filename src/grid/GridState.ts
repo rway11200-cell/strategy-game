@@ -1,4 +1,4 @@
-import { type CellCoord, type CellType, type GridConfig } from "./GridConfig";
+import { type CellCoord, type CellType, type GridConfig } from "../core/grid/GridConfig";
 
 export interface CellState {
   type: CellType;
