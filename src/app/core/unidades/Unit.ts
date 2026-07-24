@@ -16,6 +16,7 @@ import {
   type IUnitCommand,
 } from "../UnitCommands";
 import { Projectile } from "./Projectile";
+import { selectBestTarget, type SelectionContext } from "../combat/TargetSelector";
 import {
   type AttackMode,
   UnitSystem,
@@ -116,6 +117,10 @@ export class Unit extends Container {
   public targetToShoot?: Unit;
   private shootingMode: "auto" | "forced" | "disabled" = "auto";
   private forcedShootingTarget?: Unit;
+
+  public thresholdTicks = 0;
+  public underAttackTicks = 0;
+  public lastAttackerId?: string;
 
   private rangeGraph?: Graphics;
   private selectionIndicator: Graphics;
@@ -544,6 +549,9 @@ export class Unit extends Container {
       return;
     }
 
+    if (this.thresholdTicks < 1e6) this.thresholdTicks++;
+    if (this.underAttackTicks > 0) this.underAttackTicks--;
+
     this.lastCommandMovement = undefined;
 
     if (this.currentCommand && this.commandContext) {
@@ -630,7 +638,9 @@ export class Unit extends Container {
     const unitCell = this.getGridCell(this.commandContext.gridConfig);
     if (!unitCell) return;
 
+    const prevTarget = this.autoPursuitTarget;
     const target = this.getAutoPursuitTarget(unitCell);
+    if (target && target !== prevTarget) this.thresholdTicks = 0;
     const targetCell = target?.getGridCell(this.commandContext.gridConfig);
     if (!target || !targetCell) {
       if (this.autoPursuitTarget) this.clearCommandMovement();
@@ -666,23 +676,18 @@ export class Unit extends Container {
   }
 
   private getAutoPursuitTarget(unitCell: CellCoord): Unit | undefined {
-    const current = this.autoPursuitTarget;
-    if (current?.active && current.canBeProjectileTarget && this.canSee(current)) return current;
-
-    let closest: Unit | undefined;
-    let closestDistance = Infinity;
-    for (const target of this.shootOptions?.targets ?? []) {
-      if (!target.active || !target.canBeProjectileTarget) continue;
-      if (!this.canSee(target)) continue;
-      const targetCell = target.getGridCell(this.commandContext!.gridConfig);
-      if (!targetCell) continue;
-      const distance = Math.hypot(targetCell.col - unitCell.col, targetCell.row - unitCell.row);
-      if (distance < closestDistance) {
-        closest = target;
-        closestDistance = distance;
-      }
-    }
-    return closest;
+    const ctx: SelectionContext = {
+      unitCell,
+      targets: this.shootOptions?.targets ?? [],
+      currentTarget: this.autoPursuitTarget,
+      thresholdTicks: this.thresholdTicks,
+      underAttackTicks: this.underAttackTicks,
+      lastAttackerId: this.lastAttackerId,
+      melee: this.model.attackMode === "melee",
+      range: this.model.range,
+      gridConfig: this.commandContext!.gridConfig,
+    };
+    return selectBestTarget(ctx);
   }
 
   public canSee(target: Unit): boolean {
@@ -874,14 +879,20 @@ export class Unit extends Container {
           ? target
           : undefined;
     } else {
-      this.targetToShoot = getCurrentOrClosestGridTarget(
+      const ctx: SelectionContext = {
         unitCell,
         targets,
+        currentTarget: this.targetToShoot,
+        thresholdTicks: this.thresholdTicks,
+        underAttackTicks: this.underAttackTicks,
+        lastAttackerId: this.lastAttackerId,
+        melee: this.model.attackMode === "melee",
         range,
         gridConfig,
-        this.targetToShoot,
-        this.model.attackMode,
-      );
+      };
+      const newTarget = selectBestTarget(ctx);
+      if (newTarget && newTarget !== this.targetToShoot) this.thresholdTicks = 0;
+      this.targetToShoot = newTarget;
     }
 
     if (!this.targetToShoot) return;
@@ -923,7 +934,7 @@ export class Unit extends Container {
     newProjectile.launchAtCell(unitCell, targetCell, gridConfig, target, () => {
       if (target.canBeProjectileTarget) {
         const hpBefore = target.hp;
-        target.damage(shootOptions.damage);
+        target.damage(shootOptions.damage, this);
         this.onDamageApplied?.(target.getId(), shootOptions.damage, hpBefore, target.hp);
       }
       if (target.isDead() && this.targetToShoot === target) {
@@ -954,7 +965,7 @@ export class Unit extends Container {
 
   private applyMeleeDamage(target: Unit): void {
     const hpBefore = target.hp;
-    target.damage(this.model.damage);
+    target.damage(this.model.damage, this);
     this.onAttackCommitted?.(target.getId(), "melee");
     this.onDamageApplied?.(target.getId(), this.model.damage, hpBefore, target.hp);
     if (target.isDead()) this.targetToShoot = undefined;
@@ -1067,14 +1078,19 @@ export class Unit extends Container {
     this.active = false;
   }
 
-  public damage(amount?: number) {
-    this.takeDamage(amount);
+  public damage(amount?: number, attacker?: Unit) {
+    this.takeDamage(amount, attacker);
   }
 
-  public takeDamage(amount?: number): number {
+  public takeDamage(amount?: number, attacker?: Unit): number {
     if (amount === undefined || amount <= 0 || this.model.state === "dead") return this.model.hp;
 
     this.currentHealth = this.model.takeDamage(amount);
+    if (attacker) {
+      this.underAttackTicks = 60;
+      this.lastAttackerId = attacker.getId();
+    }
+    this.thresholdTicks = 0;
     if (this.model.hp === 0) this.destroy();
     return this.model.hp;
   }
@@ -1093,38 +1109,15 @@ export function getCurrentOrClosestGridTarget(
   currentTarget: Unit | undefined,
   attackMode: AttackMode = "projectile",
 ): Unit | undefined {
-  const isMelee = attackMode === "melee";
-  const effectiveRange = isMelee ? Math.max(1, range) : range;
-  const distanceFn = isMelee
-    ? (a: CellCoord, b: CellCoord) => Math.max(Math.abs(a.col - b.col), Math.abs(a.row - b.row))
-    : getCellDistance;
-
-  let closestTarget: Unit | undefined;
-  let closestTargetDistance = Number.POSITIVE_INFINITY;
-
-  if (currentTarget && currentTarget.canBeProjectileTarget) {
-    const currentTargetCell = currentTarget.getGridCell(gridConfig);
-    if (currentTargetCell && distanceFn(position, currentTargetCell) <= effectiveRange) {
-      return currentTarget;
-    }
-  }
-
-  targets
-    .filter((o) => o.canBeProjectileTarget)
-    .forEach((target) => {
-      if (target.active && target.canBeProjectileTarget) {
-        const targetCell = target.getGridCell(gridConfig);
-        if (!targetCell) return;
-        const currentDistance = distanceFn(position, targetCell);
-        if (currentDistance < closestTargetDistance && currentDistance <= effectiveRange) {
-          closestTargetDistance = currentDistance;
-          closestTarget = target;
-        }
-      }
-    });
-  return closestTarget;
-}
-
-function getCellDistance(origin: CellCoord, target: CellCoord): number {
-  return Math.hypot(target.col - origin.col, target.row - origin.row);
+  const ctx: SelectionContext = {
+    unitCell: position,
+    targets,
+    currentTarget,
+    thresholdTicks: 0,
+    underAttackTicks: 0,
+    melee: attackMode === "melee",
+    range,
+    gridConfig,
+  };
+  return selectBestTarget(ctx);
 }
