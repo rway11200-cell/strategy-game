@@ -33,6 +33,7 @@ export class SandboxManager {
   private readonly projectileCreator: UnitCreator<Projectile>;
   private readonly allUnits: Enemy[] = [];
   private readonly blockedCells: Set<string> = new Set();
+  private readonly markerGraphics: Graphics;
 
   constructor(private readonly worldContainer: Container) {
     this.gridConfig = createGridConfig({
@@ -60,6 +61,9 @@ export class SandboxManager {
     });
 
     this.spawnTeams();
+
+    this.markerGraphics = new Graphics();
+    this.worldContainer.addChild(this.markerGraphics);
   }
 
   private placeBlockedCells(): void {
@@ -173,6 +177,29 @@ export class SandboxManager {
 
   getActiveUnits(): Unit[] {
     return this.allUnits.filter((u) => u.active && !u.isDead());
+  }
+
+  updateMarkers(selectedUnit?: Unit): void {
+    const g = this.markerGraphics;
+    g.clear();
+    if (!selectedUnit?.active) return;
+
+    const targetCell = selectedUnit.getCommandMovementState().targetCell;
+    if (!targetCell) return;
+
+    const dest = gridToWorld(targetCell.col, targetCell.row, this.gridConfig);
+    const attacking = selectedUnit.activity === "pursuing" ||
+      selectedUnit.activity === "attacking" ||
+      selectedUnit.currentCommand?.type === "attack";
+    const color = attacking ? 0xef5350 : 0x66bb6a;
+    const r = Math.max(8, CELL_SIZE * 0.28);
+
+    g.circle(dest.x, dest.y, r).stroke({ color: 0xffd54f, width: 2, alpha: 0.9 });
+    g.moveTo(dest.x - r, dest.y);
+    g.lineTo(dest.x + r, dest.y);
+    g.moveTo(dest.x, dest.y - r);
+    g.lineTo(dest.x, dest.y + r);
+    g.stroke({ color, width: 2, alpha: 0.8 });
   }
 
   issueMove(unit: Unit, destination: CellCoord): void {
