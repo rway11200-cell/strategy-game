@@ -1,7 +1,7 @@
 import { FancyButton } from "@pixi/ui";
 import { animate } from "motion";
 import type { AnimationPlaybackControls } from "motion/react";
-import { Container, Rectangle, Ticker } from "pixi.js";
+import { Container, type FederatedPointerEvent, Rectangle, Ticker } from "pixi.js";
 
 import { engine } from "../../getEngine";
 import { PausePopup } from "../../popups/PausePopup";
@@ -10,7 +10,9 @@ import { SettingsPopup } from "../../popups/SettingsPopup";
 import { PauseResumeOption } from "../../../engine/navigation/navigation";
 import { SandboxManager } from "../../core/SandboxManager";
 import { SelectedUnitUI } from "../../ui/game/SelectedUnitUI";
+import { CommandUI, type CommandAction } from "../../ui/game/CommandUI";
 import { Unit } from "../../core/unidades/Unit";
+import { worldToGrid } from "../../../grid/GridConfig";
 
 export const MAP_WIDTH = 1600;
 export const MAP_HEIGHT = 1080;
@@ -24,7 +26,9 @@ export class MainScreen extends Container {
   private pauseButton: FancyButton;
   private settingsButton: FancyButton;
   private selectedUnitUI: SelectedUnitUI;
+  private commandUI: CommandUI;
   private selectedUnit?: Unit;
+  private pendingCommand: CommandAction | null = null;
   private cameraX = 0;
   private cameraY = 0;
   private viewportWidth = 0;
@@ -57,21 +61,23 @@ export class MainScreen extends Container {
     this.cameraContainer.hitArea = new Rectangle(0, 0, MAP_WIDTH, MAP_HEIGHT);
 
     this.cameraContainer.on("pointerdown", (e) => {
+      if (e.button === 2) {
+        e.preventDefault();
+        this.handleGridClick(e);
+        return;
+      }
       this.isDragging = true;
-
       this.dragStartX = e.global.x;
       this.dragStartY = e.global.y;
-
       this.cameraStartX = this.cameraX;
       this.cameraStartY = this.cameraY;
     });
 
     this.cameraContainer.on("pointermove", (e) => {
       if (!this.isDragging) return;
-
       const dx = e.global.x - this.dragStartX;
       const dy = e.global.y - this.dragStartY;
-
+      if (Math.abs(dx) < 3 && Math.abs(dy) < 3) return;
       this.setCamera(this.cameraStartX - dx, this.cameraStartY - dy);
     });
 
@@ -79,26 +85,38 @@ export class MainScreen extends Container {
       this.isDragging = false;
     };
 
-    this.cameraContainer.on("pointerup", stopDrag);
+    this.cameraContainer.on("pointerup", (e) => {
+      if (this.isDragging && Math.abs(e.global.x - this.dragStartX) < 4 && Math.abs(e.global.y - this.dragStartY) < 4) {
+        this.handleGridClick(e);
+      }
+      stopDrag();
+    });
     this.cameraContainer.on("pointerupoutside", stopDrag);
     this.cameraContainer.on("pointercancel", stopDrag);
+
+    this.cameraContainer.on("rightclick", (e) => {
+      e.preventDefault();
+    });
 
     this.sandboxManager = new SandboxManager(this.worldContainer);
 
     this.selectedUnitUI = new SelectedUnitUI();
     this.addChild(this.selectedUnitUI);
 
+    this.commandUI = new CommandUI({
+      onCommand: (action) => this.handleCommandAction(action),
+    });
+    this.addChild(this.commandUI);
+
+    document.addEventListener("keydown", this.handleKeyDown);
+
     const buttonAnimations = {
       hover: {
-        props: {
-          scale: { x: 1.1, y: 1.1 },
-        },
+        props: { scale: { x: 1.1, y: 1.1 } },
         duration: 100,
       },
       pressed: {
-        props: {
-          scale: { x: 0.9, y: 0.9 },
-        },
+        props: { scale: { x: 0.9, y: 0.9 } },
         duration: 100,
       },
     };
@@ -113,7 +131,6 @@ export class MainScreen extends Container {
     this.settingsButton = new FancyButton({
       defaultView: "icon-settings.png",
       anchor: 0.5,
-
       animations: buttonAnimations,
     });
     this.settingsButton.onPress.connect(() => engine().navigation.presentPopup(SettingsPopup));
@@ -168,6 +185,7 @@ export class MainScreen extends Container {
     this.settingsButton.x = width - 30;
     this.settingsButton.y = 30;
     this.selectedUnitUI.position.set(20, height - 134);
+    this.commandUI.position.set(20, height - 134 - 36);
   }
 
   private selectUnit = (unit?: Unit): void => {
@@ -176,7 +194,70 @@ export class MainScreen extends Container {
     this.selectedUnit = unit;
     this.selectedUnit?.setSelected(true);
     this.selectedUnitUI.showUnit(unit);
+    this.commandUI.visible = Boolean(unit && unit.team === "player");
+    this.pendingCommand = null;
+    this.commandUI.setHighlight(null);
   };
+
+  private handleCommandAction(action: CommandAction): void {
+    if (!this.selectedUnit) return;
+    if (action === "stop") {
+      this.sandboxManager.issueStop(this.selectedUnit);
+      this.pendingCommand = null;
+      this.commandUI.setHighlight(null);
+      return;
+    }
+    if (action === "hold") {
+      this.sandboxManager.issueHold(this.selectedUnit);
+      this.pendingCommand = null;
+      this.commandUI.setHighlight(null);
+      return;
+    }
+    if (this.pendingCommand === action) {
+      this.pendingCommand = null;
+      this.commandUI.setHighlight(null);
+      return;
+    }
+    this.pendingCommand = action;
+    this.commandUI.setHighlight(action);
+  }
+
+  private handleKeyDown = (e: KeyboardEvent): void => {
+    if (!this.selectedUnit || this.selectedUnit.team !== "player") return;
+    if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+
+    const key = e.key.toUpperCase();
+    if (key === "M") this.handleCommandAction("move");
+    else if (key === "S") this.handleCommandAction("stop");
+    else if (key === "H") this.handleCommandAction("hold");
+    else if (key === "A") this.handleCommandAction("attack");
+    else if (key === "P") this.handleCommandAction("patrol");
+    else if (key === "ESCAPE") { this.pendingCommand = null; this.commandUI.setHighlight(null); }
+  };
+
+  private handleGridClick(e: FederatedPointerEvent): void {
+    if (!this.selectedUnit || !this.pendingCommand) return;
+
+    const worldX = e.global.x + this.cameraX - this.mainContainer.x;
+    const worldY = e.global.y + this.cameraY - this.mainContainer.y;
+    const cell = worldToGrid(worldX, worldY, this.sandboxManager.gridConfig);
+
+    if (cell.x < 0 || cell.y < 0 || cell.x >= this.sandboxManager.gridConfig.gridWidth || cell.y >= this.sandboxManager.gridConfig.gridHeight) return;
+    const coord = { col: cell.x, row: cell.y };
+
+    const targetUnit = this.sandboxManager.findUnitAt(coord);
+
+    if (this.pendingCommand === "attack" && targetUnit && this.selectedUnit.isHostileTo(targetUnit)) {
+      this.sandboxManager.issueAttack(this.selectedUnit, targetUnit);
+    } else if (this.pendingCommand === "move") {
+      this.sandboxManager.issueMove(this.selectedUnit, coord);
+    } else if (this.pendingCommand === "patrol") {
+      this.sandboxManager.issuePatrol(this.selectedUnit, [coord, coord]);
+    }
+
+    this.pendingCommand = null;
+    this.commandUI.setHighlight(null);
+  }
 
   public async show(): Promise<void> {
     engine().audio.bgm.play("main/sounds/bgm-main.mp3", { volume: 0.6 });
@@ -198,9 +279,7 @@ export class MainScreen extends Container {
 
   private setCamera(x: number, y: number) {
     this.cameraX = Math.max(0, Math.min(x, MAP_WIDTH - this.viewportWidth));
-
     this.cameraY = Math.max(0, Math.min(y, MAP_HEIGHT - this.viewportHeight));
-
     this.cameraContainer.x = -this.cameraX;
     this.cameraContainer.y = -this.cameraY;
   }
