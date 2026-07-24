@@ -137,7 +137,7 @@ export class Unit extends Container {
   private movement?: Movement;
   private tileMovement?: TileMovement;
   private commandContext?: CommandContext;
-  public currentCommand?: IUnitCommand;
+  public commands: IUnitCommand[] = [];
   private lastCommandMovement?: TileWalkResult;
   private readonly stableId?: string;
 
@@ -395,13 +395,17 @@ export class Unit extends Container {
     return { col: cell.x, row: cell.y };
   }
 
+  public get currentCommand(): IUnitCommand | undefined {
+    return this.commands[0];
+  }
+
   public initializeSpeed(speed: number) {
     this.model.configure({ speed });
   }
 
   public initializeTargetFollower(targetFollowerOptions: TargetFollowerOptions) {
-    this.currentCommand?.cancel(this);
-    this.currentCommand = undefined;
+    for (const c of this.commands) c.cancel(this);
+    this.commands = [];
     this.commandContext = undefined;
     this.tileMovement?.releaseOccupation();
     this.tileMovement = undefined;
@@ -442,8 +446,8 @@ export class Unit extends Container {
   }
 
   public initializeTileMovement(options: TileTargetFollowerOptions) {
-    this.currentCommand?.cancel(this);
-    this.currentCommand = undefined;
+    for (const c of this.commands) c.cancel(this);
+    this.commands = [];
     this.setCombatGrid(options.gridConfig);
     this.targetFollower = new TargetFollower();
     this.targetFollower.setRouteFromCells({
@@ -469,16 +473,20 @@ export class Unit extends Container {
     };
   }
 
-  public issueCommand(command: IUnitCommand): void {
-    this.currentCommand?.cancel(this);
-    this.currentCommand = undefined;
-    this.autoPursuitTarget = undefined;
-    this.autoPursuitTargetCell = undefined;
+  public issueCommand(command: IUnitCommand, append = false): void {
     if (!this.commandContext) return;
 
-    this.currentCommand = command;
+    if (!append) {
+      for (const c of this.commands) c.cancel(this);
+      this.commands = [];
+      this.autoPursuitTarget = undefined;
+      this.autoPursuitTargetCell = undefined;
+    }
+
     command.execute(this, this.commandContext);
-    if (command.status !== "running") this.currentCommand = undefined;
+    if (command.status === "running") {
+      this.commands.push(command);
+    }
   }
 
   public setCommandPathfinder(pathfinder: CommandPathfinder): void {
@@ -590,11 +598,16 @@ export class Unit extends Container {
 
     this.lastCommandMovement = undefined;
 
-    if (this.currentCommand && this.commandContext) {
-      const status = this.currentCommand.update(this, this.commandContext, _time);
+    if (this.commands.length > 0 && this.commandContext) {
+      const current = this.commands[0];
+      const status = current.update(this, this.commandContext, _time);
       if (status !== "running") {
-        this.currentCommand = undefined;
-        if (!this.isMovementActionActive()) this.setActivity("idle");
+        this.commands.shift();
+        if (this.commands.length > 0) {
+          this.commands[0].execute(this, this.commandContext);
+        } else if (!this.isMovementActionActive()) {
+          this.setActivity("idle");
+        }
       }
     } else {
       this.updateAutomaticPursuit();
@@ -1103,8 +1116,8 @@ export class Unit extends Container {
     if (this.lifecycle !== "alive") return;
     this.lifecycle = "dying";
 
-    this.currentCommand?.cancel(this);
-    this.currentCommand = undefined;
+    for (const c of this.commands) c.cancel(this);
+    this.commands = [];
     this.canBeProjectileTarget = false;
     this.model.state = "dead";
     if (this.healthBar) this.healthBar.visible = false;
@@ -1125,8 +1138,8 @@ export class Unit extends Container {
 
   public despawnImmediately(): void {
     this.lifecycle = "despawned";
-    this.currentCommand?.cancel(this);
-    this.currentCommand = undefined;
+    for (const c of this.commands) c.cancel(this);
+    this.commands = [];
     this.canBeProjectileTarget = false;
     this.model.state = "dead";
     if (this.movement) this.movement.active = false;
