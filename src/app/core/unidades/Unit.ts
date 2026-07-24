@@ -113,7 +113,6 @@ export class Unit extends Container {
 
   private shootOptions?: ShootOptions;
   private combatGridConfig?: GridConfig;
-  private lastShotTime: number = 0;
   private pendingMeleeAttack?: PendingMeleeAttack;
   private deathPof?: DeathPof;
   private autoPursuitTarget?: Unit;
@@ -121,6 +120,9 @@ export class Unit extends Container {
   public targetToShoot?: Unit;
   private shootingMode: "auto" | "forced" | "disabled" = "auto";
   private forcedShootingTarget?: Unit;
+
+  public combatState: "idle" | "approaching" | "acquiring" | "attacking" | "cooldown" = "idle";
+  public cooldownFramesRemaining = 0;
 
   public thresholdTicks = 0;
   public underAttackTicks = 0;
@@ -561,6 +563,10 @@ export class Unit extends Container {
     if (this.thresholdTicks < 1e6) this.thresholdTicks++;
     if (this.underAttackTicks > 0) this.underAttackTicks--;
 
+    if (this.combatState === "cooldown") {
+      if (this.cooldownFramesRemaining > 0) this.cooldownFramesRemaining--;
+    }
+
     this.lastCommandMovement = undefined;
 
     if (this.currentCommand && this.commandContext) {
@@ -653,7 +659,10 @@ export class Unit extends Container {
     const targetCell = target?.getGridCell(this.commandContext.gridConfig);
     if (!target || !targetCell) {
       if (this.autoPursuitTarget) this.clearCommandMovement();
-      if (!this.isMovementActionActive()) this.setActivity("idle");
+      if (!this.isMovementActionActive()) {
+        this.setActivity("idle");
+        if (this.combatState === "approaching") this.combatState = "idle";
+      }
       this.autoPursuitTarget = undefined;
       this.autoPursuitTargetCell = undefined;
       return;
@@ -666,6 +675,8 @@ export class Unit extends Container {
       this.autoPursuitTargetCell = { ...targetCell };
       return;
     }
+
+    this.combatState = "approaching";
 
     const targetChanged = this.autoPursuitTarget !== target ||
       !this.autoPursuitTargetCell ||
@@ -869,10 +880,15 @@ export class Unit extends Container {
     if (!gridConfig || !unitCell) return;
 
     if (this.pendingMeleeAttack) {
+      this.combatState = "attacking";
       this.setActivity("attacking");
       this.updatePendingMeleeAttack(_time.lastTime, unitCell, gridConfig);
+      if (!this.pendingMeleeAttack) this.enterCooldown();
       return;
     }
+
+    if (this.combatState === "cooldown" && this.cooldownFramesRemaining > 0) return;
+    this.combatState = "acquiring";
 
     const range = this.model.range;
     const targets = this.shootOptions?.targets ?? [];
@@ -904,16 +920,13 @@ export class Unit extends Container {
       this.targetToShoot = newTarget;
     }
 
-    if (!this.targetToShoot) return;
-    this.setActivity("attacking");
-
-    if (this.model.cooldown > 0 && this.lastShotTime > 0) {
-      const frameDelta = Math.round(_time.lastTime - this.lastShotTime);
-      if (frameDelta < this.model.cooldown) return;
+    if (!this.targetToShoot) {
+      this.combatState = "idle";
+      return;
     }
 
-    this.lastShotTime = _time.lastTime;
-    this.onTargetAcquired?.(this.targetToShoot.getId());
+    this.combatState = "attacking";
+    this.setActivity("attacking");
 
     const target = this.targetToShoot;
     const targetCell = target.getGridCell(gridConfig);
@@ -932,11 +945,15 @@ export class Unit extends Container {
         return;
       }
       this.applyMeleeDamage(target);
+      this.enterCooldown();
       return;
     }
 
     const shootOptions = this.shootOptions;
-    if (!shootOptions?.projectileCreator) return;
+    if (!shootOptions?.projectileCreator) {
+      this.combatState = "idle";
+      return;
+    }
     this.setAnimationAttack(direction);
     this.onAttackCommitted?.(target.getId(), "projectile");
     const newProjectile = shootOptions.projectileCreator.get();
@@ -950,6 +967,17 @@ export class Unit extends Container {
         this.targetToShoot = undefined;
       }
     });
+    this.enterCooldown();
+  }
+
+  private enterCooldown(): void {
+    this.combatState = "cooldown";
+    const cooldownMs = Math.max(0, this.model.cooldown);
+    if (cooldownMs > 0) {
+      this.cooldownFramesRemaining = Math.max(1, Math.round(cooldownMs / 16.67));
+    } else {
+      this.cooldownFramesRemaining = 0;
+    }
   }
 
   private updatePendingMeleeAttack(time: number, unitCell: CellCoord, gridConfig: GridConfig): void {
