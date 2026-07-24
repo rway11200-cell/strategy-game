@@ -275,11 +275,11 @@ describe("unit commands", () => {
     const command = new MoveCommand({ col: 2, row: 0 });
     unit.issueCommand(command);
 
-    for (let frame = 1; frame < MoveCommand.MAX_FRAMES_WITHOUT_PROGRESS_ENEMY_BLOCK; frame++) {
+    for (let frame = 1; frame < MoveCommand.MAX_FRAMES_WITHOUT_PROGRESS_NO_ROUTE; frame++) {
       unit.update(ticker(frame));
       expect(command.status).toBe("running");
     }
-    unit.update(ticker(MoveCommand.MAX_FRAMES_WITHOUT_PROGRESS_ENEMY_BLOCK));
+    unit.update(ticker(MoveCommand.MAX_FRAMES_WITHOUT_PROGRESS_NO_ROUTE));
     expect(command.status).toBe("completed");
     expect(command.getCompletionReason()).toBe("blocked");
   });
@@ -297,11 +297,11 @@ describe("unit commands", () => {
       unit.update(ticker(frame));
       expect(command.status).toBe("running");
     }
-    for (let frame = MoveCommand.MAX_FRAMES_WITHOUT_PROGRESS + 1; frame < MoveCommand.MAX_FRAMES_WITHOUT_PROGRESS_ALLY_BLOCK; frame++) {
+    for (let frame = MoveCommand.MAX_FRAMES_WITHOUT_PROGRESS + 1; frame < MoveCommand.MAX_FRAMES_WITHOUT_PROGRESS_NO_ROUTE; frame++) {
       unit.update(ticker(frame));
       expect(command.status).toBe("running");
     }
-    unit.update(ticker(MoveCommand.MAX_FRAMES_WITHOUT_PROGRESS_ALLY_BLOCK));
+    unit.update(ticker(MoveCommand.MAX_FRAMES_WITHOUT_PROGRESS_NO_ROUTE));
     expect(command.status).toBe("completed");
     expect(command.getCompletionReason()).toBe("blocked");
   });
