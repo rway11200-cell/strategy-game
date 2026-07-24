@@ -260,11 +260,11 @@ describe("unit commands", () => {
     const command = new MoveCommand({ col: 2, row: 0 });
     unit.issueCommand(command);
 
-    for (let frame = 1; frame < MoveCommand.MAX_FRAMES_WITHOUT_PROGRESS_NO_ROUTE; frame++) {
+    for (let frame = 1; frame < MoveCommand.MAX_FRAMES_WITHOUT_PROGRESS; frame++) {
       unit.update(ticker(frame));
       expect(command.status).toBe("running");
     }
-    unit.update(ticker(MoveCommand.MAX_FRAMES_WITHOUT_PROGRESS_NO_ROUTE));
+    unit.update(ticker(MoveCommand.MAX_FRAMES_WITHOUT_PROGRESS));
     expect(command.status).toBe("completed");
     expect(command.getCompletionReason()).toBe("blocked");
   });
