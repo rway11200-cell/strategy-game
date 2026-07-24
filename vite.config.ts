@@ -25,6 +25,9 @@ export default defineConfig({
         gridRenderer: fileURLToPath(
           new URL("./__test__/grid-renderer/index.html", import.meta.url),
         ),
+        combatDemo: fileURLToPath(
+          new URL("./__test__/combat-demo/index.html", import.meta.url),
+        ),
       },
     },
   },

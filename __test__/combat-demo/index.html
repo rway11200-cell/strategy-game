@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <base href="/" />
+    <title>Strategy Game - Combat Demo</title>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body { background: #111; overflow: hidden; font-family: system-ui, sans-serif; }
+      #demo-root { display: flex; width: 100%; height: 100vh; }
+      #pixi-container { flex: 1; position: relative; overflow: hidden; }
+      #panel {
+        width: 380px; min-width: 380px; background: #1a1a1a; color: #ccc;
+        padding: 16px; overflow-y: auto; border-left: 1px solid #333;
+        font-size: 13px; display: flex; flex-direction: column; gap: 12px;
+      }
+      #panel h2 { font-size: 16px; color: #ffd54f; margin-bottom: 4px; }
+      #panel h3 { font-size: 11px; text-transform: uppercase; color: #888; letter-spacing: 1px; margin-bottom: 4px; }
+      #panel .card {
+        background: #222; border-radius: 6px; padding: 10px; border: 1px solid #333;
+      }
+      #panel .card .row { display: flex; justify-content: space-between; padding: 2px 0; font-size: 12px; }
+      #panel .card .row .label { color: #888; }
+      #panel .card .row .value { color: #fff; font-weight: 500; }
+      #panel .badge {
+        display: inline-block; padding: 1px 6px; border-radius: 3px; font-size: 10px; font-weight: 600;
+      }
+      .badge-normal { background: #546e7a; color: #fff; }
+      .badge-pierce { background: #7b1fa2; color: #fff; }
+      .badge-magic { background: #1565c0; color: #fff; }
+      .badge-siege { background: #e65100; color: #fff; }
+      .badge-unarmored { background: #78909c; color: #fff; }
+      .badge-light { background: #43a047; color: #fff; }
+      .badge-heavy { background: #e53935; color: #fff; }
+      .badge-fortified { background: #6d4c41; color: #fff; }
+      #event-log { background: #111; padding: 6px 8px; border-radius: 4px; font-size: 11px; line-height: 1.5; max-height: 180px; overflow-y: auto; font-family: monospace; }
+      #event-log .ev { color: #888; }
+      #event-log .ev-dmg { color: #ef5350; }
+      #event-log .ev-acq { color: #66bb6a; }
+      #event-log .ev-death { color: #ff7043; }
+      #event-log .ev-state { color: #42a5f5; }
+    </style>
+  </head>
+  <body>
+    <div id="demo-root">
+      <div id="pixi-container"></div>
+      <div id="panel">
+        <h2>⚔ Combate Demo</h2>
+        <div class="card" id="legend-card">
+          <h3>📖 Leyenda</h3>
+          <div id="legend-content"></div>
+        </div>
+        <div class="card">
+          <h3>🎯 Estado del Sistema</h3>
+          <div id="system-state"></div>
+        </div>
+        <div class="card">
+          <h3>📡 Eventos</h3>
+          <div id="event-log"></div>
+        </div>
+        <div class="card">
+          <h3>🎮 Controles</h3>
+          <div style="display:flex;gap:4px;flex-wrap:wrap">
+            <button id="btn-spawn-melee">Spawn Melee</button>
+            <button id="btn-spawn-ranged">Spawn Ranged</button>
+            <button id="btn-spawn-tank">Spawn Tank</button>
+            <button id="btn-clear">Clear</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script type="module" src="/src/app/testing/combatDemoEntry.ts"></script>
+  </body>
+</html>

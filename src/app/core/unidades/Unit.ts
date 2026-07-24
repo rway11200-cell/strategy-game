@@ -355,6 +355,15 @@ export class Unit extends Container {
     }
   }
 
+  public addShootingTarget(target: Unit) {
+    if (!this.shootOptions) return;
+    const current = this.shootOptions.targets ?? [];
+    if (!current.includes(target)) {
+      current.push(target);
+      this.shootOptions.targets = current;
+    }
+  }
+
   public initializeShootingRange(shootOptions: ShootOptions) {
     this.shootOptions = { ...this.shootOptions, ...shootOptions };
     this.model.configure({
