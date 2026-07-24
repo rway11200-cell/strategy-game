@@ -172,6 +172,18 @@ export class ScenarioVisualHost {
       ]).fill({ color, alpha: 0.24 }).stroke({ color, width: 3, alpha: 0.95 });
     }
 
+    if (unit.currentCommand instanceof PatrolCommand) {
+      for (const endpoint of unit.currentCommand.cells) {
+        if (finalDestination && endpoint.col === finalDestination.col && endpoint.row === finalDestination.row) continue;
+        const pt = gridToWorld(endpoint.col, endpoint.row, gridConfig);
+        finalMarker.moveTo(pt.x - 6, pt.y - 6);
+        finalMarker.lineTo(pt.x + 6, pt.y);
+        finalMarker.lineTo(pt.x - 6, pt.y + 6);
+        finalMarker.closePath();
+        finalMarker.stroke({ color: 0xcfd8dc, width: 2, alpha: 0.65 });
+      }
+    }
+
     if (!targetCell) return;
     const destination = gridToWorld(targetCell.col, targetCell.row, gridConfig);
     const radius = Math.max(10, gridConfig.cellSize * 0.28);
