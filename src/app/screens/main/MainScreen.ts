@@ -1,21 +1,16 @@
 import { FancyButton } from "@pixi/ui";
 import { animate } from "motion";
 import type { AnimationPlaybackControls } from "motion/react";
-import { Assets, Container, Rectangle, Sprite, Ticker } from "pixi.js";
+import { Container, Rectangle, Ticker } from "pixi.js";
 
 import { engine } from "../../getEngine";
 import { PausePopup } from "../../popups/PausePopup";
 import { SettingsPopup } from "../../popups/SettingsPopup";
 
-import { EditableMaps } from "../../../core/maps/EditableMaps";
 import { PauseResumeOption } from "../../../engine/navigation/navigation";
-import { GameManager } from "../../core/GameManager";
-import { CoinsUI } from "../../ui/game/CoinsUI";
-import { NotificationsUI } from "../../ui/game/NotificationsUI";
+import { SandboxManager } from "../../core/SandboxManager";
 import { SelectedUnitUI } from "../../ui/game/SelectedUnitUI";
 import { Unit } from "../../core/unidades/Unit";
-import { createGridConfig } from "../../../grid/GridConfig";
-import { GridDebugOverlay } from "../../../grid/GridDebugOverlay";
 
 export const MAP_WIDTH = 1600;
 export const MAP_HEIGHT = 1080;
@@ -26,10 +21,8 @@ export class MainScreen extends Container {
   private mainContainer: Container;
   public worldContainer: Container;
   private cameraContainer: Container;
-  private backgroundSprite?: Sprite;
   private pauseButton: FancyButton;
   private settingsButton: FancyButton;
-  private coinsContainer: CoinsUI;
   private selectedUnitUI: SelectedUnitUI;
   private selectedUnit?: Unit;
   private cameraX = 0;
@@ -37,14 +30,9 @@ export class MainScreen extends Container {
   private viewportWidth = 0;
   private viewportHeight = 0;
 
-  public gameManager!: GameManager;
-  private editMapButton: FancyButton;
+  private sandboxManager!: SandboxManager;
 
   private paused = false;
-
-  public editableMaps: EditableMaps;
-
-  private notifications: NotificationsUI;
 
   private isDragging = false;
   private dragStartX = 0;
@@ -65,13 +53,6 @@ export class MainScreen extends Container {
 
     this.worldContainer = new Container();
     this.cameraContainer.addChild(this.worldContainer);
-
-    const assignBackground = (backgroundImage: string) => {
-      const texture = Assets.get(backgroundImage);
-      this.backgroundSprite = new Sprite(texture);
-      this.backgroundSprite.eventMode = "none";
-      this.worldContainer.addChild(this.backgroundSprite);
-    };
 
     this.cameraContainer.hitArea = new Rectangle(0, 0, MAP_WIDTH, MAP_HEIGHT);
 
@@ -102,28 +83,10 @@ export class MainScreen extends Container {
     this.cameraContainer.on("pointerupoutside", stopDrag);
     this.cameraContainer.on("pointercancel", stopDrag);
 
-    this.editableMaps = new EditableMaps(this);
-
-    this.coinsContainer = new CoinsUI();
-    this.addChild(this.coinsContainer);
+    this.sandboxManager = new SandboxManager(this.worldContainer);
 
     this.selectedUnitUI = new SelectedUnitUI();
     this.addChild(this.selectedUnitUI);
-
-    this.notifications = new NotificationsUI(this.mainContainer);
-
-    this.gameManager = new GameManager(
-      this.worldContainer,
-      this.coinsContainer,
-      this.notifications,
-      assignBackground,
-    );
-
-    const gridConfig = createGridConfig();
-    const gridOverlay = new GridDebugOverlay(gridConfig, true);
-    this.worldContainer.addChild(gridOverlay.getContainer());
-    gridOverlay.toggle();
-    gridOverlay.render();
 
     const buttonAnimations = {
       hover: {
@@ -155,17 +118,6 @@ export class MainScreen extends Container {
     });
     this.settingsButton.onPress.connect(() => engine().navigation.presentPopup(SettingsPopup));
     this.addChild(this.settingsButton);
-
-    this.editMapButton = new FancyButton({
-      defaultView: "icon-pause.png",
-      anchor: 0.5,
-      animations: buttonAnimations,
-    });
-    this.editMapButton.onPress.connect(() => {
-      const isEditing = this.editableMaps.toggleEdit();
-      this.editMapButton.defaultView = isEditing ? "icon-settings.png" : "icon-pause.png";
-    });
-    this.addChild(this.editMapButton);
   }
 
   public async prepare() {}
@@ -173,10 +125,8 @@ export class MainScreen extends Container {
   public update(_time: Ticker) {
     if (this.paused) return;
 
-    if (!this.gameManager) return;
-
-    this.gameManager.update(_time);
-    const activeUnits = this.gameManager.getActiveUnits();
+    this.sandboxManager.update(_time);
+    const activeUnits = this.sandboxManager.getActiveUnits();
     activeUnits.forEach((unit) => unit.setSelectionHandler(this.selectUnit));
     if (this.selectedUnit && !activeUnits.includes(this.selectedUnit)) this.selectUnit();
     this.selectedUnitUI.showUnit(this.selectedUnit);
@@ -217,13 +167,7 @@ export class MainScreen extends Container {
     this.pauseButton.y = 30;
     this.settingsButton.x = width - 30;
     this.settingsButton.y = 30;
-    this.coinsContainer.x = width - this.coinsContainer.width - 50;
-    this.coinsContainer.y = 60;
     this.selectedUnitUI.position.set(20, height - 134);
-    this.editMapButton.x = width - 30;
-    this.editMapButton.y = 90;
-
-    this.notifications.resize(centerX, centerY);
   }
 
   private selectUnit = (unit?: Unit): void => {
