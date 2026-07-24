@@ -566,6 +566,7 @@ export class Unit extends Container {
       this.corpseTimer--;
       if (this.corpseTimer <= 0) {
         this.lifecycle = "despawned";
+        this.onDespawn?.(this.getId());
         this.visible = false;
         this.active = false;
         if (this.animatedSprite) {
@@ -879,8 +880,11 @@ export class Unit extends Container {
     pof.onComplete();
   }
   public onTargetAcquired: ((targetId: string) => void) | null = null;
+  public onTargetLost: ((targetId: string) => void) | null = null;
   public onAttackCommitted: ((targetId: string, mode: string) => void) | null = null;
   public onDamageApplied: ((targetId: string, amount: number, hpBefore: number, hpAfter: number) => void) | null = null;
+  public onDeath: ((unitId: string) => void) | null = null;
+  public onDespawn: ((unitId: string) => void) | null = null;
 
   private isInRange(a: CellCoord, b: CellCoord): boolean {
     return this.model.attackMode === "melee"
@@ -908,6 +912,8 @@ export class Unit extends Container {
 
     const range = this.model.range;
     const targets = this.shootOptions?.targets ?? [];
+
+    const prevTarget = this.targetToShoot;
 
     if (this.shootingMode === "forced") {
       const target = this.forcedShootingTarget;
@@ -937,6 +943,7 @@ export class Unit extends Container {
     }
 
     if (!this.targetToShoot) {
+      if (prevTarget && prevTarget.active) this.onTargetLost?.(prevTarget.getId());
       this.combatState = "idle";
       return;
     }
@@ -981,6 +988,7 @@ export class Unit extends Container {
       }
       if (target.isDead() && this.targetToShoot === target) {
         this.targetToShoot = undefined;
+        this.onTargetLost?.(target.getId());
       }
     });
     this.enterCooldown();
@@ -1021,11 +1029,14 @@ export class Unit extends Container {
     target.damage(this.model.damage, this);
     this.onAttackCommitted?.(target.getId(), "melee");
     this.onDamageApplied?.(target.getId(), this.model.damage, hpBefore, target.hp);
-    if (target.isDead()) this.targetToShoot = undefined;
+    if (target.isDead()) {
+      this.targetToShoot = undefined;
+      this.onTargetLost?.(target.getId());
+    }
   }
 
   public isDead(): boolean {
-    return this.model.state === "dead" || !this.active;
+    return this.lifecycle !== "alive";
   }
 
   public spawn(): boolean {
@@ -1097,6 +1108,7 @@ export class Unit extends Container {
       this.tileMovement.releaseOccupation();
     }
     this.onDestroy?.(this);
+    this.onDeath?.(this.getId());
 
     this.setAnimationDead(() => {
       this.lifecycle = "dead";
