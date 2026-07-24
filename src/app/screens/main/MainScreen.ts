@@ -197,11 +197,13 @@ export class MainScreen extends Container {
 
   private selectUnit = (unit?: Unit): void => {
     if (this.pendingCommand === "attack" && unit && this.selectedUnit && this.selectedUnit.isHostileTo(unit)) {
+      console.log("[ATTACK] issuing attack on", unit.getId(), "from", this.selectedUnit.getId());
       this.sandboxManager.issueAttack(this.selectedUnit, unit);
       this.pendingCommand = null;
       this.commandUI.setHighlight(null);
       return;
     }
+    console.log("[SELECT] unit:", unit?.getId(), "team:", unit?.team, "pendingCommand:", this.pendingCommand, "selectedUnit:", this.selectedUnit?.getId());
     if (this.selectedUnit === unit) return;
     this.selectedUnit?.setSelected(false);
     this.selectedUnit = unit;
