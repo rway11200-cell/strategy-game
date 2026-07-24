@@ -64,6 +64,7 @@ export function createGameplayDebugPanel(api: GameTestApi): HTMLDivElement {
   panel.appendChild(scenarioSection);
 
   const demoSection = createSection("Demo");
+<<<<<<< HEAD
   const loadPatrolBtn = createButton("Patrol A ↔ B");
   const loadMoveBtn = createButton("Move + Stop");
   const loadHoldBtn = createButton("Hold Position lane");
@@ -95,6 +96,25 @@ export function createGameplayDebugPanel(api: GameTestApi): HTMLDivElement {
   const loadPursuitBtn = createButton("Auto pursuit square");
   const loadPatrolAttackBtn = createButton("Patrol square attack");
 >>>>>>> 5a1e011 (Add automatic Warrior combat scenarios)
+=======
+  const loadPatrolBtn = createButton("1. Patrol A ↔ B");
+  const loadMoveBtn = createButton("2. Move + Stop");
+  const loadHoldBtn = createButton("3. Hold Position lane");
+  const loadMultiBtn = createButton("4. Five-unit contention");
+  const loadDenseBtn = createButton("5. Dense skeleton pair");
+  const loadEmptyBtn = createButton("6. Empty selected scenario");
+  const loadFollowBtn = createButton("7. Follow the leader");
+  const loadDetourBtn = createButton("8. Obstacle detour");
+  const loadSpawnPointBtn = createButton("9. Spawn Point");
+  const loadWarriorBtn = createButton("10. Warrior march");
+  const loadWarriorDuelBtn = createButton("11. Warrior duel");
+  const loadAutoMarchBtn = createButton("12. Auto attack march");
+  const loadAutoMoveBtn = createButton("13. Auto attack move");
+  const loadHoldAttackBtn = createButton("14. Hold position attack");
+  const loadHoldSquareBtn = createButton("15. Hold square attack");
+  const loadPursuitBtn = createButton("16. Auto pursuit square");
+  const loadPatrolAttackBtn = createButton("17. Patrol square attack");
+>>>>>>> 7125af2 (Add patrol endpoints and demo numbers)
   demoSection.appendChild(loadPatrolBtn);
   demoSection.appendChild(loadMoveBtn);
   demoSection.appendChild(loadHoldBtn);
