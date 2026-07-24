@@ -184,22 +184,35 @@ export class SandboxManager {
     g.clear();
     if (!selectedUnit?.active) return;
 
+    const command = selectedUnit.currentCommand;
     const targetCell = selectedUnit.getCommandMovementState().targetCell;
-    if (!targetCell) return;
 
-    const dest = gridToWorld(targetCell.col, targetCell.row, this.gridConfig);
+    if (command instanceof PatrolCommand) {
+      for (const endpoint of command.cells) {
+        const pt = gridToWorld(endpoint.col, endpoint.row, this.gridConfig);
+        g.moveTo(pt.x - 5, pt.y - 5);
+        g.lineTo(pt.x + 5, pt.y);
+        g.lineTo(pt.x - 5, pt.y + 5);
+        g.closePath();
+        g.stroke({ color: 0xcfd8dc, width: 2, alpha: 0.7 });
+      }
+    }
+
     const attacking = selectedUnit.activity === "pursuing" ||
       selectedUnit.activity === "attacking" ||
-      selectedUnit.currentCommand?.type === "attack";
+      command?.type === "attack";
     const color = attacking ? 0xef5350 : 0x66bb6a;
-    const r = Math.max(8, CELL_SIZE * 0.28);
 
-    g.circle(dest.x, dest.y, r).stroke({ color: 0xffd54f, width: 2, alpha: 0.9 });
-    g.moveTo(dest.x - r, dest.y);
-    g.lineTo(dest.x + r, dest.y);
-    g.moveTo(dest.x, dest.y - r);
-    g.lineTo(dest.x, dest.y + r);
-    g.stroke({ color, width: 2, alpha: 0.8 });
+    if (targetCell) {
+      const dest = gridToWorld(targetCell.col, targetCell.row, this.gridConfig);
+      const r = Math.max(8, CELL_SIZE * 0.28);
+      g.circle(dest.x, dest.y, r).stroke({ color: 0xffd54f, width: 2, alpha: 0.9 });
+      g.moveTo(dest.x - r, dest.y);
+      g.lineTo(dest.x + r, dest.y);
+      g.moveTo(dest.x, dest.y - r);
+      g.lineTo(dest.x, dest.y + r);
+      g.stroke({ color, width: 2, alpha: 0.8 });
+    }
   }
 
   issueMove(unit: Unit, destination: CellCoord): void {
