@@ -99,6 +99,7 @@ export class MoveCommand extends BaseCommand {
   static readonly MAX_FRAMES_WITHOUT_PROGRESS = 30;
   static readonly MAX_FRAMES_WITHOUT_PROGRESS_ENEMY_BLOCK = 20;
   static readonly MAX_FRAMES_WITHOUT_PROGRESS_ALLY_BLOCK = 300;
+  static readonly MAX_FRAMES_WITHOUT_PROGRESS_NO_ROUTE = 300;
   private framesWithoutProgress = 0;
   private bestDistance = Infinity;
   private resolvedDestination?: CellCoord;
@@ -198,21 +199,7 @@ export class MoveCommand extends BaseCommand {
       return MoveCommand.MAX_FRAMES_WITHOUT_PROGRESS;
     }
 
-    const unitCell = unit.getGridCell(context.gridConfig);
-    if (!unitCell) return MoveCommand.MAX_FRAMES_WITHOUT_PROGRESS;
-    for (const [dc, dr] of [
-      [0, -1], [0, 1], [-1, 0], [1, 0],
-      [-1, -1], [-1, 1], [1, -1], [1, 1],
-    ]) {
-      const cell = context.gridState.getCell({ col: unitCell.col + dc, row: unitCell.row + dr });
-      const claimedBy = cell?.occupantId ?? cell?.reservedBy;
-      const isBlocked = cell?.occupied || (cell?.reservedBy && cell.reservedBy !== unit.getId());
-      if (isBlocked && cell.type !== "blocked" && claimedBy) {
-        const blockedByEnemy = context.enemies.some((e) => e.getId() === claimedBy);
-        if (!blockedByEnemy) return MoveCommand.MAX_FRAMES_WITHOUT_PROGRESS_ALLY_BLOCK;
-      }
-    }
-    return MoveCommand.MAX_FRAMES_WITHOUT_PROGRESS;
+    return MoveCommand.MAX_FRAMES_WITHOUT_PROGRESS_NO_ROUTE;
   }
 
   protected pathTo(unit: Unit, context: CommandContext): boolean {
