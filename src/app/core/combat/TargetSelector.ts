@@ -27,6 +27,7 @@ export interface SelectionContext {
   melee: boolean;
   range: number;
   gridConfig: GridConfig;
+  vision?: number;
 }
 
 function countActiveAttacks(target: Unit, allUnits: Unit[]): number {
@@ -40,7 +41,7 @@ function countActiveAttacks(target: Unit, allUnits: Unit[]): number {
 
 export function selectBestTarget(ctx: SelectionContext): Unit | undefined {
   const opts = DEFAULT_TARGET_SELECTOR_OPTIONS;
-  const { targets, unitCell, currentTarget, thresholdTicks, underAttackTicks, lastAttackerId, melee, range, gridConfig } = ctx;
+  const { targets, unitCell, currentTarget, thresholdTicks, underAttackTicks, lastAttackerId, melee, range, vision, gridConfig } = ctx;
 
   if (targets.length === 0) return undefined;
 
@@ -50,9 +51,16 @@ export function selectBestTarget(ctx: SelectionContext): Unit | undefined {
     ? (a: CellCoord, b: CellCoord) => Math.max(Math.abs(a.col - b.col), Math.abs(a.row - b.row))
     : (a: CellCoord, b: CellCoord) => Math.hypot(b.col - a.col, b.row - a.row);
 
-  const validTargets = targets.filter(
-    (t) => t.active && t.canBeProjectileTarget && t.getGridCell(gridConfig),
-  );
+  const validTargets = targets.filter((t) => {
+    if (!t.active || !t.canBeProjectileTarget) return false;
+    const cell = t.getGridCell(gridConfig);
+    if (!cell) return false;
+    if (vision !== undefined) {
+      const dist = Math.hypot(cell.col - unitCell.col, cell.row - unitCell.row);
+      if (dist > vision) return false;
+    }
+    return true;
+  });
 
   if (validTargets.length === 0) return undefined;
 

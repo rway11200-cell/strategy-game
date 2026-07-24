@@ -727,6 +727,7 @@ export class Unit extends Container {
       lastAttackerId: this.lastAttackerId,
       melee: this.model.attackMode === "melee",
       range: this.model.range,
+      vision: this.model.vision,
       gridConfig: this.commandContext!.gridConfig,
     };
     return selectBestTarget(ctx);
@@ -940,6 +941,7 @@ export class Unit extends Container {
         lastAttackerId: this.lastAttackerId,
         melee: this.model.attackMode === "melee",
         range,
+        vision: this.model.vision,
         gridConfig,
       };
       const newTarget = selectBestTarget(ctx);
@@ -1185,6 +1187,7 @@ export function getCurrentOrClosestGridTarget(
     underAttackTicks: 0,
     melee: attackMode === "melee",
     range,
+    vision: undefined,
     gridConfig,
   };
   return selectBestTarget(ctx);
