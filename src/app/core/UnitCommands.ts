@@ -98,7 +98,7 @@ export class MoveCommand extends BaseCommand {
 
   static readonly MAX_FRAMES_WITHOUT_PROGRESS = 30;
   static readonly MAX_FRAMES_WITHOUT_PROGRESS_ENEMY_BLOCK = 20;
-  static readonly MAX_FRAMES_WITHOUT_PROGRESS_ALLY_BLOCK = 180;
+  static readonly MAX_FRAMES_WITHOUT_PROGRESS_ALLY_BLOCK = 300;
   private framesWithoutProgress = 0;
   private bestDistance = Infinity;
   private resolvedDestination?: CellCoord;
@@ -187,8 +187,10 @@ export class MoveCommand extends BaseCommand {
     const targetCell = unit.getCommandMovementState().targetCell;
     if (targetCell) {
       const cell = context.gridState.getCell(targetCell);
-      if (cell?.occupied && cell.type !== "blocked" && cell.occupantId) {
-        const blockedByEnemy = context.enemies.some((e) => e.getId() === cell.occupantId);
+      const claimedBy = cell?.occupantId ?? cell?.reservedBy;
+      const isBlocked = cell?.occupied || (cell?.reservedBy && cell.reservedBy !== unit.getId());
+      if (isBlocked && cell.type !== "blocked" && claimedBy) {
+        const blockedByEnemy = context.enemies.some((e) => e.getId() === claimedBy);
         return blockedByEnemy
           ? MoveCommand.MAX_FRAMES_WITHOUT_PROGRESS_ENEMY_BLOCK
           : MoveCommand.MAX_FRAMES_WITHOUT_PROGRESS_ALLY_BLOCK;
@@ -203,8 +205,10 @@ export class MoveCommand extends BaseCommand {
       [-1, -1], [-1, 1], [1, -1], [1, 1],
     ]) {
       const cell = context.gridState.getCell({ col: unitCell.col + dc, row: unitCell.row + dr });
-      if (cell?.occupied && cell.type !== "blocked" && cell.occupantId) {
-        const blockedByEnemy = context.enemies.some((e) => e.getId() === cell.occupantId);
+      const claimedBy = cell?.occupantId ?? cell?.reservedBy;
+      const isBlocked = cell?.occupied || (cell?.reservedBy && cell.reservedBy !== unit.getId());
+      if (isBlocked && cell.type !== "blocked" && claimedBy) {
+        const blockedByEnemy = context.enemies.some((e) => e.getId() === claimedBy);
         if (!blockedByEnemy) return MoveCommand.MAX_FRAMES_WITHOUT_PROGRESS_ALLY_BLOCK;
       }
     }
