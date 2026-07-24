@@ -3,6 +3,7 @@ import { createGridConfig, gridToWorld, type GridConfig } from "../../grid/GridC
 import { GridState } from "../../grid/GridState";
 import { UnitCreator } from "./UnitCreator";
 import { Enemy, EnemyType } from "./unidades/Enemy";
+import { Projectile } from "./unidades/Projectile";
 import { Unit } from "./unidades/Unit";
 
 const GRID_COLS = 12;
@@ -21,6 +22,7 @@ export class SandboxManager {
   readonly gridConfig: GridConfig;
   readonly gridState: GridState;
   private readonly unitCreator: UnitCreator<Enemy>;
+  private readonly projectileCreator: UnitCreator<Projectile>;
   private readonly allUnits: Enemy[] = [];
   private readonly blockedCells: Set<string> = new Set();
 
@@ -28,14 +30,21 @@ export class SandboxManager {
     this.gridConfig = createGridConfig({ gridWidth: GRID_COLS, gridHeight: GRID_ROWS, cellSize: CELL_SIZE });
     this.gridState = new GridState(this.gridConfig);
 
+    this.placeBlockedCells();
+    this.drawGrid();
+
+    this.projectileCreator = new UnitCreator<Projectile>({
+      container: worldContainer,
+      initialPoolSize: 5,
+      factory: () => new Projectile(worldContainer),
+    });
+
     this.unitCreator = new UnitCreator<Enemy>({
       container: worldContainer,
       initialPoolSize: 12,
       factory: () => new Enemy(worldContainer),
     });
 
-    this.placeBlockedCells();
-    this.drawGrid();
     this.spawnTeams();
   }
 
@@ -82,6 +91,7 @@ export class SandboxManager {
 
     for (let teamIndex = 0; teamIndex < 2; teamIndex++) {
       const team: "player" | "enemy" = teamIndex === 0 ? "player" : "enemy";
+      const archetype = teamIndex === 0 ? EnemyType.Warrior : EnemyType.Skeleton;
 
       for (let i = 0; i < 5; i++) {
         let cell: { col: number; row: number };
@@ -99,15 +109,23 @@ export class SandboxManager {
         occupied.add(key);
         const world = gridToWorld(cell.col, cell.row, this.gridConfig);
         const unit = this.unitCreator.get();
-        unit.initializeEnemy(EnemyType.Warrior);
-        unit.scale.set(1 / 3);
+        unit.initializeEnemy(archetype);
+        if (archetype === EnemyType.Warrior) unit.scale.set(1 / 3);
         unit.team = team;
+        unit.model.configure({ attackMode: "melee" });
+        unit.initializeShootingRange({
+          range: 1,
+          fireRate: 0.5,
+          damage: unit.attackDamage,
+          projectileCreator: this.projectileCreator,
+          targets: [],
+        });
         unit.initializeTileMovement({
           cells: [],
           gridConfig: this.gridConfig,
           gridState: this.gridState,
           start: cell,
-          entityType: "warrior",
+          entityType: archetype,
         });
         unit.spawn();
         unit.position.set(world.x, world.y);
