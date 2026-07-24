@@ -29,6 +29,7 @@ export class MainScreen extends Container {
   private commandUI: CommandUI;
   private selectedUnit?: Unit;
   private pendingCommand: CommandAction | null = null;
+  private patrolFirstPoint?: { col: number; row: number };
   private cameraX = 0;
   private cameraY = 0;
   private viewportWidth = 0;
@@ -152,6 +153,7 @@ export class MainScreen extends Container {
     activeUnits.forEach((unit) => unit.setSelectionHandler(this.selectUnit));
     if (this.selectedUnit && !activeUnits.includes(this.selectedUnit)) this.selectUnit();
     this.selectedUnitUI.showUnit(this.selectedUnit);
+    this.sandboxManager.updateMarkers(this.selectedUnit);
   }
 
   public async pause({ ignoreInteractiveChildren = false }: PauseResumeOption = {}) {
@@ -194,6 +196,12 @@ export class MainScreen extends Container {
   }
 
   private selectUnit = (unit?: Unit): void => {
+    if (this.pendingCommand === "attack" && unit && this.selectedUnit && this.selectedUnit.isHostileTo(unit)) {
+      this.sandboxManager.issueAttack(this.selectedUnit, unit);
+      this.pendingCommand = null;
+      this.commandUI.setHighlight(null);
+      return;
+    }
     if (this.selectedUnit === unit) return;
     this.selectedUnit?.setSelected(false);
     this.selectedUnit = unit;
@@ -201,6 +209,7 @@ export class MainScreen extends Container {
     this.selectedUnitUI.showUnit(unit);
     this.commandUI.visible = Boolean(unit && unit.team === "player");
     this.pendingCommand = null;
+    this.patrolFirstPoint = undefined;
     this.commandUI.setHighlight(null);
   };
 
@@ -248,14 +257,15 @@ export class MainScreen extends Container {
     if (cell.x < 0 || cell.y < 0 || cell.x >= this.sandboxManager.gridConfig.gridWidth || cell.y >= this.sandboxManager.gridConfig.gridHeight) return;
     const coord = { col: cell.x, row: cell.y };
 
-    const targetUnit = this.sandboxManager.findUnitAt(coord);
-
-    if (this.pendingCommand === "attack" && targetUnit && this.selectedUnit.isHostileTo(targetUnit)) {
-      this.sandboxManager.issueAttack(this.selectedUnit, targetUnit);
-    } else if (this.pendingCommand === "move") {
+    if (this.pendingCommand === "move") {
       this.sandboxManager.issueMove(this.selectedUnit, coord);
     } else if (this.pendingCommand === "patrol") {
-      this.sandboxManager.issuePatrol(this.selectedUnit, [coord, coord]);
+      if (!this.patrolFirstPoint) {
+        this.patrolFirstPoint = coord;
+        return;
+      }
+      this.sandboxManager.issuePatrol(this.selectedUnit, [this.patrolFirstPoint, coord]);
+      this.patrolFirstPoint = undefined;
     }
 
     this.pendingCommand = null;
