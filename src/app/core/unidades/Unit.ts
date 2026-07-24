@@ -249,8 +249,7 @@ export class Unit extends Container {
     if (this.model.state !== "dead") this.model.state = activity;
   }
 
-  private handleSelection = (event: FederatedPointerEvent): void => {
-    event.stopPropagation();
+  private handleSelection = (_event: FederatedPointerEvent): void => {
     this.selectionHandler?.(this);
   };
 

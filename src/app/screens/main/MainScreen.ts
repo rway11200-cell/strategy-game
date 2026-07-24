@@ -197,13 +197,11 @@ export class MainScreen extends Container {
 
   private selectUnit = (unit?: Unit): void => {
     if (this.pendingCommand === "attack" && unit && this.selectedUnit && this.selectedUnit.isHostileTo(unit)) {
-      console.log("[ATTACK] issuing attack on", unit.getId(), "from", this.selectedUnit.getId());
       this.sandboxManager.issueAttack(this.selectedUnit, unit);
       this.pendingCommand = null;
       this.commandUI.setHighlight(null);
       return;
     }
-    console.log("[SELECT] unit:", unit?.getId(), "team:", unit?.team, "pendingCommand:", this.pendingCommand, "selectedUnit:", this.selectedUnit?.getId());
     if (this.selectedUnit === unit) return;
     this.selectedUnit?.setSelected(false);
     this.selectedUnit = unit;
@@ -259,7 +257,11 @@ export class MainScreen extends Container {
     if (cell.x < 0 || cell.y < 0 || cell.x >= this.sandboxManager.gridConfig.gridWidth || cell.y >= this.sandboxManager.gridConfig.gridHeight) return;
     const coord = { col: cell.x, row: cell.y };
 
-    if (this.pendingCommand === "move") {
+    const targetUnit = this.sandboxManager.findUnitAt(coord);
+
+    if (this.pendingCommand === "attack" && targetUnit && this.selectedUnit.isHostileTo(targetUnit)) {
+      this.sandboxManager.issueAttack(this.selectedUnit, targetUnit);
+    } else if (this.pendingCommand === "move") {
       this.sandboxManager.issueMove(this.selectedUnit, coord);
     } else if (this.pendingCommand === "patrol") {
       if (!this.patrolFirstPoint) {
