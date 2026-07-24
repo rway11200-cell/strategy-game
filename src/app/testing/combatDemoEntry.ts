@@ -1,4 +1,4 @@
-import { Application, Container, Graphics, Ticker } from "pixi.js";
+import { Application, Assets, Container, Graphics, Ticker } from "pixi.js";
 import { createGridConfig, gridToWorld } from "../../core/grid/GridConfig";
 import { GridState } from "../../grid/GridState";
 import { Enemy, EnemyType } from "../core/unidades/Enemy";
@@ -51,6 +51,9 @@ async function init() {
   app.stage.addChild(container);
   document.getElementById("pixi-container")!.appendChild(app.canvas);
 
+  await Assets.init({ basePath: "/assets" });
+  await Assets.loadBundle("main");
+
   drawGrid();
   spawnDemoSetup();
   setupControls();
@@ -86,6 +89,7 @@ function makeDemoUnit(
     cooldown: 800,
     damageType: team === "player" ? "pierce" : "normal",
     armorType: archetype === EnemyType.Skeleton ? "heavy" : "light",
+    vision: 100,
   });
   unit.initializeShootingRange({
     range: 1,
@@ -125,26 +129,26 @@ function spawnDemoSetup() {
 
   for (let i = 0; i < 3; i++) {
     const u = makeDemoUnit(EnemyType.Goblin, 2 + i * 2, 2, "enemy");
-    u.model.configure({ damageType: "normal", armorType: "unarmored", damage: 8 });
+    u.model.configure({ damageType: "normal", armorType: "unarmored", damage: 8, vision: 100 });
     teamA.push(u);
     enemies.push(u);
   }
   for (let i = 0; i < 2; i++) {
     const u = makeDemoUnit(EnemyType.Skeleton, 2 + i * 3, 5, "enemy");
-    u.model.configure({ damageType: "normal", armorType: "heavy", damage: 15 });
+    u.model.configure({ damageType: "normal", armorType: "heavy", damage: 15, vision: 100 });
     teamA.push(u);
     enemies.push(u);
   }
 
   for (let i = 0; i < 3; i++) {
     const u = makeDemoUnit(EnemyType.Warrior, 22 + i * 2, 12, "player");
-    u.model.configure({ damageType: "pierce", armorType: "light", damage: 12 });
+    u.model.configure({ damageType: "pierce", armorType: "light", damage: 12, vision: 100 });
     teamB.push(u);
     enemies.push(u);
   }
   for (let i = 0; i < 2; i++) {
     const u = makeDemoUnit(EnemyType.Ghost, 22 + i * 3, 15, "player");
-    u.model.configure({ damageType: "magic", armorType: "light", damage: 18 });
+    u.model.configure({ damageType: "magic", armorType: "light", damage: 18, vision: 100 });
     teamB.push(u);
     enemies.push(u);
   }
@@ -210,7 +214,7 @@ function doSpawnSetup(kind: string) {
   const row = 8 + Math.floor(Math.random() * 6);
 
   const u = makeDemoUnit(archetype, col, row, side);
-  u.model.configure({ damageType: dmgType, armorType: armType });
+  u.model.configure({ damageType: dmgType, armorType: armType, vision: 100 });
   u.model.maxHp = hp;
   u.model.hp = hp;
   u.initializeHealthBar(hp);
