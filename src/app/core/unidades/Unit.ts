@@ -541,6 +541,10 @@ export class Unit extends Container {
     return this.shootingMode;
   }
 
+  private isMovementActionActive(): boolean {
+    return (this.tileMovement?.stepProgress ?? 0) > 0;
+  }
+
   public getShootingRange(): number | undefined {
     return this.shootOptions?.range;
   }
@@ -597,11 +601,7 @@ export class Unit extends Container {
       this.updateMovement(_time);
     }
     this.updateHealth();
-    if (!this.isMovementActionActive()) this.updateShooting(_time);
-  }
-
-  private isMovementActionActive(): boolean {
-    return this.targetFollower?.targetCell !== undefined || (this.tileMovement?.stepProgress ?? 0) > 0;
+    this.updateShooting(_time);
   }
 
   private updateHealth() {
@@ -626,7 +626,12 @@ export class Unit extends Container {
 
       const result = this.tileMovement.walk(this, this.targetFollower, _time);
       const { direction } = result;
-      if (result.blocked) this.setActivity("blocked");
+      if (result.blocked) {
+        this.setActivity("blocked");
+        if (this.tileMovement.shouldGiveUpDueToBlockage()) {
+          this.clearCommandMovement();
+        }
+      }
       else if (result.moved && !this.targetFollower.finished) {
         this.setActivity(
           !this.currentCommand || this.currentCommand.type === "attack" || this.currentCommand.type === "attack-move"

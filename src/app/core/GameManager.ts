@@ -142,8 +142,12 @@ export class GameManager {
     this.coinsUI.setCoins(this.gameContext.coins);
 
     const activeEnemies = this.gameContext.enemyCreator.getUnits(true);
+    const activeTowers = this.gameContext.towerCreator.getUnits(true);
     this.gameContext.towerCreator.getUnits(true).forEach((tower) => {
       tower.setShootingTargets(activeEnemies);
+    });
+    this.gameContext.enemyCreator.getUnits(true).forEach((enemy) => {
+      enemy.setShootingTargets(activeTowers);
     });
     this.gameContext.enemyCreator.update(_time);
     this.gameContext.towerCreator.update(_time);
