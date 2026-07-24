@@ -659,4 +659,85 @@ describe("GameplayTestRuntime", () => {
       status: "running",
     });
   });
+
+  it("pursues a nearby enemy after completing a move order in idle", () => {
+    const runtime = createRuntime();
+    const started = runtime.beginScenario({ preset: "warrior-hold-square", simulation: "manual" });
+    expect(started.ok).toBe(true);
+    if (!started.ok) return;
+
+    const stats = { hp: 200, damage: 10, rangeCells: 1, fireCooldownFrames: 30, movementFramesPerCell: 8 };
+    expect(runtime.spawnTestUnit({
+      scenarioId: started.value.id,
+      id: "runner",
+      archetype: "warrior",
+      team: "player",
+      cell: { col: 0, row: 4 },
+      stats,
+    })).toMatchObject({ ok: true });
+    expect(runtime.spawnTestUnit({
+      scenarioId: started.value.id,
+      id: "target",
+      archetype: "warrior",
+      team: "enemy",
+      cell: { col: 4, row: 4 },
+      stats: { hp: 200 },
+    })).toMatchObject({ ok: true });
+    expect(runtime.issueTestOrder({
+      unitId: "runner",
+      order: { type: "move", destination: { col: 8, row: 4 } },
+    })).toMatchObject({ ok: true });
+
+    const result = runtime.advanceTestFrames(started.value.id, 240);
+    expect(result).toMatchObject({ ok: true });
+    if (!result.ok) return;
+
+    const runner = result.value.units.find((u) => u.id === "runner");
+    expect(runner?.order).toBeNull();
+    expect(runner?.cell?.col).toBeGreaterThan(4);
+    expect(result.value.events).toContainEqual(expect.objectContaining({
+      type: "unit.entered-cell",
+      unitId: "runner",
+    }));
+  });
+
+  it("auto-pursuit triggers on a 1-row grid after move completes", () => {
+    const runtime = createRuntime();
+    const started = runtime.beginScenario({ preset: "warrior-auto-move", simulation: "manual" });
+    expect(started.ok).toBe(true);
+    if (!started.ok) return;
+
+    const stats = { hp: 200, damage: 10, rangeCells: 1, fireCooldownFrames: 30, movementFramesPerCell: 8 };
+    expect(runtime.spawnTestUnit({
+      scenarioId: started.value.id,
+      id: "runner",
+      archetype: "warrior",
+      team: "player",
+      cell: started.value.landmarks.attackerStart,
+      stats,
+    })).toMatchObject({ ok: true });
+    expect(runtime.spawnTestUnit({
+      scenarioId: started.value.id,
+      id: "target",
+      archetype: "warrior",
+      team: "enemy",
+      cell: started.value.landmarks.defender,
+      stats: { hp: 200 },
+    })).toMatchObject({ ok: true });
+    expect(runtime.issueTestOrder({
+      unitId: "runner",
+      order: { type: "move", destination: started.value.landmarks.destination },
+    })).toMatchObject({ ok: true });
+
+    const result = runtime.advanceTestFrames(started.value.id, 240);
+    expect(result).toMatchObject({ ok: true });
+    if (!result.ok) return;
+
+    const runner = result.value.units.find((u) => u.id === "runner");
+    expect(runner?.order).toBeNull();
+    expect(result.value.events).toContainEqual(expect.objectContaining({
+      type: "damage.applied",
+      sourceId: "runner",
+    }));
+  });
 });
