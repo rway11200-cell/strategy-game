@@ -62,7 +62,6 @@ export class MainScreen extends Container {
 
     this.cameraContainer.on("pointerdown", (e) => {
       if (e.button === 2) {
-        e.preventDefault();
         this.handleGridClick(e);
         return;
       }
@@ -96,6 +95,7 @@ export class MainScreen extends Container {
 
     this.cameraContainer.on("rightclick", (e) => {
       e.preventDefault();
+      this.handleGridClick(e);
     });
 
     this.sandboxManager = new SandboxManager(this.worldContainer);
@@ -109,6 +109,11 @@ export class MainScreen extends Container {
     this.addChild(this.commandUI);
 
     document.addEventListener("keydown", this.handleKeyDown);
+
+    const canvas = engine().canvas;
+    if (canvas) {
+      canvas.addEventListener("contextmenu", (e) => e.preventDefault());
+    }
 
     const buttonAnimations = {
       hover: {
@@ -238,10 +243,8 @@ export class MainScreen extends Container {
   private handleGridClick(e: FederatedPointerEvent): void {
     if (!this.selectedUnit || !this.pendingCommand) return;
 
-    const worldX = e.global.x + this.cameraX - this.mainContainer.x;
-    const worldY = e.global.y + this.cameraY - this.mainContainer.y;
-    const cell = worldToGrid(worldX, worldY, this.sandboxManager.gridConfig);
-
+    const local = this.worldContainer.toLocal(e.global);
+    const cell = worldToGrid(local.x, local.y, this.sandboxManager.gridConfig);
     if (cell.x < 0 || cell.y < 0 || cell.x >= this.sandboxManager.gridConfig.gridWidth || cell.y >= this.sandboxManager.gridConfig.gridHeight) return;
     const coord = { col: cell.x, row: cell.y };
 
