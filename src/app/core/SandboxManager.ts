@@ -1,0 +1,142 @@
+import { Container, Graphics, Ticker } from "pixi.js";
+import { createGridConfig, gridToWorld, type GridConfig } from "../../grid/GridConfig";
+import { GridState } from "../../grid/GridState";
+import { UnitCreator } from "./UnitCreator";
+import { Enemy, EnemyType } from "./unidades/Enemy";
+import { Unit } from "./unidades/Unit";
+
+const GRID_COLS = 12;
+const GRID_ROWS = 9;
+const CELL_SIZE = 64;
+const BLOCK_COUNT = 5;
+
+function randomCell(cols: number, rows: number): { col: number; row: number } {
+  return {
+    col: Math.floor(Math.random() * cols),
+    row: Math.floor(Math.random() * rows),
+  };
+}
+
+export class SandboxManager {
+  readonly gridConfig: GridConfig;
+  readonly gridState: GridState;
+  private readonly unitCreator: UnitCreator<Enemy>;
+  private readonly allUnits: Enemy[] = [];
+  private readonly blockedCells: Set<string> = new Set();
+
+  constructor(private readonly worldContainer: Container) {
+    this.gridConfig = createGridConfig({ gridWidth: GRID_COLS, gridHeight: GRID_ROWS, cellSize: CELL_SIZE });
+    this.gridState = new GridState(this.gridConfig);
+
+    this.unitCreator = new UnitCreator<Enemy>({
+      container: worldContainer,
+      initialPoolSize: 12,
+      factory: () => new Enemy(worldContainer),
+    });
+
+    this.placeBlockedCells();
+    this.drawGrid();
+    this.spawnTeams();
+  }
+
+  private placeBlockedCells(): void {
+    const tries = BLOCK_COUNT * 3;
+    for (let i = 0; i < tries && this.blockedCells.size < BLOCK_COUNT; i++) {
+      const cell = randomCell(GRID_COLS, GRID_ROWS);
+      const key = `${cell.col},${cell.row}`;
+      if (this.blockedCells.has(key)) continue;
+      const existing = this.gridState.getCell(cell);
+      if (existing?.type === "blocked") continue;
+      this.gridState.setCell(cell, { type: "blocked", occupied: false, walkCost: 1 });
+      this.blockedCells.add(key);
+    }
+  }
+
+  private drawGrid(): void {
+    const g = new Graphics();
+    const size = CELL_SIZE;
+    const cols = GRID_COLS;
+    const rows = GRID_ROWS;
+
+    for (let row = 0; row < rows; row++) {
+      for (let col = 0; col < cols; col++) {
+        const cell = this.gridState.getCell({ col, row });
+        const color = cell?.type === "blocked" ? 0x37474f : 0x2e7d32;
+        g.rect(col * size, row * size, size, size).fill({ color, alpha: 0.5 });
+      }
+    }
+
+    for (let c = 0; c <= cols; c++) {
+      g.moveTo(c * size, 0).lineTo(c * size, rows * size);
+    }
+    for (let r = 0; r <= rows; r++) {
+      g.moveTo(0, r * size).lineTo(cols * size, r * size);
+    }
+    g.stroke({ width: 1, color: 0xffffff, alpha: 0.15 });
+
+    this.worldContainer.addChild(g);
+  }
+
+  private spawnTeams(): void {
+    const occupied = new Set<string>();
+
+    for (let teamIndex = 0; teamIndex < 2; teamIndex++) {
+      const team: "player" | "enemy" = teamIndex === 0 ? "player" : "enemy";
+
+      for (let i = 0; i < 5; i++) {
+        let cell: { col: number; row: number };
+        let key: string;
+        let attempts = 0;
+        do {
+          cell = randomCell(GRID_COLS, GRID_ROWS);
+          key = `${cell.col},${cell.row}`;
+          attempts++;
+        } while (
+          (occupied.has(key) || this.blockedCells.has(key) || this.gridState.getCell(cell)?.type === "blocked") &&
+          attempts < 200
+        );
+
+        occupied.add(key);
+        const world = gridToWorld(cell.col, cell.row, this.gridConfig);
+        const unit = this.unitCreator.get();
+        unit.initializeEnemy(EnemyType.Warrior);
+        unit.scale.set(1 / 3);
+        unit.team = team;
+        unit.initializeTileMovement({
+          cells: [],
+          gridConfig: this.gridConfig,
+          gridState: this.gridState,
+          start: cell,
+          entityType: "warrior",
+        });
+        unit.spawn();
+        unit.position.set(world.x, world.y);
+        this.allUnits.push(unit);
+      }
+    }
+
+    this.refreshTargets();
+  }
+
+  private refreshTargets(): void {
+    const active = this.allUnits.filter((u) => u.active && !u.isDead() && u.canBeProjectileTarget);
+    for (const unit of this.allUnits) {
+      if (!unit.model.canAttack || !unit.active || unit.isDead()) continue;
+      const targets = active.filter((other) => other !== unit && unit.isHostileTo(other));
+      unit.setShootingTargets(targets);
+    }
+  }
+
+  update(_time: Ticker): void {
+    this.refreshTargets();
+    for (const unit of this.allUnits) {
+      if (unit.active && unit.animatedSprite?.visible !== false) {
+        unit.update(_time);
+      }
+    }
+  }
+
+  getActiveUnits(): Unit[] {
+    return this.allUnits.filter((u) => u.active && !u.isDead());
+  }
+}
