@@ -714,27 +714,53 @@ export function createGameplayDebugPanel(api: GameTestApi): HTMLDivElement {
 
   function loadPatrolAttackDemo(): void {
     const scenario = beginScenario("warrior-patrol-square");
-    if (!scenario) return;
-    if (!unwrap(api.spawnTestUnit({
+    if (!scenario) {
+      console.error("[demo17] beginScenario failed");
+      return;
+    }
+    console.log("[demo17] scenario started", scenario.id, scenario.landmarks);
+
+    const r1 = api.spawnTestUnit({
       scenarioId: scenario.id,
       id: "patrolling-warrior",
       archetype: "warrior",
       team: "player",
       cell: scenario.landmarks.patrolStart,
       stats: { hp: 200, damage: 10, rangeCells: 1, fireCooldownFrames: 30, movementFramesPerCell: WARRIOR_DEMO_MOVEMENT_FRAMES_PER_CELL },
-    }))) return;
-    if (!unwrap(api.spawnTestUnit({
+    });
+    if (!r1.ok) {
+      console.error("[demo17] spawn patrolling-warrior failed", r1.error);
+      hud.textContent = `Spawn error: ${r1.error.message}`;
+      return;
+    }
+    console.log("[demo17] patrolling-warrior spawned", r1.value);
+
+    const r2 = api.spawnTestUnit({
       scenarioId: scenario.id,
       id: "patrol-target",
       archetype: "warrior",
       team: "enemy",
       cell: scenario.landmarks.target,
       stats: { hp: 200 },
-    }))) return;
-    if (!unwrap(api.issueTestOrder({
+    });
+    if (!r2.ok) {
+      console.error("[demo17] spawn patrol-target failed", r2.error);
+      hud.textContent = `Spawn error: ${r2.error.message}`;
+      return;
+    }
+    console.log("[demo17] patrol-target spawned", r2.value);
+
+    const r3 = api.issueTestOrder({
       unitId: "patrolling-warrior",
       order: { type: "patrol", endpoints: [scenario.landmarks.patrolStart, scenario.landmarks.patrolEnd] },
-    }))) return;
+    });
+    if (!r3.ok) {
+      console.error("[demo17] issueTestOrder failed", r3.error);
+      hud.textContent = `Order error: ${r3.error.message}`;
+      return;
+    }
+    console.log("[demo17] patrol order issued", r3.value);
+
     setPrimaryUnit("patrolling-warrior");
     state.reloadDemo = loadPatrolAttackDemo;
     refreshHUD();

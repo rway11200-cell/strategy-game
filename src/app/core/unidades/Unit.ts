@@ -483,7 +483,10 @@ export class Unit extends Container {
   }
 
   public issueCommand(command: IUnitCommand, append = false): void {
-    if (!this.commandContext) return;
+    if (!this.commandContext) {
+      console.warn("issueCommand: no commandContext (call initializeTileMovement first)");
+      return;
+    }
 
     if (!append) {
       for (const c of this.commands) c.cancel(this);
