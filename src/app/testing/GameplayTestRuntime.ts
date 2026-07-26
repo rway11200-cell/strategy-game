@@ -240,10 +240,12 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
       skeleton: EnemyType.Skeleton,
       ghost: EnemyType.Ghost,
       warrior: EnemyType.Warrior,
+      archer: EnemyType.Archer,
     };
     const enemy = new Enemy(scenario.container, { id: options.id });
     enemy.initializeEnemy(ARCHETYPE_TO_ENEMY[options.archetype] ?? EnemyType.Goblin);
     if (options.archetype === "warrior") enemy.scale.set(1 / 3);
+    if (options.archetype === "archer") enemy.scale.set(1 / 2);
     enemy.team = options.team;
 
     const hasCombat = options.stats && (options.stats.damage ?? 0) > 0;

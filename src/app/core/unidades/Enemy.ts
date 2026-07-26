@@ -8,6 +8,7 @@ export enum EnemyType {
   Skeleton = "skeleton",
   Ghost = "ghost",
   Warrior = "warrior",
+  Archer = "archer",
 }
 
 type EnemyDefinition = {
@@ -82,6 +83,21 @@ const EnemyDefinitions = new Map<EnemyType, EnemyDefinition>([
         idle: "warrior-idle.json",
         run: "warrior-run.json",
         attack: "warrior-attack.json",
+      },
+    },
+  ],
+  [
+    EnemyType.Archer,
+    {
+      health: 80,
+      damage: 20,
+      speed: 0.8,
+      range: 3,
+      reward: 20,
+      armorType: "light",
+      framesJson: {
+        idle: "archer-idle.json",
+        attack: "archer-attack.json",
       },
     },
   ],

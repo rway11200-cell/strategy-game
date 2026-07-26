@@ -492,6 +492,51 @@
         },
         {
           "alias": [
+            "main/unidades/jugadores/archer/archer-attack.json",
+            "archer-attack.json"
+          ],
+          "src": [
+            "main/unidades/jugadores/archer/archer-attack.json"
+          ],
+          "data": {
+            "tags": {
+              "m": true
+            }
+          }
+        },
+        {
+          "alias": [
+            "main/unidades/jugadores/archer/archer-blue.png",
+            "archer-blue.png"
+          ],
+          "src": [
+            "main/unidades/jugadores/archer/archer-blue@0.5x.webp",
+            "main/unidades/jugadores/archer/archer-blue@0.5x.png",
+            "main/unidades/jugadores/archer/archer-blue.webp",
+            "main/unidades/jugadores/archer/archer-blue.png"
+          ],
+          "data": {
+            "tags": {
+              "m": true
+            }
+          }
+        },
+        {
+          "alias": [
+            "main/unidades/jugadores/archer/archer-idle.json",
+            "archer-idle.json"
+          ],
+          "src": [
+            "main/unidades/jugadores/archer/archer-idle.json"
+          ],
+          "data": {
+            "tags": {
+              "m": true
+            }
+          }
+        },
+        {
+          "alias": [
             "main/unidades/jugadores/warrior/warrior-attack.json",
             "warrior-attack.json"
           ],

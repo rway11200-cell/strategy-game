@@ -338,10 +338,10 @@ export function createGameplayDebugPanel(api: GameTestApi): HTMLDivElement {
     if (!unwrap(api.spawnTestUnit({
       scenarioId: scenario.id,
       id: attackerId,
-      archetype: "test-ranged-unit",
+      archetype: "archer",
       team: "player",
       cell: scenario.landmarks.attacker,
-      stats: { damage: 20, rangeCells: 3, fireCooldownFrames: 1 },
+      stats: { damage: 20, rangeCells: 3, fireCooldownFrames: 36 },
     }))) return;
     if (!unwrap(api.spawnTestUnit({
       scenarioId: scenario.id,
