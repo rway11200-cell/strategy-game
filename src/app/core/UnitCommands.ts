@@ -550,6 +550,12 @@ export class PatrolCommand extends BaseCommand {
   getDestination(): CellCoord | undefined {
     return this.destination && { ...this.destination };
   }
+
+  cancel(unit: Unit): void {
+    unit.freezeMovement();
+    unit.setCommandShooting("auto");
+    this.status = "completed";
+  }
 }
 
 export class HoldPositionCommand extends BaseCommand {
