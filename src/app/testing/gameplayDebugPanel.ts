@@ -317,6 +317,11 @@ export function createGameplayDebugPanel(api: GameTestApi): HTMLDivElement {
     }))) return;
     setPrimaryUnit(allyId);
     state.reloadDemo = loadHoldDemo;
+
+    stopPlayback();
+    state.playing = true;
+    playBtn.textContent = "⏸ Pause";
+    playLoop();
     refreshHUD();
   }
 
@@ -344,6 +349,11 @@ export function createGameplayDebugPanel(api: GameTestApi): HTMLDivElement {
     if (!unwrap(api.issueTestOrder({ unitId: attackerId, order: { type: "hold-position" } }))) return;
     setPrimaryUnit(attackerId);
     state.reloadDemo = loadHoldRangedDemo;
+
+    stopPlayback();
+    state.playing = true;
+    playBtn.textContent = "⏸ Pause";
+    playLoop();
     refreshHUD();
   }
 
@@ -374,6 +384,11 @@ export function createGameplayDebugPanel(api: GameTestApi): HTMLDivElement {
     }
     setPrimaryUnit(null);
     state.reloadDemo = loadMultiUnitDemo;
+
+    stopPlayback();
+    state.playing = true;
+    playBtn.textContent = "⏸ Pause";
+    playLoop();
     refreshHUD();
   }
 
@@ -400,6 +415,11 @@ export function createGameplayDebugPanel(api: GameTestApi): HTMLDivElement {
     }
     setPrimaryUnit("skeleton-0");
     state.reloadDemo = loadDenseDemo;
+
+    stopPlayback();
+    state.playing = true;
+    playBtn.textContent = "⏸ Pause";
+    playLoop();
     refreshHUD();
   }
 
@@ -425,6 +445,11 @@ export function createGameplayDebugPanel(api: GameTestApi): HTMLDivElement {
     }
     setPrimaryUnit("follower-0");
     state.reloadDemo = loadFollowDemo;
+
+    stopPlayback();
+    state.playing = true;
+    playBtn.textContent = "⏸ Pause";
+    playLoop();
     refreshHUD();
   }
 
@@ -446,6 +471,11 @@ export function createGameplayDebugPanel(api: GameTestApi): HTMLDivElement {
     }))) return;
     setPrimaryUnit(unitId);
     state.reloadDemo = loadDetourDemo;
+
+    stopPlayback();
+    state.playing = true;
+    playBtn.textContent = "⏸ Pause";
+    playLoop();
     refreshHUD();
   }
 
@@ -454,6 +484,11 @@ export function createGameplayDebugPanel(api: GameTestApi): HTMLDivElement {
     if (!scenario) return;
     setPrimaryUnit(null);
     state.reloadDemo = loadSpawnPointDemo;
+
+    stopPlayback();
+    state.playing = true;
+    playBtn.textContent = "⏸ Pause";
+    playLoop();
     refreshHUD();
   }
 
@@ -475,6 +510,11 @@ export function createGameplayDebugPanel(api: GameTestApi): HTMLDivElement {
     }))) return;
     setPrimaryUnit(unitId);
     state.reloadDemo = loadWarriorDemo;
+
+    stopPlayback();
+    state.playing = true;
+    playBtn.textContent = "⏸ Pause";
+    playLoop();
     refreshHUD();
   }
 
@@ -537,6 +577,11 @@ export function createGameplayDebugPanel(api: GameTestApi): HTMLDivElement {
     }))) return;
     setPrimaryUnit("marching-player");
     state.reloadDemo = loadAutoMarchDemo;
+
+    stopPlayback();
+    state.playing = true;
+    playBtn.textContent = "⏸ Pause";
+    playLoop();
     refreshHUD();
   }
 
@@ -561,6 +606,11 @@ export function createGameplayDebugPanel(api: GameTestApi): HTMLDivElement {
     }))) return;
     setPrimaryUnit("moving-attacker");
     state.reloadDemo = loadAutoMoveDemo;
+
+    stopPlayback();
+    state.playing = true;
+    playBtn.textContent = "⏸ Pause";
+    playLoop();
     refreshHUD();
   }
 
@@ -593,6 +643,11 @@ export function createGameplayDebugPanel(api: GameTestApi): HTMLDivElement {
     }))) return;
     setPrimaryUnit("holding-defender");
     state.reloadDemo = loadHoldAttackDemo;
+
+    stopPlayback();
+    state.playing = true;
+    playBtn.textContent = "⏸ Pause";
+    playLoop();
     refreshHUD();
   }
 
@@ -625,10 +680,15 @@ export function createGameplayDebugPanel(api: GameTestApi): HTMLDivElement {
     }))) return;
     setPrimaryUnit("square-holder");
     state.reloadDemo = loadHoldSquareDemo;
+
+    stopPlayback();
+    state.playing = true;
+    playBtn.textContent = "⏸ Pause";
+    playLoop();
     refreshHUD();
   }
 
-  function loadPursuitDemo(): void {
+   function loadPursuitDemo(): void {
     const scenario = beginScenario("warrior-pursuit-square");
     if (!scenario) return;
     if (!unwrap(api.spawnTestUnit({
@@ -649,6 +709,11 @@ export function createGameplayDebugPanel(api: GameTestApi): HTMLDivElement {
     }))) return;
     setPrimaryUnit("free-pursuer");
     state.reloadDemo = loadPursuitDemo;
+
+    stopPlayback();
+    state.playing = true;
+    playBtn.textContent = "⏸ Pause";
+    playLoop();
     refreshHUD();
   }
 
@@ -680,6 +745,11 @@ export function createGameplayDebugPanel(api: GameTestApi): HTMLDivElement {
     if (!r3.ok) return;
     setPrimaryUnit("patrolling-warrior");
     state.reloadDemo = loadPatrolAttackDemo;
+
+    stopPlayback();
+    state.playing = true;
+    playBtn.textContent = "⏸ Pause";
+    playLoop();
     refreshHUD();
   }
 
