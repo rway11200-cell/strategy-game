@@ -6,23 +6,24 @@ import type {
 } from "./GameTestApi";
 
 const PRESETS = [
-  "three-cell-patrol-corridor",
-  "long-movement-corridor",
-  "hold-position-lane",
-  "five-unit-contended-patrol",
-  "tower-placement",
-  "dense-occupation",
-  "follow-the-leader",
-  "blocked-route-detour",
-  "spawn-point-demo",
   "warrior-march",
+  "long-movement-corridor",
+  "three-cell-patrol-corridor",
+  "hold-position-lane",
+  "hold-fire-stationary",
   "warrior-duel",
-  "warrior-auto-march",
   "warrior-auto-move",
   "warrior-hold-attack",
   "warrior-hold-square",
-  "warrior-pursuit-square",
   "warrior-patrol-square",
+  "blocked-route-detour",
+  "warrior-auto-march",
+  "spawn-point-demo",
+  "warrior-pursuit-square",
+  "follow-the-leader",
+  "five-unit-contended-patrol",
+  "dense-occupation",
+  "tower-placement",
 ];
 
 const WARRIOR_DEMO_MOVEMENT_FRAMES_PER_CELL = 60;
@@ -64,6 +65,7 @@ export function createGameplayDebugPanel(api: GameTestApi): HTMLDivElement {
   panel.appendChild(scenarioSection);
 
   const demoSection = createSection("Demo");
+<<<<<<< HEAD
 <<<<<<< HEAD
   const loadPatrolBtn = createButton("Patrol A ↔ B");
   const loadMoveBtn = createButton("Move + Stop");
@@ -116,12 +118,38 @@ export function createGameplayDebugPanel(api: GameTestApi): HTMLDivElement {
   const loadPatrolAttackBtn = createButton("17. Patrol square attack");
 >>>>>>> 7125af2 (Add patrol endpoints and demo numbers)
   demoSection.appendChild(loadPatrolBtn);
+=======
+  const loadMoveBtn = createButton("1. Basic move to destination");
+  const loadStopMoveBtn = createButton("2. Stop cancels move");
+  const loadPatrolBtn = createButton("3. Patrol A ↔ B");
+  const loadHoldNoCombatBtn = createButton("4. Hold no combat");
+  const loadHoldRangedBtn = createButton("5. Hold ranged attack");
+  const loadMeleeDuelBtn = createButton("6. Melee duel");
+  const loadAutoAttackBtn = createButton("7. Auto attack while moving");
+  const loadHoldMeleeBtn = createButton("8. Hold repels melee");
+  const loadHoldGridBtn = createButton("9. Hold large grid 9×9");
+  const loadPatrolCombatBtn = createButton("10. Patrol with combat");
+  const loadDetourBtn = createButton("11. Obstacle detour");
+  const loadCrossMarchBtn = createButton("12. Attack-march cross");
+  const loadSpawnBtn = createButton("13. Spawn point production");
+  const loadPursuitBtn = createButton("14. Auto pursuit");
+  const loadConvoyBtn = createButton("15. Convoy from origin");
+  const loadMultiPatrolBtn = createButton("16. Multi-unit patrol");
+  const loadDenseBtn = createButton("17. Dense 9-unit occupation");
+  const loadEmptyBtn = createButton("18. Empty selected preset");
+>>>>>>> 2f8027a (test: 10 nuevos tests conductuales de gameplay (01-17) y panel debug actualizado)
   demoSection.appendChild(loadMoveBtn);
-  demoSection.appendChild(loadHoldBtn);
-  demoSection.appendChild(loadMultiBtn);
-  demoSection.appendChild(loadDenseBtn);
-  demoSection.appendChild(loadFollowBtn);
+  demoSection.appendChild(loadStopMoveBtn);
+  demoSection.appendChild(loadPatrolBtn);
+  demoSection.appendChild(loadHoldNoCombatBtn);
+  demoSection.appendChild(loadHoldRangedBtn);
+  demoSection.appendChild(loadMeleeDuelBtn);
+  demoSection.appendChild(loadAutoAttackBtn);
+  demoSection.appendChild(loadHoldMeleeBtn);
+  demoSection.appendChild(loadHoldGridBtn);
+  demoSection.appendChild(loadPatrolCombatBtn);
   demoSection.appendChild(loadDetourBtn);
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
   demoSection.appendChild(loadSpawnPointBtn);
@@ -145,6 +173,14 @@ export function createGameplayDebugPanel(api: GameTestApi): HTMLDivElement {
   demoSection.appendChild(loadPursuitBtn);
   demoSection.appendChild(loadPatrolAttackBtn);
 >>>>>>> 5a1e011 (Add automatic Warrior combat scenarios)
+=======
+  demoSection.appendChild(loadCrossMarchBtn);
+  demoSection.appendChild(loadSpawnBtn);
+  demoSection.appendChild(loadPursuitBtn);
+  demoSection.appendChild(loadConvoyBtn);
+  demoSection.appendChild(loadMultiPatrolBtn);
+  demoSection.appendChild(loadDenseBtn);
+>>>>>>> 2f8027a (test: 10 nuevos tests conductuales de gameplay (01-17) y panel debug actualizado)
   demoSection.appendChild(loadEmptyBtn);
   panel.appendChild(demoSection);
 
@@ -351,6 +387,33 @@ export function createGameplayDebugPanel(api: GameTestApi): HTMLDivElement {
     }))) return;
     setPrimaryUnit(allyId);
     state.reloadDemo = loadHoldDemo;
+    refreshHUD();
+  }
+
+  function loadHoldRangedDemo(): void {
+    const scenario = beginScenario("hold-fire-stationary");
+    if (!scenario) return;
+    const attackerId = "holding-attacker";
+    const targetId = "stationary-target";
+    if (!unwrap(api.spawnTestUnit({
+      scenarioId: scenario.id,
+      id: attackerId,
+      archetype: "test-ranged-unit",
+      team: "player",
+      cell: scenario.landmarks.attacker,
+      stats: { damage: 20, rangeCells: 3, fireCooldownFrames: 1 },
+    }))) return;
+    if (!unwrap(api.spawnTestUnit({
+      scenarioId: scenario.id,
+      id: targetId,
+      archetype: "goblin",
+      team: "enemy",
+      cell: scenario.landmarks.target,
+      stats: { hp: 100 },
+    }))) return;
+    if (!unwrap(api.issueTestOrder({ unitId: attackerId, order: { type: "hold-position" } }))) return;
+    setPrimaryUnit(attackerId);
+    state.reloadDemo = loadHoldRangedDemo;
     refreshHUD();
   }
 
@@ -615,10 +678,6 @@ export function createGameplayDebugPanel(api: GameTestApi): HTMLDivElement {
       cell: scenario.landmarks.defender,
       stats: { hp: 200 },
     }))) return;
-    if (!unwrap(api.issueTestOrder({
-      unitId: "moving-attacker",
-      order: { type: "move", destination: scenario.landmarks.destination },
-    }))) return;
     setPrimaryUnit("moving-attacker");
     state.reloadDemo = loadAutoMoveDemo;
     refreshHUD();
@@ -714,12 +773,7 @@ export function createGameplayDebugPanel(api: GameTestApi): HTMLDivElement {
 
   function loadPatrolAttackDemo(): void {
     const scenario = beginScenario("warrior-patrol-square");
-    if (!scenario) {
-      console.error("[demo17] beginScenario failed");
-      return;
-    }
-    console.log("[demo17] scenario started", scenario.id, scenario.landmarks);
-
+    if (!scenario) return;
     const r1 = api.spawnTestUnit({
       scenarioId: scenario.id,
       id: "patrolling-warrior",
@@ -728,13 +782,7 @@ export function createGameplayDebugPanel(api: GameTestApi): HTMLDivElement {
       cell: scenario.landmarks.patrolStart,
       stats: { hp: 200, damage: 10, rangeCells: 1, fireCooldownFrames: 30, movementFramesPerCell: WARRIOR_DEMO_MOVEMENT_FRAMES_PER_CELL },
     });
-    if (!r1.ok) {
-      console.error("[demo17] spawn patrolling-warrior failed", r1.error);
-      hud.textContent = `Spawn error: ${r1.error.message}`;
-      return;
-    }
-    console.log("[demo17] patrolling-warrior spawned", r1.value);
-
+    if (!r1.ok) return;
     const r2 = api.spawnTestUnit({
       scenarioId: scenario.id,
       id: "patrol-target",
@@ -743,24 +791,12 @@ export function createGameplayDebugPanel(api: GameTestApi): HTMLDivElement {
       cell: scenario.landmarks.target,
       stats: { hp: 200 },
     });
-    if (!r2.ok) {
-      console.error("[demo17] spawn patrol-target failed", r2.error);
-      hud.textContent = `Spawn error: ${r2.error.message}`;
-      return;
-    }
-    console.log("[demo17] patrol-target spawned", r2.value);
-
+    if (!r2.ok) return;
     const r3 = api.issueTestOrder({
       unitId: "patrolling-warrior",
       order: { type: "patrol", endpoints: [scenario.landmarks.patrolStart, scenario.landmarks.patrolEnd] },
     });
-    if (!r3.ok) {
-      console.error("[demo17] issueTestOrder failed", r3.error);
-      hud.textContent = `Order error: ${r3.error.message}`;
-      return;
-    }
-    console.log("[demo17] patrol order issued", r3.value);
-
+    if (!r3.ok) return;
     setPrimaryUnit("patrolling-warrior");
     state.reloadDemo = loadPatrolAttackDemo;
     refreshHUD();
@@ -783,13 +819,18 @@ export function createGameplayDebugPanel(api: GameTestApi): HTMLDivElement {
     refreshHUD();
   });
 
+  loadMoveBtn.addEventListener("click", loadWarriorDemo);
+  loadStopMoveBtn.addEventListener("click", loadMoveDemo);
   loadPatrolBtn.addEventListener("click", loadPatrolDemo);
-  loadMoveBtn.addEventListener("click", loadMoveDemo);
-  loadHoldBtn.addEventListener("click", loadHoldDemo);
-  loadMultiBtn.addEventListener("click", loadMultiUnitDemo);
-  loadDenseBtn.addEventListener("click", loadDenseDemo);
-  loadFollowBtn.addEventListener("click", loadFollowDemo);
+  loadHoldNoCombatBtn.addEventListener("click", loadHoldDemo);
+  loadHoldRangedBtn.addEventListener("click", loadHoldRangedDemo);
+  loadMeleeDuelBtn.addEventListener("click", loadWarriorDuelDemo);
+  loadAutoAttackBtn.addEventListener("click", loadAutoMoveDemo);
+  loadHoldMeleeBtn.addEventListener("click", loadHoldAttackDemo);
+  loadHoldGridBtn.addEventListener("click", loadHoldSquareDemo);
+  loadPatrolCombatBtn.addEventListener("click", loadPatrolAttackDemo);
   loadDetourBtn.addEventListener("click", loadDetourDemo);
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
   loadSpawnPointBtn.addEventListener("click", loadSpawnPointDemo);
@@ -813,6 +854,14 @@ export function createGameplayDebugPanel(api: GameTestApi): HTMLDivElement {
   loadPursuitBtn.addEventListener("click", loadPursuitDemo);
   loadPatrolAttackBtn.addEventListener("click", loadPatrolAttackDemo);
 >>>>>>> 5a1e011 (Add automatic Warrior combat scenarios)
+=======
+  loadCrossMarchBtn.addEventListener("click", loadAutoMarchDemo);
+  loadSpawnBtn.addEventListener("click", loadSpawnPointDemo);
+  loadPursuitBtn.addEventListener("click", loadPursuitDemo);
+  loadConvoyBtn.addEventListener("click", loadFollowDemo);
+  loadMultiPatrolBtn.addEventListener("click", loadMultiUnitDemo);
+  loadDenseBtn.addEventListener("click", loadDenseDemo);
+>>>>>>> 2f8027a (test: 10 nuevos tests conductuales de gameplay (01-17) y panel debug actualizado)
   loadEmptyBtn.addEventListener("click", () => loadEmptyScenario());
 
   step1Btn.addEventListener("click", () => {
@@ -841,7 +890,7 @@ export function createGameplayDebugPanel(api: GameTestApi): HTMLDivElement {
 
   playBtn.addEventListener("click", () => {
     if (!state.scenarioId && !state.playing) {
-      loadPatrolDemo();
+      loadWarriorDemo();
       if (state.scenarioId) togglePlay();
       return;
     }
