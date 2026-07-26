@@ -438,7 +438,7 @@ export class StopCommand extends BaseCommand {
 
   execute(unit: Unit, _context: CommandContext): void {
     this.status = "running";
-    unit.clearCommandMovement();
+    unit.freezeMovement();
     unit.setCommandShooting("disabled");
     this.status = "completed";
   }
@@ -448,7 +448,7 @@ export class StopCommand extends BaseCommand {
   }
 
   cancel(unit: Unit): void {
-    unit.clearCommandMovement();
+    unit.freezeMovement();
     this.status = "completed";
   }
 }
