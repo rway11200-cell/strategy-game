@@ -3,7 +3,7 @@ import { getUnit } from "./support/GameTestDriver";
 
 const UNIT_ID = "stoppable-unit";
 
-test("stop cancela un movimiento y mantiene la última celda confirmada", async ({ game }) => {
+test("stop cancela un movimiento y se detiene en la siguiente celda", async ({ game }) => {
   const setup = await test.step("Dado una unidad en un corredor largo", async () => {
     await game.open();
     await game.waitUntilReady();
@@ -51,7 +51,9 @@ test("stop cancela un movimiento y mantiene la última celda confirmada", async 
     return order;
   });
 
-  await test.step("Y recibe stop antes de llegar", async () => {
+  const stopCell = { col: 3, row: 0 };
+
+  await test.step("Y recibe stop en el checkpoint, completa un paso más a (3,0)", async () => {
     const stop = await game.issueOrder(UNIT_ID, { type: "stop" });
     const snapshot = await game.snapshot(setup.scenario.id);
 
@@ -61,8 +63,8 @@ test("stop cancela un movimiento y mantiene la última celda confirmada", async 
     });
     expect(stop).toMatchObject({ type: "stop", status: "completed" });
     expect(getUnit(snapshot, UNIT_ID)).toMatchObject({
-      cell: setup.checkpoint,
-      occupiedCells: [setup.checkpoint],
+      cell: stopCell,
+      occupiedCells: [stopCell],
       movement: { mode: "stopped", route: [], targetCell: null, stepProgress: 0 },
       combat: { mode: "disabled" },
       order: null,

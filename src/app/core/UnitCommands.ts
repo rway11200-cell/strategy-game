@@ -438,12 +438,22 @@ export class StopCommand extends BaseCommand {
 
   execute(unit: Unit, _context: CommandContext): void {
     this.status = "running";
-    unit.freezeMovement();
     unit.setCommandShooting("disabled");
-    this.status = "completed";
+    if (unit.isCommandMovementFinished()) {
+      unit.freezeMovement();
+      this.status = "completed";
+    }
   }
 
-  update(_unit: Unit, _context: CommandContext, _ticker: Ticker): CommandStatus {
+  update(unit: Unit, _context: CommandContext, ticker: Ticker): CommandStatus {
+    if (this.status !== "running") return this.status;
+    const prev = unit.getGridCell();
+    unit.updateCommandMovement(ticker);
+    const curr = unit.getGridCell();
+    if (unit.isCommandMovementFinished() || (prev && curr && !sameCell(prev, curr))) {
+      unit.freezeMovement();
+      this.status = "completed";
+    }
     return this.status;
   }
 
