@@ -722,7 +722,6 @@ export function createGameplayDebugPanel(api: GameTestApi): HTMLDivElement {
 
   stopBtn.addEventListener("click", () => {
     if (!state.primaryUnitId) return;
-    stopPlayback();
     unwrap(api.issueTestOrder({ unitId: state.primaryUnitId, order: { type: "stop" } }));
     refreshHUD();
   });
