@@ -552,7 +552,6 @@ export class PatrolCommand extends BaseCommand {
   }
 
   cancel(unit: Unit): void {
-    unit.freezeMovement();
     unit.setCommandShooting("auto");
     this.status = "completed";
   }
