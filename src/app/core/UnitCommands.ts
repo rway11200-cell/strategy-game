@@ -505,15 +505,20 @@ export class PatrolCommand extends BaseCommand {
     if (this.status !== "running") return this.status;
 
     const unitCell = unit.getGridCell(context.gridConfig);
-    const targetInRange = unitCell && context.enemies.some((enemy) => {
+    const visibleTarget = unitCell && context.enemies.find((enemy) => {
       const targetCell = enemy.getGridCell(context.gridConfig);
       return enemy.active &&
         enemy.canBeProjectileTarget &&
         targetCell &&
-        isInRange(unitCell, targetCell, unit.getShootingRange() ?? 0);
+        unit.canSee(enemy);
     });
-    if (targetInRange) {
-      unit.clearCommandMovement();
+    if (visibleTarget) {
+      const targetCell = visibleTarget.getGridCell(context.gridConfig)!;
+      if (!sameCell(unitCell, targetCell)) {
+        this.pathTo(unit, context, targetCell);
+      } else {
+        unit.freezeMovement();
+      }
       return "running";
     }
 
