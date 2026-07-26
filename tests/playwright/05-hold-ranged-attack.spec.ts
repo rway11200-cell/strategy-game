@@ -18,7 +18,7 @@ test("hold-position permite atacar un enemigo en rango sin moverse", async ({ ga
         archetype: "archer",
         team: "player",
         cell: attackerCell,
-        stats: { damage: 20, rangeCells: 3, fireCooldownFrames: 36 },
+        stats: { damage: 20, rangeCells: 3, fireCooldownFrames: 90 },
       });
       const target = await game.spawnUnit({
         scenarioId: scenario.id,

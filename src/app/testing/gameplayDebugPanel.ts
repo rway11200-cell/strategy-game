@@ -27,6 +27,7 @@ const PRESETS = [
 ];
 
 const WARRIOR_DEMO_MOVEMENT_FRAMES_PER_CELL = 60;
+const ARCHER_DEMO_FIRE_COOLDOWN_FRAMES = 90;
 
 interface PanelState {
   scenarioId: string | null;
@@ -341,7 +342,7 @@ export function createGameplayDebugPanel(api: GameTestApi): HTMLDivElement {
       archetype: "archer",
       team: "player",
       cell: scenario.landmarks.attacker,
-      stats: { damage: 20, rangeCells: 3, fireCooldownFrames: 36 },
+      stats: { damage: 20, rangeCells: 3, fireCooldownFrames: ARCHER_DEMO_FIRE_COOLDOWN_FRAMES },
     }))) return;
     if (!unwrap(api.spawnTestUnit({
       scenarioId: scenario.id,
