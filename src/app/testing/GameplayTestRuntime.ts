@@ -285,6 +285,7 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
         range: options.stats!.rangeCells ?? 1,
         fireRate: (options.stats!.fireCooldownFrames ?? 1) / 60,
         projectileCreator: scenario.projectileCreator,
+        projectileVisual: enemy.projectileVisual,
         damage: options.stats!.damage!,
         targets: [],
       });

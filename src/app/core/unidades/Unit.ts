@@ -3,7 +3,6 @@ import type { CellCoord, GridConfig } from "../../../core/grid/GridConfig";
 import { worldToGrid } from "../../../core/grid/GridConfig";
 import type { GridState } from "../../../grid/GridState";
 import { debugLogChanged } from "../../utils/debugLog";
-import { devToolDrawPoints } from "../../utils/devTools";
 import { getFramesAseprite } from "../../utils/sprite";
 import { UnitCreator } from "../UnitCreator";
 import { MovementDirection, Movement } from "../Movement";
@@ -15,7 +14,7 @@ import {
   defaultCommandPathfinder,
   type IUnitCommand,
 } from "../UnitCommands";
-import { Projectile } from "./Projectile";
+import { Projectile, type ProjectileVisual } from "./Projectile";
 import { selectBestTarget, type SelectionContext } from "../combat/TargetSelector";
 import {
   type AttackMode,
@@ -34,6 +33,7 @@ export interface ShootOptions {
   fireRate: number;
   targets?: Unit[];
   projectileCreator: UnitCreator<Projectile>;
+  projectileVisual?: ProjectileVisual;
   damage: number;
   damageType?: DamageType;
 }
@@ -373,23 +373,42 @@ export class Unit extends Container {
     });
 
     if (this.shootOptions?.range) {
-      this.rangeGraph = devToolDrawPoints(
-        this,
-        { x: 0, y: 0 },
-        "yellow",
-        this.shootOptions.range,
-        "circle",
-      );
-      if (this.combatGridConfig) {
-        this.rangeGraph.scale.set(this.combatGridConfig.cellSize);
-      }
-      this.rangeGraph.visible = false;
+      this.updateRangeGraph();
     }
   }
 
   public setCombatGrid(gridConfig: GridConfig): void {
     this.combatGridConfig = gridConfig;
-    this.rangeGraph?.scale.set(gridConfig.cellSize);
+    this.updateRangeGraph();
+  }
+
+  private updateRangeGraph(): void {
+    const range = this.shootOptions?.range;
+    const cellSize = this.combatGridConfig?.cellSize;
+    if (!range || !cellSize) return;
+
+    this.rangeGraph?.destroy();
+    const graph = new Graphics();
+    const segmentCount = 32;
+    const segmentAngle = (Math.PI * 2) / segmentCount;
+    const dashAngle = segmentAngle * 0.55;
+    for (let segment = 0; segment < segmentCount; segment++) {
+      const startAngle = segment * segmentAngle;
+      graph
+        .moveTo(range * Math.cos(startAngle), range * Math.sin(startAngle))
+        .arc(0, 0, range, startAngle, startAngle + dashAngle);
+    }
+
+    // The graph is in grid-cell units, so compensate its stroke for both scales.
+    graph.stroke({
+      color: 0xef5350,
+      width: 1.5 / (cellSize * Math.max(Math.abs(this.scale.x), 0.01)),
+      alpha: 0.9,
+    });
+    graph.scale.set(cellSize);
+    graph.visible = this.selectionIndicator.visible;
+    this.rangeGraph = graph;
+    this.addChild(graph);
   }
 
   public getGridCell(gridConfig: GridConfig = this.combatGridConfig!): CellCoord | undefined {
@@ -1012,6 +1031,7 @@ export class Unit extends Container {
     this.setAnimationAttack(direction);
     this.onAttackCommitted?.(target.getId(), "projectile");
     const newProjectile = shootOptions.projectileCreator.get();
+    newProjectile.setVisual(shootOptions.projectileVisual);
     newProjectile.launchAtCell(unitCell, targetCell, gridConfig, target, () => {
       if (target.canBeProjectileTarget) {
         const hpBefore = target.hp;
@@ -1072,6 +1092,7 @@ export class Unit extends Container {
   }
 
   public spawn(): boolean {
+    this.lifecycle = "alive";
     this.visible = true;
     this.active = true;
     this.canBeProjectileTarget = true;

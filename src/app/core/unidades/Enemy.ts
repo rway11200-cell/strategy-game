@@ -1,6 +1,7 @@
 import { Container } from "pixi.js";
 import { debugLogChanged } from "../../utils/debugLog";
 import { type ArmorType } from "./UnitSystem";
+import type { ProjectileVisual } from "./Projectile";
 import { FramesJson, Unit } from "./Unit";
 
 export enum EnemyType {
@@ -19,6 +20,7 @@ type EnemyDefinition = {
   framesJson: FramesJson;
   reward: number;
   armorType: ArmorType;
+  projectileVisual?: ProjectileVisual;
 };
 
 const EnemyDefinitions = new Map<EnemyType, EnemyDefinition>([
@@ -99,6 +101,11 @@ const EnemyDefinitions = new Map<EnemyType, EnemyDefinition>([
         idle: "archer-idle.json",
         attack: "archer-attack.json",
       },
+      projectileVisual: {
+        framesJson: { idle: "archer-arrow.json" },
+        scale: 0.6,
+        flipTowardTarget: true,
+      },
     },
   ],
 ]);
@@ -106,6 +113,7 @@ const EnemyDefinitions = new Map<EnemyType, EnemyDefinition>([
 export class Enemy extends Unit {
   private reward: number = 10;
   public enemyType?: EnemyType;
+  public projectileVisual?: ProjectileVisual;
 
   constructor(mainContainer: Container, options?: { id?: string }) {
     super(mainContainer, { id: options?.id, team: "enemy", controller: "ai" });
@@ -129,6 +137,7 @@ export class Enemy extends Unit {
       armorType: enemyDef.armorType,
     });
     this.enemyType = nextEnemyType;
+    this.projectileVisual = enemyDef.projectileVisual;
     this.reward = enemyDef.reward;
   }
 

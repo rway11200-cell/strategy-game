@@ -630,6 +630,37 @@
         },
         {
           "alias": [
+            "main/unidades/proyectiles/archer-arrow.json",
+            "archer-arrow.json"
+          ],
+          "src": [
+            "main/unidades/proyectiles/archer-arrow.json"
+          ],
+          "data": {
+            "tags": {
+              "m": true
+            }
+          }
+        },
+        {
+          "alias": [
+            "main/unidades/proyectiles/archer-arrow.png",
+            "archer-arrow.png"
+          ],
+          "src": [
+            "main/unidades/proyectiles/archer-arrow@0.5x.webp",
+            "main/unidades/proyectiles/archer-arrow@0.5x.png",
+            "main/unidades/proyectiles/archer-arrow.webp",
+            "main/unidades/proyectiles/archer-arrow.png"
+          ],
+          "data": {
+            "tags": {
+              "m": true
+            }
+          }
+        },
+        {
+          "alias": [
             "main/unidades/torres/Torre1.json",
             "Torre1.json"
           ],
