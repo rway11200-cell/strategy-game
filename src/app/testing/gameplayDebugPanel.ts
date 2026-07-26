@@ -478,7 +478,7 @@ export function createGameplayDebugPanel(api: GameTestApi): HTMLDivElement {
     refreshHUD();
   }
 
-  function loadWarriorDuelDemo(): void {
+   function loadWarriorDuelDemo(): void {
     const scenario = beginScenario("warrior-duel");
     if (!scenario) return;
     if (!unwrap(api.spawnTestUnit({
@@ -499,6 +499,11 @@ export function createGameplayDebugPanel(api: GameTestApi): HTMLDivElement {
     }))) return;
     setPrimaryUnit("blue-attacker");
     state.reloadDemo = loadWarriorDuelDemo;
+
+    stopPlayback();
+    state.playing = true;
+    playBtn.textContent = "⏸ Pause";
+    playLoop();
     refreshHUD();
   }
 
