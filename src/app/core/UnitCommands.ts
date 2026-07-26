@@ -271,6 +271,11 @@ export class MoveCommand extends BaseCommand {
     }
     return undefined;
   }
+
+  cancel(unit: Unit): void {
+    unit.setCommandShooting("auto");
+    this.status = "completed";
+  }
 }
 
 export class AttackCommand extends BaseCommand {

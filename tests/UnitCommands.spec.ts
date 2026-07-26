@@ -99,7 +99,7 @@ describe("unit commands", () => {
     expect(unit.currentCommand).toBeUndefined();
   });
 
-  it("cancels partial movement immediately when stopped", () => {
+  it("stops at the next cell when stopped mid-step", () => {
     const unit = createUnit(container, gridState, 0, 0, undefined, 2);
     const origin = gridToWorld(0, 0, gridConfig);
     const nextCell = gridToWorld(1, 0, gridConfig);
@@ -108,21 +108,18 @@ describe("unit commands", () => {
 
     expect(unit.position.x).toBeGreaterThan(origin.x);
     expect(unit.position.x).toBeLessThan(nextCell.x);
-    expect(unit.getCommandMovementState().stepProgress).toBe(0.5);
 
     unit.issueCommand(new StopCommand());
-    expect(unit.currentCommand).toBeUndefined();
-    expect(unit.position).toMatchObject(origin);
-    expect(unit.getCommandMovementState()).toMatchObject({
-      route: [],
-      targetCell: null,
-      stepProgress: 0,
-    });
+    // StopCommand stays running to finish the current step
+    expect(unit.currentCommand).toBeDefined();
+
     unit.update(ticker(2));
     unit.update(ticker(3));
 
-    expect(unit.getGridCell(gridConfig)).toEqual({ col: 0, row: 0 });
-    expect(gridState.getCell({ col: 0, row: 0 })?.occupantId).toBe(unit.getId());
+    expect(unit.currentCommand).toBeUndefined();
+    expect(unit.getGridCell(gridConfig)).toEqual({ col: 1, row: 0 });
+    expect(unit.position).toMatchObject(nextCell);
+    expect(gridState.getCell({ col: 1, row: 0 })?.occupantId).toBe(unit.getId());
   });
 
   it("waits and resumes a move command after a temporary block", () => {
