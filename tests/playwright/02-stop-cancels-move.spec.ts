@@ -71,7 +71,7 @@ test("stop cancela un movimiento y mantiene la última celda confirmada", async 
 
   await test.step("Entonces permanece detenido aunque avance la simulación", async () => {
     const before = getUnit(await game.snapshot(setup.scenario.id), UNIT_ID);
-    const after = getUnit(await game.advanceFrames(setup.scenario.id, 20), UNIT_ID);
+    const after = getUnit(await game.advanceFrames(setup.scenario.id, 250), UNIT_ID);
 
     expect(after.cell).toEqual(before.cell);
     expect(after.world).toEqual(before.world);
