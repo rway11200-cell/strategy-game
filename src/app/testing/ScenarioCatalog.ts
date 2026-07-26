@@ -239,8 +239,6 @@ const scenarios = new Map<TestScenarioPreset, TestScenarioDefinition>([
     },
   ],
   [
-<<<<<<< HEAD
-<<<<<<< HEAD
     "spawn-point-demo",
     {
       preset: "spawn-point-demo",
@@ -260,33 +258,6 @@ const scenarios = new Map<TestScenarioPreset, TestScenarioDefinition>([
         footprint: { width: 3, height: 3 },
         production: { archetype: "soldier", team: "player", intervalFrames: 90 },
       }],
-=======
-    "barracks-spawn-demo",
-=======
-    "spawn-point-demo",
->>>>>>> 53ab434 (Stabilize Spawn Point production)
-    {
-      preset: "spawn-point-demo",
-      grid: { columns: 7, rows: 7, tileSize: 64 },
-      landmarks: {
-        spawnPoint: { col: 1, row: 1 },
-      },
-      groups: {},
-      path: [],
-      economy: { coins: 100 },
-      cellTypes: {
-        "0,0": "blocked",
-      },
-<<<<<<< HEAD
->>>>>>> 3b53fdd ([auto] Implementar spawnUnit() con busqueda de celda adyacente + demo)
-=======
-      structures: [{
-        id: "spawn-point",
-        cell: { col: 1, row: 1 },
-        footprint: { width: 3, height: 3 },
-        production: { archetype: "soldier", team: "player", intervalFrames: 90 },
-      }],
->>>>>>> 53ab434 (Stabilize Spawn Point production)
     },
   ],
   [

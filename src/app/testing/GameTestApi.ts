@@ -119,23 +119,8 @@ export type TestScenarioPreset =
   | "dense-occupation"
   | "follow-the-leader"
   | "blocked-route-detour"
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-  | "spawn-point-demo";
-=======
-  | "barracks-spawn-demo";
->>>>>>> 3b53fdd ([auto] Implementar spawnUnit() con busqueda de celda adyacente + demo)
-=======
-  | "spawn-point-demo";
->>>>>>> 53ab434 (Stabilize Spawn Point production)
-=======
   | "spawn-point-demo"
   | "warrior-march"
-<<<<<<< HEAD
-  | "warrior-duel";
->>>>>>> ec9dde9 (Restore Warrior duel and death effect)
-=======
   | "warrior-duel"
   | "warrior-auto-march"
   | "warrior-auto-move"
@@ -143,7 +128,6 @@ export type TestScenarioPreset =
   | "warrior-hold-square"
   | "warrior-pursuit-square"
   | "warrior-patrol-square";
->>>>>>> 5a1e011 (Add automatic Warrior combat scenarios)
 
 export type TestUnitTeam = "player" | "enemy" | "neutral";
 export type TestUnitLifecycle = "alive" | "dying" | "dead" | "despawned";

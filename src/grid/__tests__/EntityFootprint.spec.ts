@@ -15,8 +15,10 @@ describe("ENTITY_FOOTPRINTS", () => {
       goblin: { width: 1, height: 1 },
       skeleton: { width: 1, height: 1 },
       ghost: { width: 1, height: 1 },
+      soldier: { width: 1, height: 1 },
       tower: { width: 2, height: 2 },
       mine: { width: 3, height: 3 },
+      barracks: { width: 3, height: 3 },
       base: { width: 4, height: 4 },
     });
     expect(getEntityFootprint("mine")).toEqual({ width: 3, height: 3 });

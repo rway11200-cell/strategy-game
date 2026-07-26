@@ -149,18 +149,7 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
       const cell = gridState.getCell({ col, row });
       if (cell) gridState.setCell({ col, row }, { ...cell, type });
     }
-<<<<<<< HEAD
-<<<<<<< HEAD
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> 53ab434 (Stabilize Spawn Point production)
-=======
->>>>>>> 8390130 (Add obstacle detour movement demo)
-=======
-
->>>>>>> aee573a (Stabilize Spawn Point production)
     const structures: ManagedStructure[] = (definition.structures ?? []).map((structure) => ({
       ...clone(structure),
       nextProductionFrame: structure.production ? 1 : null,
@@ -172,24 +161,10 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
         structure.footprint.width,
         structure.footprint.height,
       );
-<<<<<<< HEAD
       for (const c of cells) {
         gridState.occupyCell(c, `structure:${structure.id}`);
-=======
-    const barracksAnchor = definition.landmarks.barracks;
-    if (barracksAnchor) {
-      const footprint = getEntityFootprint("barracks");
-      const cells = getFootprintCellsForPos(barracksAnchor, footprint.width, footprint.height);
-      for (const c of cells) {
-        gridState.occupyCell(c, `barracks-${barracksAnchor.col}-${barracksAnchor.row}`);
->>>>>>> 3b53fdd ([auto] Implementar spawnUnit() con busqueda de celda adyacente + demo)
-=======
-      for (const c of cells) {
-        gridState.occupyCell(c, `structure:${structure.id}`);
->>>>>>> 53ab434 (Stabilize Spawn Point production)
       }
     }
-
     const state: ScenarioTestState = {
       id: scenarioId,
       preset: definition.preset,
@@ -349,76 +324,6 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
     };
 
     if (!enemy.spawn()) {
-<<<<<<< HEAD
-      return this.failure(
-        "SPAWN_OCCUPATION_FAILED",
-        `Unit "${options.id}" could not occupy cell (${finalCell.col}, ${finalCell.row})`,
-      );
-    }
-
-    const managed: ManagedUnit = {
-      enemy,
-      id: options.id,
-      archetype: options.archetype,
-      team: options.team,
-      previousCell: { ...finalCell },
-      completedCycles: 0,
-      movementMode: "idle",
-      wasBlocked: false,
-    };
-    scenario.units.push(managed);
-
-    this.refreshTargets(scenario);
-
-    this.visualHost?.updateGrid(scenario.gridState);
-
-    const snapshot = this.buildUnitSnapshot(managed, scenario);
-    return { ok: true, value: snapshot };
-  }
-
-  spawnUnitAroundBuilding(options: SpawnUnitAroundOptions): ApiResult<TestUnitSnapshot> {
-    const scenario = this.requireScenario(options.scenarioId);
-    if (!scenario) {
-      return this.failure("SCENARIO_NOT_FOUND", `Test scenario "${options.scenarioId}" is not active`);
-    }
-
-    if (scenario.units.some((u) => u.id === options.id)) {
-      return this.failure("UNIT_ID_CONFLICT", `Unit "${options.id}" already exists`);
-    }
-
-    const buildingFootprint = getEntityFootprint("barracks");
-    const unitFootprint = getEntityFootprint(options.archetype);
-
-    const minCol = options.buildingCell.col - 1;
-    const minRow = options.buildingCell.row - 1;
-    const maxCol = options.buildingCell.col + buildingFootprint.width;
-    const maxRow = options.buildingCell.row + buildingFootprint.height;
-
-    const adjacentCells: CellCoord[] = [];
-    for (let c = minCol; c <= maxCol; c++) {
-      for (let r = minRow; r <= maxRow; r++) {
-        const inside = c >= options.buildingCell.col &&
-          c < options.buildingCell.col + buildingFootprint.width &&
-          r >= options.buildingCell.row &&
-          r < options.buildingCell.row + buildingFootprint.height;
-        if (inside) continue;
-        adjacentCells.push({ col: c, row: r });
-      }
-    }
-
-    const freeCell = adjacentCells.find((cell) =>
-      isFootprintWalkable(
-        cell,
-        unitFootprint.width,
-        unitFootprint.height,
-        scenario.gridState,
-        scenario.gridConfig,
-      ),
-    );
-
-    if (!freeCell) {
-=======
->>>>>>> 53ab434 (Stabilize Spawn Point production)
       return this.failure(
         "SPAWN_OCCUPATION_FAILED",
         `Unit "${options.id}" could not occupy cell (${finalCell.col}, ${finalCell.row})`,
