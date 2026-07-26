@@ -256,6 +256,11 @@ export function createGameplayDebugPanel(api: GameTestApi): HTMLDivElement {
     setPrimaryUnit(unitId);
     state.reloadDemo = loadPatrolDemo;
     refreshHUD();
+
+    stopPlayback();
+    state.playing = true;
+    playBtn.textContent = "⏸ Pause";
+    playLoop();
   }
 
   function loadMoveDemo(): void {
