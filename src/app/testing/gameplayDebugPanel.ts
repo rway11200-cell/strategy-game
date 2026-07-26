@@ -276,6 +276,19 @@ export function createGameplayDebugPanel(api: GameTestApi): HTMLDivElement {
     setPrimaryUnit(unitId);
     state.reloadDemo = loadMoveDemo;
     refreshHUD();
+
+    stopPlayback();
+    state.playing = true;
+    playBtn.textContent = "⏸ Pause";
+    playLoop();
+
+    setTimeout(() => {
+      if (state.primaryUnitId !== unitId) return;
+      unwrap(api.issueTestOrder({ unitId, order: { type: "stop" } }));
+      state.playing = false;
+      playBtn.textContent = "▶ Play";
+      refreshHUD();
+    }, 2000);
   }
 
   function loadHoldDemo(): void {
