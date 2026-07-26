@@ -285,8 +285,6 @@ export function createGameplayDebugPanel(api: GameTestApi): HTMLDivElement {
     setTimeout(() => {
       if (state.primaryUnitId !== unitId) return;
       unwrap(api.issueTestOrder({ unitId, order: { type: "stop" } }));
-      state.playing = false;
-      playBtn.textContent = "▶ Play";
       refreshHUD();
     }, 2000);
   }
