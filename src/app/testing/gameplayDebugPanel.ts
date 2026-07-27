@@ -72,7 +72,7 @@ export function createGameplayDebugPanel(api: GameTestApi): HTMLDivElement {
   const loadHoldNoCombatBtn = createButton("4. Hold no combat");
   const loadHoldRangedBtn = createButton("5. Hold ranged attack");
   const loadMeleeDuelBtn = createButton("6. Melee duel");
-  const loadAutoAttackBtn = createButton("7. Auto attack while moving");
+  const loadAutoAttackBtn = createButton("7. Attack-move engages target");
   const loadHoldMeleeBtn = createButton("8. Hold repels melee");
   const loadHoldGridBtn = createButton("9. Hold large grid 9×9");
   const loadPatrolCombatBtn = createButton("10. Patrol with combat");
@@ -600,7 +600,7 @@ export function createGameplayDebugPanel(api: GameTestApi): HTMLDivElement {
       archetype: "warrior",
       team: "player",
       cell: scenario.landmarks.attackerStart,
-      stats: { hp: 200, damage: 10, rangeCells: 1, fireCooldownFrames: 30, movementFramesPerCell: WARRIOR_DEMO_MOVEMENT_FRAMES_PER_CELL },
+      stats: { hp: 200, damage: 20, rangeCells: 1, fireCooldownFrames: 30, movementFramesPerCell: WARRIOR_DEMO_MOVEMENT_FRAMES_PER_CELL },
     }))) return;
     if (!unwrap(api.spawnTestUnit({
       scenarioId: scenario.id,
@@ -608,7 +608,11 @@ export function createGameplayDebugPanel(api: GameTestApi): HTMLDivElement {
       archetype: "warrior",
       team: "enemy",
       cell: scenario.landmarks.defender,
-      stats: { hp: 200 },
+      stats: { hp: 40 },
+    }))) return;
+    if (!unwrap(api.issueTestOrder({
+      unitId: "moving-attacker",
+      order: { type: "attack-move", destination: scenario.landmarks.destination },
     }))) return;
     setPrimaryUnit("moving-attacker");
     state.reloadDemo = loadAutoMoveDemo;

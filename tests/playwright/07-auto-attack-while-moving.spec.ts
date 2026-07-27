@@ -4,11 +4,11 @@ import { getUnit } from "./support/GameTestDriver";
 const ATTACKER_ID = "moving-attacker";
 const DEFENDER_ID = "stationary-defender";
 
-test("un guerrero en movimiento ataca automáticamente a un enemigo en su ruta sin detenerse", async ({
+test("un guerrero en attack-move se detiene para eliminar un enemigo y retoma su marcha", async ({
   game,
 }) => {
   const setup = await test.step(
-    "Dado un atacante en movimiento y un defensor estático en su camino",
+    "Dado un atacante y un defensor estático en un corredor",
     async () => {
       await game.open();
       await game.waitUntilReady();
@@ -23,7 +23,7 @@ test("un guerrero en movimiento ataca automáticamente a un enemigo en su ruta s
         archetype: "warrior",
         team: "player",
         cell: attackerStart,
-        stats: { hp: 200, damage: 10, rangeCells: 1, fireCooldownFrames: 30, movementFramesPerCell: 60 },
+        stats: { hp: 200, damage: 20, rangeCells: 1, fireCooldownFrames: 30, movementFramesPerCell: 60 },
       });
       const defender = await game.spawnUnit({
         scenarioId: scenario.id,
@@ -31,7 +31,7 @@ test("un guerrero en movimiento ataca automáticamente a un enemigo en su ruta s
         archetype: "warrior",
         team: "enemy",
         cell: defenderCell,
-        stats: { hp: 200 },
+        stats: { hp: 40 },
       });
 
       expect(attacker).toMatchObject({
@@ -48,22 +48,23 @@ test("un guerrero en movimiento ataca automáticamente a un enemigo en su ruta s
     },
   );
 
-  await test.step("Cuando el atacante recibe orden de moverse al otro extremo", async () => {
+  const order = await test.step("Cuando el atacante recibe una orden attack-move al otro extremo", async () => {
     const order = await game.issueOrder(ATTACKER_ID, {
-      type: "move",
+      type: "attack-move",
       destination: setup.destination,
     });
     expect(order).toMatchObject({
       unitId: ATTACKER_ID,
-      type: "move",
+      type: "attack-move",
       status: "running",
       destination: setup.destination,
     });
+    return order;
   });
 
   let afterSequence = 0;
 
-  await test.step("Entonces se desplaza por el corredor", async () => {
+  await test.step("Entonces se acerca hasta el borde de su rango", async () => {
     const result = await game.advanceUntil({
       scenarioId: setup.scenario.id,
       condition: {
@@ -80,7 +81,7 @@ test("un guerrero en movimiento ataca automáticamente a un enemigo en su ruta s
     expect(result.snapshot.errors).toEqual([]);
   });
 
-  await test.step("Y al pasar junto al defensor, puede infligir daño automáticamente", async () => {
+  await test.step("Y se detiene para dañar al defensor sin ocupar su celda", async () => {
     const result = await game.advanceUntil({
       scenarioId: setup.scenario.id,
       afterSequence,
@@ -92,19 +93,43 @@ test("un guerrero en movimiento ataca automáticamente a un enemigo en su ruta s
       type: "damage.applied",
       sourceId: ATTACKER_ID,
       targetId: DEFENDER_ID,
+      amount: 20,
     });
+    expect(getUnit(result.snapshot, ATTACKER_ID)).toMatchObject({ cell: { col: 3, row: 0 } });
+    expect(getUnit(result.snapshot, DEFENDER_ID)).toMatchObject({ hp: 20, cell: setup.defenderCell });
     expect(result.snapshot.errors).toEqual([]);
   });
 
-  await test.step("Y el atacante detiene su movimiento ante la celda ocupada por el defensor", async () => {
-    const snapshot = await game.advanceFrames(setup.scenario.id, 200);
-    const attacker = getUnit(snapshot, ATTACKER_ID);
-    expect(attacker.cell).not.toBeNull();
-    expect(getUnit(snapshot, DEFENDER_ID)).toMatchObject({
-      cell: setup.defenderCell,
-      active: true,
+  const defenderDeath = await test.step("Y elimina al defensor y libera su celda", async () => {
+    const result = await game.advanceUntil({
+      scenarioId: setup.scenario.id,
+      afterSequence,
+      condition: { type: "event", eventType: "unit.died", unitId: DEFENDER_ID },
     });
-    expect(snapshot.errors).toEqual([]);
+    afterSequence = result.matchedEvent.sequence;
+    expect(result.snapshot.cells.find((cell) => cell.cell.col === 4 && cell.cell.row === 0)).toMatchObject({
+      occupied: false,
+      occupantId: null,
+    });
+    expect(result.snapshot.errors).toEqual([]);
+    return result;
+  });
+
+  await test.step("Y retoma la marcha hasta completar la orden", async () => {
+    const result = await game.advanceUntil({
+      scenarioId: setup.scenario.id,
+      afterSequence,
+      condition: { type: "unit-entered-cell", unitId: ATTACKER_ID, cell: setup.destination },
+    });
+    expect(getUnit(result.snapshot, ATTACKER_ID)).toMatchObject({
+      cell: setup.destination,
+    });
+    expect(result.snapshot.orders.find((candidate) => candidate.id === order.id)).toMatchObject({
+      status: "completed",
+      completionReason: "destination-reached",
+    });
+    expect(defenderDeath.matchedEvent).toMatchObject({ unitId: DEFENDER_ID });
+    expect(result.snapshot.errors).toEqual([]);
   });
 
   await test.step("Y el escenario se limpia sin residuos", async () => {
