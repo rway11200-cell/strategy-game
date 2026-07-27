@@ -3,6 +3,7 @@ import { gridToWorld, type GridConfig } from "../../core/grid/GridConfig";
 import type { GridState } from "../../grid/GridState";
 import { AttackCommand, AttackMoveCommand, MoveCommand, PatrolCommand } from "../core/UnitCommands";
 import { Unit } from "../core/unidades/Unit";
+import { SelectedUnitUI } from "../ui/game/SelectedUnitUI";
 
 const CELL_COLORS: Record<string, number> = {
   walkable: 0x4caf50,
@@ -34,6 +35,7 @@ export class ScenarioVisualHost {
   private markerLayer: Container | null = null;
   private gridConfig: GridConfig | null = null;
   private selectedUnit?: Unit;
+  private selectedUnitUI?: SelectedUnitUI;
   private destinationMarker?: Graphics;
   private finalDestinationMarker?: Graphics;
 
@@ -61,6 +63,9 @@ export class ScenarioVisualHost {
     this.root.addChild(this.markerLayer);
     this.stage.addChild(this.root);
 
+    this.selectedUnitUI = new SelectedUnitUI();
+    this.stage.addChild(this.selectedUnitUI);
+
     this.recenter();
     this.ctx.renderNow();
   }
@@ -72,10 +77,13 @@ export class ScenarioVisualHost {
     const gw = this.gridConfig.gridWidth * this.gridConfig.cellSize;
     const gh = this.gridConfig.gridHeight * this.gridConfig.cellSize;
     this.root.position.set(Math.max(0, (pw - gw) / 2), Math.max(0, (ph - gh) / 2));
+    this.selectedUnitUI?.position.set(20, Math.max(20, ph - 172));
   }
 
   unmount(): void {
     this.selectedUnit?.setSelected(false);
+    this.selectedUnitUI?.destroy({ children: true });
+    this.selectedUnitUI = undefined;
     if (this.root) {
       this.stage.removeChild(this.root);
       this.root.destroy({ children: true });
@@ -124,6 +132,7 @@ export class ScenarioVisualHost {
 
     this.gridLayer.addChild(g);
     this.updateDestinationMarker();
+    this.selectedUnitUI?.showUnit(this.selectedUnit?.active ? this.selectedUnit : undefined);
     this.ctx.renderNow();
   }
 
@@ -133,6 +142,7 @@ export class ScenarioVisualHost {
 
   public refreshSelection(): void {
     this.updateDestinationMarker();
+    this.selectedUnitUI?.showUnit(this.selectedUnit?.active ? this.selectedUnit : undefined);
     this.ctx.renderNow();
   }
 
