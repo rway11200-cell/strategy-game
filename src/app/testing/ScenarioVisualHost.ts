@@ -38,6 +38,7 @@ export class ScenarioVisualHost {
   private selectedUnitUI?: SelectedUnitUI;
   private destinationMarker?: Graphics;
   private finalDestinationMarker?: Graphics;
+  private attackTargetMarker?: Graphics;
 
   constructor(stage: Container, ctx: VisualHostContext) {
     this.stage = stage;
@@ -55,7 +56,9 @@ export class ScenarioVisualHost {
     this.markerLayer.label = "selection-markers";
     this.destinationMarker = new Graphics();
     this.finalDestinationMarker = new Graphics();
+    this.attackTargetMarker = new Graphics();
     this.markerLayer.addChild(this.finalDestinationMarker);
+    this.markerLayer.addChild(this.attackTargetMarker);
     this.markerLayer.addChild(this.destinationMarker);
 
     this.root.addChild(this.gridLayer);
@@ -95,6 +98,7 @@ export class ScenarioVisualHost {
     this.gridConfig = null;
     this.destinationMarker = undefined;
     this.finalDestinationMarker = undefined;
+    this.attackTargetMarker = undefined;
     this.selectedUnit = undefined;
     this.ctx.renderNow();
   }
@@ -157,29 +161,35 @@ export class ScenarioVisualHost {
   private updateDestinationMarker(): void {
     const nextMarker = this.destinationMarker;
     const finalMarker = this.finalDestinationMarker;
-    if (!nextMarker || !finalMarker) return;
+    const attackMarker = this.attackTargetMarker;
+    if (!nextMarker || !finalMarker || !attackMarker) return;
     nextMarker.clear();
     finalMarker.clear();
+    attackMarker.clear();
     const unit = this.selectedUnit;
     const gridConfig = this.gridConfig;
     if (!unit?.active || !gridConfig) return;
 
+    const command = unit.currentCommand;
     const targetCell = unit.getCommandMovementState().targetCell;
     const finalDestination = this.getFinalDestination(unit, gridConfig);
+    const attackTarget = command instanceof AttackMoveCommand
+      ? command.getPursuitTarget()?.getGridCell(gridConfig)
+      : undefined;
     const attacking = unit.activity === "pursuing" ||
       unit.activity === "attacking" ||
-      unit.currentCommand?.type === "attack";
-    const color = attacking ? ATTACK_DESTINATION_COLOR : MOVE_DESTINATION_COLOR;
+      command?.type === "attack";
+    const nextColor = attacking ? ATTACK_DESTINATION_COLOR : MOVE_DESTINATION_COLOR;
+    const finalColor = command instanceof AttackMoveCommand
+      ? MOVE_DESTINATION_COLOR
+      : nextColor;
 
     if (finalDestination) {
-      const destination = gridToWorld(finalDestination.col, finalDestination.row, gridConfig);
-      const radius = Math.max(14, gridConfig.cellSize * 0.36);
-      finalMarker.poly([
-        destination.x, destination.y - radius,
-        destination.x + radius, destination.y,
-        destination.x, destination.y + radius,
-        destination.x - radius, destination.y,
-      ]).fill({ color, alpha: 0.24 }).stroke({ color, width: 3, alpha: 0.95 });
+      this.drawDestinationDiamond(finalMarker, finalDestination, gridConfig, finalColor);
+    }
+
+    if (attackTarget) {
+      this.drawDestinationDiamond(attackMarker, attackTarget, gridConfig, ATTACK_DESTINATION_COLOR);
     }
 
     if (unit.currentCommand instanceof PatrolCommand) {
@@ -197,12 +207,28 @@ export class ScenarioVisualHost {
     if (!targetCell) return;
     const destination = gridToWorld(targetCell.col, targetCell.row, gridConfig);
     const radius = Math.max(10, gridConfig.cellSize * 0.28);
-    nextMarker.circle(destination.x, destination.y, radius).stroke({ color, width: 3, alpha: 0.95 });
+    nextMarker.circle(destination.x, destination.y, radius).stroke({ color: nextColor, width: 3, alpha: 0.95 });
     nextMarker.moveTo(destination.x - radius, destination.y);
     nextMarker.lineTo(destination.x + radius, destination.y);
     nextMarker.moveTo(destination.x, destination.y - radius);
     nextMarker.lineTo(destination.x, destination.y + radius);
-    nextMarker.stroke({ color, width: 2, alpha: 0.8 });
+    nextMarker.stroke({ color: nextColor, width: 2, alpha: 0.8 });
+  }
+
+  private drawDestinationDiamond(
+    marker: Graphics,
+    cell: { col: number; row: number },
+    gridConfig: GridConfig,
+    color: number,
+  ): void {
+    const destination = gridToWorld(cell.col, cell.row, gridConfig);
+    const radius = Math.max(14, gridConfig.cellSize * 0.36);
+    marker.poly([
+      destination.x, destination.y - radius,
+      destination.x + radius, destination.y,
+      destination.x, destination.y + radius,
+      destination.x - radius, destination.y,
+    ]).fill({ color, alpha: 0.24 }).stroke({ color, width: 3, alpha: 0.95 });
   }
 
   private getFinalDestination(unit: Unit, gridConfig: GridConfig): { col: number; row: number } | undefined {
@@ -214,7 +240,7 @@ export class ScenarioVisualHost {
       return command.target.getGridCell(gridConfig);
     }
     if (command instanceof AttackMoveCommand) {
-      return command.getPursuitTarget()?.getGridCell(gridConfig) ?? command.getDestination();
+      return command.getDestination();
     }
     if (command instanceof PatrolCommand) return command.getDestination();
     return unit.pursuitTarget?.getGridCell(gridConfig);
