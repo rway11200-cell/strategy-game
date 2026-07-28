@@ -150,11 +150,11 @@ export class ScenarioVisualHost {
     this.ctx.renderNow();
   }
 
-  private selectUnit = (unit: Unit): void => {
+  public selectUnit = (unit?: Unit): void => {
     if (this.selectedUnit === unit) return;
     this.selectedUnit?.setSelected(false);
     this.selectedUnit = unit;
-    unit.setSelected(true);
+    unit?.setSelected(true);
     this.refreshSelection();
   };
 

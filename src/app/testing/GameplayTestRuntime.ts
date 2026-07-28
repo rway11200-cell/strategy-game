@@ -122,6 +122,13 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
     };
   }
 
+  public selectVisualUnit(unitId: string | null): void {
+    const unit = unitId
+      ? this.activeScenario?.units.find((candidate) => candidate.id === unitId)?.enemy
+      : undefined;
+    this.visualHost?.selectUnit(unit);
+  }
+
   beginScenario(options: BeginScenarioOptions): ApiResult<ScenarioTestState> {
     if (this.activeScenario) {
       return this.failure("SCENARIO_ACTIVE", "A test scenario is already active", {

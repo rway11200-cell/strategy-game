@@ -131,6 +131,7 @@ export class Unit extends Container {
   public lastAttackerId?: string;
 
   private rangeGraph?: Graphics;
+  private visionGraph?: Graphics;
   private selectionIndicator: Graphics;
   private selectionHandler?: (unit: Unit) => void;
 
@@ -257,6 +258,7 @@ export class Unit extends Container {
   public setSelected(selected: boolean): void {
     this.selectionIndicator.visible = selected;
     if (this.rangeGraph) this.rangeGraph.visible = selected;
+    if (this.visionGraph) this.visionGraph.visible = selected;
   }
 
   public setActivity(activity: Exclude<UnitState, "dead">): void {
@@ -375,11 +377,13 @@ export class Unit extends Container {
     if (this.shootOptions?.range) {
       this.updateRangeGraph();
     }
+    this.updateVisionGraph();
   }
 
   public setCombatGrid(gridConfig: GridConfig): void {
     this.combatGridConfig = gridConfig;
     this.updateRangeGraph();
+    this.updateVisionGraph();
   }
 
   private updateRangeGraph(): void {
@@ -408,6 +412,33 @@ export class Unit extends Container {
     graph.scale.set(cellSize);
     graph.visible = this.selectionIndicator.visible;
     this.rangeGraph = graph;
+    this.addChild(graph);
+  }
+
+  private updateVisionGraph(): void {
+    const cellSize = this.combatGridConfig?.cellSize;
+    if (!cellSize || this.model.vision <= 0) return;
+
+    this.visionGraph?.destroy();
+    const graph = new Graphics();
+    const segmentCount = 48;
+    const segmentAngle = (Math.PI * 2) / segmentCount;
+    const dashAngle = segmentAngle * 0.35;
+    for (let segment = 0; segment < segmentCount; segment++) {
+      const startAngle = segment * segmentAngle;
+      graph
+        .moveTo(this.model.vision * Math.cos(startAngle), this.model.vision * Math.sin(startAngle))
+        .arc(0, 0, this.model.vision, startAngle, startAngle + dashAngle);
+    }
+
+    graph.stroke({
+      color: 0x4fc3f7,
+      width: 1 / (cellSize * Math.max(Math.abs(this.scale.x), 0.01)),
+      alpha: 0.42,
+    });
+    graph.scale.set(cellSize);
+    graph.visible = this.selectionIndicator.visible;
+    this.visionGraph = graph;
     this.addChild(graph);
   }
 
@@ -1136,6 +1167,7 @@ export class Unit extends Container {
     if (this.rangeGraph) {
       this.rangeGraph.visible = false;
     }
+    if (this.visionGraph) this.visionGraph.visible = false;
     this.selectionIndicator.visible = false;
 
     if (this.health !== undefined) {
@@ -1155,6 +1187,8 @@ export class Unit extends Container {
     this.model.state = "dead";
     if (this.healthBar) this.healthBar.visible = false;
     this.selectionIndicator.visible = false;
+    if (this.rangeGraph) this.rangeGraph.visible = false;
+    if (this.visionGraph) this.visionGraph.visible = false;
     if (this.movement) this.movement.active = false;
     if (this.tileMovement) {
       this.tileMovement.active = false;
@@ -1189,6 +1223,8 @@ export class Unit extends Container {
       this.animatedSprite.stop();
       this.animatedSprite.visible = false;
     }
+    if (this.rangeGraph) this.rangeGraph.visible = false;
+    if (this.visionGraph) this.visionGraph.visible = false;
     this.visible = false;
     this.active = false;
   }

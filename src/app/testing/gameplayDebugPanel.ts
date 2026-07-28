@@ -36,7 +36,10 @@ interface PanelState {
   reloadDemo: (() => void) | null;
 }
 
-export function createGameplayDebugPanel(api: GameTestApi): HTMLDivElement {
+export function createGameplayDebugPanel(
+  api: GameTestApi,
+  selectVisualUnit: (unitId: string | null) => void = () => undefined,
+): HTMLDivElement {
   const state: PanelState = {
     scenarioId: null,
     playing: false,
@@ -216,7 +219,7 @@ export function createGameplayDebugPanel(api: GameTestApi): HTMLDivElement {
     stopPlayback();
     if (state.scenarioId) api.cleanupScenario(state.scenarioId);
     state.scenarioId = null;
-    state.primaryUnitId = null;
+    setPrimaryUnit(null);
     state.reloadDemo = null;
     cleanupBtn.disabled = true;
     stopBtn.disabled = true;
@@ -234,6 +237,7 @@ export function createGameplayDebugPanel(api: GameTestApi): HTMLDivElement {
   function setPrimaryUnit(unitId: string | null): void {
     state.primaryUnitId = unitId;
     stopBtn.disabled = unitId === null;
+    selectVisualUnit(unitId);
   }
 
   function loadPatrolDemo(): void {
