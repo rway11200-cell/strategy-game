@@ -28,6 +28,7 @@ export interface SelectionContext {
   range: number;
   gridConfig: GridConfig;
   vision?: number;
+  allowOutOfRange?: boolean;
 }
 
 function countActiveAttacks(target: Unit, allUnits: Unit[]): number {
@@ -41,7 +42,19 @@ function countActiveAttacks(target: Unit, allUnits: Unit[]): number {
 
 export function selectBestTarget(ctx: SelectionContext): Unit | undefined {
   const opts = DEFAULT_TARGET_SELECTOR_OPTIONS;
-  const { targets, unitCell, currentTarget, thresholdTicks, underAttackTicks, lastAttackerId, melee, range, vision, gridConfig } = ctx;
+  const {
+    targets,
+    unitCell,
+    currentTarget,
+    thresholdTicks,
+    underAttackTicks,
+    lastAttackerId,
+    melee,
+    range,
+    vision,
+    gridConfig,
+    allowOutOfRange,
+  } = ctx;
 
   if (targets.length === 0) return undefined;
 
@@ -84,7 +97,7 @@ export function selectBestTarget(ctx: SelectionContext): Unit | undefined {
     if (!targetCell) continue;
 
     const dist = distanceFn(unitCell, targetCell);
-    if (dist > effectiveRange) continue;
+    if (!allowOutOfRange && dist > effectiveRange) continue;
 
     const hpRatio = target.model.hp / Math.max(1, target.model.maxHp);
     const hpScore = opts.hpWeight * (1 - hpRatio);

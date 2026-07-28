@@ -756,8 +756,12 @@ export function createGameplayDebugPanel(
       id: "moving-runner",
       archetype: "warrior",
       team: "enemy",
-      cell: scenario.landmarks.runnerStart,
-      stats: { hp: 200 },
+      cell: scenario.landmarks.runnerOutOfVision,
+      stats: { hp: 200, movementFramesPerCell: WARRIOR_DEMO_MOVEMENT_FRAMES_PER_CELL },
+    }))) return;
+    if (!unwrap(api.issueTestOrder({
+      unitId: "moving-runner",
+      order: { type: "move", destination: scenario.landmarks.runnerDestination },
     }))) return;
     setPrimaryUnit("free-pursuer");
     state.reloadDemo = loadPursuitDemo;

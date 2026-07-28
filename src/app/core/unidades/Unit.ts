@@ -708,12 +708,12 @@ export class Unit extends Container {
       const { direction } = result;
       if (result.blocked) this.setActivity("blocked");
       else if (result.moved && !this.targetFollower.finished) {
-        this.setActivity(
+        const activity =
           !this.currentCommand || this.currentCommand.type === "attack" || this.currentCommand.type === "attack-move"
             ? "pursuing"
-            : "moving",
-        );
+            : "moving";
         this.setAnimationRun(direction);
+        this.setActivity(activity);
       }
       else this.setAnimationIdle();
       return result;
@@ -804,6 +804,7 @@ export class Unit extends Container {
       range: this.model.range,
       vision: this.model.vision,
       gridConfig: this.commandContext!.gridConfig,
+      allowOutOfRange: true,
     };
     return selectBestTarget(ctx);
   }

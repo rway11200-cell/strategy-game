@@ -373,7 +373,9 @@ const scenarios = new Map<TestScenarioPreset, TestScenarioDefinition>([
       landmarks: {
         pursuer: { col: 4, row: 1 },
         runnerStart: { col: 4, row: 6 },
-        runnerDestination: { col: 4, row: 6 },
+        runnerOutOfVision: { col: 4, row: 8 },
+        runnerVisible: { col: 4, row: 7 },
+        runnerDestination: { col: 4, row: 5 },
       },
       groups: {},
       path: [],
