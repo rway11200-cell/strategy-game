@@ -118,6 +118,22 @@ const scenarios = new Map<TestScenarioPreset, TestScenarioDefinition>([
     },
   ],
   [
+    "hold-fire-enters-range",
+    {
+      preset: "hold-fire-enters-range",
+      grid: { columns: 9, rows: 1, tileSize: 64 },
+      landmarks: {
+        attacker: { col: 1, row: 0 },
+        targetStart: { col: 8, row: 0 },
+        targetOutOfRange: { col: 5, row: 0 },
+        targetInRange: { col: 4, row: 0 },
+      },
+      groups: {},
+      path: [],
+      economy: { coins: 0 },
+    },
+  ],
+  [
     "hold-fire-patrol",
     {
       preset: "hold-fire-patrol",

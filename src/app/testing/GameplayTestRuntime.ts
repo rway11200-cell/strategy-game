@@ -840,7 +840,10 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
     return events.find((ev) => {
       switch (condition.type) {
         case "event":
-          return ev.type === condition.eventType;
+          return ev.type === condition.eventType &&
+            (!condition.unitId || ev.unitId === condition.unitId) &&
+            (!condition.sourceId || ev.sourceId === condition.sourceId) &&
+            (!condition.targetId || ev.targetId === condition.targetId);
         case "unit-entered-cell":
           return (
             ev.type === "unit.entered-cell" &&

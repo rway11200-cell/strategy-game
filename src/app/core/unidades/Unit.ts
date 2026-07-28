@@ -403,13 +403,13 @@ export class Unit extends Container {
         .arc(0, 0, range, startAngle, startAngle + dashAngle);
     }
 
-    // The graph is in grid-cell units, so compensate its stroke for both scales.
+    // Unit sprites may be scaled, but combat range is measured in full grid cells.
     graph.stroke({
       color: 0xef5350,
-      width: 1.5 / (cellSize * Math.max(Math.abs(this.scale.x), 0.01)),
+      width: 1.5 / cellSize,
       alpha: 0.9,
     });
-    graph.scale.set(cellSize);
+    graph.scale.set(cellSize / Math.max(Math.abs(this.scale.x), 0.01));
     graph.visible = this.selectionIndicator.visible;
     this.rangeGraph = graph;
     this.addChild(graph);
@@ -433,10 +433,10 @@ export class Unit extends Container {
 
     graph.stroke({
       color: 0x4fc3f7,
-      width: 1 / (cellSize * Math.max(Math.abs(this.scale.x), 0.01)),
+      width: 1 / cellSize,
       alpha: 0.42,
     });
-    graph.scale.set(cellSize);
+    graph.scale.set(cellSize / Math.max(Math.abs(this.scale.x), 0.01));
     graph.visible = this.selectionIndicator.visible;
     this.visionGraph = graph;
     this.addChild(graph);
@@ -1022,6 +1022,10 @@ export class Unit extends Container {
       const newTarget = selectBestTarget(ctx);
       if (newTarget && newTarget !== this.targetToShoot) this.thresholdTicks = 0;
       this.targetToShoot = newTarget;
+    }
+
+    if (this.targetToShoot && this.targetToShoot !== prevTarget) {
+      this.onTargetAcquired?.(this.targetToShoot.getId());
     }
 
     if (!this.targetToShoot) {

@@ -74,6 +74,7 @@ export function createGameplayDebugPanel(
   const loadPatrolBtn = createButton("3. Patrol A ↔ B");
   const loadHoldNoCombatBtn = createButton("4. Hold no combat");
   const loadHoldRangedBtn = createButton("5. Hold ranged attack");
+  const loadHoldTargetEntersRangeBtn = createButton("5b. Hold target enters range");
   const loadMeleeDuelBtn = createButton("6. Melee duel");
   const loadAutoAttackBtn = createButton("7. Attack-move engages target");
   const loadHoldMeleeBtn = createButton("8. Hold repels melee");
@@ -92,6 +93,7 @@ export function createGameplayDebugPanel(
   demoSection.appendChild(loadPatrolBtn);
   demoSection.appendChild(loadHoldNoCombatBtn);
   demoSection.appendChild(loadHoldRangedBtn);
+  demoSection.appendChild(loadHoldTargetEntersRangeBtn);
   demoSection.appendChild(loadMeleeDuelBtn);
   demoSection.appendChild(loadAutoAttackBtn);
   demoSection.appendChild(loadHoldMeleeBtn);
@@ -359,6 +361,42 @@ export function createGameplayDebugPanel(
     if (!unwrap(api.issueTestOrder({ unitId: attackerId, order: { type: "hold-position" } }))) return;
     setPrimaryUnit(attackerId);
     state.reloadDemo = loadHoldRangedDemo;
+
+    stopPlayback();
+    state.playing = true;
+    playBtn.textContent = "⏸ Pause";
+    playLoop();
+    refreshHUD();
+  }
+
+  function loadHoldTargetEntersRangeDemo(): void {
+    const scenario = beginScenario("hold-fire-enters-range");
+    if (!scenario) return;
+    const attackerId = "range-archer";
+    const targetId = "approaching-target";
+    if (!unwrap(api.spawnTestUnit({
+      scenarioId: scenario.id,
+      id: attackerId,
+      archetype: "archer",
+      team: "player",
+      cell: scenario.landmarks.attacker,
+      stats: { damage: 20, rangeCells: 3, fireCooldownFrames: ARCHER_DEMO_FIRE_COOLDOWN_FRAMES },
+    }))) return;
+    if (!unwrap(api.spawnTestUnit({
+      scenarioId: scenario.id,
+      id: targetId,
+      archetype: "goblin",
+      team: "enemy",
+      cell: scenario.landmarks.targetStart,
+      stats: { hp: 100, movementFramesPerCell: WARRIOR_DEMO_MOVEMENT_FRAMES_PER_CELL },
+    }))) return;
+    if (!unwrap(api.issueTestOrder({ unitId: attackerId, order: { type: "hold-position" } }))) return;
+    if (!unwrap(api.issueTestOrder({
+      unitId: targetId,
+      order: { type: "move", destination: scenario.landmarks.targetInRange },
+    }))) return;
+    setPrimaryUnit(attackerId);
+    state.reloadDemo = loadHoldTargetEntersRangeDemo;
 
     stopPlayback();
     state.playing = true;
@@ -789,6 +827,7 @@ export function createGameplayDebugPanel(
   loadPatrolBtn.addEventListener("click", loadPatrolDemo);
   loadHoldNoCombatBtn.addEventListener("click", loadHoldDemo);
   loadHoldRangedBtn.addEventListener("click", loadHoldRangedDemo);
+  loadHoldTargetEntersRangeBtn.addEventListener("click", loadHoldTargetEntersRangeDemo);
   loadMeleeDuelBtn.addEventListener("click", loadWarriorDuelDemo);
   loadAutoAttackBtn.addEventListener("click", loadAutoMoveDemo);
   loadHoldMeleeBtn.addEventListener("click", loadHoldAttackDemo);

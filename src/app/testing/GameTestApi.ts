@@ -106,6 +106,7 @@ export type TestScenarioPreset =
   | "long-movement-corridor"
   | "hold-position-lane"
   | "hold-fire-stationary"
+  | "hold-fire-enters-range"
   | "hold-fire-patrol"
   | "three-cell-patrol-corridor"
   | "single-wave-path-to-base"
@@ -256,7 +257,7 @@ export interface ScenarioTestSnapshot {
 }
 
 export type AdvanceTestCondition =
-  | { type: "event"; eventType: string; unitId?: string; targetId?: string }
+  | { type: "event"; eventType: string; unitId?: string; sourceId?: string; targetId?: string }
   | { type: "unit-entered-cell"; unitId: string; cell?: CellCoord }
   | { type: "all-units-progressed"; unitIds: string[]; minimumTransitions: number }
   | { type: "wave-status"; waveId: string; status: "running" | "completed" }
