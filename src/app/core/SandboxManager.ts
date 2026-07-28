@@ -2,7 +2,7 @@ import { Container, Graphics, Ticker } from "pixi.js";
 import { createGridConfig, gridToWorld, type CellCoord, type GridConfig } from "../../core/grid/GridConfig";
 import { GridState } from "../../grid/GridState";
 import { UnitCreator } from "./UnitCreator";
-import { Enemy, EnemyType } from "./unidades/Enemy";
+import { UnitArchetype, getUnitArchetypeDefinition, initializeUnitArchetype } from "./unidades/UnitArchetype";
 import { Projectile } from "./unidades/Projectile";
 import { Unit } from "./unidades/Unit";
 import {
@@ -29,9 +29,9 @@ function randomCell(cols: number, rows: number): { col: number; row: number } {
 export class SandboxManager {
   readonly gridConfig: GridConfig;
   readonly gridState: GridState;
-  private readonly unitCreator: UnitCreator<Enemy>;
+  private readonly unitCreator: UnitCreator<Unit>;
   private readonly projectileCreator: UnitCreator<Projectile>;
-  private readonly allUnits: Enemy[] = [];
+  private readonly allUnits: Unit[] = [];
   private readonly blockedCells: Set<string> = new Set();
   private readonly markerGraphics: Graphics;
 
@@ -54,10 +54,10 @@ export class SandboxManager {
       factory: () => new Projectile(worldContainer),
     });
 
-    this.unitCreator = new UnitCreator<Enemy>({
+    this.unitCreator = new UnitCreator<Unit>({
       container: worldContainer,
       initialPoolSize: 12,
-      factory: () => new Enemy(worldContainer),
+      factory: () => new Unit(worldContainer),
     });
 
     this.spawnTeams();
@@ -109,10 +109,10 @@ export class SandboxManager {
   private spawnTeams(): void {
     const occupied = new Set<string>();
 
-    const rosters: Array<{ team: "player" | "enemy"; archetype: EnemyType; count: number }> = [
-      { team: "player", archetype: EnemyType.Warrior, count: 7 },
-      { team: "player", archetype: EnemyType.Archer, count: 3 },
-      { team: "enemy", archetype: EnemyType.Skeleton, count: 5 },
+    const rosters: Array<{ team: "player" | "enemy"; archetype: UnitArchetype; count: number }> = [
+      { team: "player", archetype: UnitArchetype.Soldier, count: 7 },
+      { team: "player", archetype: UnitArchetype.Archer, count: 3 },
+      { team: "enemy", archetype: UnitArchetype.Skeleton, count: 5 },
     ];
 
     for (const { team, archetype, count } of rosters) {
@@ -132,24 +132,19 @@ export class SandboxManager {
         occupied.add(key);
         const world = gridToWorld(cell.col, cell.row, this.gridConfig);
         const unit = this.unitCreator.get();
-        unit.initializeEnemy(archetype);
-        if (archetype === EnemyType.Warrior) unit.scale.set(1 / 3);
-        if (archetype === EnemyType.Archer) unit.scale.set(1 / 2);
-        unit.team = team;
-        const isArcher = archetype === EnemyType.Archer;
-        const cooldown = isArcher ? 1200 : archetype === EnemyType.Warrior ? 500 : 2000;
+        initializeUnitArchetype(unit, archetype, { team, controller: team === "enemy" ? "ai" : "player" });
+        const definition = getUnitArchetypeDefinition(archetype);
+        const cooldown = archetype === UnitArchetype.Archer ? 1200 : archetype === UnitArchetype.Soldier ? 500 : 2000;
         unit.model.configure({
-          attackMode: isArcher ? "projectile" : "melee",
           cooldown,
           damageType: "normal",
-          armorType: archetype === EnemyType.Skeleton ? "heavy" : "light",
         });
         unit.initializeShootingRange({
-          range: isArcher ? 3 : 1,
+          range: definition.range,
           fireRate: 0.5,
           damage: unit.attackDamage,
           projectileCreator: this.projectileCreator,
-          projectileVisual: unit.projectileVisual,
+          projectileVisual: definition.projectileVisual,
           targets: [],
         });
         unit.initializeTileMovement({

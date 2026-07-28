@@ -10,7 +10,6 @@ import { JsonToLevelConverter } from "./niveles/cargador/JsonToLevelConverter";
 import { LevelEventManager } from "./niveles/cargador/LevelEventManager";
 import { LevelJSON } from "./niveles/cargador/LevelSchema";
 import { BaseTower } from "./unidades/BaseTower";
-import { Enemy } from "./unidades/Enemy";
 import { Projectile } from "./unidades/Projectile";
 import { Tower } from "./unidades/Tower";
 import { Unit } from "./unidades/Unit";
@@ -90,16 +89,16 @@ export class GameManager {
         notificaciones.notify(message);
       },
       projectileCreator: projectileCreator,
-      enemyCreator: new UnitCreator<Enemy>({
+      unitCreator: new UnitCreator<Unit>({
         container: this.mainGameContainer,
         initialPoolSize: 10,
         factory: () => {
-          const newEnemy = new Enemy(this.mainGameContainer);
-          newEnemy.onDestroy = () => {
-            this.removeAsProjectileTarget(newEnemy);
-            this.gameContext.coins += newEnemy.getDeathReward();
+          const unit = new Unit(this.mainGameContainer);
+          unit.onDestroy = () => {
+            this.removeAsProjectileTarget(unit);
+            this.gameContext.coins += unit.bounty;
           };
-          return newEnemy;
+          return unit;
         },
       }),
       towerCreator: new UnitCreator<Tower>({
@@ -141,20 +140,20 @@ export class GameManager {
 
     this.coinsUI.setCoins(this.gameContext.coins);
 
-    const activeEnemies = this.gameContext.enemyCreator.getUnits(true);
+    const activeUnits = this.gameContext.unitCreator.getUnits(true);
     const activeTowers = this.gameContext.towerCreator.getUnits(true);
     this.gameContext.towerCreator.getUnits(true).forEach((tower) => {
-      tower.setShootingTargets(activeEnemies);
+      tower.setShootingTargets(activeUnits.filter((unit) => tower.isHostileTo(unit)));
     });
-    this.gameContext.enemyCreator.getUnits(true).forEach((enemy) => {
-      enemy.setShootingTargets(activeTowers);
+    activeUnits.forEach((unit) => {
+      unit.setShootingTargets(activeTowers.filter((tower) => unit.isHostileTo(tower)));
     });
-    this.gameContext.enemyCreator.update(_time);
+    this.gameContext.unitCreator.update(_time);
     this.gameContext.towerCreator.update(_time);
     this.gameContext.projectileCreator.update(_time);
   }
 
   public getActiveUnits(): Unit[] {
-    return this.gameContext.enemyCreator.getUnits(true);
+    return this.gameContext.unitCreator.getUnits(true);
   }
 }

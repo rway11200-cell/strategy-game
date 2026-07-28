@@ -11,7 +11,8 @@ import {
   HoldPositionCommand,
   type IUnitCommand,
 } from "../core/UnitCommands";
-import { Enemy, EnemyType } from "../core/unidades/Enemy";
+import { Unit } from "../core/unidades/Unit";
+import { UnitArchetype, initializeUnitArchetype } from "../core/unidades/UnitArchetype";
 import { Projectile } from "../core/unidades/Projectile";
 import { UnitCreator } from "../core/UnitCreator";
 import type { CellCoord } from "../../core/grid/GridConfig";
@@ -50,7 +51,7 @@ export interface GameplayHarnessBootState {
 }
 
 interface ManagedUnit {
-  enemy: Enemy;
+  enemy: Unit;
   id: string;
   archetype: string;
   team: TestUnitTeam;
@@ -242,15 +243,18 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
     }
     const finalCell: CellCoord = spawnCell;
 
-    const ARCHETYPE_TO_ENEMY: Record<string, EnemyType> = {
-      goblin: EnemyType.Goblin,
-      skeleton: EnemyType.Skeleton,
-      ghost: EnemyType.Ghost,
-      warrior: EnemyType.Warrior,
-      archer: EnemyType.Archer,
+    const archetypes: Record<string, UnitArchetype> = {
+      goblin: UnitArchetype.Goblin,
+      skeleton: UnitArchetype.Skeleton,
+      ghost: UnitArchetype.Ghost,
+      warrior: UnitArchetype.Soldier,
+      archer: UnitArchetype.Archer,
     };
-    const enemy = new Enemy(scenario.container, { id: options.id });
-    enemy.initializeEnemy(ARCHETYPE_TO_ENEMY[options.archetype] ?? EnemyType.Goblin);
+    const enemy = new Unit(scenario.container, { id: options.id });
+    initializeUnitArchetype(enemy, archetypes[options.archetype] ?? UnitArchetype.Goblin, {
+      team: options.team,
+      controller: options.team === "enemy" ? "ai" : "player",
+    });
     if (options.archetype === "warrior") enemy.scale.set(1 / 3);
     if (options.archetype === "archer") enemy.scale.set(1 / 2);
     enemy.team = options.team;

@@ -16,8 +16,8 @@ import type { GridIntegration } from "../../grid/GridIntegration";
 import type { GameManager } from "../core/GameManager";
 import { PatrolCommand, type CommandStatus, type UnitCommandType } from "../core/UnitCommands";
 import type { LevelContext } from "../core/niveles/cargador/LevelContext";
-import { EnemyType } from "../core/unidades/Enemy";
-import type { Enemy } from "../core/unidades/Enemy";
+import { UnitArchetype, initializeUnitArchetype } from "../core/unidades/UnitArchetype";
+import type { Unit } from "../core/unidades/Unit";
 import type { Tower } from "../core/unidades/Tower";
 
 // ──────────────────────────────────────────────
@@ -485,12 +485,12 @@ export interface GameManagerDebug {
 export interface LevelContextDebug {
   readonly gridIntegration: GridIntegration | null;
   readonly coins: number;
-  readonly enemyCreator: { getUnits: (active: boolean) => EnemyLect[] };
+  readonly unitCreator: { getUnits: (active: boolean) => UnitLect[] };
   readonly towerCreator: { getUnits: (active: boolean) => TowerLect[] };
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-type EnemyLect = any;
+type UnitLect = any;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type TowerLect = any;
 
@@ -501,15 +501,15 @@ type TowerLect = any;
 /**
  * basic -> Goblin, fast -> Ghost, tank/boss -> Skeleton
  */
-function testEnemyTypeToInternal(enemyType: string): EnemyType | null {
+function testEnemyTypeToInternal(enemyType: string): UnitArchetype | null {
   switch (enemyType) {
     case "basic":
-      return EnemyType.Goblin;
+      return UnitArchetype.Goblin;
     case "fast":
-      return EnemyType.Ghost;
+      return UnitArchetype.Ghost;
     case "tank":
     case "boss":
-      return EnemyType.Skeleton;
+      return UnitArchetype.Skeleton;
     default:
       return null;
   }
@@ -569,7 +569,7 @@ export function createGameTestApi(
         };
       }
 
-      const activeEnemies = ctx.enemyCreator?.getUnits(true) ?? [];
+      const activeEnemies = ctx.unitCreator?.getUnits(true) ?? [];
       const activeTowers = ctx.towerCreator?.getUnits(true) ?? [];
 
       return {
@@ -659,10 +659,10 @@ export function createGameTestApi(
       const mgrDebug = mgr as any as GameManagerDebug;
       const ctx = mgrDebug.gameContext;
       const gridConfig = ctx?.gridIntegration?.gridConfig;
-      const activeEnemies = ctx?.enemyCreator?.getUnits(true) ?? [];
+      const activeEnemies = ctx?.unitCreator?.getUnits(true) ?? [];
 
-      return activeEnemies.map((e: EnemyLect) => {
-        const enemy = e as Enemy;
+      return activeEnemies.map((e: UnitLect) => {
+        const enemy = e as Unit;
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const anyEnemy = e as any;
 
@@ -673,7 +673,7 @@ export function createGameTestApi(
           cell: gridConfig ? enemy.getGridCell(gridConfig) : undefined,
           health: anyEnemy.currentHealth,
           active: enemy.active,
-          type: enemy.enemyType,
+          type: enemy.archetype,
           command: enemy.currentCommand
             ? {
                 type: enemy.currentCommand.type,
@@ -698,9 +698,9 @@ export function createGameTestApi(
 
       const result: UnitTestState[] = [];
 
-      const activeEnemies = ctx.enemyCreator?.getUnits(true) ?? [];
+      const activeEnemies = ctx.unitCreator?.getUnits(true) ?? [];
       for (const e of activeEnemies) {
-        const enemy = e as Enemy;
+        const enemy = e as Unit;
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const anyEnemy = e as any;
         const cell = cfg ? enemy.getGridCell(cfg) : undefined;
@@ -749,8 +749,8 @@ export function createGameTestApi(
       if (!ctx) return false;
 
       // Search in enemies first
-      const allEnemies = ctx.enemyCreator?.getUnits(false) ?? [];
-      const enemy = allEnemies.find((e: Enemy) => e.getId("test") === unitId);
+      const allEnemies = ctx.unitCreator?.getUnits(false) ?? [];
+      const enemy = allEnemies.find((e: Unit) => e.getId("test") === unitId);
       if (enemy) {
         enemy.takeDamage(damage);
         return true;
@@ -807,7 +807,7 @@ export function createGameTestApi(
       if (!ctx) return;
 
       // Forzar spawn de un enemigo de prueba
-      const enemy = ctx.enemyCreator?.get(false);
+      const enemy = ctx.unitCreator?.get(false);
       if (!enemy) return;
 
       // Posicionar en el spawn point de la grilla
@@ -820,7 +820,7 @@ export function createGameTestApi(
         enemy.position.set(worldSpawn.x, worldSpawn.y);
       }
 
-      enemy.initializeEnemy(EnemyType.Goblin);
+      initializeUnitArchetype(enemy, UnitArchetype.Goblin, { team: "enemy", controller: "ai" });
       enemy.spawn();
     },
 
@@ -881,12 +881,12 @@ export function createGameTestApi(
       }
 
       // Obtener un enemigo del pool
-      const enemy = ctx.enemyCreator?.get(false);
+      const enemy = ctx.unitCreator?.get(false);
       if (!enemy) {
         return { success: false, error: "No available enemy in pool" };
       }
 
-      enemy.initializeEnemy(internalType);
+      initializeUnitArchetype(enemy, internalType, { team: "enemy", controller: "ai" });
       enemy.initializeTileMovement({
         cells: [],
         gridConfig: gi.gridConfig,
@@ -915,8 +915,8 @@ export function createGameTestApi(
       if (!gi) return false;
 
       // Find the enemy by its spawn cell position
-      const activeEnemies = ctx.enemyCreator?.getUnits(true) ?? [];
-      const enemy = activeEnemies.find((e: Enemy) => {
+      const activeEnemies = ctx.unitCreator?.getUnits(true) ?? [];
+      const enemy = activeEnemies.find((e: Unit) => {
         const cellCoord = e.getGridCell(gi.gridConfig);
         return cellCoord && cellCoord.col === fromCol && cellCoord.row === fromRow;
       });

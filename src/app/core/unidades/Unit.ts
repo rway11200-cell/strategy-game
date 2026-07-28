@@ -15,6 +15,7 @@ import {
   type IUnitCommand,
 } from "../UnitCommands";
 import { Projectile, type ProjectileVisual } from "./Projectile";
+import type { UnitArchetype } from "./UnitArchetype";
 import { selectBestTarget, type SelectionContext } from "../combat/TargetSelector";
 import {
   type AttackMode,
@@ -105,6 +106,9 @@ export class Unit extends Container {
   public canBeProjectileTarget = false;
   public readonly model: UnitSystem;
   public readonly unitSystem: UnitSystem;
+  public archetype?: UnitArchetype;
+  public bounty = 0;
+  public projectileVisual?: ProjectileVisual;
   private lastAnimation: string = "idle";
 
   private mainContainer: Container;

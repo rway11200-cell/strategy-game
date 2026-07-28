@@ -5,7 +5,7 @@ vi.mock("../src/app/utils/sprite", () => ({
   getFramesAseprite: () => ({ textures: [Texture.EMPTY], totalMs: 0, frameMs: [0] }),
 }));
 
-import { Enemy, EnemyType } from "../src/app/core/unidades/Enemy";
+import { UnitArchetype, initializeUnitArchetype } from "../src/app/core/unidades/UnitArchetype";
 import { Unit } from "../src/app/core/unidades/Unit";
 import { UnitSystem } from "../src/app/core/unidades/UnitSystem";
 
@@ -61,17 +61,13 @@ describe("unified unit system", () => {
     expect(unit.active).toBe(false);
   });
 
-  it("models enemies as AI-controlled enemy units", () => {
-    const enemy = new Enemy(new Container());
-    enemy.initializeEnemy(EnemyType.Goblin);
-    enemy.spawn();
+  it("applies an archetype without overriding a unit's team", () => {
+    const unit = new Unit(new Container());
+    initializeUnitArchetype(unit, UnitArchetype.Goblin, { team: "player", controller: "player" });
+    unit.spawn();
 
-    expect(enemy).toBeInstanceOf(Unit);
-    expect(enemy.team).toBe("enemy");
-    expect(enemy.faction).toBe("enemy");
-    expect(enemy.controller).toBe("ai");
-    expect(enemy.isAIControlled).toBe(true);
-    expect(enemy.enemyType).toBe(EnemyType.Goblin);
-    expect(enemy.stats).toEqual({ hp: 50, maxHp: 50, damage: 6, speed: 0.6, range: 1 });
+    expect(unit.team).toBe("player");
+    expect(unit.controller).toBe("player");
+    expect(unit.archetype).toBe(UnitArchetype.Goblin);
   });
 });

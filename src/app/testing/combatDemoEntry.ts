@@ -1,7 +1,7 @@
 import { Application, Assets, Container, Graphics, Ticker } from "pixi.js";
 import { createGridConfig, gridToWorld } from "../../core/grid/GridConfig";
 import { GridState } from "../../grid/GridState";
-import { Enemy, EnemyType } from "../core/unidades/Enemy";
+import { UnitArchetype, initializeUnitArchetype } from "../core/unidades/UnitArchetype";
 import { Projectile } from "../core/unidades/Projectile";
 import { Unit } from "../core/unidades/Unit";
 import { UnitCreator } from "../core/UnitCreator";
@@ -76,19 +76,18 @@ function drawGrid() {
 }
 
 function makeDemoUnit(
-  archetype: EnemyType,
+  archetype: UnitArchetype,
   col: number,
   row: number,
   team: "player" | "enemy",
 ): Unit {
-  const unit = new Enemy(container, { id: `${team}-${archetype}-${col}-${row}` });
-  unit.initializeEnemy(archetype);
-  unit.team = team;
+  const unit = new Unit(container, { id: `${team}-${archetype}-${col}-${row}` });
+  initializeUnitArchetype(unit, archetype, { team, controller: team === "enemy" ? "ai" : "player" });
   unit.model.configure({
     attackMode: "melee",
     cooldown: 800,
     damageType: team === "player" ? "pierce" : "normal",
-    armorType: archetype === EnemyType.Skeleton ? "heavy" : "light",
+    armorType: archetype === UnitArchetype.Skeleton ? "heavy" : "light",
     vision: 100,
   });
   unit.initializeShootingRange({
@@ -128,26 +127,26 @@ function spawnDemoSetup() {
   const teamB: Unit[] = [];
 
   for (let i = 0; i < 3; i++) {
-    const u = makeDemoUnit(EnemyType.Goblin, 2 + i * 2, 2, "enemy");
+    const u = makeDemoUnit(UnitArchetype.Goblin, 2 + i * 2, 2, "enemy");
     u.model.configure({ damageType: "normal", armorType: "unarmored", damage: 8, vision: 100 });
     teamA.push(u);
     enemies.push(u);
   }
   for (let i = 0; i < 2; i++) {
-    const u = makeDemoUnit(EnemyType.Skeleton, 2 + i * 3, 5, "enemy");
+    const u = makeDemoUnit(UnitArchetype.Skeleton, 2 + i * 3, 5, "enemy");
     u.model.configure({ damageType: "normal", armorType: "heavy", damage: 15, vision: 100 });
     teamA.push(u);
     enemies.push(u);
   }
 
   for (let i = 0; i < 3; i++) {
-    const u = makeDemoUnit(EnemyType.Warrior, 22 + i * 2, 12, "player");
+    const u = makeDemoUnit(UnitArchetype.Soldier, 22 + i * 2, 12, "player");
     u.model.configure({ damageType: "pierce", armorType: "light", damage: 12, vision: 100 });
     teamB.push(u);
     enemies.push(u);
   }
   for (let i = 0; i < 2; i++) {
-    const u = makeDemoUnit(EnemyType.Ghost, 22 + i * 3, 15, "player");
+    const u = makeDemoUnit(UnitArchetype.Ghost, 22 + i * 3, 15, "player");
     u.model.configure({ damageType: "magic", armorType: "light", damage: 18, vision: 100 });
     teamB.push(u);
     enemies.push(u);
@@ -188,23 +187,23 @@ function setupControls() {
 function doSpawnSetup(kind: string) {
   const side = kind === "tank" ? "enemy" : "player";
 
-  let archetype = EnemyType.Goblin;
+  let archetype = UnitArchetype.Goblin;
   let dmgType: "normal" | "pierce" | "magic" | "siege" = "normal";
   let armType: "unarmored" | "light" | "heavy" | "fortified" = "light";
   let hp = 50;
 
   if (kind === "melee") {
-    archetype = EnemyType.Warrior;
+    archetype = UnitArchetype.Soldier;
     dmgType = "pierce";
     armType = "light";
     hp = 100;
   } else if (kind === "ranged") {
-    archetype = EnemyType.Ghost;
+    archetype = UnitArchetype.Ghost;
     dmgType = "magic";
     armType = "light";
     hp = 70;
   } else if (kind === "tank") {
-    archetype = EnemyType.Skeleton;
+    archetype = UnitArchetype.Skeleton;
     dmgType = "siege";
     armType = "fortified";
     hp = 400;
