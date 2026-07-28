@@ -975,6 +975,7 @@ export class Unit extends Container {
 
   private updateShooting(_time: Ticker) {
     if (this.shootingMode === "disabled" || !this.model.canAttack) return;
+    if (this.isMovementActionActive()) return;
 
     const gridConfig = this.combatGridConfig;
     const unitCell = this.getGridCell();

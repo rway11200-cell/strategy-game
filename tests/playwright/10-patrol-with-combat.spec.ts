@@ -56,24 +56,26 @@ test("una patrulla ataca a un enemigo en su camino sin interrumpir su ronda", as
 
   let afterSequence = 0;
 
-  await test.step("Entonces avanza por la ruta de patrulla", async () => {
+  await test.step("Entonces persigue al blanco visible hasta el borde de su rango", async () => {
     const result = await game.advanceUntil({
       scenarioId: setup.scenario.id,
       condition: {
         type: "unit-entered-cell",
         unitId: PATROL_ID,
-        cell: { col: 3, row: 2 },
+        cell: { col: 3, row: 3 },
       },
     });
     afterSequence = result.matchedEvent.sequence;
     expect(getUnit(result.snapshot, PATROL_ID)).toMatchObject({
-      movement: { mode: "patrolling" },
+      cell: { col: 3, row: 3 },
+      activity: "attacking",
+      movement: { mode: "patrolling", targetCell: null, stepProgress: 0 },
       order: { id: patrolOrder.id, status: "running" },
     });
     expect(result.snapshot.errors).toEqual([]);
   });
 
-  await test.step("Y al acercarse al blanco, le inflige daño sin interrumpir la patrulla", async () => {
+  await test.step("Y persigue al blanco, se detiene y le inflige daño sin cancelar la patrulla", async () => {
     const damaged = await game.advanceUntil({
       scenarioId: setup.scenario.id,
       afterSequence,
@@ -85,6 +87,8 @@ test("una patrulla ataca a un enemigo en su camino sin interrumpir su ronda", as
       targetId: TARGET_ID,
     });
     expect(getUnit(damaged.snapshot, PATROL_ID)).toMatchObject({
+      activity: "attacking",
+      movement: { targetCell: null, stepProgress: 0 },
       order: { id: patrolOrder.id, status: "running" },
     });
     expect(getUnit(damaged.snapshot, TARGET_ID).hp).toBe(200 - 10);

@@ -81,7 +81,7 @@ test("un guerrero en attack-move se detiene para eliminar un enemigo y retoma su
     expect(result.snapshot.errors).toEqual([]);
   });
 
-  await test.step("Y se detiene para dañar al defensor sin ocupar su celda", async () => {
+  await test.step("Y se detiene antes de dañar al defensor sin ocupar su celda", async () => {
     const result = await game.advanceUntil({
       scenarioId: setup.scenario.id,
       afterSequence,
@@ -95,7 +95,11 @@ test("un guerrero en attack-move se detiene para eliminar un enemigo y retoma su
       targetId: DEFENDER_ID,
       amount: 20,
     });
-    expect(getUnit(result.snapshot, ATTACKER_ID)).toMatchObject({ cell: { col: 3, row: 0 } });
+    expect(getUnit(result.snapshot, ATTACKER_ID)).toMatchObject({
+      cell: { col: 3, row: 0 },
+      activity: "attacking",
+      movement: { targetCell: null, stepProgress: 0 },
+    });
     expect(getUnit(result.snapshot, DEFENDER_ID)).toMatchObject({ hp: 20, cell: setup.defenderCell });
     expect(result.snapshot.errors).toEqual([]);
   });

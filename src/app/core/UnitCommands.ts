@@ -472,6 +472,7 @@ export class PatrolCommand extends BaseCommand {
   readonly type = "patrol" as const;
   private approachingStart = false;
   private destination?: CellCoord;
+  private pursuit?: AttackCommand;
 
   constructor(public readonly cells: CellCoord[]) {
     super();
@@ -480,6 +481,7 @@ export class PatrolCommand extends BaseCommand {
   execute(unit: Unit, context: CommandContext): void {
     this.status = "running";
     this.approachingStart = false;
+    this.pursuit = undefined;
     unit.setCommandShooting("auto");
     if (this.cells.length !== 2) {
       this.status = "failed";
@@ -504,22 +506,20 @@ export class PatrolCommand extends BaseCommand {
   update(unit: Unit, context: CommandContext, ticker: Ticker): CommandStatus {
     if (this.status !== "running") return this.status;
 
-    const unitCell = unit.getGridCell(context.gridConfig);
-    const visibleTarget = unitCell && context.enemies.find((enemy) => {
-      const targetCell = enemy.getGridCell(context.gridConfig);
-      return enemy.active &&
-        enemy.canBeProjectileTarget &&
-        targetCell &&
-        unit.canSee(enemy);
-    });
-    if (visibleTarget) {
-      const targetCell = visibleTarget.getGridCell(context.gridConfig)!;
-      if (!sameCell(unitCell, targetCell)) {
-        this.pathTo(unit, context, targetCell);
-      } else {
-        unit.freezeMovement();
+    const target = this.findVisibleTarget(unit, context);
+    if (target) {
+      if (this.pursuit?.target !== target) {
+        this.pursuit = new AttackCommand(target);
+        this.pursuit.execute(unit, context);
       }
-      return "running";
+      this.pursuit.update(unit, context, ticker);
+      return this.status;
+    }
+
+    if (this.pursuit) {
+      this.pursuit.cancel(unit);
+      this.pursuit = undefined;
+      if (this.destination) this.pathTo(unit, context, this.destination);
     }
 
     const movement = unit.updateCommandMovement(ticker);
@@ -552,8 +552,27 @@ export class PatrolCommand extends BaseCommand {
   }
 
   cancel(unit: Unit): void {
+    this.pursuit?.cancel(unit);
     unit.setCommandShooting("auto");
     this.status = "completed";
+  }
+
+  private findVisibleTarget(unit: Unit, context: CommandContext): Unit | undefined {
+    const unitCell = unit.getGridCell(context.gridConfig);
+    if (!unitCell) return undefined;
+    let closest: Unit | undefined;
+    let closestDistance = Infinity;
+    for (const candidate of context.enemies) {
+      if (!candidate.active || !candidate.canBeProjectileTarget || !unit.canSee(candidate)) continue;
+      const cell = candidate.getGridCell(context.gridConfig);
+      if (!cell) continue;
+      const distance = Math.hypot(cell.col - unitCell.col, cell.row - unitCell.row);
+      if (distance < closestDistance) {
+        closest = candidate;
+        closestDistance = distance;
+      }
+    }
+    return closest;
   }
 }
 
