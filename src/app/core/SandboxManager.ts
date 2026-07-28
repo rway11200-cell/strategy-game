@@ -109,11 +109,14 @@ export class SandboxManager {
   private spawnTeams(): void {
     const occupied = new Set<string>();
 
-    for (let teamIndex = 0; teamIndex < 2; teamIndex++) {
-      const team: "player" | "enemy" = teamIndex === 0 ? "player" : "enemy";
-      const archetype = teamIndex === 0 ? EnemyType.Warrior : EnemyType.Skeleton;
+    const rosters: Array<{ team: "player" | "enemy"; archetype: EnemyType; count: number }> = [
+      { team: "player", archetype: EnemyType.Warrior, count: 7 },
+      { team: "player", archetype: EnemyType.Archer, count: 3 },
+      { team: "enemy", archetype: EnemyType.Skeleton, count: 5 },
+    ];
 
-      for (let i = 0; i < 5; i++) {
+    for (const { team, archetype, count } of rosters) {
+      for (let i = 0; i < count; i++) {
         let cell: { col: number; row: number };
         let key: string;
         let attempts = 0;
@@ -131,19 +134,22 @@ export class SandboxManager {
         const unit = this.unitCreator.get();
         unit.initializeEnemy(archetype);
         if (archetype === EnemyType.Warrior) unit.scale.set(1 / 3);
+        if (archetype === EnemyType.Archer) unit.scale.set(1 / 2);
         unit.team = team;
-        const cooldown = archetype === EnemyType.Warrior ? 500 : 2000;
+        const isArcher = archetype === EnemyType.Archer;
+        const cooldown = isArcher ? 1200 : archetype === EnemyType.Warrior ? 500 : 2000;
         unit.model.configure({
-          attackMode: "melee",
+          attackMode: isArcher ? "projectile" : "melee",
           cooldown,
           damageType: "normal",
-          armorType: "light",
+          armorType: archetype === EnemyType.Skeleton ? "heavy" : "light",
         });
         unit.initializeShootingRange({
-          range: 1,
+          range: isArcher ? 3 : 1,
           fireRate: 0.5,
           damage: unit.attackDamage,
           projectileCreator: this.projectileCreator,
+          projectileVisual: unit.projectileVisual,
           targets: [],
         });
         unit.initializeTileMovement({
@@ -178,6 +184,7 @@ export class SandboxManager {
         unit.update(_time);
       }
     }
+    this.projectileCreator.update(_time);
   }
 
   getActiveUnits(): Unit[] {

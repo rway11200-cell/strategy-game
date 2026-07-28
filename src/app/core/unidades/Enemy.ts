@@ -28,7 +28,7 @@ const EnemyDefinitions = new Map<EnemyType, EnemyDefinition>([
     EnemyType.Skeleton,
     {
       health: 600,
-      damage: 20,
+      damage: 14,
       speed: 0.5,
       range: 1,
       reward: 50,
