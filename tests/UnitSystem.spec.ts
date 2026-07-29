@@ -1,8 +1,14 @@
 import { Container, Texture } from "pixi.js";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 
+const { playSfx } = vi.hoisted(() => ({ playSfx: vi.fn() }));
+
 vi.mock("../src/app/utils/sprite", () => ({
   getFramesAseprite: vi.fn(() => ({ textures: [Texture.EMPTY], totalMs: 0, frameMs: [0] })),
+}));
+
+vi.mock("../src/app/getEngine", () => ({
+  engine: () => ({ audio: { sfx: { play: playSfx } } }),
 }));
 
 import { UnitArchetype, initializeUnitArchetype } from "../src/app/core/unidades/UnitArchetype";
@@ -84,5 +90,18 @@ describe("unified unit system", () => {
       initializeUnitArchetype(new Unit(new Container()), archetype, { team: "enemy", controller: "ai" });
       expect(getFramesAseprite).toHaveBeenCalledWith(frameJson);
     }
+  });
+
+  it("plays the soldier impact sound only when damage reduces health", () => {
+    const soldier = new Unit(new Container());
+    soldier.archetype = UnitArchetype.Soldier;
+    const target = new Unit(new Container(), { hp: 100 });
+
+    target.takeDamage(0, soldier);
+    expect(playSfx).not.toHaveBeenCalled();
+
+    target.takeDamage(10, soldier);
+    expect(target.hp).toBe(90);
+    expect(playSfx).toHaveBeenCalledWith("main/sounds/sfx-soldier-sword-hit.mp3", { volume: 0.55 });
   });
 });

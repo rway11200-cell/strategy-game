@@ -64,8 +64,8 @@ export class Projectile extends Unit {
       gridConfig,
     });
     this.targetFollower.onDestinationReached = () => {
-      this.destroy();
       onImpact();
+      this.destroy();
     };
     this.spawn();
   }
