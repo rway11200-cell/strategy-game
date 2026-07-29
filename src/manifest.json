@@ -69,6 +69,36 @@
         },
         {
           "alias": [
+            "main/sounds/sfx-archer-arrow-impact.mp3",
+            "sfx-archer-arrow-impact.mp3"
+          ],
+          "src": [
+            "main/sounds/sfx-archer-arrow-impact.ogg",
+            "main/sounds/sfx-archer-arrow-impact.mp3"
+          ],
+          "data": {
+            "tags": {
+              "m": true
+            }
+          }
+        },
+        {
+          "alias": [
+            "main/sounds/sfx-archer-arrow-launch.mp3",
+            "sfx-archer-arrow-launch.mp3"
+          ],
+          "src": [
+            "main/sounds/sfx-archer-arrow-launch.ogg",
+            "main/sounds/sfx-archer-arrow-launch.mp3"
+          ],
+          "data": {
+            "tags": {
+              "m": true
+            }
+          }
+        },
+        {
+          "alias": [
             "main/sounds/sfx-hover.wav",
             "sfx-hover.wav"
           ],
@@ -90,6 +120,21 @@
           "src": [
             "main/sounds/sfx-press.ogg",
             "main/sounds/sfx-press.mp3"
+          ],
+          "data": {
+            "tags": {
+              "m": true
+            }
+          }
+        },
+        {
+          "alias": [
+            "main/sounds/sfx-soldier-sword-hit.mp3",
+            "sfx-soldier-sword-hit.mp3"
+          ],
+          "src": [
+            "main/sounds/sfx-soldier-sword-hit.ogg",
+            "main/sounds/sfx-soldier-sword-hit.mp3"
           ],
           "data": {
             "tags": {

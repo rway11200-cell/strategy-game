@@ -2,6 +2,7 @@ import { AnimatedSprite, Circle, Container, type FederatedPointerEvent, Graphics
 import type { CellCoord, GridConfig } from "../../../core/grid/GridConfig";
 import { worldToGrid } from "../../../core/grid/GridConfig";
 import type { GridState } from "../../../grid/GridState";
+import { engine } from "../../getEngine";
 import { debugLogChanged } from "../../utils/debugLog";
 import { getFramesAseprite } from "../../utils/sprite";
 import { UnitCreator } from "../UnitCreator";
@@ -28,6 +29,10 @@ import {
 } from "./UnitSystem";
 
 import type { DamageType } from "./UnitSystem";
+
+const SOLDIER_SWORD_HIT_SOUND = "main/sounds/sfx-soldier-sword-hit.mp3";
+const ARCHER_ARROW_LAUNCH_SOUND = "main/sounds/sfx-archer-arrow-launch.mp3";
+const ARCHER_ARROW_IMPACT_SOUND = "main/sounds/sfx-archer-arrow-impact.mp3";
 
 export interface ShootOptions {
   range: number;
@@ -1124,10 +1129,16 @@ export class Unit extends Container {
     this.onAttackCommitted?.(target.getId(), "projectile");
     const newProjectile = shootOptions.projectileCreator.get();
     newProjectile.setVisual(shootOptions.projectileVisual);
+    if (this.archetype === "archer") {
+      engine()?.audio?.sfx.play(ARCHER_ARROW_LAUNCH_SOUND, { volume: 0.4 });
+    }
     newProjectile.launchAtCell(unitCell, targetCell, gridConfig, target, () => {
       if (target.canBeProjectileTarget) {
         const hpBefore = target.hp;
         target.damage(shootOptions.damage, this);
+        if (this.archetype === "archer" && target.hp < hpBefore) {
+          engine()?.audio?.sfx.play(ARCHER_ARROW_IMPACT_SOUND, { volume: 0.5 });
+        }
         this.onDamageApplied?.(target.getId(), shootOptions.damage, hpBefore, target.hp);
       }
       if (target.isDead() && this.targetToShoot === target) {
@@ -1171,6 +1182,9 @@ export class Unit extends Container {
   private applyMeleeDamage(target: Unit): void {
     const hpBefore = target.hp;
     target.damage(this.model.damage, this);
+    if (this.archetype === "soldier" && target.hp < hpBefore) {
+      engine()?.audio?.sfx.play(SOLDIER_SWORD_HIT_SOUND, { volume: 0.55 });
+    }
     this.onAttackCommitted?.(target.getId(), "melee");
     this.onDamageApplied?.(target.getId(), this.model.damage, hpBefore, target.hp);
     if (target.isDead()) {
