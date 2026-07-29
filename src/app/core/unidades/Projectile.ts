@@ -54,7 +54,10 @@ export class Projectile extends Unit {
     this.targetCell = { ...targetCell };
     this.targetUnit = targetUnit;
     if (this.visual.flipTowardTarget && this.animatedSprite) {
-      this.animatedSprite.scale.x = targetCell.col < originCell.col ? -1 : 1;
+      const deltaCol = targetCell.col - originCell.col;
+      const deltaRow = targetCell.row - originCell.row;
+      this.animatedSprite.rotation = Math.atan2(deltaRow, deltaCol);
+      this.animatedSprite.scale.set(1);
     }
     this.targetFollower.setRouteFromCells({
       cells: [originCell, targetCell],

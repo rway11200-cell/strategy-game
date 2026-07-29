@@ -6,6 +6,7 @@ import { getOccupantCells } from "../../grid/OccupationFootprint";
 import {
   PatrolCommand,
   MoveCommand,
+  AttackCommand,
   AttackMoveCommand,
   StopCommand,
   HoldPositionCommand,
@@ -625,8 +626,10 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
         return new StopCommand();
       case "hold-position":
         return new HoldPositionCommand();
-      case "attack":
-        return null;
+      case "attack": {
+        const target = this.activeScenario?.units.find((unit) => unit.id === order.targetId)?.enemy;
+        return target ? new AttackCommand(target) : null;
+      }
       default:
         return null;
     }

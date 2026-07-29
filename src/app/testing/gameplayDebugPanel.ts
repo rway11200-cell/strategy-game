@@ -28,6 +28,7 @@ const PRESETS = [
 
 const WARRIOR_DEMO_MOVEMENT_FRAMES_PER_CELL = 60;
 const ARCHER_DEMO_FIRE_COOLDOWN_FRAMES = 90;
+type HoldRangedDirection = "right" | "left" | "up" | "down";
 
 interface PanelState {
   scenarioId: string | null;
@@ -75,6 +76,9 @@ export function createGameplayDebugPanel(
   const loadHoldNoCombatBtn = createButton("4. Hold no combat");
   const loadHoldRangedBtn = createButton("5. Hold ranged attack");
   const loadHoldRangedReverseBtn = createButton("5c. Hold ranged attack (reverse)");
+  const loadHoldRangedUpBtn = createButton("5d. Hold ranged attack (up)");
+  const loadHoldRangedDownBtn = createButton("5e. Hold ranged attack (down)");
+  const loadDirectAttackBtn = createButton("5f. Direct attack command");
   const loadHoldTargetEntersRangeBtn = createButton("5b. Hold target enters range");
   const loadMeleeDuelBtn = createButton("6. Melee duel");
   const loadAutoAttackBtn = createButton("7. Attack-move engages target");
@@ -95,6 +99,9 @@ export function createGameplayDebugPanel(
   demoSection.appendChild(loadHoldNoCombatBtn);
   demoSection.appendChild(loadHoldRangedBtn);
   demoSection.appendChild(loadHoldRangedReverseBtn);
+  demoSection.appendChild(loadHoldRangedUpBtn);
+  demoSection.appendChild(loadHoldRangedDownBtn);
+  demoSection.appendChild(loadDirectAttackBtn);
   demoSection.appendChild(loadHoldTargetEntersRangeBtn);
   demoSection.appendChild(loadMeleeDuelBtn);
   demoSection.appendChild(loadAutoAttackBtn);
@@ -339,13 +346,18 @@ export function createGameplayDebugPanel(
     refreshHUD();
   }
 
-  function loadHoldRangedDemo(reverse = false): void {
+  function loadHoldRangedDemo(direction: HoldRangedDirection = "right"): void {
     const scenario = beginScenario("hold-fire-stationary");
     if (!scenario) return;
     const attackerId = "holding-attacker";
     const targetId = "stationary-target";
-    const attackerCell = reverse ? scenario.landmarks.target : scenario.landmarks.attacker;
-    const targetCell = reverse ? scenario.landmarks.attacker : scenario.landmarks.target;
+    const cells: Record<HoldRangedDirection, { attacker: { col: number; row: number }; target: { col: number; row: number } }> = {
+      right: { attacker: scenario.landmarks.attacker, target: scenario.landmarks.target },
+      left: { attacker: scenario.landmarks.target, target: scenario.landmarks.attacker },
+      up: { attacker: { col: 2, row: 3 }, target: { col: 2, row: 1 } },
+      down: { attacker: { col: 2, row: 1 }, target: { col: 2, row: 3 } },
+    };
+    const { attacker: attackerCell, target: targetCell } = cells[direction];
     if (!unwrap(api.spawnTestUnit({
       scenarioId: scenario.id,
       id: attackerId,
@@ -364,7 +376,7 @@ export function createGameplayDebugPanel(
     }))) return;
     if (!unwrap(api.issueTestOrder({ unitId: attackerId, order: { type: "hold-position" } }))) return;
     setPrimaryUnit(attackerId);
-    state.reloadDemo = () => loadHoldRangedDemo(reverse);
+    state.reloadDemo = () => loadHoldRangedDemo(direction);
 
     stopPlayback();
     state.playing = true;
@@ -401,6 +413,38 @@ export function createGameplayDebugPanel(
     }))) return;
     setPrimaryUnit(attackerId);
     state.reloadDemo = loadHoldTargetEntersRangeDemo;
+
+    stopPlayback();
+    state.playing = true;
+    playBtn.textContent = "⏸ Pause";
+    playLoop();
+    refreshHUD();
+  }
+
+  function loadDirectAttackDemo(): void {
+    const scenario = beginScenario("warrior-auto-move");
+    if (!scenario) return;
+    const attackerId = "direct-attacker";
+    const targetId = "direct-target";
+    if (!unwrap(api.spawnTestUnit({
+      scenarioId: scenario.id,
+      id: attackerId,
+      archetype: "warrior",
+      team: "player",
+      cell: scenario.landmarks.attackerStart,
+      stats: { hp: 200, damage: 20, rangeCells: 1, fireCooldownFrames: 30, movementFramesPerCell: WARRIOR_DEMO_MOVEMENT_FRAMES_PER_CELL },
+    }))) return;
+    if (!unwrap(api.spawnTestUnit({
+      scenarioId: scenario.id,
+      id: targetId,
+      archetype: "warrior",
+      team: "enemy",
+      cell: scenario.landmarks.defender,
+      stats: { hp: 100 },
+    }))) return;
+    if (!unwrap(api.issueTestOrder({ unitId: attackerId, order: { type: "attack", targetId } }))) return;
+    setPrimaryUnit(attackerId);
+    state.reloadDemo = loadDirectAttackDemo;
 
     stopPlayback();
     state.playing = true;
@@ -835,7 +879,10 @@ export function createGameplayDebugPanel(
   loadPatrolBtn.addEventListener("click", loadPatrolDemo);
   loadHoldNoCombatBtn.addEventListener("click", loadHoldDemo);
   loadHoldRangedBtn.addEventListener("click", () => loadHoldRangedDemo());
-  loadHoldRangedReverseBtn.addEventListener("click", () => loadHoldRangedDemo(true));
+  loadHoldRangedReverseBtn.addEventListener("click", () => loadHoldRangedDemo("left"));
+  loadHoldRangedUpBtn.addEventListener("click", () => loadHoldRangedDemo("up"));
+  loadHoldRangedDownBtn.addEventListener("click", () => loadHoldRangedDemo("down"));
+  loadDirectAttackBtn.addEventListener("click", loadDirectAttackDemo);
   loadHoldTargetEntersRangeBtn.addEventListener("click", loadHoldTargetEntersRangeDemo);
   loadMeleeDuelBtn.addEventListener("click", loadWarriorDuelDemo);
   loadAutoAttackBtn.addEventListener("click", loadAutoMoveDemo);

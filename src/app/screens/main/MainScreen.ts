@@ -261,6 +261,8 @@ export class MainScreen extends Container {
 
     if (this.pendingCommand === "attack" && targetUnit && this.selectedUnit.isHostileTo(targetUnit)) {
       this.sandboxManager.issueAttack(this.selectedUnit, targetUnit);
+    } else if (this.pendingCommand === "attack") {
+      this.sandboxManager.issueAttackMove(this.selectedUnit, coord);
     } else if (this.pendingCommand === "move") {
       this.sandboxManager.issueMove(this.selectedUnit, coord);
     } else if (this.pendingCommand === "patrol") {

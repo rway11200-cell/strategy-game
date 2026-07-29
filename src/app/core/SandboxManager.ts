@@ -205,6 +205,21 @@ export class SandboxManager {
       }
     }
 
+    const finalDestination = command instanceof AttackMoveCommand
+      ? command.getDestination()
+      : command instanceof MoveCommand
+        ? command.destination
+        : undefined;
+    if (finalDestination) {
+      const pt = gridToWorld(finalDestination.col, finalDestination.row, this.gridConfig);
+      const radius = Math.max(10, CELL_SIZE * 0.36);
+      const color = command instanceof AttackMoveCommand ? 0xef5350 : 0x66bb6a;
+      g.circle(pt.x, pt.y, radius).stroke({ color, width: 2, alpha: 0.9 });
+      g.moveTo(pt.x - radius, pt.y).lineTo(pt.x + radius, pt.y);
+      g.moveTo(pt.x, pt.y - radius).lineTo(pt.x, pt.y + radius);
+      g.stroke({ color, width: 2, alpha: 0.9 });
+    }
+
     const attacking = selectedUnit.activity === "pursuing" ||
       selectedUnit.activity === "attacking" ||
       command?.type === "attack";
