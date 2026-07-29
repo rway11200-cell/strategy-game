@@ -537,6 +537,169 @@
         },
         {
           "alias": [
+            "main/unidades/jugadores/archer/archer-red-attack.json",
+            "archer-red-attack.json"
+          ],
+          "src": [
+            "main/unidades/jugadores/archer/archer-red-attack.json"
+          ],
+          "data": {
+            "tags": {
+              "m": true
+            }
+          }
+        },
+        {
+          "alias": [
+            "main/unidades/jugadores/archer/archer-red-idle.json",
+            "archer-red-idle.json"
+          ],
+          "src": [
+            "main/unidades/jugadores/archer/archer-red-idle.json"
+          ],
+          "data": {
+            "tags": {
+              "m": true
+            }
+          }
+        },
+        {
+          "alias": [
+            "main/unidades/jugadores/archer/archer-red.png",
+            "archer-red.png"
+          ],
+          "src": [
+            "main/unidades/jugadores/archer/archer-red@0.5x.webp",
+            "main/unidades/jugadores/archer/archer-red@0.5x.png",
+            "main/unidades/jugadores/archer/archer-red.webp",
+            "main/unidades/jugadores/archer/archer-red.png"
+          ],
+          "data": {
+            "tags": {
+              "m": true
+            }
+          }
+        },
+        {
+          "alias": [
+            "main/unidades/jugadores/pawn/pawn-blue-attack.json",
+            "pawn-blue-attack.json"
+          ],
+          "src": [
+            "main/unidades/jugadores/pawn/pawn-blue-attack.json"
+          ],
+          "data": {
+            "tags": {
+              "m": true
+            }
+          }
+        },
+        {
+          "alias": [
+            "main/unidades/jugadores/pawn/pawn-blue-idle.json",
+            "pawn-blue-idle.json"
+          ],
+          "src": [
+            "main/unidades/jugadores/pawn/pawn-blue-idle.json"
+          ],
+          "data": {
+            "tags": {
+              "m": true
+            }
+          }
+        },
+        {
+          "alias": [
+            "main/unidades/jugadores/pawn/pawn-blue-run.json",
+            "pawn-blue-run.json"
+          ],
+          "src": [
+            "main/unidades/jugadores/pawn/pawn-blue-run.json"
+          ],
+          "data": {
+            "tags": {
+              "m": true
+            }
+          }
+        },
+        {
+          "alias": [
+            "main/unidades/jugadores/pawn/pawn-blue.png",
+            "pawn-blue.png"
+          ],
+          "src": [
+            "main/unidades/jugadores/pawn/pawn-blue@0.5x.webp",
+            "main/unidades/jugadores/pawn/pawn-blue@0.5x.png",
+            "main/unidades/jugadores/pawn/pawn-blue.webp",
+            "main/unidades/jugadores/pawn/pawn-blue.png"
+          ],
+          "data": {
+            "tags": {
+              "m": true
+            }
+          }
+        },
+        {
+          "alias": [
+            "main/unidades/jugadores/pawn/pawn-red-attack.json",
+            "pawn-red-attack.json"
+          ],
+          "src": [
+            "main/unidades/jugadores/pawn/pawn-red-attack.json"
+          ],
+          "data": {
+            "tags": {
+              "m": true
+            }
+          }
+        },
+        {
+          "alias": [
+            "main/unidades/jugadores/pawn/pawn-red-idle.json",
+            "pawn-red-idle.json"
+          ],
+          "src": [
+            "main/unidades/jugadores/pawn/pawn-red-idle.json"
+          ],
+          "data": {
+            "tags": {
+              "m": true
+            }
+          }
+        },
+        {
+          "alias": [
+            "main/unidades/jugadores/pawn/pawn-red-run.json",
+            "pawn-red-run.json"
+          ],
+          "src": [
+            "main/unidades/jugadores/pawn/pawn-red-run.json"
+          ],
+          "data": {
+            "tags": {
+              "m": true
+            }
+          }
+        },
+        {
+          "alias": [
+            "main/unidades/jugadores/pawn/pawn-red.png",
+            "pawn-red.png"
+          ],
+          "src": [
+            "main/unidades/jugadores/pawn/pawn-red@0.5x.webp",
+            "main/unidades/jugadores/pawn/pawn-red@0.5x.png",
+            "main/unidades/jugadores/pawn/pawn-red.webp",
+            "main/unidades/jugadores/pawn/pawn-red.png"
+          ],
+          "data": {
+            "tags": {
+              "m": true
+            }
+          }
+        },
+        {
+          "alias": [
             "main/unidades/jugadores/warrior/warrior-attack.json",
             "warrior-attack.json"
           ],
@@ -590,6 +753,65 @@
             "main/unidades/jugadores/warrior/warrior-idle@0.5x.png",
             "main/unidades/jugadores/warrior/warrior-idle.webp",
             "main/unidades/jugadores/warrior/warrior-idle.png"
+          ],
+          "data": {
+            "tags": {
+              "m": true
+            }
+          }
+        },
+        {
+          "alias": [
+            "main/unidades/jugadores/warrior/warrior-red-attack.json",
+            "warrior-red-attack.json"
+          ],
+          "src": [
+            "main/unidades/jugadores/warrior/warrior-red-attack.json"
+          ],
+          "data": {
+            "tags": {
+              "m": true
+            }
+          }
+        },
+        {
+          "alias": [
+            "main/unidades/jugadores/warrior/warrior-red-idle.json",
+            "warrior-red-idle.json"
+          ],
+          "src": [
+            "main/unidades/jugadores/warrior/warrior-red-idle.json"
+          ],
+          "data": {
+            "tags": {
+              "m": true
+            }
+          }
+        },
+        {
+          "alias": [
+            "main/unidades/jugadores/warrior/warrior-red-run.json",
+            "warrior-red-run.json"
+          ],
+          "src": [
+            "main/unidades/jugadores/warrior/warrior-red-run.json"
+          ],
+          "data": {
+            "tags": {
+              "m": true
+            }
+          }
+        },
+        {
+          "alias": [
+            "main/unidades/jugadores/warrior/warrior-red.png",
+            "warrior-red.png"
+          ],
+          "src": [
+            "main/unidades/jugadores/warrior/warrior-red@0.5x.webp",
+            "main/unidades/jugadores/warrior/warrior-red@0.5x.png",
+            "main/unidades/jugadores/warrior/warrior-red.webp",
+            "main/unidades/jugadores/warrior/warrior-red.png"
           ],
           "data": {
             "tags": {

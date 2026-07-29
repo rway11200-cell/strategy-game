@@ -1,0 +1,29 @@
+{
+  "frames": {
+    "pawn-blue-attack-0.png": {
+      "frame": { "x": 0, "y": 384, "w": 192, "h": 192 },
+      "duration": 100
+    },
+    "pawn-blue-attack-1.png": {
+      "frame": { "x": 192, "y": 384, "w": 192, "h": 192 },
+      "duration": 100
+    },
+    "pawn-blue-attack-2.png": {
+      "frame": { "x": 384, "y": 384, "w": 192, "h": 192 },
+      "duration": 100
+    },
+    "pawn-blue-attack-3.png": {
+      "frame": { "x": 576, "y": 384, "w": 192, "h": 192 },
+      "duration": 100
+    },
+    "pawn-blue-attack-4.png": {
+      "frame": { "x": 768, "y": 384, "w": 192, "h": 192 },
+      "duration": 100
+    },
+    "pawn-blue-attack-5.png": {
+      "frame": { "x": 960, "y": 384, "w": 192, "h": 192 },
+      "duration": 100
+    }
+  },
+  "meta": { "image": "pawn-blue.png", "format": "RGBA8888", "size": { "w": 1152, "h": 1536 } }
+}

@@ -2,12 +2,13 @@ import { Container, Texture } from "pixi.js";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 
 vi.mock("../src/app/utils/sprite", () => ({
-  getFramesAseprite: () => ({ textures: [Texture.EMPTY], totalMs: 0, frameMs: [0] }),
+  getFramesAseprite: vi.fn(() => ({ textures: [Texture.EMPTY], totalMs: 0, frameMs: [0] })),
 }));
 
 import { UnitArchetype, initializeUnitArchetype } from "../src/app/core/unidades/UnitArchetype";
 import { Unit } from "../src/app/core/unidades/Unit";
 import { UnitSystem } from "../src/app/core/unidades/UnitSystem";
+import { getFramesAseprite } from "../src/app/utils/sprite";
 
 describe("unified unit system", () => {
   beforeAll(() => {
@@ -69,5 +70,19 @@ describe("unified unit system", () => {
     expect(unit.team).toBe("player");
     expect(unit.controller).toBe("player");
     expect(unit.archetype).toBe(UnitArchetype.Goblin);
+  });
+
+  it("uses native red sprites for enemy Knight troops", () => {
+    const enemyFrames = [
+      [UnitArchetype.Soldier, "warrior-red-idle.json"],
+      [UnitArchetype.Archer, "archer-red-idle.json"],
+      [UnitArchetype.Pawn, "pawn-red-idle.json"],
+    ] as const;
+
+    for (const [archetype, frameJson] of enemyFrames) {
+      vi.mocked(getFramesAseprite).mockClear();
+      initializeUnitArchetype(new Unit(new Container()), archetype, { team: "enemy", controller: "ai" });
+      expect(getFramesAseprite).toHaveBeenCalledWith(frameJson);
+    }
   });
 });

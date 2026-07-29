@@ -1,8 +1,17 @@
 import { Container, Graphics, Ticker } from "pixi.js";
-import { createGridConfig, gridToWorld, type CellCoord, type GridConfig } from "../../core/grid/GridConfig";
+import {
+  createGridConfig,
+  gridToWorld,
+  type CellCoord,
+  type GridConfig,
+} from "../../core/grid/GridConfig";
 import { GridState } from "../../grid/GridState";
 import { UnitCreator } from "./UnitCreator";
-import { UnitArchetype, getUnitArchetypeDefinition, initializeUnitArchetype } from "./unidades/UnitArchetype";
+import {
+  UnitArchetype,
+  getUnitArchetypeDefinition,
+  initializeUnitArchetype,
+} from "./unidades/UnitArchetype";
 import { Projectile } from "./unidades/Projectile";
 import { Unit } from "./unidades/Unit";
 import {
@@ -110,9 +119,12 @@ export class SandboxManager {
     const occupied = new Set<string>();
 
     const rosters: Array<{ team: "player" | "enemy"; archetype: UnitArchetype; count: number }> = [
-      { team: "player", archetype: UnitArchetype.Soldier, count: 7 },
-      { team: "player", archetype: UnitArchetype.Archer, count: 3 },
-      { team: "enemy", archetype: UnitArchetype.Skeleton, count: 5 },
+      { team: "player", archetype: UnitArchetype.Soldier, count: 8 },
+      { team: "player", archetype: UnitArchetype.Archer, count: 4 },
+      { team: "player", archetype: UnitArchetype.Pawn, count: 3 },
+      { team: "enemy", archetype: UnitArchetype.Soldier, count: 8 },
+      { team: "enemy", archetype: UnitArchetype.Archer, count: 4 },
+      { team: "enemy", archetype: UnitArchetype.Pawn, count: 3 },
     ];
 
     for (const { team, archetype, count } of rosters) {
@@ -125,16 +137,22 @@ export class SandboxManager {
           key = `${cell.col},${cell.row}`;
           attempts++;
         } while (
-          (occupied.has(key) || this.blockedCells.has(key) || this.gridState.getCell(cell)?.type === "blocked") &&
+          (occupied.has(key) ||
+            this.blockedCells.has(key) ||
+            this.gridState.getCell(cell)?.type === "blocked") &&
           attempts < 200
         );
 
         occupied.add(key);
         const world = gridToWorld(cell.col, cell.row, this.gridConfig);
         const unit = this.unitCreator.get();
-        initializeUnitArchetype(unit, archetype, { team, controller: team === "enemy" ? "ai" : "player" });
+        initializeUnitArchetype(unit, archetype, {
+          team,
+          controller: team === "enemy" ? "ai" : "player",
+        });
         const definition = getUnitArchetypeDefinition(archetype);
-        const cooldown = archetype === UnitArchetype.Archer ? 1200 : archetype === UnitArchetype.Soldier ? 500 : 2000;
+        const cooldown =
+          archetype === UnitArchetype.Archer ? 1200 : archetype === UnitArchetype.Pawn ? 650 : 500;
         unit.model.configure({
           cooldown,
           damageType: "normal",
@@ -205,11 +223,12 @@ export class SandboxManager {
       }
     }
 
-    const finalDestination = command instanceof AttackMoveCommand
-      ? command.getDestination()
-      : command instanceof MoveCommand
-        ? command.destination
-        : undefined;
+    const finalDestination =
+      command instanceof AttackMoveCommand
+        ? command.getDestination()
+        : command instanceof MoveCommand
+          ? command.destination
+          : undefined;
     if (finalDestination) {
       const pt = gridToWorld(finalDestination.col, finalDestination.row, this.gridConfig);
       const radius = Math.max(10, CELL_SIZE * 0.36);
@@ -220,7 +239,8 @@ export class SandboxManager {
       g.stroke({ color, width: 2, alpha: 0.9 });
     }
 
-    const attacking = selectedUnit.activity === "pursuing" ||
+    const attacking =
+      selectedUnit.activity === "pursuing" ||
       selectedUnit.activity === "attacking" ||
       command?.type === "attack";
     const color = attacking ? 0xef5350 : 0x66bb6a;

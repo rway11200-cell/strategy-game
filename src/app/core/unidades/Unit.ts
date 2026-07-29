@@ -806,7 +806,9 @@ export class Unit extends Container {
     if (target && target !== prevTarget) this.thresholdTicks = 0;
     const targetCell = target?.getGridCell(this.commandContext.gridConfig);
     if (!target || !targetCell) {
-      if (this.autoPursuitTarget) this.clearCommandMovement();
+      if (this.autoPursuitTarget && !this.isMovementStepInProgress()) {
+        this.clearCommandMovement();
+      }
       if (!this.isMovementActionActive()) {
         this.setActivity("idle");
         if (this.combatState === "approaching") this.combatState = "idle";
@@ -817,7 +819,9 @@ export class Unit extends Container {
     }
 
     if (this.isInRange(unitCell, targetCell)) {
-      if (this.autoPursuitTarget) this.clearCommandMovement();
+      if (this.autoPursuitTarget && !this.isMovementStepInProgress()) {
+        this.clearCommandMovement();
+      }
       this.setActivity("idle");
       this.autoPursuitTarget = target;
       this.autoPursuitTargetCell = { ...targetCell };

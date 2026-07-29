@@ -11,6 +11,8 @@ export const ENTITY_FOOTPRINTS: Record<string, EntityFootprintDef> = {
   skeleton: { width: 1, height: 1 },
   ghost: { width: 1, height: 1 },
   soldier: { width: 1, height: 1 },
+  archer: { width: 1, height: 1 },
+  pawn: { width: 1, height: 1 },
   tower: { width: 2, height: 2 },
   mine: { width: 3, height: 3 },
   barracks: { width: 3, height: 3 },
@@ -47,12 +49,7 @@ export function isFootprintWalkable(
 ): boolean {
   const cells = getFootprintCellsForPos(anchor, width, height);
   for (const c of cells) {
-    if (
-      c.col < 0 ||
-      c.col >= config.gridWidth ||
-      c.row < 0 ||
-      c.row >= config.gridHeight
-    ) {
+    if (c.col < 0 || c.col >= config.gridWidth || c.row < 0 || c.row >= config.gridHeight) {
       return false;
     }
     if (!gridState.isWalkable(c, ignoredOccupantId)) return false;
