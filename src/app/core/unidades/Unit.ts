@@ -143,6 +143,8 @@ export class Unit extends Container {
   private tileMovement?: TileMovement;
   private commandContext?: CommandContext;
   public commands: IUnitCommand[] = [];
+  private pendingCommand?: IUnitCommand;
+  private pendingRoute?: { cells: CellCoord[]; loop: boolean };
   private lastCommandMovement?: TileWalkResult;
   private readonly stableId?: string;
 
@@ -542,17 +544,12 @@ export class Unit extends Container {
       return;
     }
 
-    if (!append) {
-      for (const c of this.commands) c.cancel(this);
-      this.commands = [];
-      this.autoPursuitTarget = undefined;
-      this.autoPursuitTargetCell = undefined;
+    if (!append && this.isMovementStepInProgress()) {
+      this.pendingCommand = command;
+      return;
     }
 
-    command.execute(this, this.commandContext);
-    if (command.status === "running") {
-      this.commands.push(command);
-    }
+    this.executeCommand(command, append);
   }
 
   public setCommandPathfinder(pathfinder: CommandPathfinder): void {
@@ -561,6 +558,10 @@ export class Unit extends Container {
 
   public setCommandCellRoute(cells: CellCoord[], loop = false): void {
     if (!this.targetFollower || !this.commandContext || !this.tileMovement) return;
+    if (this.isMovementStepInProgress()) {
+      this.pendingRoute = { cells: cells.map((cell) => ({ ...cell })), loop };
+      return;
+    }
     this.tileMovement.setReleaseOccupationOnDestination(false);
     this.tileMovement.cancelStep(this);
     this.targetFollower.setRouteFromCells({
@@ -596,6 +597,46 @@ export class Unit extends Container {
 
   public isCommandMovementFinished(): boolean {
     return this.targetFollower?.finished ?? true;
+  }
+
+  private isMovementStepInProgress(): boolean {
+    return (this.tileMovement?.stepProgress ?? 0) > 0;
+  }
+
+  private executeCommand(command: IUnitCommand, append: boolean): void {
+    if (!append) {
+      for (const current of this.commands) current.cancel(this);
+      this.commands = [];
+      this.pendingRoute = undefined;
+      this.autoPursuitTarget = undefined;
+      this.autoPursuitTargetCell = undefined;
+    }
+
+    command.execute(this, this.commandContext!);
+    if (command.status === "running") this.commands.push(command);
+  }
+
+  private applyPendingMovementChanges(): boolean {
+    if (this.isMovementStepInProgress()) return false;
+
+    if (this.pendingCommand) {
+      const command = this.pendingCommand;
+      this.pendingCommand = undefined;
+      this.executeCommand(command, false);
+      return true;
+    }
+
+    if (this.pendingRoute && this.targetFollower && this.commandContext && this.tileMovement) {
+      const route = this.pendingRoute;
+      this.pendingRoute = undefined;
+      this.tileMovement.setReleaseOccupationOnDestination(false);
+      this.targetFollower.setRouteFromCells({
+        cells: route.cells,
+        gridConfig: this.commandContext.gridConfig,
+        loop: route.loop,
+      });
+    }
+    return false;
   }
 
   public getCommandMovementState(): {
@@ -667,6 +708,11 @@ export class Unit extends Container {
     if (this.commands.length > 0 && this.commandContext) {
       const current = this.commands[0];
       const status = current.update(this, this.commandContext, _time);
+      if (this.applyPendingMovementChanges()) {
+        this.updateHealth();
+        this.updateShooting(_time);
+        return;
+      }
       if (status !== "running") {
         this.commands.shift();
         if (this.commands.length > 0) {
@@ -678,6 +724,7 @@ export class Unit extends Container {
     } else {
       this.updateAutomaticPursuit();
       this.updateMovement(_time);
+      this.applyPendingMovementChanges();
       if (this.tileMovement && this.tileMovement.shouldGiveUpDueToBlockage() && !this.currentCommand) {
         this.clearCommandMovement();
         this.autoPursuitTarget = undefined;

@@ -122,6 +122,29 @@ describe("unit commands", () => {
     expect(gridState.getCell({ col: 1, row: 0 })?.occupantId).toBe(unit.getId());
   });
 
+  it("starts a replacement move from the next completed cell without snapping backward", () => {
+    const unit = createUnit(container, gridState, 0, 0, undefined, 4);
+    const origin = gridToWorld(0, 0, gridConfig);
+    const nextCell = gridToWorld(1, 0, gridConfig);
+    unit.issueCommand(new MoveCommand({ col: 3, row: 0 }));
+    unit.update(ticker(1));
+    const beforeReplacement = unit.position.x;
+
+    unit.issueCommand(new MoveCommand({ col: 0, row: 0 }));
+    expect(unit.position.x).toBe(beforeReplacement);
+
+    unit.update(ticker(2));
+    unit.update(ticker(3));
+    unit.update(ticker(4));
+
+    expect(unit.position).toMatchObject(nextCell);
+    expect(unit.position.x).toBeGreaterThan(origin.x);
+    expect(unit.getGridCell(gridConfig)).toEqual({ col: 1, row: 0 });
+
+    unit.update(ticker(5));
+    expect(unit.position.x).toBeLessThan(nextCell.x);
+  });
+
   it("waits and resumes a move command after a temporary block", () => {
     const unit = createUnit(container, gridState, 0, 0);
     const command = new MoveCommand({ col: 2, row: 0 });

@@ -51,9 +51,9 @@ test("stop cancela un movimiento y se detiene en la siguiente celda", async ({ g
     return order;
   });
 
-  const stopCell = { col: 3, row: 0 };
+  const stopCell = setup.checkpoint;
 
-  await test.step("Y recibe stop en el checkpoint, completa un paso más a (3,0)", async () => {
+  await test.step("Y recibe stop en el checkpoint, se detiene en esa celda confirmada", async () => {
     const stop = await game.issueOrder(UNIT_ID, { type: "stop" });
     const snapshot = await game.snapshot(setup.scenario.id);
 

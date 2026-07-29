@@ -442,12 +442,9 @@ export class StopCommand extends BaseCommand {
   readonly type = "stop" as const;
 
   execute(unit: Unit, _context: CommandContext): void {
-    this.status = "running";
     unit.setCommandShooting("disabled");
-    if (unit.isCommandMovementFinished()) {
-      unit.freezeMovement();
-      this.status = "completed";
-    }
+    unit.freezeMovement();
+    this.status = "completed";
   }
 
   update(unit: Unit, _context: CommandContext, ticker: Ticker): CommandStatus {
