@@ -610,6 +610,20 @@
         },
         {
           "alias": [
+            "main/unidades/jugadores/archer/archer-red-run.json",
+            "archer-red-run.json"
+          ],
+          "src": [
+            "main/unidades/jugadores/archer/archer-red-run.json"
+          ],
+          "data": {
+            "tags": {
+              "m": true
+            }
+          }
+        },
+        {
+          "alias": [
             "main/unidades/jugadores/archer/archer-red.png",
             "archer-red.png"
           ],
@@ -618,6 +632,20 @@
             "main/unidades/jugadores/archer/archer-red@0.5x.png",
             "main/unidades/jugadores/archer/archer-red.webp",
             "main/unidades/jugadores/archer/archer-red.png"
+          ],
+          "data": {
+            "tags": {
+              "m": true
+            }
+          }
+        },
+        {
+          "alias": [
+            "main/unidades/jugadores/archer/archer-run.json",
+            "archer-run.json"
+          ],
+          "src": [
+            "main/unidades/jugadores/archer/archer-run.json"
           ],
           "data": {
             "tags": {

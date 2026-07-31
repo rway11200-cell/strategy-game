@@ -100,8 +100,12 @@ const definitions: Record<UnitArchetype, UnitArchetypeDefinition> = {
     bounty: 20,
     armorType: "light",
     scale: 1 / 2,
-    framesJson: { idle: "archer-idle.json", attack: "archer-attack.json" },
-    enemyFramesJson: { idle: "archer-red-idle.json", attack: "archer-red-attack.json" },
+    framesJson: { idle: "archer-idle.json", run: "archer-run.json", attack: "archer-attack.json" },
+    enemyFramesJson: {
+      idle: "archer-red-idle.json",
+      run: "archer-red-run.json",
+      attack: "archer-red-attack.json",
+    },
     projectileVisual: {
       framesJson: { idle: "archer-arrow.json" },
       scale: 0.6,
