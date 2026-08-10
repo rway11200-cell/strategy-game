@@ -1,9 +1,8 @@
-import { AnimatedSprite, Container, Graphics, PointData, Ticker } from "pixi.js";
-import type { CellCoord, GridConfig } from "../../../grid/GridConfig";
-import { worldToGrid } from "../../../grid/GridConfig";
+import { AnimatedSprite, Circle, Container, type FederatedPointerEvent, Graphics, PointData, Ticker } from "pixi.js";
+import type { CellCoord, GridConfig } from "../../../core/grid/GridConfig";
+import { worldToGrid } from "../../../core/grid/GridConfig";
 import type { GridState } from "../../../grid/GridState";
 import { debugLogChanged } from "../../utils/debugLog";
-import { devToolDrawPoints } from "../../utils/devTools";
 import { getFramesAseprite } from "../../utils/sprite";
 import { UnitCreator } from "../UnitCreator";
 import { MovementDirection, Movement } from "../Movement";
@@ -15,7 +14,9 @@ import {
   defaultCommandPathfinder,
   type IUnitCommand,
 } from "../UnitCommands";
-import { Projectile } from "./Projectile";
+import { Projectile, type ProjectileVisual } from "./Projectile";
+import type { UnitArchetype } from "./UnitArchetype";
+import { selectBestTarget, type SelectionContext } from "../combat/TargetSelector";
 import {
   type AttackMode,
   UnitSystem,
@@ -26,12 +27,16 @@ import {
   type UnitTeam,
 } from "./UnitSystem";
 
+import type { DamageType } from "./UnitSystem";
+
 export interface ShootOptions {
   range: number;
   fireRate: number;
   targets?: Unit[];
   projectileCreator: UnitCreator<Projectile>;
+  projectileVisual?: ProjectileVisual;
   damage: number;
+  damageType?: DamageType;
 }
 
 export interface TargetFollowerOptions {
@@ -52,7 +57,23 @@ export interface TileTargetFollowerOptions {
 export interface FramesJson {
   idle: string;
   run?: string;
+  attack?: string;
   dead?: string;
+}
+
+interface PendingMeleeAttack {
+  target: Unit;
+  impactAt: number;
+  completesAt: number;
+  damageApplied: boolean;
+}
+
+interface DeathPof {
+  framesRemaining: number;
+  initialScaleX: number;
+  initialScaleY: number;
+  initialAlpha: number;
+  onComplete: () => void;
 }
 export interface UnitProps {
   id?: string;
@@ -66,12 +87,14 @@ export interface UnitProps {
   damage?: number;
   speed?: number;
   range?: number;
+  vision?: number;
   team?: UnitTeam;
   faction?: UnitFaction;
   state?: UnitState;
   controller?: UnitController;
   attackMode?: AttackMode;
   cooldown?: number;
+  damageType?: DamageType;
 }
 
 function isArrayOfUnits(targets: PointData[] | Unit[]): targets is Unit[] {
@@ -83,6 +106,9 @@ export class Unit extends Container {
   public canBeProjectileTarget = false;
   public readonly model: UnitSystem;
   public readonly unitSystem: UnitSystem;
+  public archetype?: UnitArchetype;
+  public bounty = 0;
+  public projectileVisual?: ProjectileVisual;
   private lastAnimation: string = "idle";
 
   private mainContainer: Container;
@@ -91,17 +117,34 @@ export class Unit extends Container {
 
   private shootOptions?: ShootOptions;
   private combatGridConfig?: GridConfig;
-  private lastShotTime: number = 0;
+  private pendingMeleeAttack?: PendingMeleeAttack;
+  private deathPof?: DeathPof;
+  public lifecycle: "alive" | "dying" | "dead" | "despawned" = "alive";
+  private corpseTimer = 0;
+  private autoPursuitTarget?: Unit;
+  private autoPursuitTargetCell?: CellCoord;
   public targetToShoot?: Unit;
   private shootingMode: "auto" | "forced" | "disabled" = "auto";
   private forcedShootingTarget?: Unit;
 
+  public combatState: "idle" | "approaching" | "acquiring" | "attacking" | "cooldown" = "idle";
+  public cooldownFramesRemaining = 0;
+
+  public thresholdTicks = 0;
+  public underAttackTicks = 0;
+  public lastAttackerId?: string;
+
   private rangeGraph?: Graphics;
+  private visionGraph?: Graphics;
+  private selectionIndicator: Graphics;
+  private selectionHandler?: (unit: Unit) => void;
 
   private movement?: Movement;
   private tileMovement?: TileMovement;
   private commandContext?: CommandContext;
-  public currentCommand?: IUnitCommand;
+  public commands: IUnitCommand[] = [];
+  private pendingCommand?: IUnitCommand;
+  private pendingRoute?: { cells: CellCoord[]; loop: boolean };
   private lastCommandMovement?: TileWalkResult;
   private readonly stableId?: string;
 
@@ -122,12 +165,14 @@ export class Unit extends Container {
       damage: options?.damage ?? options?.shootOptions?.damage,
       speed: options?.speed ?? options?.targetFollowerOptions?.speed,
       range: options?.range ?? options?.shootOptions?.range,
+      vision: options?.vision,
       team: options?.team,
       faction: options?.faction,
       state: options?.state,
       controller: options?.controller,
       attackMode: options?.attackMode ?? (options?.shootOptions ? "projectile" : undefined),
       cooldown: options?.cooldown,
+      damageType: options?.damageType,
       position: this.position,
     });
     this.unitSystem = this.model;
@@ -137,6 +182,11 @@ export class Unit extends Container {
     this.stableId = options?.id;
     this.mainContainer = mainContainer;
     this.mainContainer.addChild(this);
+    this.selectionIndicator = new Graphics()
+      .circle(0, 16, 25)
+      .stroke({ color: 0xffd54f, width: 2 });
+    this.selectionIndicator.visible = false;
+    this.addChild(this.selectionIndicator);
 
     if (!options) {
       return;
@@ -188,6 +238,42 @@ export class Unit extends Container {
   public get range(): number {
     return this.model.range;
   }
+
+  public get vision(): number {
+    return this.model.vision;
+  }
+
+  public get activity(): UnitState {
+    return this.model.state;
+  }
+
+  public get pursuitTarget(): Unit | undefined {
+    return this.autoPursuitTarget?.active ? this.autoPursuitTarget : undefined;
+  }
+
+  public setSelectionHandler(handler?: (unit: Unit) => void): void {
+    if (this.selectionHandler === handler) return;
+    this.off("pointerdown", this.handleSelection);
+    this.selectionHandler = handler;
+    this.eventMode = handler ? "static" : "none";
+    this.cursor = handler ? "pointer" : "default";
+    this.hitArea = handler ? new Circle(0, 0, 28) : undefined;
+    if (handler) this.on("pointerdown", this.handleSelection);
+  }
+
+  public setSelected(selected: boolean): void {
+    this.selectionIndicator.visible = selected;
+    if (this.rangeGraph) this.rangeGraph.visible = selected;
+    if (this.visionGraph) this.visionGraph.visible = selected;
+  }
+
+  public setActivity(activity: Exclude<UnitState, "dead">): void {
+    if (this.model.state !== "dead") this.model.state = activity;
+  }
+
+  private handleSelection = (_event: FederatedPointerEvent): void => {
+    this.selectionHandler?.(this);
+  };
 
   public get team(): UnitTeam {
     return this.model.team;
@@ -277,28 +363,89 @@ export class Unit extends Container {
     }
   }
 
+  public addShootingTarget(target: Unit) {
+    if (!this.shootOptions) return;
+    const current = this.shootOptions.targets ?? [];
+    if (!current.includes(target)) {
+      current.push(target);
+      this.shootOptions.targets = current;
+    }
+  }
+
   public initializeShootingRange(shootOptions: ShootOptions) {
     this.shootOptions = { ...this.shootOptions, ...shootOptions };
-    this.model.configure({ damage: shootOptions.damage, range: shootOptions.range });
+    this.model.configure({
+      damage: shootOptions.damage,
+      range: shootOptions.range,
+      damageType: shootOptions.damageType ?? this.model.damageType,
+    });
 
     if (this.shootOptions?.range) {
-      this.rangeGraph = devToolDrawPoints(
-        this,
-        { x: 0, y: 0 },
-        "yellow",
-        this.shootOptions.range,
-        "circle",
-      );
-      if (this.combatGridConfig) {
-        this.rangeGraph.scale.set(this.combatGridConfig.cellSize);
-      }
-      this.rangeGraph.visible = false;
+      this.updateRangeGraph();
     }
+    this.updateVisionGraph();
   }
 
   public setCombatGrid(gridConfig: GridConfig): void {
     this.combatGridConfig = gridConfig;
-    this.rangeGraph?.scale.set(gridConfig.cellSize);
+    this.updateRangeGraph();
+    this.updateVisionGraph();
+  }
+
+  private updateRangeGraph(): void {
+    const range = this.shootOptions?.range;
+    const cellSize = this.combatGridConfig?.cellSize;
+    if (!range || !cellSize) return;
+
+    this.rangeGraph?.destroy();
+    const graph = new Graphics();
+    const segmentCount = 32;
+    const segmentAngle = (Math.PI * 2) / segmentCount;
+    const dashAngle = segmentAngle * 0.55;
+    for (let segment = 0; segment < segmentCount; segment++) {
+      const startAngle = segment * segmentAngle;
+      graph
+        .moveTo(range * Math.cos(startAngle), range * Math.sin(startAngle))
+        .arc(0, 0, range, startAngle, startAngle + dashAngle);
+    }
+
+    // Unit sprites may be scaled, but combat range is measured in full grid cells.
+    graph.stroke({
+      color: 0xef5350,
+      width: 1.5 / cellSize,
+      alpha: 0.9,
+    });
+    graph.scale.set(cellSize / Math.max(Math.abs(this.scale.x), 0.01));
+    graph.visible = this.selectionIndicator.visible;
+    this.rangeGraph = graph;
+    this.addChild(graph);
+  }
+
+  private updateVisionGraph(): void {
+    const cellSize = this.combatGridConfig?.cellSize;
+    if (!cellSize || this.model.vision <= 0) return;
+
+    this.visionGraph?.destroy();
+    const graph = new Graphics();
+    const segmentCount = 48;
+    const segmentAngle = (Math.PI * 2) / segmentCount;
+    const dashAngle = segmentAngle * 0.35;
+    for (let segment = 0; segment < segmentCount; segment++) {
+      const startAngle = segment * segmentAngle;
+      graph
+        .moveTo(this.model.vision * Math.cos(startAngle), this.model.vision * Math.sin(startAngle))
+        .arc(0, 0, this.model.vision, startAngle, startAngle + dashAngle);
+    }
+
+    graph.stroke({
+      color: 0x4fc3f7,
+      width: 1 / cellSize,
+      alpha: 0.42,
+    });
+    graph.scale.set(cellSize / Math.max(Math.abs(this.scale.x), 0.01));
+    graph.visible = this.selectionIndicator.visible;
+    this.visionGraph = graph;
+    this.addChild(graph);
   }
 
   public getGridCell(gridConfig: GridConfig = this.combatGridConfig!): CellCoord | undefined {
@@ -313,13 +460,17 @@ export class Unit extends Container {
     return { col: cell.x, row: cell.y };
   }
 
+  public get currentCommand(): IUnitCommand | undefined {
+    return this.commands[0];
+  }
+
   public initializeSpeed(speed: number) {
     this.model.configure({ speed });
   }
 
   public initializeTargetFollower(targetFollowerOptions: TargetFollowerOptions) {
-    this.currentCommand?.cancel(this);
-    this.currentCommand = undefined;
+    for (const c of this.commands) c.cancel(this);
+    this.commands = [];
     this.commandContext = undefined;
     this.tileMovement?.releaseOccupation();
     this.tileMovement = undefined;
@@ -360,8 +511,8 @@ export class Unit extends Container {
   }
 
   public initializeTileMovement(options: TileTargetFollowerOptions) {
-    this.currentCommand?.cancel(this);
-    this.currentCommand = undefined;
+    for (const c of this.commands) c.cancel(this);
+    this.commands = [];
     this.setCombatGrid(options.gridConfig);
     this.targetFollower = new TargetFollower();
     this.targetFollower.setRouteFromCells({
@@ -387,14 +538,18 @@ export class Unit extends Container {
     };
   }
 
-  public issueCommand(command: IUnitCommand): void {
-    this.currentCommand?.cancel(this);
-    this.currentCommand = undefined;
-    if (!this.commandContext) return;
+  public issueCommand(command: IUnitCommand, append = false): void {
+    if (!this.commandContext) {
+      console.warn("issueCommand: no commandContext (call initializeTileMovement first)");
+      return;
+    }
 
-    this.currentCommand = command;
-    command.execute(this, this.commandContext);
-    if (command.status !== "running") this.currentCommand = undefined;
+    if (!append && this.isMovementStepInProgress()) {
+      this.pendingCommand = command;
+      return;
+    }
+
+    this.executeCommand(command, append);
   }
 
   public setCommandPathfinder(pathfinder: CommandPathfinder): void {
@@ -403,6 +558,10 @@ export class Unit extends Container {
 
   public setCommandCellRoute(cells: CellCoord[], loop = false): void {
     if (!this.targetFollower || !this.commandContext || !this.tileMovement) return;
+    if (this.isMovementStepInProgress()) {
+      this.pendingRoute = { cells: cells.map((cell) => ({ ...cell })), loop };
+      return;
+    }
     this.tileMovement.setReleaseOccupationOnDestination(false);
     this.tileMovement.cancelStep(this);
     this.targetFollower.setRouteFromCells({
@@ -440,6 +599,46 @@ export class Unit extends Container {
     return this.targetFollower?.finished ?? true;
   }
 
+  private isMovementStepInProgress(): boolean {
+    return (this.tileMovement?.stepProgress ?? 0) > 0;
+  }
+
+  private executeCommand(command: IUnitCommand, append: boolean): void {
+    if (!append) {
+      for (const current of this.commands) current.cancel(this);
+      this.commands = [];
+      this.pendingRoute = undefined;
+      this.autoPursuitTarget = undefined;
+      this.autoPursuitTargetCell = undefined;
+    }
+
+    command.execute(this, this.commandContext!);
+    if (command.status === "running") this.commands.push(command);
+  }
+
+  private applyPendingMovementChanges(): boolean {
+    if (this.isMovementStepInProgress()) return false;
+
+    if (this.pendingCommand) {
+      const command = this.pendingCommand;
+      this.pendingCommand = undefined;
+      this.executeCommand(command, false);
+      return true;
+    }
+
+    if (this.pendingRoute && this.targetFollower && this.commandContext && this.tileMovement) {
+      const route = this.pendingRoute;
+      this.pendingRoute = undefined;
+      this.tileMovement.setReleaseOccupationOnDestination(false);
+      this.targetFollower.setRouteFromCells({
+        cells: route.cells,
+        gridConfig: this.commandContext.gridConfig,
+        loop: route.loop,
+      });
+    }
+    return false;
+  }
+
   public getCommandMovementState(): {
     route: CellCoord[];
     targetCell: CellCoord | null;
@@ -455,6 +654,10 @@ export class Unit extends Container {
 
   public getShootingMode(): "auto" | "forced" | "disabled" {
     return this.shootingMode;
+  }
+
+  private isMovementActionActive(): boolean {
+    return this.targetFollower?.targetCell !== undefined || (this.tileMovement?.stepProgress ?? 0) > 0;
   }
 
   public getShootingRange(): number | undefined {
@@ -473,14 +676,60 @@ export class Unit extends Container {
   public update(_time: Ticker) {
     if (!this.active || !this.animatedSprite || !this.animatedSprite.visible) return;
 
-    this.lastCommandMovement = undefined;
-    this.model.state = "idle";
+    if (this.lifecycle === "dying") {
+      this.updateDeathPof(_time);
+      return;
+    }
 
-    if (this.currentCommand && this.commandContext) {
-      const status = this.currentCommand.update(this, this.commandContext, _time);
-      if (status !== "running") this.currentCommand = undefined;
+    if (this.lifecycle === "dead") {
+      this.corpseTimer--;
+      if (this.corpseTimer <= 0) {
+        this.lifecycle = "despawned";
+        this.onDespawn?.(this.getId());
+        this.visible = false;
+        this.active = false;
+        if (this.animatedSprite) {
+          this.animatedSprite.visible = false;
+          this.animatedSprite.stop();
+        }
+      }
+      return;
+    }
+
+    if (this.thresholdTicks < 1e6) this.thresholdTicks++;
+    if (this.underAttackTicks > 0) this.underAttackTicks--;
+
+    if (this.combatState === "cooldown") {
+      if (this.cooldownFramesRemaining > 0) this.cooldownFramesRemaining--;
+    }
+
+    this.lastCommandMovement = undefined;
+
+    if (this.commands.length > 0 && this.commandContext) {
+      const current = this.commands[0];
+      const status = current.update(this, this.commandContext, _time);
+      if (this.applyPendingMovementChanges()) {
+        this.updateHealth();
+        this.updateShooting(_time);
+        return;
+      }
+      if (status !== "running") {
+        this.commands.shift();
+        if (this.commands.length > 0) {
+          this.commands[0].execute(this, this.commandContext);
+        } else if (!this.isMovementActionActive()) {
+          this.setActivity("idle");
+        }
+      }
     } else {
+      this.updateAutomaticPursuit();
       this.updateMovement(_time);
+      this.applyPendingMovementChanges();
+      if (this.tileMovement && this.tileMovement.shouldGiveUpDueToBlockage() && !this.currentCommand) {
+        this.clearCommandMovement();
+        this.autoPursuitTarget = undefined;
+        this.setActivity("idle");
+      }
     }
     this.updateHealth();
     this.updateShooting(_time);
@@ -508,7 +757,15 @@ export class Unit extends Container {
 
       const result = this.tileMovement.walk(this, this.targetFollower, _time);
       const { direction } = result;
-      if (result.moved && !this.targetFollower.finished) this.setAnimationRun(direction);
+      if (result.blocked) this.setActivity("blocked");
+      else if (result.moved && !this.targetFollower.finished) {
+        const activity =
+          !this.currentCommand || this.currentCommand.type === "attack" || this.currentCommand.type === "attack-move"
+            ? "pursuing"
+            : "moving";
+        this.setAnimationRun(direction);
+        this.setActivity(activity);
+      }
       else this.setAnimationIdle();
       return result;
     }
@@ -531,8 +788,115 @@ export class Unit extends Container {
     return noMovement;
   }
 
+  private updateAutomaticPursuit(): void {
+    if (
+      this.shootingMode !== "auto" ||
+      !this.shootOptions ||
+      !this.commandContext ||
+      !this.tileMovement
+    ) {
+      return;
+    }
+
+    const unitCell = this.getGridCell(this.commandContext.gridConfig);
+    if (!unitCell) return;
+
+    const prevTarget = this.autoPursuitTarget;
+    const target = this.getAutoPursuitTarget(unitCell);
+    if (target && target !== prevTarget) this.thresholdTicks = 0;
+    const targetCell = target?.getGridCell(this.commandContext.gridConfig);
+    if (!target || !targetCell) {
+      if (this.autoPursuitTarget) this.clearCommandMovement();
+      if (!this.isMovementActionActive()) {
+        this.setActivity("idle");
+        if (this.combatState === "approaching") this.combatState = "idle";
+      }
+      this.autoPursuitTarget = undefined;
+      this.autoPursuitTargetCell = undefined;
+      return;
+    }
+
+    if (this.isInRange(unitCell, targetCell)) {
+      if (this.autoPursuitTarget) this.clearCommandMovement();
+      this.setActivity("idle");
+      this.autoPursuitTarget = target;
+      this.autoPursuitTargetCell = { ...targetCell };
+      return;
+    }
+
+    this.combatState = "approaching";
+
+    const targetChanged = this.autoPursuitTarget !== target ||
+      !this.autoPursuitTargetCell ||
+      this.autoPursuitTargetCell.col !== targetCell.col ||
+      this.autoPursuitTargetCell.row !== targetCell.row ||
+      this.isCommandMovementFinished();
+    if (!targetChanged) return;
+
+    this.autoPursuitTarget = target;
+    this.autoPursuitTargetCell = { ...targetCell };
+    const path = this.findPathToAttackRange(unitCell, targetCell);
+    if (path) {
+      this.setActivity("pursuing");
+      this.setCommandCellRoute(path);
+    }
+    else this.clearCommandMovement();
+  }
+
+  private getAutoPursuitTarget(unitCell: CellCoord): Unit | undefined {
+    const ctx: SelectionContext = {
+      unitCell,
+      targets: this.shootOptions?.targets ?? [],
+      currentTarget: this.autoPursuitTarget,
+      thresholdTicks: this.thresholdTicks,
+      underAttackTicks: this.underAttackTicks,
+      lastAttackerId: this.lastAttackerId,
+      melee: this.model.attackMode === "melee",
+      range: this.model.range,
+      vision: this.model.vision,
+      gridConfig: this.commandContext!.gridConfig,
+      allowOutOfRange: true,
+    };
+    return selectBestTarget(ctx);
+  }
+
+  public canSee(target: Unit): boolean {
+    const gridConfig = this.commandContext?.gridConfig ?? this.combatGridConfig;
+    const unitCell = gridConfig && this.getGridCell(gridConfig);
+    const targetCell = gridConfig && target.getGridCell(gridConfig);
+    return Boolean(
+      unitCell &&
+      targetCell &&
+      Math.hypot(targetCell.col - unitCell.col, targetCell.row - unitCell.row) <= this.vision,
+    );
+  }
+
+  private findPathToAttackRange(start: CellCoord, target: CellCoord): CellCoord[] | undefined {
+    const context = this.commandContext;
+    if (!context) return;
+
+    let bestPath: CellCoord[] | undefined;
+    for (let row = 0; row < context.gridConfig.gridHeight; row++) {
+      for (let col = 0; col < context.gridConfig.gridWidth; col++) {
+        const destination = { col, row };
+        if (!this.isInRange(destination, target)) continue;
+        const path = context.pathfinder.findPath(
+          start,
+          destination,
+          context.gridState,
+          context.gridConfig,
+          context.entityType,
+          context.occupantId,
+        );
+        if (path.length > 0 && (!bestPath || path.length < bestPath.length)) bestPath = path;
+      }
+    }
+    return bestPath;
+  }
+
   private setAnimationIdle() {
     const animation = "idle";
+    if (this.lastAnimation === "attack" && this.animatedSprite?.playing) return;
     if (this.model.state !== "dead") this.model.state = "idle";
     if (this.lastAnimation === animation) return;
     this.lastAnimation = animation;
@@ -544,6 +908,7 @@ export class Unit extends Container {
   }
   private setAnimationRun(direction: MovementDirection | undefined) {
     const animation = "run";
+    if (this.lastAnimation === "attack" && this.animatedSprite?.playing) return;
     if (this.model.state !== "dead") this.model.state = "moving";
 
     this.changeFacingDirection(direction);
@@ -556,6 +921,25 @@ export class Unit extends Container {
       this.framesJson.run || this.framesJson.idle,
     ).textures;
     this.animatedSprite.play();
+  }
+
+  private setAnimationAttack(direction: MovementDirection | undefined): number {
+    const animation = "attack";
+    if (!this.animatedSprite || !this.framesJson?.attack) return 0;
+
+    this.model.state = "attacking";
+    this.changeFacingDirection(direction);
+    this.lastAnimation = animation;
+
+    const frames = getFramesAseprite(this.framesJson.attack);
+    this.animatedSprite.stop();
+    this.animatedSprite.loop = false;
+    this.animatedSprite.textures = frames.textures;
+    this.animatedSprite.onComplete = () => {
+      if (this.lastAnimation === animation) this.setAnimationIdle();
+    };
+    this.animatedSprite.play();
+    return frames.totalMs;
   }
 
   private changeFacingDirection(direction: MovementDirection | undefined) {
@@ -583,7 +967,7 @@ export class Unit extends Container {
     }
 
     if (!this.framesJson.dead) {
-      onDeathAction();
+      this.startDeathPof(onDeathAction);
       return;
     }
 
@@ -598,9 +982,42 @@ export class Unit extends Container {
       onDeathAction();
     }, frames.totalMs);
   }
+
+  private startDeathPof(onComplete: () => void): void {
+    if (!this.animatedSprite) {
+      onComplete();
+      return;
+    }
+    this.animatedSprite.stop();
+    this.deathPof = {
+      framesRemaining: 15,
+      initialScaleX: this.animatedSprite.scale.x,
+      initialScaleY: this.animatedSprite.scale.y,
+      initialAlpha: this.animatedSprite.alpha,
+      onComplete,
+    };
+  }
+
+  private updateDeathPof(ticker: Ticker): void {
+    const pof = this.deathPof;
+    if (!pof || !this.animatedSprite) return;
+
+    pof.framesRemaining -= Math.max(1, Math.round(ticker.deltaTime));
+    const progress = 1 - Math.max(0, pof.framesRemaining) / 15;
+    const scale = 1 - progress * 0.35;
+    this.animatedSprite.scale.set(pof.initialScaleX * scale, pof.initialScaleY * scale);
+    this.animatedSprite.alpha = pof.initialAlpha * (1 - progress);
+
+    if (pof.framesRemaining > 0) return;
+    this.deathPof = undefined;
+    pof.onComplete();
+  }
   public onTargetAcquired: ((targetId: string) => void) | null = null;
+  public onTargetLost: ((targetId: string) => void) | null = null;
   public onAttackCommitted: ((targetId: string, mode: string) => void) | null = null;
   public onDamageApplied: ((targetId: string, amount: number, hpBefore: number, hpAfter: number) => void) | null = null;
+  public onDeath: ((unitId: string) => void) | null = null;
+  public onDespawn: ((unitId: string) => void) | null = null;
 
   private isInRange(a: CellCoord, b: CellCoord): boolean {
     return this.model.attackMode === "melee"
@@ -610,13 +1027,27 @@ export class Unit extends Container {
 
   private updateShooting(_time: Ticker) {
     if (this.shootingMode === "disabled" || !this.model.canAttack) return;
+    if (this.isMovementActionActive()) return;
 
     const gridConfig = this.combatGridConfig;
     const unitCell = this.getGridCell();
     if (!gridConfig || !unitCell) return;
 
+    if (this.pendingMeleeAttack) {
+      this.combatState = "attacking";
+      this.setActivity("attacking");
+      this.updatePendingMeleeAttack(_time.lastTime, unitCell, gridConfig);
+      if (!this.pendingMeleeAttack) this.enterCooldown();
+      return;
+    }
+
+    if (this.combatState === "cooldown" && this.cooldownFramesRemaining > 0) return;
+    this.combatState = "acquiring";
+
     const range = this.model.range;
     const targets = this.shootOptions?.targets ?? [];
+
+    const prevTarget = this.targetToShoot;
 
     if (this.shootingMode === "forced") {
       const target = this.forcedShootingTarget;
@@ -629,67 +1060,135 @@ export class Unit extends Container {
           ? target
           : undefined;
     } else {
-      this.targetToShoot = getCurrentOrClosestGridTarget(
+      const ctx: SelectionContext = {
         unitCell,
         targets,
+        currentTarget: this.targetToShoot,
+        thresholdTicks: this.thresholdTicks,
+        underAttackTicks: this.underAttackTicks,
+        lastAttackerId: this.lastAttackerId,
+        melee: this.model.attackMode === "melee",
         range,
+        vision: this.model.vision,
         gridConfig,
-        this.targetToShoot,
-        this.model.attackMode,
-      );
+      };
+      const newTarget = selectBestTarget(ctx);
+      if (newTarget && newTarget !== this.targetToShoot) this.thresholdTicks = 0;
+      this.targetToShoot = newTarget;
     }
 
-    if (!this.targetToShoot) return;
-    this.model.state = "attacking";
-
-    if (this.model.cooldown > 0 && this.lastShotTime > 0) {
-      const frameDelta = Math.round(_time.lastTime - this.lastShotTime);
-      if (frameDelta < this.model.cooldown) return;
+    if (this.targetToShoot && this.targetToShoot !== prevTarget) {
+      this.onTargetAcquired?.(this.targetToShoot.getId());
     }
 
-    this.lastShotTime = _time.lastTime;
-    this.onTargetAcquired?.(this.targetToShoot.getId());
+    if (!this.targetToShoot) {
+      if (prevTarget && prevTarget.active) this.onTargetLost?.(prevTarget.getId());
+      this.combatState = "idle";
+      return;
+    }
+
+    this.combatState = "attacking";
+    this.setActivity("attacking");
 
     const target = this.targetToShoot;
     const targetCell = target.getGridCell(gridConfig);
     if (!targetCell) return;
+    const direction = targetCell.col < unitCell.col ? "left" : "right";
 
     if (this.model.attackMode === "melee") {
-      const hpBefore = target.hp;
-      target.damage(this.model.damage);
-      this.onAttackCommitted?.(target.getId(), "melee");
-      this.onDamageApplied?.(target.getId(), this.model.damage, hpBefore, target.hp);
-      if (target.isDead()) this.targetToShoot = undefined;
+      const attackDuration = this.setAnimationAttack(direction);
+      if (attackDuration > 0) {
+        this.pendingMeleeAttack = {
+          target,
+          impactAt: _time.lastTime + attackDuration / 2,
+          completesAt: _time.lastTime + attackDuration,
+          damageApplied: false,
+        };
+        return;
+      }
+      this.applyMeleeDamage(target);
+      this.enterCooldown();
       return;
     }
 
     const shootOptions = this.shootOptions;
-    if (!shootOptions?.projectileCreator) return;
+    if (!shootOptions?.projectileCreator) {
+      this.combatState = "idle";
+      return;
+    }
+    this.setAnimationAttack(direction);
     this.onAttackCommitted?.(target.getId(), "projectile");
     const newProjectile = shootOptions.projectileCreator.get();
+    newProjectile.setVisual(shootOptions.projectileVisual);
     newProjectile.launchAtCell(unitCell, targetCell, gridConfig, target, () => {
       if (target.canBeProjectileTarget) {
         const hpBefore = target.hp;
-        target.damage(shootOptions.damage);
+        target.damage(shootOptions.damage, this);
         this.onDamageApplied?.(target.getId(), shootOptions.damage, hpBefore, target.hp);
       }
       if (target.isDead() && this.targetToShoot === target) {
         this.targetToShoot = undefined;
+        this.onTargetLost?.(target.getId());
       }
     });
+    this.enterCooldown();
+  }
+
+  private enterCooldown(): void {
+    this.combatState = "cooldown";
+    const cooldownMs = Math.max(0, this.model.cooldown);
+    if (cooldownMs > 0) {
+      this.cooldownFramesRemaining = Math.max(1, Math.round(cooldownMs / 16.67));
+    } else {
+      this.cooldownFramesRemaining = 0;
+    }
+  }
+
+  private updatePendingMeleeAttack(time: number, unitCell: CellCoord, gridConfig: GridConfig): void {
+    const attack = this.pendingMeleeAttack;
+    if (!attack) return;
+
+    if (!attack.damageApplied && time >= attack.impactAt) {
+      attack.damageApplied = true;
+      const targetCell = attack.target.getGridCell(gridConfig);
+      if (
+        attack.target.active &&
+        attack.target.canBeProjectileTarget &&
+        targetCell &&
+        this.isInRange(unitCell, targetCell)
+      ) {
+        this.applyMeleeDamage(attack.target);
+      }
+    }
+
+    if (time >= attack.completesAt) this.pendingMeleeAttack = undefined;
+  }
+
+  private applyMeleeDamage(target: Unit): void {
+    const hpBefore = target.hp;
+    target.damage(this.model.damage, this);
+    this.onAttackCommitted?.(target.getId(), "melee");
+    this.onDamageApplied?.(target.getId(), this.model.damage, hpBefore, target.hp);
+    if (target.isDead()) {
+      this.targetToShoot = undefined;
+      this.onTargetLost?.(target.getId());
+    }
   }
 
   public isDead(): boolean {
-    return this.model.state === "dead" || !this.active;
+    return this.lifecycle !== "alive";
   }
 
   public spawn(): boolean {
+    this.lifecycle = "alive";
     this.visible = true;
     this.active = true;
     this.canBeProjectileTarget = true;
     this.model.reset();
     this.currentHealth = this.model.hp;
     this.lastAnimation = "idle";
+    this.pendingMeleeAttack = undefined;
+    this.deathPof = undefined;
     if (this.movement) this.movement.active = true;
     if (this.tileMovement) this.tileMovement.active = true;
 
@@ -702,6 +1201,8 @@ export class Unit extends Container {
     }
 
     this.animatedSprite.visible = true;
+    this.animatedSprite.alpha = 1;
+    this.animatedSprite.scale.set(1);
     this.animatedSprite.play();
 
     if (this.targetFollower) {
@@ -721,8 +1222,10 @@ export class Unit extends Container {
     }
 
     if (this.rangeGraph) {
-      this.rangeGraph.visible = true;
+      this.rangeGraph.visible = false;
     }
+    if (this.visionGraph) this.visionGraph.visible = false;
+    this.selectionIndicator.visible = false;
 
     if (this.health !== undefined) {
       this.updateHealth();
@@ -732,33 +1235,35 @@ export class Unit extends Container {
   }
 
   public destroy() {
-    this.currentCommand?.cancel(this);
-    this.currentCommand = undefined;
+    if (this.lifecycle !== "alive") return;
+    this.lifecycle = "dying";
+
+    for (const c of this.commands) c.cancel(this);
+    this.commands = [];
     this.canBeProjectileTarget = false;
     this.model.state = "dead";
+    if (this.healthBar) this.healthBar.visible = false;
+    this.selectionIndicator.visible = false;
+    if (this.rangeGraph) this.rangeGraph.visible = false;
+    if (this.visionGraph) this.visionGraph.visible = false;
     if (this.movement) this.movement.active = false;
     if (this.tileMovement) {
       this.tileMovement.active = false;
       this.tileMovement.releaseOccupation();
     }
     this.onDestroy?.(this);
+    this.onDeath?.(this.getId());
 
     this.setAnimationDead(() => {
-      this.visible = false;
-      this.active = false;
-
-      if (!this.animatedSprite) {
-        debugLogChanged(this.getId("this.animatedSprite not initialized"));
-        return;
-      }
-      this.animatedSprite.visible = false;
-      this.animatedSprite.stop();
+      this.lifecycle = "dead";
+      this.corpseTimer = 120;
     });
   }
 
   public despawnImmediately(): void {
-    this.currentCommand?.cancel(this);
-    this.currentCommand = undefined;
+    this.lifecycle = "despawned";
+    for (const c of this.commands) c.cancel(this);
+    this.commands = [];
     this.canBeProjectileTarget = false;
     this.model.state = "dead";
     if (this.movement) this.movement.active = false;
@@ -768,23 +1273,33 @@ export class Unit extends Container {
     }
     this.targetFollower?.clear();
     this.targetToShoot = undefined;
+    this.pendingMeleeAttack = undefined;
+    this.deathPof = undefined;
     this.shootingMode = "disabled";
     if (this.animatedSprite) {
       this.animatedSprite.stop();
       this.animatedSprite.visible = false;
     }
+    if (this.rangeGraph) this.rangeGraph.visible = false;
+    if (this.visionGraph) this.visionGraph.visible = false;
     this.visible = false;
     this.active = false;
   }
 
-  public damage(amount?: number) {
-    this.takeDamage(amount);
+  public damage(amount?: number, attacker?: Unit) {
+    this.takeDamage(amount, attacker);
   }
 
-  public takeDamage(amount?: number): number {
-    if (amount === undefined || amount <= 0 || this.model.state === "dead") return this.model.hp;
+  public takeDamage(amount?: number, attacker?: Unit): number {
+    if (amount === undefined || amount <= 0 || this.lifecycle !== "alive") return this.model.hp;
 
-    this.currentHealth = this.model.takeDamage(amount);
+    const attackerDamageType = attacker?.model.damageType;
+    this.currentHealth = this.model.takeDamage(amount, attackerDamageType);
+    if (attacker) {
+      this.underAttackTicks = 60;
+      this.lastAttackerId = attacker.getId();
+    }
+    this.thresholdTicks = 0;
     if (this.model.hp === 0) this.destroy();
     return this.model.hp;
   }
@@ -803,38 +1318,16 @@ export function getCurrentOrClosestGridTarget(
   currentTarget: Unit | undefined,
   attackMode: AttackMode = "projectile",
 ): Unit | undefined {
-  const isMelee = attackMode === "melee";
-  const effectiveRange = isMelee ? Math.max(1, range) : range;
-  const distanceFn = isMelee
-    ? (a: CellCoord, b: CellCoord) => Math.max(Math.abs(a.col - b.col), Math.abs(a.row - b.row))
-    : getCellDistance;
-
-  let closestTarget: Unit | undefined;
-  let closestTargetDistance = Number.POSITIVE_INFINITY;
-
-  if (currentTarget && currentTarget.canBeProjectileTarget) {
-    const currentTargetCell = currentTarget.getGridCell(gridConfig);
-    if (currentTargetCell && distanceFn(position, currentTargetCell) <= effectiveRange) {
-      return currentTarget;
-    }
-  }
-
-  targets
-    .filter((o) => o.canBeProjectileTarget)
-    .forEach((target) => {
-      if (target.active && target.canBeProjectileTarget) {
-        const targetCell = target.getGridCell(gridConfig);
-        if (!targetCell) return;
-        const currentDistance = distanceFn(position, targetCell);
-        if (currentDistance < closestTargetDistance && currentDistance <= effectiveRange) {
-          closestTargetDistance = currentDistance;
-          closestTarget = target;
-        }
-      }
-    });
-  return closestTarget;
-}
-
-function getCellDistance(origin: CellCoord, target: CellCoord): number {
-  return Math.hypot(target.col - origin.col, target.row - origin.row);
+  const ctx: SelectionContext = {
+    unitCell: position,
+    targets,
+    currentTarget,
+    thresholdTicks: 0,
+    underAttackTicks: 0,
+    melee: attackMode === "melee",
+    range,
+    vision: undefined,
+    gridConfig,
+  };
+  return selectBestTarget(ctx);
 }

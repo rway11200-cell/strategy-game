@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { type CellCoord, createDefaultGridConfig } from "../../src/grid/GridConfig";
+import { type CellCoord, createGridConfig } from "../../src/core/grid/GridConfig";
 import { CellState, GridState } from "../../src/grid/GridState";
 
 function smallGrid(): GridState {
-  return new GridState(createDefaultGridConfig({ gridWidth: 3, gridHeight: 3 }));
+  return new GridState(createGridConfig({ gridWidth: 3, gridHeight: 3 }));
 }
 
 describe("GridState", () => {
@@ -209,7 +209,7 @@ describe("GridState", () => {
 
   describe("grid dimensions", () => {
     it("creates a grid with the correct number of cells", () => {
-      const config = createDefaultGridConfig({ gridWidth: 5, gridHeight: 7 });
+      const config = createGridConfig({ gridWidth: 5, gridHeight: 7 });
       const gs = new GridState(config);
       const count = (() => {
         let total = 0;

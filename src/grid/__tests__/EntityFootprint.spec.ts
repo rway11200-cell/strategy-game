@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { createDefaultGridConfig } from "../GridConfig";
+import { createGridConfig } from "../../core/grid/GridConfig";
 import {
   ENTITY_FOOTPRINTS,
   getEntityFootprint,
@@ -15,8 +15,10 @@ describe("ENTITY_FOOTPRINTS", () => {
       goblin: { width: 1, height: 1 },
       skeleton: { width: 1, height: 1 },
       ghost: { width: 1, height: 1 },
+      soldier: { width: 1, height: 1 },
       tower: { width: 2, height: 2 },
       mine: { width: 3, height: 3 },
+      barracks: { width: 3, height: 3 },
       base: { width: 4, height: 4 },
     });
     expect(getEntityFootprint("mine")).toEqual({ width: 3, height: 3 });
@@ -36,7 +38,7 @@ describe("getFootprintCellsForPos", () => {
   });
 
   it("is rejected when any generated cell is outside the grid", () => {
-    const config = createDefaultGridConfig({ gridWidth: 4, gridHeight: 4 });
+    const config = createGridConfig({ gridWidth: 4, gridHeight: 4 });
     const state = new GridState(config);
 
     expect(isFootprintWalkable({ col: 3, row: 2 }, 2, 2, state, config)).toBe(false);
@@ -46,7 +48,7 @@ describe("getFootprintCellsForPos", () => {
 
 describe("rectangular occupation footprints", () => {
   it("places every cell in the skeleton 1x1 footprint", () => {
-    const config = createDefaultGridConfig({ gridWidth: 4, gridHeight: 4 });
+    const config = createGridConfig({ gridWidth: 4, gridHeight: 4 });
     const state = new GridState(config);
     const skeleton = getEntityFootprint("skeleton");
 
@@ -55,7 +57,7 @@ describe("rectangular occupation footprints", () => {
   });
 
   it("validates rectangular footprints against grid limits", () => {
-    const config = createDefaultGridConfig({ gridWidth: 4, gridHeight: 4 });
+    const config = createGridConfig({ gridWidth: 4, gridHeight: 4 });
     const skeleton = getEntityFootprint("skeleton");
 
     expect(getAllFootprintCells({ col: 3, row: 3 }, skeleton, config)).toEqual({

@@ -1,5 +1,5 @@
 import { Container, Graphics } from "pixi.js";
-import { type GridConfig, gridToWorld, type Point } from "./GridConfig";
+import { type GridConfig, gridToWorld, type Point } from "../core/grid/GridConfig";
 import type { CellState } from "./GridState";
 
 const CELL_COLORS: Record<string, number> = {

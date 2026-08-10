@@ -17,7 +17,7 @@ export class LevelEventManager {
     this.actions = levelParser.getActions();
     let wave = 0;
     this.actions.forEach((action, index) => {
-      if (action.getName() === "SpawnEnemiesAction") {
+      if (action.getName() === "SpawnUnitsAction") {
         this.waveByActionIndex.set(index, ++wave);
       }
     });

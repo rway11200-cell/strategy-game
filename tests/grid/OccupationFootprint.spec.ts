@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { createGridConfig } from "../../src/core/grid/GridConfig";
-import { createDefaultGridConfig } from "../../src/grid/GridConfig";
+import { createGridConfig } from "../../src/core/grid/GridConfig";
 import { GridState } from "../../src/grid/GridState";
 import { GridIntegration } from "../../src/grid/GridIntegration";
 import {
@@ -13,7 +13,7 @@ import {
 } from "../../src/grid/OccupationFootprint";
 
 function smallConfig() {
-  return createDefaultGridConfig({ gridWidth: 6, gridHeight: 6 });
+  return createGridConfig({ gridWidth: 6, gridHeight: 6 });
 }
 
 function freshState(): GridState {
@@ -168,7 +168,7 @@ describe("footprint sizes", () => {
   (["1x1", "2x2", "3x3", "4x4"] as const).forEach((label) => {
     const size = parseInt(label) as FootprintSize;
     it(`places and removes a ${label} footprint correctly`, () => {
-      const config = createDefaultGridConfig({ gridWidth: 10, gridHeight: 10 });
+      const config = createGridConfig({ gridWidth: 10, gridHeight: 10 });
       const state = new GridState(config);
 
       const placed = placeFootprint({ col: 5, row: 5 }, size, `test-${size}`, state, config);

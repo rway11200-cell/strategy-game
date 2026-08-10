@@ -8,13 +8,14 @@ import type {
   ScenarioTestSnapshot,
   ScenarioTestState,
   TestEventSnapshot,
+  TestOrderInput,
   TestOrderSnapshot,
   TestScenarioPreset,
   TestUnitSnapshot,
   TestUnitTeam,
   TestWaveSnapshot,
 } from "../../../src/app/testing/GameTestApi";
-import type { CellCoord } from "../../../src/grid/GridConfig";
+import type { CellCoord } from "../../../src/core/grid/GridConfig";
 
 function unwrap<T>(operation: string, result: ApiResult<T>): T {
   if (result.ok) return result.value;
@@ -117,12 +118,7 @@ export class GameTestDriver {
 
   async issueOrder(
     unitId: string,
-    order:
-      | { type: "move"; destination: CellCoord }
-      | { type: "stop" }
-      | { type: "hold-position" }
-      | { type: "patrol"; endpoints: readonly [CellCoord, CellCoord] }
-      | { type: "attack"; targetId: string },
+    order: TestOrderInput,
   ): Promise<TestOrderSnapshot> {
     const result = await this.page.evaluate(
       ({ activeUnitId, requestedOrder }) =>

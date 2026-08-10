@@ -1,6 +1,6 @@
-import { EnemyType } from "../../unidades/Enemy";
+import { UnitArchetype } from "../../unidades/UnitArchetype";
 import { WaitAction } from "../acciones/WaitAction";
-import { EnemiesProps, SpawnEnemiesAction } from "../acciones/SpawnEnemiesAction";
+import { UnitSpawnProps, SpawnUnitsAction } from "../acciones/SpawnUnitsAction";
 import { SpawnEntitiesAction } from "../acciones/SpawnEntitiesAction";
 import { NotificationAction } from "../acciones/NotificationAction";
 import { LevelAction } from "./LevelEventManager";
@@ -23,30 +23,30 @@ export class JsonToLevelConverter {
           return new NotificationAction(event.text);
 
         case "wave":
-          return new SpawnEnemiesAction(
+            return new SpawnUnitsAction(
             event.path ?? "default",
             event.interval ?? 300,
-            event.enemies.map((e): EnemiesProps => {
+            event.enemies.map((e): UnitSpawnProps => {
               switch (e.id) {
                 case "Goblin":
                   return {
-                    type: EnemyType.Goblin,
+                    type: UnitArchetype.Goblin,
                     count: e.count,
                   };
                 case "Skeleton":
                   return {
-                    type: EnemyType.Skeleton,
+                    type: UnitArchetype.Skeleton,
                     count: e.count,
                   };
                 case "Ghost":
                   return {
-                    type: EnemyType.Ghost,
+                    type: UnitArchetype.Ghost,
                     count: e.count,
                   };
               }
 
               return {
-                type: EnemyType.Goblin,
+                type: UnitArchetype.Goblin,
                 count: 10,
               };
             }),

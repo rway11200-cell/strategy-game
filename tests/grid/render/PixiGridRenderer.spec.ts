@@ -1,12 +1,12 @@
 import { Container } from "pixi.js";
 import { describe, expect, it } from "vitest";
-import { createDefaultGridConfig } from "../../../src/grid/GridConfig";
+import { createGridConfig } from "../../../src/core/grid/GridConfig";
 import { PixiGridRenderer } from "../../../src/grid/render/PixiGridRenderer";
 import { gridStateToCellData } from "../../../src/grid/render/cellDataBridge";
 import type { CellRenderData } from "../../../src/grid/render/GridRenderAdapter";
 
 function makeConfig() {
-  return createDefaultGridConfig({ gridWidth: 3, gridHeight: 3, cellSize: 32 });
+  return createGridConfig({ gridWidth: 3, gridHeight: 3, cellSize: 32 });
 }
 
 function buildCellData(): CellRenderData[][] {

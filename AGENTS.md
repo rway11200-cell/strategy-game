@@ -1,4 +1,4 @@
-# Tower Defence Pixi
+# Strategy Game Pixi
 
 Project instructions for coding agents.
 

@@ -9,7 +9,7 @@ import { UnitCreator } from "../src/app/core/UnitCreator";
 import { Projectile } from "../src/app/core/unidades/Projectile";
 import { Tower } from "../src/app/core/unidades/Tower";
 import { Unit, getCurrentOrClosestGridTarget } from "../src/app/core/unidades/Unit";
-import { createGridConfig, gridToWorld } from "../src/grid/GridConfig";
+import { createGridConfig, gridToWorld } from "../src/core/grid/GridConfig";
 
 const gridConfig = createGridConfig({ gridWidth: 10, gridHeight: 10, cellSize: 64 });
 

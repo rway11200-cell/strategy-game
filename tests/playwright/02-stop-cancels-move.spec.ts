@@ -3,7 +3,7 @@ import { getUnit } from "./support/GameTestDriver";
 
 const UNIT_ID = "stoppable-unit";
 
-test("stop cancela un movimiento y mantiene la última celda confirmada", async ({ game }) => {
+test("stop cancela un movimiento y se detiene en la siguiente celda", async ({ game }) => {
   const setup = await test.step("Dado una unidad en un corredor largo", async () => {
     await game.open();
     await game.waitUntilReady();
@@ -51,7 +51,9 @@ test("stop cancela un movimiento y mantiene la última celda confirmada", async 
     return order;
   });
 
-  await test.step("Y recibe stop antes de llegar", async () => {
+  const stopCell = setup.checkpoint;
+
+  await test.step("Y recibe stop en el checkpoint, se detiene en esa celda confirmada", async () => {
     const stop = await game.issueOrder(UNIT_ID, { type: "stop" });
     const snapshot = await game.snapshot(setup.scenario.id);
 
@@ -61,8 +63,8 @@ test("stop cancela un movimiento y mantiene la última celda confirmada", async 
     });
     expect(stop).toMatchObject({ type: "stop", status: "completed" });
     expect(getUnit(snapshot, UNIT_ID)).toMatchObject({
-      cell: setup.checkpoint,
-      occupiedCells: [setup.checkpoint],
+      cell: stopCell,
+      occupiedCells: [stopCell],
       movement: { mode: "stopped", route: [], targetCell: null, stepProgress: 0 },
       combat: { mode: "disabled" },
       order: null,
@@ -71,7 +73,7 @@ test("stop cancela un movimiento y mantiene la última celda confirmada", async 
 
   await test.step("Entonces permanece detenido aunque avance la simulación", async () => {
     const before = getUnit(await game.snapshot(setup.scenario.id), UNIT_ID);
-    const after = getUnit(await game.advanceFrames(setup.scenario.id, 20), UNIT_ID);
+    const after = getUnit(await game.advanceFrames(setup.scenario.id, 250), UNIT_ID);
 
     expect(after.cell).toEqual(before.cell);
     expect(after.world).toEqual(before.world);

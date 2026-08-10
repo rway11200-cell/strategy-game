@@ -1,4 +1,4 @@
-import type { CellCoord, CellType } from "../../grid/GridConfig";
+import type { CellCoord, CellType } from "../../core/grid/GridConfig";
 import type { TestScenarioPreset } from "./GameTestApi";
 
 export interface TestScenarioDefinition {
@@ -111,6 +111,22 @@ const scenarios = new Map<TestScenarioPreset, TestScenarioDefinition>([
       landmarks: {
         attacker: { col: 1, row: 2 },
         target: { col: 3, row: 2 },
+      },
+      groups: {},
+      path: [],
+      economy: { coins: 0 },
+    },
+  ],
+  [
+    "hold-fire-enters-range",
+    {
+      preset: "hold-fire-enters-range",
+      grid: { columns: 9, rows: 1, tileSize: 64 },
+      landmarks: {
+        attacker: { col: 1, row: 0 },
+        targetStart: { col: 8, row: 0 },
+        targetOutOfRange: { col: 5, row: 0 },
+        targetInRange: { col: 4, row: 0 },
       },
       groups: {},
       path: [],
@@ -258,6 +274,127 @@ const scenarios = new Map<TestScenarioPreset, TestScenarioDefinition>([
         footprint: { width: 3, height: 3 },
         production: { archetype: "soldier", team: "player", intervalFrames: 90 },
       }],
+    },
+  ],
+  [
+    "warrior-march",
+    {
+      preset: "warrior-march",
+      grid: { columns: 5, rows: 1, tileSize: 64 },
+      landmarks: {
+        origin: { col: 0, row: 0 },
+        destination: { col: 4, row: 0 },
+      },
+      groups: {},
+      path: [],
+      economy: { coins: 0 },
+    },
+  ],
+  [
+    "warrior-duel",
+    {
+      preset: "warrior-duel",
+      grid: { columns: 2, rows: 1, tileSize: 64 },
+      landmarks: {
+        attacker: { col: 0, row: 0 },
+        defender: { col: 1, row: 0 },
+      },
+      groups: {},
+      path: [],
+      economy: { coins: 0 },
+    },
+  ],
+  [
+    "warrior-auto-march",
+    {
+      preset: "warrior-auto-march",
+      grid: { columns: 7, rows: 1, tileSize: 64 },
+      landmarks: {
+        playerStart: { col: 0, row: 0 },
+        playerDestination: { col: 6, row: 0 },
+        enemyStart: { col: 6, row: 0 },
+        enemyDestination: { col: 0, row: 0 },
+      },
+      groups: {},
+      path: [],
+      economy: { coins: 0 },
+    },
+  ],
+  [
+    "warrior-auto-move",
+    {
+      preset: "warrior-auto-move",
+      grid: { columns: 7, rows: 1, tileSize: 64 },
+      landmarks: {
+        attackerStart: { col: 0, row: 0 },
+        destination: { col: 6, row: 0 },
+        defender: { col: 4, row: 0 },
+      },
+      groups: {},
+      path: [],
+      economy: { coins: 0 },
+    },
+  ],
+  [
+    "warrior-hold-attack",
+    {
+      preset: "warrior-hold-attack",
+      grid: { columns: 7, rows: 1, tileSize: 64 },
+      landmarks: {
+        defender: { col: 3, row: 0 },
+        attackerStart: { col: 0, row: 0 },
+        attackerDestination: { col: 6, row: 0 },
+      },
+      groups: {},
+      path: [],
+      economy: { coins: 0 },
+    },
+  ],
+  [
+    "warrior-hold-square",
+    {
+      preset: "warrior-hold-square",
+      grid: { columns: 9, rows: 9, tileSize: 64 },
+      landmarks: {
+        defender: { col: 4, row: 4 },
+        attackerStart: { col: 0, row: 4 },
+        attackerDestination: { col: 8, row: 4 },
+      },
+      groups: {},
+      path: [],
+      economy: { coins: 0 },
+    },
+  ],
+  [
+    "warrior-pursuit-square",
+    {
+      preset: "warrior-pursuit-square",
+      grid: { columns: 9, rows: 9, tileSize: 64 },
+      landmarks: {
+        pursuer: { col: 4, row: 1 },
+        runnerStart: { col: 4, row: 6 },
+        runnerOutOfVision: { col: 4, row: 8 },
+        runnerVisible: { col: 4, row: 7 },
+        runnerDestination: { col: 4, row: 5 },
+      },
+      groups: {},
+      path: [],
+      economy: { coins: 0 },
+    },
+  ],
+  [
+    "warrior-patrol-square",
+    {
+      preset: "warrior-patrol-square",
+      grid: { columns: 9, rows: 9, tileSize: 64 },
+      landmarks: {
+        patrolStart: { col: 2, row: 2 },
+        patrolEnd: { col: 6, row: 2 },
+        target: { col: 4, row: 3 },
+      },
+      groups: {},
+      path: [],
+      economy: { coins: 0 },
     },
   ],
   [

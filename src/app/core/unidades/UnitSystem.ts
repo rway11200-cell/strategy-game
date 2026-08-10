@@ -2,9 +2,22 @@ import type { PointData } from "pixi.js";
 
 export type UnitTeam = "player" | "enemy" | "neutral";
 export type UnitFaction = UnitTeam;
-export type UnitState = "idle" | "moving" | "attacking" | "dead";
+export type UnitState = "idle" | "moving" | "pursuing" | "attacking" | "holding" | "blocked" | "dead";
 export type UnitController = "player" | "ai";
 export type AttackMode = "none" | "melee" | "projectile";
+export type DamageType = "normal" | "pierce" | "magic" | "siege";
+export type ArmorType = "unarmored" | "light" | "heavy" | "fortified" | "hero";
+
+const DAMAGE_MULTIPLIERS: Record<DamageType, Record<ArmorType, number>> = {
+  normal:  { unarmored: 1.0, light: 1.0, heavy: 1.0, fortified: 0.7, hero: 0.75 },
+  pierce:  { unarmored: 1.5, light: 1.5, heavy: 0.5, fortified: 0.35, hero: 0.5 },
+  magic:   { unarmored: 1.0, light: 1.25, heavy: 1.5, fortified: 0.5, hero: 0.6 },
+  siege:   { unarmored: 1.0, light: 0.75, heavy: 1.0, fortified: 1.5, hero: 0.5 },
+};
+
+export function getDamageMultiplier(damageType: DamageType, armorType: ArmorType): number {
+  return DAMAGE_MULTIPLIERS[damageType]?.[armorType] ?? 1.0;
+}
 
 export interface UnitSystemOptions {
   hp?: number;
@@ -12,6 +25,7 @@ export interface UnitSystemOptions {
   damage?: number;
   speed?: number;
   range?: number;
+  vision?: number;
   team?: UnitTeam;
   faction?: UnitFaction;
   state?: UnitState;
@@ -19,6 +33,8 @@ export interface UnitSystemOptions {
   position?: PointData;
   attackMode?: AttackMode;
   cooldown?: number;
+  damageType?: DamageType;
+  armorType?: ArmorType;
 }
 
 export interface UnitStats {
@@ -27,6 +43,7 @@ export interface UnitStats {
   damage: number;
   speed: number;
   range: number;
+  vision: number;
 }
 
 export class UnitSystem {
@@ -35,11 +52,14 @@ export class UnitSystem {
   public damage: number;
   public speed: number;
   public range: number;
+  public vision: number;
   public team: UnitTeam;
   public state: UnitState;
   public controller: UnitController;
   public attackMode: AttackMode;
   public cooldown: number;
+  public damageType: DamageType;
+  public armorType: ArmorType;
   public readonly position: PointData;
 
   constructor(options: UnitSystemOptions = {}) {
@@ -49,11 +69,14 @@ export class UnitSystem {
     this.damage = Math.max(0, options.damage ?? 0);
     this.speed = Math.max(0, options.speed ?? 1);
     this.range = Math.max(0, options.range ?? 0);
+    this.vision = Math.max(0, options.vision ?? 6);
     this.team = options.team ?? options.faction ?? "player";
     this.state = options.state ?? "idle";
     this.controller = options.controller ?? (this.team === "enemy" ? "ai" : "player");
     this.attackMode = options.attackMode ?? "none";
     this.cooldown = Math.max(0, options.cooldown ?? 0);
+    this.damageType = options.damageType ?? "normal";
+    this.armorType = options.armorType ?? "unarmored";
     this.position = options.position ?? { x: 0, y: 0 };
   }
 
@@ -72,6 +95,7 @@ export class UnitSystem {
       damage: this.damage,
       speed: this.speed,
       range: this.range,
+      vision: this.vision,
     };
   }
 
@@ -87,6 +111,7 @@ export class UnitSystem {
     if (options.damage !== undefined) this.damage = Math.max(0, options.damage);
     if (options.speed !== undefined) this.speed = Math.max(0, options.speed);
     if (options.range !== undefined) this.range = Math.max(0, options.range);
+    if (options.vision !== undefined) this.vision = Math.max(0, options.vision);
     if (options.team !== undefined || options.faction !== undefined) {
       this.team = options.team ?? options.faction ?? this.team;
     }
@@ -94,6 +119,8 @@ export class UnitSystem {
     if (options.controller !== undefined) this.controller = options.controller;
     if (options.attackMode !== undefined) this.attackMode = options.attackMode;
     if (options.cooldown !== undefined) this.cooldown = Math.max(0, options.cooldown);
+    if (options.damageType !== undefined) this.damageType = options.damageType;
+    if (options.armorType !== undefined) this.armorType = options.armorType;
   }
 
   reset(): void {
@@ -101,9 +128,11 @@ export class UnitSystem {
     this.state = "idle";
   }
 
-  takeDamage(amount: number): number {
+  takeDamage(amount: number, attackerDamageType?: DamageType): number {
     if (this.state === "dead" || amount <= 0) return this.hp;
-    this.hp = Math.max(0, this.hp - amount);
+    const multiplier = attackerDamageType ? getDamageMultiplier(attackerDamageType, this.armorType) : 1.0;
+    const finalDamage = Math.round(amount * multiplier);
+    this.hp = Math.max(0, this.hp - finalDamage);
     if (this.hp === 0) this.state = "dead";
     return this.hp;
   }

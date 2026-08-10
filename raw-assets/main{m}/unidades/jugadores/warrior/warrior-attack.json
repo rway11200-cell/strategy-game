@@ -1,0 +1,9 @@
+{
+  "frames": {
+    "warrior-attack0.png": { "frame": { "x": 0, "y": 0, "w": 192, "h": 192 }, "rotated": false, "trimmed": false, "spriteSourceSize": { "x": 0, "y": 0, "w": 192, "h": 192 }, "sourceSize": { "w": 192, "h": 192 }, "duration": 100 },
+    "warrior-attack1.png": { "frame": { "x": 192, "y": 0, "w": 192, "h": 192 }, "rotated": false, "trimmed": false, "spriteSourceSize": { "x": 0, "y": 0, "w": 192, "h": 192 }, "sourceSize": { "w": 192, "h": 192 }, "duration": 100 },
+    "warrior-attack2.png": { "frame": { "x": 384, "y": 0, "w": 192, "h": 192 }, "rotated": false, "trimmed": false, "spriteSourceSize": { "x": 0, "y": 0, "w": 192, "h": 192 }, "sourceSize": { "w": 192, "h": 192 }, "duration": 100 },
+    "warrior-attack3.png": { "frame": { "x": 576, "y": 0, "w": 192, "h": 192 }, "rotated": false, "trimmed": false, "spriteSourceSize": { "x": 0, "y": 0, "w": 192, "h": 192 }, "sourceSize": { "w": 192, "h": 192 }, "duration": 100 }
+  },
+  "meta": { "image": "warrior-attack.png", "format": "RGBA8888", "size": { "w": 768, "h": 192 } }
+}

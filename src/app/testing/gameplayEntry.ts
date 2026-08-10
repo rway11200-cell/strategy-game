@@ -61,7 +61,7 @@ async function bootstrapGameplayHarness(): Promise<void> {
     );
     window.__GAME_TEST__ = api;
 
-    const panel = createGameplayDebugPanel(api);
+    const panel = createGameplayDebugPanel(api, (unitId) => runtime.selectVisualUnit(unitId));
     root.appendChild(panel);
 
     root.dataset.harness = "strategy-game-playwright";

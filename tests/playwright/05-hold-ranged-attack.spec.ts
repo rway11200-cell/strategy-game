@@ -15,10 +15,10 @@ test("hold-position permite atacar un enemigo en rango sin moverse", async ({ ga
       const attacker = await game.spawnUnit({
         scenarioId: scenario.id,
         id: ATTACKER_ID,
-        archetype: "test-ranged-unit",
+        archetype: "archer",
         team: "player",
         cell: attackerCell,
-        stats: { damage: 20, rangeCells: 3, fireCooldownFrames: 1 },
+        stats: { damage: 20, rangeCells: 3, fireCooldownFrames: 90 },
       });
       const target = await game.spawnUnit({
         scenarioId: scenario.id,
@@ -29,7 +29,7 @@ test("hold-position permite atacar un enemigo en rango sin moverse", async ({ ga
         stats: { hp: 100 },
       });
 
-      expect(attacker.combat.rangeCells).toBeGreaterThanOrEqual(2);
+      expect(attacker).toMatchObject({ archetype: "archer", combat: { rangeCells: 3 } });
       expect(target.hp).toBe(100);
       return { scenario, attacker };
     });

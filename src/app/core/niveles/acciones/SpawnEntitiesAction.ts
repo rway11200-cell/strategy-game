@@ -1,5 +1,5 @@
 import { engine } from "../../../getEngine";
-import { worldToGrid } from "../../../../grid/GridConfig";
+import { worldToGrid } from "../../../../core/grid/GridConfig";
 import { LevelContext } from "../cargador/LevelContext";
 import { LevelAction } from "../cargador/LevelEventManager";
 

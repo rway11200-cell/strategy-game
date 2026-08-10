@@ -11,13 +11,13 @@
  * La ruta principal de producción no depende de esta API.
  */
 
-import type { GridConfig, CellCoord } from "../../grid/GridConfig";
+import type { GridConfig, CellCoord } from "../../core/grid/GridConfig";
 import type { GridIntegration } from "../../grid/GridIntegration";
 import type { GameManager } from "../core/GameManager";
 import { PatrolCommand, type CommandStatus, type UnitCommandType } from "../core/UnitCommands";
 import type { LevelContext } from "../core/niveles/cargador/LevelContext";
-import { EnemyType } from "../core/unidades/Enemy";
-import type { Enemy } from "../core/unidades/Enemy";
+import { UnitArchetype, initializeUnitArchetype } from "../core/unidades/UnitArchetype";
+import type { Unit } from "../core/unidades/Unit";
 import type { Tower } from "../core/unidades/Tower";
 
 // ──────────────────────────────────────────────
@@ -106,6 +106,7 @@ export type TestScenarioPreset =
   | "long-movement-corridor"
   | "hold-position-lane"
   | "hold-fire-stationary"
+  | "hold-fire-enters-range"
   | "hold-fire-patrol"
   | "three-cell-patrol-corridor"
   | "single-wave-path-to-base"
@@ -119,12 +120,20 @@ export type TestScenarioPreset =
   | "dense-occupation"
   | "follow-the-leader"
   | "blocked-route-detour"
-  | "spawn-point-demo";
+  | "spawn-point-demo"
+  | "warrior-march"
+  | "warrior-duel"
+  | "warrior-auto-march"
+  | "warrior-auto-move"
+  | "warrior-hold-attack"
+  | "warrior-hold-square"
+  | "warrior-pursuit-square"
+  | "warrior-patrol-square";
 
 export type TestUnitTeam = "player" | "enemy" | "neutral";
 export type TestUnitLifecycle = "alive" | "dying" | "dead" | "despawned";
 export type TestOrderStatus = "running" | "completed" | "failed" | "cancelled" | "rejected";
-export type TestOrderType = "move" | "stop" | "hold-position" | "patrol" | "attack";
+export type TestOrderType = "move" | "attack-move" | "stop" | "hold-position" | "patrol" | "attack";
 
 export interface BootTestSnapshot {
   lifecycle: "ready";
@@ -162,7 +171,7 @@ export interface TestOrderSnapshot {
   finishedAtFrame: number | null;
   destination?: CellCoord;
   resolvedDestination?: CellCoord;
-  completionReason?: "destination-reached" | "fallback-reached";
+  completionReason?: "destination-reached" | "fallback-reached" | "blocked";
   endpoints?: readonly [CellCoord, CellCoord];
   targetId?: string;
   phase?: "approaching-start" | "outbound" | "returning";
@@ -187,11 +196,13 @@ export interface TestUnitSnapshot {
     targetCell: CellCoord | null;
     stepProgress: number;
   };
+  activity: "idle" | "moving" | "pursuing" | "attacking" | "holding" | "blocked" | "dead";
   combat: {
     mode: "auto" | "forced" | "disabled";
     targetId: string | null;
     damage: number;
     rangeCells: number;
+    visionCells: number;
   };
   order: TestOrderSnapshot | null;
 }
@@ -246,7 +257,7 @@ export interface ScenarioTestSnapshot {
 }
 
 export type AdvanceTestCondition =
-  | { type: "event"; eventType: string; unitId?: string; targetId?: string }
+  | { type: "event"; eventType: string; unitId?: string; sourceId?: string; targetId?: string }
   | { type: "unit-entered-cell"; unitId: string; cell?: CellCoord }
   | { type: "all-units-progressed"; unitIds: string[]; minimumTransitions: number }
   | { type: "wave-status"; waveId: string; status: "running" | "completed" }
@@ -284,6 +295,7 @@ export interface SpawnTestUnitOptions {
     damage?: number;
     defense?: number;
     rangeCells?: number;
+    visionCells?: number;
     movementFramesPerCell?: number;
     fireCooldownFrames?: number;
   };
@@ -291,6 +303,7 @@ export interface SpawnTestUnitOptions {
 
 export type TestOrderInput =
   | { type: "move"; destination: CellCoord }
+  | { type: "attack-move"; destination: CellCoord }
   | { type: "stop" }
   | { type: "hold-position" }
   | { type: "patrol"; endpoints: readonly [CellCoord, CellCoord] }
@@ -472,12 +485,12 @@ export interface GameManagerDebug {
 export interface LevelContextDebug {
   readonly gridIntegration: GridIntegration | null;
   readonly coins: number;
-  readonly enemyCreator: { getUnits: (active: boolean) => EnemyLect[] };
+  readonly unitCreator: { getUnits: (active: boolean) => UnitLect[] };
   readonly towerCreator: { getUnits: (active: boolean) => TowerLect[] };
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-type EnemyLect = any;
+type UnitLect = any;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type TowerLect = any;
 
@@ -488,15 +501,15 @@ type TowerLect = any;
 /**
  * basic -> Goblin, fast -> Ghost, tank/boss -> Skeleton
  */
-function testEnemyTypeToInternal(enemyType: string): EnemyType | null {
+function testEnemyTypeToInternal(enemyType: string): UnitArchetype | null {
   switch (enemyType) {
     case "basic":
-      return EnemyType.Goblin;
+      return UnitArchetype.Goblin;
     case "fast":
-      return EnemyType.Ghost;
+      return UnitArchetype.Ghost;
     case "tank":
     case "boss":
-      return EnemyType.Skeleton;
+      return UnitArchetype.Skeleton;
     default:
       return null;
   }
@@ -556,7 +569,7 @@ export function createGameTestApi(
         };
       }
 
-      const activeEnemies = ctx.enemyCreator?.getUnits(true) ?? [];
+      const activeEnemies = ctx.unitCreator?.getUnits(true) ?? [];
       const activeTowers = ctx.towerCreator?.getUnits(true) ?? [];
 
       return {
@@ -646,10 +659,10 @@ export function createGameTestApi(
       const mgrDebug = mgr as any as GameManagerDebug;
       const ctx = mgrDebug.gameContext;
       const gridConfig = ctx?.gridIntegration?.gridConfig;
-      const activeEnemies = ctx?.enemyCreator?.getUnits(true) ?? [];
+      const activeEnemies = ctx?.unitCreator?.getUnits(true) ?? [];
 
-      return activeEnemies.map((e: EnemyLect) => {
-        const enemy = e as Enemy;
+      return activeEnemies.map((e: UnitLect) => {
+        const enemy = e as Unit;
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const anyEnemy = e as any;
 
@@ -660,7 +673,7 @@ export function createGameTestApi(
           cell: gridConfig ? enemy.getGridCell(gridConfig) : undefined,
           health: anyEnemy.currentHealth,
           active: enemy.active,
-          type: enemy.enemyType,
+          type: enemy.archetype,
           command: enemy.currentCommand
             ? {
                 type: enemy.currentCommand.type,
@@ -685,9 +698,9 @@ export function createGameTestApi(
 
       const result: UnitTestState[] = [];
 
-      const activeEnemies = ctx.enemyCreator?.getUnits(true) ?? [];
+      const activeEnemies = ctx.unitCreator?.getUnits(true) ?? [];
       for (const e of activeEnemies) {
-        const enemy = e as Enemy;
+        const enemy = e as Unit;
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const anyEnemy = e as any;
         const cell = cfg ? enemy.getGridCell(cfg) : undefined;
@@ -736,8 +749,8 @@ export function createGameTestApi(
       if (!ctx) return false;
 
       // Search in enemies first
-      const allEnemies = ctx.enemyCreator?.getUnits(false) ?? [];
-      const enemy = allEnemies.find((e: Enemy) => e.getId("test") === unitId);
+      const allEnemies = ctx.unitCreator?.getUnits(false) ?? [];
+      const enemy = allEnemies.find((e: Unit) => e.getId("test") === unitId);
       if (enemy) {
         enemy.takeDamage(damage);
         return true;
@@ -794,7 +807,7 @@ export function createGameTestApi(
       if (!ctx) return;
 
       // Forzar spawn de un enemigo de prueba
-      const enemy = ctx.enemyCreator?.get(false);
+      const enemy = ctx.unitCreator?.get(false);
       if (!enemy) return;
 
       // Posicionar en el spawn point de la grilla
@@ -807,7 +820,7 @@ export function createGameTestApi(
         enemy.position.set(worldSpawn.x, worldSpawn.y);
       }
 
-      enemy.initializeEnemy(EnemyType.Goblin);
+      initializeUnitArchetype(enemy, UnitArchetype.Goblin, { team: "enemy", controller: "ai" });
       enemy.spawn();
     },
 
@@ -868,12 +881,12 @@ export function createGameTestApi(
       }
 
       // Obtener un enemigo del pool
-      const enemy = ctx.enemyCreator?.get(false);
+      const enemy = ctx.unitCreator?.get(false);
       if (!enemy) {
         return { success: false, error: "No available enemy in pool" };
       }
 
-      enemy.initializeEnemy(internalType);
+      initializeUnitArchetype(enemy, internalType, { team: "enemy", controller: "ai" });
       enemy.initializeTileMovement({
         cells: [],
         gridConfig: gi.gridConfig,
@@ -902,8 +915,8 @@ export function createGameTestApi(
       if (!gi) return false;
 
       // Find the enemy by its spawn cell position
-      const activeEnemies = ctx.enemyCreator?.getUnits(true) ?? [];
-      const enemy = activeEnemies.find((e: Enemy) => {
+      const activeEnemies = ctx.unitCreator?.getUnits(true) ?? [];
+      const enemy = activeEnemies.find((e: Unit) => {
         const cellCoord = e.getGridCell(gi.gridConfig);
         return cellCoord && cellCoord.col === fromCol && cellCoord.row === fromRow;
       });

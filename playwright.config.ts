@@ -20,7 +20,10 @@ export default defineConfig({
     {
       name: "gameplay",
       testIgnore: ["**/production-smoke.spec.ts", "**/grid-render-screenshot.spec.ts"],
-      use: { ...devices["Desktop Chrome"] },
+      use: {
+        ...devices["Desktop Chrome"],
+        launchOptions: { executablePath: "/usr/bin/chromium-browser" },
+      },
     },
     {
       name: "grid-visual",
@@ -29,6 +32,7 @@ export default defineConfig({
         ...devices["Desktop Chrome"],
         viewport: { width: 512, height: 384 },
         deviceScaleFactor: 1,
+        launchOptions: { executablePath: "/usr/bin/chromium-browser" },
       },
     },
   ],

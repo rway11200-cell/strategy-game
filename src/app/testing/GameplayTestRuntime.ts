@@ -1,19 +1,22 @@
 import { Container, Ticker } from "pixi.js";
-import { createGridConfig, type GridConfig } from "../../grid/GridConfig";
+import { createGridConfig, type GridConfig } from "../../core/grid/GridConfig";
 import { GridState } from "../../grid/GridState";
 import { getEntityFootprint, getFootprintCellsForPos, isFootprintWalkable } from "../../grid/EntityFootprint";
 import { getOccupantCells } from "../../grid/OccupationFootprint";
 import {
   PatrolCommand,
   MoveCommand,
+  AttackCommand,
+  AttackMoveCommand,
   StopCommand,
   HoldPositionCommand,
   type IUnitCommand,
 } from "../core/UnitCommands";
-import { Enemy, EnemyType } from "../core/unidades/Enemy";
+import { Unit } from "../core/unidades/Unit";
+import { UnitArchetype, initializeUnitArchetype } from "../core/unidades/UnitArchetype";
 import { Projectile } from "../core/unidades/Projectile";
 import { UnitCreator } from "../core/UnitCreator";
-import type { CellCoord } from "../../grid/GridConfig";
+import type { CellCoord } from "../../core/grid/GridConfig";
 import type {
   ApiError,
   ApiResult,
@@ -49,7 +52,7 @@ export interface GameplayHarnessBootState {
 }
 
 interface ManagedUnit {
-  enemy: Enemy;
+  enemy: Unit;
   id: string;
   archetype: string;
   team: TestUnitTeam;
@@ -60,6 +63,7 @@ interface ManagedUnit {
   activeCommand?: IUnitCommand;
   movementMode: TestUnitSnapshot["movement"]["mode"];
   wasBlocked: boolean;
+  deathRecorded: boolean;
 }
 
 interface ManagedStructure extends TestScenarioStructure {
@@ -120,6 +124,13 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
     };
   }
 
+  public selectVisualUnit(unitId: string | null): void {
+    const unit = unitId
+      ? this.activeScenario?.units.find((candidate) => candidate.id === unitId)?.enemy
+      : undefined;
+    this.visualHost?.selectUnit(unit);
+  }
+
   beginScenario(options: BeginScenarioOptions): ApiResult<ScenarioTestState> {
     if (this.activeScenario) {
       return this.failure("SCENARIO_ACTIVE", "A test scenario is already active", {
@@ -163,7 +174,6 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
         gridState.occupyCell(c, `structure:${structure.id}`);
       }
     }
-
     const state: ScenarioTestState = {
       id: scenarioId,
       preset: definition.preset,
@@ -234,13 +244,21 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
     }
     const finalCell: CellCoord = spawnCell;
 
-    const ARCHETYPE_TO_ENEMY: Record<string, EnemyType> = {
-      goblin: EnemyType.Goblin,
-      skeleton: EnemyType.Skeleton,
-      ghost: EnemyType.Ghost,
+    const archetypes: Record<string, UnitArchetype> = {
+      goblin: UnitArchetype.Goblin,
+      skeleton: UnitArchetype.Skeleton,
+      ghost: UnitArchetype.Ghost,
+      warrior: UnitArchetype.Soldier,
+      archer: UnitArchetype.Archer,
     };
-    const enemy = new Enemy(scenario.container, { id: options.id });
-    enemy.initializeEnemy(ARCHETYPE_TO_ENEMY[options.archetype] ?? EnemyType.Goblin);
+    const enemy = new Unit(scenario.container, { id: options.id });
+    initializeUnitArchetype(enemy, archetypes[options.archetype] ?? UnitArchetype.Goblin, {
+      team: options.team,
+      controller: options.team === "enemy" ? "ai" : "player",
+    });
+    if (options.archetype === "warrior") enemy.scale.set(1 / 3);
+    if (options.archetype === "archer") enemy.scale.set(1 / 2);
+    enemy.team = options.team;
 
     const hasCombat = options.stats && (options.stats.damage ?? 0) > 0;
     const attackMode = options.stats?.rangeCells && options.stats.rangeCells > 1 ? "projectile" : "melee";
@@ -256,8 +274,9 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
         enemy.model.configure({
           damage: options.stats.damage,
           range: options.stats.rangeCells ?? 1,
+          vision: options.stats.visionCells,
           attackMode,
-          cooldown: options.stats.fireCooldownFrames ?? 1,
+          cooldown: ((options.stats.fireCooldownFrames ?? 1) * 1000) / 60,
         });
       }
     }
@@ -278,6 +297,7 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
         range: options.stats!.rangeCells ?? 1,
         fireRate: (options.stats!.fireCooldownFrames ?? 1) / 60,
         projectileCreator: scenario.projectileCreator,
+        projectileVisual: enemy.projectileVisual,
         damage: options.stats!.damage!,
         targets: [],
       });
@@ -324,6 +344,7 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
         `Unit "${options.id}" could not occupy cell (${finalCell.col}, ${finalCell.row})`,
       );
     }
+    this.visualHost?.registerUnit(enemy);
 
     const managed: ManagedUnit = {
       enemy,
@@ -334,6 +355,7 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
       completedCycles: 0,
       movementMode: "idle",
       wasBlocked: false,
+      deathRecorded: false,
     };
     scenario.units.push(managed);
 
@@ -378,6 +400,7 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
       unit.activeOrderId = snapshot.id;
       unit.activeCommand = command;
     }
+    this.visualHost?.refreshSelection();
 
     return { ok: true, value: clone(snapshot) };
   }
@@ -597,12 +620,16 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
       }
       case "move":
         return new MoveCommand({ ...order.destination });
+      case "attack-move":
+        return new AttackMoveCommand({ ...order.destination });
       case "stop":
         return new StopCommand();
       case "hold-position":
         return new HoldPositionCommand();
-      case "attack":
-        return null;
+      case "attack": {
+        const target = this.activeScenario?.units.find((unit) => unit.id === order.targetId)?.enemy;
+        return target ? new AttackCommand(target) : null;
+      }
       default:
         return null;
     }
@@ -630,7 +657,7 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
       if (unit.enemy.active && unit.enemy.animatedSprite?.visible !== false) {
         unit.enemy.update(ticker);
       }
-      if (unit.enemy.isDead() && unit.enemy.active) {
+      if (unit.enemy.isDead() && !unit.deathRecorded) {
         scenario.events.push({
           sequence: scenario.nextSequence++,
           frame: scenario.frame,
@@ -638,6 +665,7 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
           type: "unit.died",
           unitId: unit.id,
         });
+        unit.deathRecorded = true;
       }
       const movement = unit.enemy.getLastCommandMovementResult();
       if (movement?.blocked && !unit.wasBlocked) {
@@ -819,7 +847,10 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
     return events.find((ev) => {
       switch (condition.type) {
         case "event":
-          return ev.type === condition.eventType;
+          return ev.type === condition.eventType &&
+            (!condition.unitId || ev.unitId === condition.unitId) &&
+            (!condition.sourceId || ev.sourceId === condition.sourceId) &&
+            (!condition.targetId || ev.targetId === condition.targetId);
         case "unit-entered-cell":
           return (
             ev.type === "unit.entered-cell" &&
@@ -887,7 +918,7 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
       id: unit.id,
       archetype: unit.archetype,
       team: unit.team,
-      lifecycle: "alive",
+      lifecycle: unit.enemy.isDead() ? "dead" : "alive",
       active: unit.enemy.active,
       cell: cellCoord,
       world: { x: unit.enemy.position.x, y: unit.enemy.position.y },
@@ -900,11 +931,13 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
         targetCell: movementState.targetCell,
         stepProgress: movementState.stepProgress,
       },
+      activity: unit.enemy.activity,
       combat: {
         mode: unit.enemy.getShootingMode(),
         targetId: unit.enemy.targetToShoot?.getId() ?? null,
         damage: unit.enemy.attackDamage,
         rangeCells: unit.enemy.range,
+        visionCells: unit.enemy.vision,
       },
       order: activeOrder ? clone(activeOrder) : null,
     };
@@ -927,8 +960,9 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
 
     switch (input.type) {
       case "move":
+      case "attack-move":
         order.destination = { ...input.destination };
-        if (command instanceof MoveCommand) {
+        if (command instanceof MoveCommand || command instanceof AttackMoveCommand) {
           const resolvedDestination = command.getResolvedDestination();
           if (resolvedDestination) order.resolvedDestination = resolvedDestination;
           const completionReason = command.getCompletionReason();
@@ -978,7 +1012,7 @@ export class GameplayTestRuntime implements GameTestRuntimePort {
     order: TestOrderSnapshot,
     command: IUnitCommand,
   ): void {
-    if (!(command instanceof MoveCommand)) return;
+    if (!(command instanceof MoveCommand || command instanceof AttackMoveCommand)) return;
 
     const resolvedDestination = command.getResolvedDestination();
     if (resolvedDestination) order.resolvedDestination = resolvedDestination;
@@ -1050,6 +1084,7 @@ function mapCommandType(type: string): import("./GameTestApi").TestOrderType {
     case "hold":
       return "hold-position";
     case "move":
+    case "attack-move":
     case "stop":
     case "patrol":
     case "attack":
@@ -1062,6 +1097,7 @@ function mapCommandType(type: string): import("./GameTestApi").TestOrderType {
 function movementModeFor(type: TestOrderInput["type"]): TestUnitSnapshot["movement"]["mode"] {
   switch (type) {
     case "move":
+    case "attack-move":
       return "moving";
     case "stop":
       return "stopped";

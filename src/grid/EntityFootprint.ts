@@ -1,4 +1,4 @@
-import type { CellCoord, GridConfig } from "./GridConfig";
+import type { CellCoord, GridConfig } from "../core/grid/GridConfig";
 import { GridState } from "./GridState";
 
 export interface EntityFootprintDef {

@@ -1,4 +1,4 @@
-import { type CellCoord } from "../GridConfig";
+import { type CellCoord } from "../../core/grid/GridConfig";
 
 export interface CellRenderData {
   col: number;

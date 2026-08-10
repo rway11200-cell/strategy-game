@@ -1,4 +1,4 @@
-import { type CellCoord, gridToWorld, type GridConfig } from "./GridConfig";
+import { type CellCoord, gridToWorld, type GridConfig } from "../core/grid/GridConfig";
 import { type CellState, GridState } from "./GridState";
 import { findPath, findPathWithFootprint } from "./Pathfinder";
 import { getEntityFootprint, getFootprintCellsForPos } from "./EntityFootprint";

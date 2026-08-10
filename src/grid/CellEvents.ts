@@ -1,5 +1,5 @@
 import { Container, FederatedPointerEvent, Graphics } from "pixi.js";
-import { type GridConfig, worldToGrid } from "./GridConfig";
+import { type GridConfig, worldToGrid } from "../core/grid/GridConfig";
 
 /** Grid-cell coordinate (column, row). */
 export interface CellCoord {

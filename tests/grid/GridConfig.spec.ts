@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { type CellType, createDefaultGridConfig } from "../../src/grid/GridConfig";
+import { type CellType, createGridConfig } from "../../src/core/grid/GridConfig";
 
 describe("GridConfig", () => {
-  describe("createDefaultGridConfig", () => {
+  describe("createGridConfig", () => {
     it("returns default values when called with no arguments", () => {
-      const config = createDefaultGridConfig();
+      const config = createGridConfig();
       expect(config.cellSize).toBe(64);
       expect(config.gridWidth).toBe(12);
       expect(config.gridHeight).toBe(9);
@@ -13,7 +13,7 @@ describe("GridConfig", () => {
     });
 
     it("merges partial overrides with defaults", () => {
-      const config = createDefaultGridConfig({ cellSize: 32, gridWidth: 10 });
+      const config = createGridConfig({ cellSize: 32, gridWidth: 10 });
       expect(config.cellSize).toBe(32);
       expect(config.gridWidth).toBe(10);
       expect(config.gridHeight).toBe(9);
@@ -22,7 +22,7 @@ describe("GridConfig", () => {
     });
 
     it("accepts all fields", () => {
-      const config = createDefaultGridConfig({
+      const config = createGridConfig({
         cellSize: 128,
         gridWidth: 8,
         gridHeight: 6,

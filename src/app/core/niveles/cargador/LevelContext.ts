@@ -1,7 +1,7 @@
 import type { GridIntegration } from "../../../../grid/GridIntegration";
 import { UnitCreator } from "../../UnitCreator";
 import { BaseTower } from "../../unidades/BaseTower";
-import { Enemy } from "../../unidades/Enemy";
+import { Unit } from "../../unidades/Unit";
 import { Projectile } from "../../unidades/Projectile";
 import { Tower } from "../../unidades/Tower";
 import { EntityDef, PathDef } from "./LevelSchema";
@@ -14,7 +14,7 @@ export class LevelContext {
     public entities: EntityDef[],
     public coins: number,
     public showMessage: (message: string) => void,
-    public enemyCreator: UnitCreator<Enemy>,
+    public unitCreator: UnitCreator<Unit>,
     public baseTowerCreator: UnitCreator<BaseTower>,
     public towerCreator: UnitCreator<Tower>,
     public projectileCreator: UnitCreator<Projectile>,

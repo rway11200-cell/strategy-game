@@ -1,6 +1,6 @@
 import type { Container, Ticker } from "pixi.js";
 import { getEntityFootprint, getFootprintCellsForPos } from "../../grid/EntityFootprint";
-import { type CellCoord, gridToWorld, type GridConfig } from "../../grid/GridConfig";
+import { type CellCoord, gridToWorld, type GridConfig } from "../../core/grid/GridConfig";
 import { GridState } from "../../grid/GridState";
 import { interpolatePosition, type MovementDirection } from "./Movement";
 import { TargetFollower } from "./PathFollower";
@@ -35,6 +35,7 @@ export class TileMovement {
   private reservedAnchor?: CellCoord;
   private reservedCells: CellCoord[] = [];
   private elapsedTicks = 0;
+  private blockedConsecutiveTicks = 0;
   private releaseOccupationOnDestination: boolean;
 
   constructor(options: TileMovementOptions) {
@@ -53,6 +54,10 @@ export class TileMovement {
 
   get stepProgress(): number {
     return this.elapsedTicks / Math.max(1, this.ticksPerCell);
+  }
+
+  get blockedTicks(): number {
+    return this.blockedConsecutiveTicks;
   }
 
   setReleaseOccupationOnDestination(release: boolean): void {
@@ -106,12 +111,15 @@ export class TileMovement {
     if (!this.hasReservation(targetCell)) this.releaseReservations();
     if (!this.hasReservation(targetCell) && !this.reserve(targetCell)) {
       this.elapsedTicks = 0;
+      this.blockedConsecutiveTicks++;
       const current = this.currentCell
         ? gridToWorld(this.currentCell.col, this.currentCell.row, this.gridConfig)
         : obj.position;
       obj.position.set(current.x, current.y);
       return { moved: false, destinationReached: false, blocked: true, direction };
     }
+
+    this.blockedConsecutiveTicks = 0;
 
     this.releaseCurrentOccupation();
 
@@ -141,6 +149,10 @@ export class TileMovement {
     }
 
     return { moved: true, destinationReached, blocked: false, direction };
+  }
+
+  shouldGiveUpDueToBlockage(maxTicks: number = 60): boolean {
+    return this.blockedConsecutiveTicks >= maxTicks;
   }
 
   releaseOccupation(): void {
