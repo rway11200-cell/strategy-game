@@ -8,6 +8,7 @@ export enum UnitArchetype {
   Ghost = "ghost",
   Soldier = "soldier",
   Archer = "archer",
+  Pawn = "pawn",
 }
 
 export interface UnitArchetypeDefinition {
@@ -17,6 +18,7 @@ export interface UnitArchetypeDefinition {
   range: number;
   attackMode: AttackMode;
   framesJson: FramesJson;
+  enemyFramesJson?: FramesJson;
   bounty: number;
   armorType: ArmorType;
   scale: number;
@@ -83,6 +85,11 @@ const definitions: Record<UnitArchetype, UnitArchetypeDefinition> = {
       run: "warrior-run.json",
       attack: "warrior-attack.json",
     },
+    enemyFramesJson: {
+      idle: "warrior-red-idle.json",
+      run: "warrior-red-run.json",
+      attack: "warrior-red-attack.json",
+    },
   },
   [UnitArchetype.Archer]: {
     health: 80,
@@ -93,11 +100,36 @@ const definitions: Record<UnitArchetype, UnitArchetypeDefinition> = {
     bounty: 20,
     armorType: "light",
     scale: 1 / 2,
-    framesJson: { idle: "archer-idle.json", attack: "archer-attack.json" },
+    framesJson: { idle: "archer-idle.json", run: "archer-run.json", attack: "archer-attack.json" },
+    enemyFramesJson: {
+      idle: "archer-red-idle.json",
+      run: "archer-red-run.json",
+      attack: "archer-red-attack.json",
+    },
     projectileVisual: {
       framesJson: { idle: "archer-arrow.json" },
       scale: 0.6,
       flipTowardTarget: true,
+    },
+  },
+  [UnitArchetype.Pawn]: {
+    health: 70,
+    damage: 8,
+    speed: 0.8,
+    range: 1,
+    attackMode: "melee",
+    bounty: 8,
+    armorType: "unarmored",
+    scale: 1 / 3,
+    framesJson: {
+      idle: "pawn-blue-idle.json",
+      run: "pawn-blue-run.json",
+      attack: "pawn-blue-attack.json",
+    },
+    enemyFramesJson: {
+      idle: "pawn-red-idle.json",
+      run: "pawn-red-run.json",
+      attack: "pawn-red-attack.json",
     },
   },
 };
@@ -112,7 +144,11 @@ export function initializeUnitArchetype(
   options?: { team?: UnitTeam; controller?: UnitController },
 ): void {
   const definition = getUnitArchetypeDefinition(archetype);
-  unit.initializeAnimation(definition.framesJson);
+  unit.initializeAnimation(
+    options?.team === "enemy"
+      ? (definition.enemyFramesJson ?? definition.framesJson)
+      : definition.framesJson,
+  );
   unit.initializeHealthBar(definition.health);
   unit.initializeSpeed(definition.speed);
   unit.model.configure({

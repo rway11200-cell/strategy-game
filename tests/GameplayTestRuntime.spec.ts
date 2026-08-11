@@ -740,4 +740,48 @@ describe("GameplayTestRuntime", () => {
       sourceId: "runner",
     }));
   });
+
+  it("does not snap backward while auto-pursuit reacts to a moving target", () => {
+    const runtime = createRuntime();
+    const started = runtime.beginScenario({ preset: "warrior-pursuit-square", simulation: "manual" });
+    expect(started.ok).toBe(true);
+    if (!started.ok) return;
+
+    expect(runtime.spawnTestUnit({
+      scenarioId: started.value.id,
+      id: "pursuer",
+      archetype: "warrior",
+      team: "player",
+      cell: started.value.landmarks.pursuer,
+      stats: { hp: 200, damage: 10, rangeCells: 1, fireCooldownFrames: 30, movementFramesPerCell: 8 },
+    })).toMatchObject({ ok: true });
+    expect(runtime.spawnTestUnit({
+      scenarioId: started.value.id,
+      id: "runner",
+      archetype: "warrior",
+      team: "enemy",
+      cell: started.value.landmarks.runnerStart,
+      stats: { hp: 200, movementFramesPerCell: 8 },
+    })).toMatchObject({ ok: true });
+    expect(runtime.issueTestOrder({
+      unitId: "runner",
+      order: { type: "move", destination: { col: 4, row: 3 } },
+    })).toMatchObject({ ok: true });
+
+    let previousY = -Infinity;
+    let initialY: number | undefined;
+    let movedForward = false;
+    for (let frame = 0; frame < 80; frame++) {
+      const result = runtime.advanceTestFrames(started.value.id, 1);
+      expect(result).toMatchObject({ ok: true });
+      if (!result.ok) return;
+      const pursuer = result.value.units.find((unit) => unit.id === "pursuer");
+      expect(pursuer).toBeDefined();
+      expect(pursuer!.world.y).toBeGreaterThanOrEqual(previousY);
+      initialY ??= pursuer!.world.y;
+      movedForward ||= pursuer!.world.y > initialY;
+      previousY = pursuer!.world.y;
+    }
+    expect(movedForward).toBe(true);
+  });
 });

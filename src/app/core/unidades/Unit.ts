@@ -1,7 +1,16 @@
-import { AnimatedSprite, Circle, Container, type FederatedPointerEvent, Graphics, PointData, Ticker } from "pixi.js";
+import {
+  AnimatedSprite,
+  Circle,
+  Container,
+  type FederatedPointerEvent,
+  Graphics,
+  PointData,
+  Ticker,
+} from "pixi.js";
 import type { CellCoord, GridConfig } from "../../../core/grid/GridConfig";
 import { worldToGrid } from "../../../core/grid/GridConfig";
 import type { GridState } from "../../../grid/GridState";
+import { engine } from "../../getEngine";
 import { debugLogChanged } from "../../utils/debugLog";
 import { getFramesAseprite } from "../../utils/sprite";
 import { UnitCreator } from "../UnitCreator";
@@ -28,6 +37,11 @@ import {
 } from "./UnitSystem";
 
 import type { DamageType } from "./UnitSystem";
+
+const SOLDIER_SWORD_HIT_SOUND = "main/sounds/sfx-soldier-sword-hit.mp3";
+const ARCHER_ARROW_LAUNCH_SOUND = "main/sounds/sfx-archer-arrow-launch.mp3";
+const ARCHER_ARROW_IMPACT_SOUND = "main/sounds/sfx-archer-arrow-impact.mp3";
+const ARCHER_ARROW_IMPACT_START = 0.75;
 
 export interface ShootOptions {
   range: number;
@@ -192,7 +206,8 @@ export class Unit extends Container {
       return;
     }
 
-    const { framesJson, health, hp, maxHp, shootOptions, targetFollowerOptions, position } = options;
+    const { framesJson, health, hp, maxHp, shootOptions, targetFollowerOptions, position } =
+      options;
     if (position) {
       this.position.set(position.x, position.y);
     }
@@ -345,7 +360,9 @@ export class Unit extends Container {
     const heightAdjustment = 20;
     const healthWidth = 30;
 
-    this.healthBar.rect(0, -healthYPosition / 2 + heightAdjustment, healthWidth, healthHeight).fill("green");
+    this.healthBar
+      .rect(0, -healthYPosition / 2 + heightAdjustment, healthWidth, healthHeight)
+      .fill("green");
     this.healthBar.position.x = -(healthWidth / 2);
     this.healthBar.visible = false;
   }
@@ -454,7 +471,12 @@ export class Unit extends Container {
     if (!gridConfig) return;
 
     const cell = worldToGrid(this.position.x, this.position.y, gridConfig);
-    if (cell.x < 0 || cell.y < 0 || cell.x >= gridConfig.gridWidth || cell.y >= gridConfig.gridHeight) {
+    if (
+      cell.x < 0 ||
+      cell.y < 0 ||
+      cell.x >= gridConfig.gridWidth ||
+      cell.y >= gridConfig.gridHeight
+    ) {
       return;
     }
     return { col: cell.x, row: cell.y };
@@ -657,17 +679,16 @@ export class Unit extends Container {
   }
 
   private isMovementActionActive(): boolean {
-    return this.targetFollower?.targetCell !== undefined || (this.tileMovement?.stepProgress ?? 0) > 0;
+    return (
+      this.targetFollower?.targetCell !== undefined || (this.tileMovement?.stepProgress ?? 0) > 0
+    );
   }
 
   public getShootingRange(): number | undefined {
     return this.shootOptions?.range;
   }
 
-  public setCommandShooting(
-    mode: "auto" | "forced" | "disabled",
-    target?: Unit,
-  ): void {
+  public setCommandShooting(mode: "auto" | "forced" | "disabled", target?: Unit): void {
     this.shootingMode = mode;
     this.forcedShootingTarget = mode === "forced" ? target : undefined;
     this.targetToShoot = undefined;
@@ -725,7 +746,11 @@ export class Unit extends Container {
       this.updateAutomaticPursuit();
       this.updateMovement(_time);
       this.applyPendingMovementChanges();
-      if (this.tileMovement && this.tileMovement.shouldGiveUpDueToBlockage() && !this.currentCommand) {
+      if (
+        this.tileMovement &&
+        this.tileMovement.shouldGiveUpDueToBlockage() &&
+        !this.currentCommand
+      ) {
         this.clearCommandMovement();
         this.autoPursuitTarget = undefined;
         this.setActivity("idle");
@@ -760,13 +785,14 @@ export class Unit extends Container {
       if (result.blocked) this.setActivity("blocked");
       else if (result.moved && !this.targetFollower.finished) {
         const activity =
-          !this.currentCommand || this.currentCommand.type === "attack" || this.currentCommand.type === "attack-move"
+          !this.currentCommand ||
+          this.currentCommand.type === "attack" ||
+          this.currentCommand.type === "attack-move"
             ? "pursuing"
             : "moving";
         this.setAnimationRun(direction);
         this.setActivity(activity);
-      }
-      else this.setAnimationIdle();
+      } else this.setAnimationIdle();
       return result;
     }
 
@@ -806,7 +832,9 @@ export class Unit extends Container {
     if (target && target !== prevTarget) this.thresholdTicks = 0;
     const targetCell = target?.getGridCell(this.commandContext.gridConfig);
     if (!target || !targetCell) {
-      if (this.autoPursuitTarget) this.clearCommandMovement();
+      if (this.autoPursuitTarget && !this.isMovementStepInProgress()) {
+        this.clearCommandMovement();
+      }
       if (!this.isMovementActionActive()) {
         this.setActivity("idle");
         if (this.combatState === "approaching") this.combatState = "idle";
@@ -817,7 +845,9 @@ export class Unit extends Container {
     }
 
     if (this.isInRange(unitCell, targetCell)) {
-      if (this.autoPursuitTarget) this.clearCommandMovement();
+      if (this.autoPursuitTarget && !this.isMovementStepInProgress()) {
+        this.clearCommandMovement();
+      }
       this.setActivity("idle");
       this.autoPursuitTarget = target;
       this.autoPursuitTargetCell = { ...targetCell };
@@ -826,7 +856,8 @@ export class Unit extends Container {
 
     this.combatState = "approaching";
 
-    const targetChanged = this.autoPursuitTarget !== target ||
+    const targetChanged =
+      this.autoPursuitTarget !== target ||
       !this.autoPursuitTargetCell ||
       this.autoPursuitTargetCell.col !== targetCell.col ||
       this.autoPursuitTargetCell.row !== targetCell.row ||
@@ -839,8 +870,7 @@ export class Unit extends Container {
     if (path) {
       this.setActivity("pursuing");
       this.setCommandCellRoute(path);
-    }
-    else this.clearCommandMovement();
+    } else this.clearCommandMovement();
   }
 
   private getAutoPursuitTarget(unitCell: CellCoord): Unit | undefined {
@@ -1015,7 +1045,8 @@ export class Unit extends Container {
   public onTargetAcquired: ((targetId: string) => void) | null = null;
   public onTargetLost: ((targetId: string) => void) | null = null;
   public onAttackCommitted: ((targetId: string, mode: string) => void) | null = null;
-  public onDamageApplied: ((targetId: string, amount: number, hpBefore: number, hpAfter: number) => void) | null = null;
+  public onDamageApplied:
+    ((targetId: string, amount: number, hpBefore: number, hpAfter: number) => void) | null = null;
   public onDeath: ((unitId: string) => void) | null = null;
   public onDespawn: ((unitId: string) => void) | null = null;
 
@@ -1120,6 +1151,9 @@ export class Unit extends Container {
     this.onAttackCommitted?.(target.getId(), "projectile");
     const newProjectile = shootOptions.projectileCreator.get();
     newProjectile.setVisual(shootOptions.projectileVisual);
+    if (this.archetype === "archer") {
+      engine()?.audio?.sfx.play(ARCHER_ARROW_LAUNCH_SOUND, { volume: 0.4 });
+    }
     newProjectile.launchAtCell(unitCell, targetCell, gridConfig, target, () => {
       if (target.canBeProjectileTarget) {
         const hpBefore = target.hp;
@@ -1144,7 +1178,11 @@ export class Unit extends Container {
     }
   }
 
-  private updatePendingMeleeAttack(time: number, unitCell: CellCoord, gridConfig: GridConfig): void {
+  private updatePendingMeleeAttack(
+    time: number,
+    unitCell: CellCoord,
+    gridConfig: GridConfig,
+  ): void {
     const attack = this.pendingMeleeAttack;
     if (!attack) return;
 
@@ -1293,8 +1331,21 @@ export class Unit extends Container {
   public takeDamage(amount?: number, attacker?: Unit): number {
     if (amount === undefined || amount <= 0 || this.lifecycle !== "alive") return this.model.hp;
 
+    const hpBefore = this.model.hp;
     const attackerDamageType = attacker?.model.damageType;
     this.currentHealth = this.model.takeDamage(amount, attackerDamageType);
+    if (this.currentHealth < hpBefore) {
+      const sound =
+        attacker?.archetype === "archer"
+          ? { alias: ARCHER_ARROW_IMPACT_SOUND, volume: 0.5, start: ARCHER_ARROW_IMPACT_START }
+          : attacker?.archetype === "soldier"
+            ? { alias: SOLDIER_SWORD_HIT_SOUND, volume: 0.55 }
+            : undefined;
+      if (sound) {
+        const { alias, ...options } = sound;
+        engine()?.audio?.sfx.play(alias, options);
+      }
+    }
     if (attacker) {
       this.underAttackTicks = 60;
       this.lastAttackerId = attacker.getId();

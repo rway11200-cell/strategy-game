@@ -23,11 +23,9 @@ export class BGM {
     // Fade out then stop current music
     if (this.current) {
       const current = this.current;
-      animate(current, { volume: 0 }, { duration: 1, ease: "linear" }).then(
-        () => {
-          current.stop();
-        },
-      );
+      animate(current, { volume: 0 }, { duration: 1, ease: "linear" }).then(() => {
+        current.stop();
+      });
     }
 
     // Find out the new instance to be played
@@ -37,11 +35,7 @@ export class BGM {
     this.currentAlias = alias;
     this.current.play({ loop: true, ...options });
     this.current.volume = 0;
-    animate(
-      this.current,
-      { volume: this.volume },
-      { duration: 1, ease: "linear" },
-    );
+    animate(this.current, { volume: this.volume }, { duration: 1, ease: "linear" });
   }
 
   /** Get background music volume */
@@ -65,9 +59,24 @@ export class BGM {
 export class SFX {
   /** Volume scale for new instances */
   private volume = 1;
+  private unlocked = typeof document === "undefined";
+
+  constructor() {
+    if (this.unlocked) return;
+
+    const unlock = () => {
+      this.unlocked = true;
+      document.removeEventListener("pointerdown", unlock, true);
+      document.removeEventListener("keydown", unlock, true);
+    };
+    document.addEventListener("pointerdown", unlock, { capture: true, once: true });
+    document.addEventListener("keydown", unlock, { capture: true, once: true });
+  }
 
   /** Play an one-shot sound effect */
   public play(alias: string, options?: PlayOptions) {
+    // Browsers defer sounds before a user gesture, which makes an old hit sound play after combat moved on.
+    if (!this.unlocked) return;
     const volume = this.volume * (options?.volume ?? 1);
     sound.play(alias, { ...options, volume });
   }
